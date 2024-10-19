@@ -4,7 +4,6 @@ local frame = Instance.new("Frame")
 local itemsList = Instance.new("ScrollingFrame")
 local minimizeButton = Instance.new("TextButton")
 local restoreButton = Instance.new("TextButton")
-local searchBox = Instance.new("TextBox")
 
 screenGui.Parent = player:WaitForChild("PlayerGui")
 frame.Parent = screenGui
@@ -15,7 +14,7 @@ frame.BorderSizePixel = 0
 frame.Style = Enum.FrameStyle.RobloxRound
 
 itemsList.Parent = frame
-itemsList.Size = UDim2.new(1, 0, 0.7, 0)
+itemsList.Size = UDim2.new(1, 0, 0.8, 0)
 itemsList.Position = UDim2.new(0, 0, 0, 0)
 itemsList.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 itemsList.BorderSizePixel = 0
@@ -23,7 +22,7 @@ itemsList.CanvasSize = UDim2.new(0, 0, 2, 0)
 itemsList.ScrollBarThickness = 10
 
 minimizeButton.Parent = frame
-minimizeButton.Size = UDim2.new(1, 0, 0.1, 0)
+minimizeButton.Size = UDim2.new(1, 0, 0.2, 0)
 minimizeButton.Position = UDim2.new(0, 0, 0.8, 0)
 minimizeButton.BackgroundColor3 = Color3.new(1, 0.8, 0)
 minimizeButton.TextColor3 = Color3.new(1, 1, 1)
@@ -31,55 +30,37 @@ minimizeButton.Text = "Minimizar"
 minimizeButton.BorderSizePixel = 0
 
 restoreButton.Parent = screenGui
-restoreButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-restoreButton.Position = UDim2.new(0.45, 0, 0, 0)
+restoreButton.Size = UDim2.new(0.1, 0, 0.1, 0) -- Tamanho pequeno para simular um quadrado
+restoreButton.Position = UDim2.new(0.45, 0, 0, 0) -- Centro em cima
 restoreButton.BackgroundColor3 = Color3.new(0, 0.5, 0)
 restoreButton.TextColor3 = Color3.new(1, 1, 1)
-restoreButton.Text = "⬆️"
-restoreButton.Visible = false
-
-searchBox.Parent = frame
-searchBox.Size = UDim2.new(1, 0, 0.1, 0)
-searchBox.Position = UDim2.new(0, 0, 0.7, 0)
-searchBox.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-searchBox.TextColor3 = Color3.new(1, 1, 1)
-searchBox.PlaceholderText = "Buscar item..."
-searchBox.BorderSizePixel = 0
+restoreButton.Text = "⬆️"  -- Ícone ou texto para restaurar
+restoreButton.Visible = false -- Começa invisível
 
 local function updateInventory()
     itemsList:ClearAllChildren()
     local yOffset = 0
-    local searchText = searchBox.Text:lower()
 
     for _, item in ipairs(player.Backpack:GetChildren()) do
-        if item.Name:lower():find(searchText) then
-            local itemButton = Instance.new("TextButton")
-            itemButton.Size = UDim2.new(1, -10, 0, 50)
-            itemButton.Position = UDim2.new(0, 5, 0, yOffset)
-            itemButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-            itemButton.TextColor3 = Color3.new(1, 1, 1)
-            itemButton.Text = item.Name
-            itemButton.BorderSizePixel = 0
+        local itemButton = Instance.new("TextButton")
+        itemButton.Size = UDim2.new(1, -10, 0, 50)
+        itemButton.Position = UDim2.new(0, 5, 0, yOffset)
+        itemButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+        itemButton.TextColor3 = Color3.new(1, 1, 1)
+        itemButton.Text = item.Name
+        itemButton.BorderSizePixel = 0
 
-            itemButton.MouseButton1Click:Connect(function()
-                item.Parent = player.Character
-                updateInventory()
-            end)
+        itemButton.MouseButton1Click:Connect(function()
+            item.Parent = player.Character
+            updateInventory()
+        end)
 
-            itemButton.MouseEnter:Connect(function()
-                itemButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3) -- Highlight on hover
-            end)
-            itemButton.MouseLeave:Connect(function()
-                itemButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2) -- Reset on leave
-            end)
-
-            itemButton.Parent = itemsList
-            yOffset = yOffset + 55
-        end
+        itemButton.Parent = itemsList
+        yOffset = yOffset + 55
     end
 
     for _, item in ipairs(player.Character:GetChildren()) do
-        if item:IsA("Tool") and item.Name:lower():find(searchText) then
+        if item:IsA("Tool") then
             local itemButton = Instance.new("TextButton")
             itemButton.Size = UDim2.new(1, -10, 0, 50)
             itemButton.Position = UDim2.new(0, 5, 0, yOffset)
@@ -93,13 +74,6 @@ local function updateInventory()
                 updateInventory()
             end)
 
-            itemButton.MouseEnter:Connect(function()
-                itemButton.BackgroundColor3 = Color3.new(0.3, 0.7, 0.3) -- Highlight on hover
-            end)
-            itemButton.MouseLeave:Connect(function()
-                itemButton.BackgroundColor3 = Color3.new(0.2, 0.6, 0.2) -- Reset on leave
-            end)
-
             itemButton.Parent = itemsList
             yOffset = yOffset + 55
         end
@@ -109,22 +83,17 @@ local function updateInventory()
 end
 
 local function minimizeGui()
-    frame.Visible = false
-    restoreButton.Visible = true
+    frame.Visible = false -- Oculta a GUI
+    restoreButton.Visible = true -- Exibe o botão de restaurar
 end
 
 local function restoreGui()
-    frame.Visible = true
-    restoreButton.Visible = false
-    updateInventory()
+    frame.Visible = true -- Exibe a GUI
+    restoreButton.Visible = false -- Oculta o botão de restaurar
+    updateInventory() -- Atualiza a lista
 end
 
 minimizeButton.MouseButton1Click:Connect(minimizeGui)
 restoreButton.MouseButton1Click:Connect(restoreGui)
-searchBox.Changed:Connect(function()
-    if searchBox.Text then
-        updateInventory()
-    end
-end)
 
 updateInventory()
