@@ -9,7 +9,7 @@ tool.RequiresHandle = true
 -- Cria o objeto Handle da ferramenta
 local handle = Instance.new("Part")
 handle.Name = "Handle"
-handle.Size = Vector3.new(1, 1, 1)  -- Tamanho da ferramenta
+handle.Size = Vector3.new(1, 5, 1)  -- Tamanho da ferramenta
 handle.Anchored = false
 handle.CanCollide = false
 handle.BrickColor = BrickColor.new("Bright red")  -- Cor da ferramenta
@@ -30,7 +30,7 @@ local function createBlock()
     block.BrickColor = BrickColor.new("Bright blue")  -- Cor do bloco
     block.Parent = workspace
     
-    -- Remover o bloco após 5 segundos
+    
     game:GetService("Debris"):AddItem(block, 1)
 end
 
