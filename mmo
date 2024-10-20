@@ -1,5 +1,6 @@
 local player = game.Players.LocalPlayer
 local userInputService = game:GetService("UserInputService")
+local screenSize = workspace.CurrentCamera.ViewportSize
 
 -- Criação da interface gráfica
 local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -35,7 +36,14 @@ local dragging, dragStart, startPos
 
 local function updatePosition(input)
     local delta = input.Position - dragStart
-    menuFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    local newPosX = startPos.X.Offset + delta.X
+    local newPosY = startPos.Y.Offset + delta.Y
+
+    -- Limita a posição do menu dentro da tela
+    newPosX = math.clamp(newPosX, 0, screenSize.X - menuFrame.Size.X.Offset)
+    newPosY = math.clamp(newPosY, 0, screenSize.Y - menuFrame.Size.Y.Offset)
+
+    menuFrame.Position = UDim2.new(0, newPosX, 0, newPosY)
 end
 
 menuFrame.InputBegan:Connect(function(input)
@@ -144,7 +152,7 @@ for _, button in pairs(buttons) do
     button.Changed:Connect(function()
         updateButtonVisibility()
     end)
-end
+end)
 
 -- Função para controlar a visibilidade dos botões
 local function updateButtonVisibility()
