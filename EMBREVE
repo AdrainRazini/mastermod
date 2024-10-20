@@ -22,23 +22,42 @@ frame.Size = UDim2.new(1, 0, 1, 0)  -- Tamanho total da tela
 frame.BackgroundColor3 = Color3.new(0, 0, 0)  -- Cor de fundo (preto)
 frame.Visible = false  -- Inicialmente invisível
 
+-- Adiciona um VideoFrame ao Frame
+local videoFrame = Instance.new("VideoFrame", frame)
+videoFrame.Size = UDim2.new(0.5, 0, 0.5, 0)  -- Tamanho do vídeo
+videoFrame.Position = UDim2.new(0.25, 0, 0.25, 0)  -- Centralizado
+videoFrame.Video = "rbxassetid://5670799859"  -- ID do vídeo
+videoFrame.Looped = true  -- Faz o vídeo repetir
+videoFrame.Visible = false  -- Inicialmente invisível
+
 -- Adiciona um texto ao Frame
 local loadingText = Instance.new("TextLabel", frame)
 loadingText.Size = UDim2.new(1, 0, 1, 0)
-loadingText.Text = "...Em Breve..."
+loadingText.Text = "Em Breve...\nLoading..."
 loadingText.TextColor3 = Color3.new(1, 1, 1)  -- Cor do texto (branco)
 loadingText.TextScaled = true
 loadingText.TextWrapped = true
 loadingText.BackgroundTransparency = 1  -- Fundo transparente
 
--- Função para mostrar a GUI quando a ferramenta é equipada
+-- Adiciona o som
+local sound = Instance.new("Sound", tool)
+sound.SoundId = "rbxassetid://1841647093"  -- ID do som
+sound.Looped = true  -- Faz o som repetir
+
+-- Função para mostrar a GUI e tocar o som quando a ferramenta é equipada
 local function onEquipped()
     frame.Visible = true
+    videoFrame.Visible = true
+    videoFrame:Play()  -- Inicia o vídeo
+    sound:Play()  -- Toca o som
 end
 
--- Função para esconder a GUI quando a ferramenta é desequipada
+-- Função para esconder a GUI e parar o som quando a ferramenta é desequipada
 local function onUnequipped()
     frame.Visible = false
+    videoFrame.Visible = false
+    videoFrame:Stop()  -- Para o vídeo
+    sound:Stop()  -- Para o som
 end
 
 -- Conecta as funções aos eventos da ferramenta
