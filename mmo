@@ -103,12 +103,25 @@ local function createButton(name, activateCallback, tooltipText)
 end
 
 -- Criando alguns botões de exemplo
-createButton("INVENTÁRIO", function() print("Abrindo inventário...") end, "Abra seu inventário.")
-createButton("Fly tool", function() print("Ativando Fly tool...") end, "Habilite a capacidade de voar.")
-createButton("Speed Boost tool", function() print("Ativando Speed Boost...") end, "Aumente sua velocidade.")
-createButton("Teleport tool", function() print("Ativando Teleport...") end, "Teleporte-se para uma posição.")
-createButton("Jump tool", function() print("Ativando Jump...") end, "Aumente sua altura de salto.")
-createButton("EM BREVE", function() print("Funcionalidade em breve...") end, "Funcionalidade será adicionada em breve.")
+createButton("INVENTÁRIO", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
+end)
+-- Funções de ativação para os botões
+createButton("Fly tool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
+end)
+
+createButton("Speed Boost tool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua"))()
+end)
+
+createButton("Teleport tool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
+end)
+
+createButton("Jump tool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
+end)
 
 -- Botão para minimizar o menu
 local minimizeButton = Instance.new("TextButton", screenGui)
