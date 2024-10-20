@@ -19,90 +19,7 @@ titleLabel.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextSize = 24
 
--- Layout para os botões
-local uiListLayout = Instance.new("UIListLayout", menuFrame)
-uiListLayout.Padding = UDim.new(0, 10)
-
--- Variáveis para controle de página
-local buttonsPerPage = 4
-local currentPage = 1
-local buttons = {}
-local usingPagination = true -- Controle do modo atual
-
--- Função para atualizar a visibilidade dos botões
-local function updateButtonVisibility()
-    local totalButtons = #buttons
-    local startIndex = (currentPage - 1) * buttonsPerPage + 1
-    local endIndex = math.min(startIndex + buttonsPerPage - 1, totalButtons)
-
-    for i, button in ipairs(buttons) do
-        button.Visible = (i >= startIndex and i <= endIndex)
-    end
-end
-
--- Função para criar botões no menu
-local function createButton(name, activateCallback)
-    local button = Instance.new("TextButton", menuFrame)
-    button.Size = UDim2.new(1, -20, 0, 50)
-    button.Text = name
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-    button.BorderSizePixel = 0
-    button.Font = Enum.Font.SourceSans
-    button.TextSize = 20
-
-    button.MouseButton1Click:Connect(function()
-        activateCallback()
-        button.BackgroundColor3 = Color3.new(0.5, 1, 0.5)
-        wait(0.5)
-        button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-    end)
-
-    table.insert(buttons, button)
-    updateButtonVisibility() -- Atualiza a visibilidade ao adicionar um botão
-end
-
--- Criando alguns botões de exemplo
-createButton("INVENTÁRIO", function() print("Abrindo inventário...") end)
-createButton("Fly tool", function() print("Ativando Fly tool...") end)
-createButton("Speed Boost tool", function() print("Ativando Speed Boost...") end)
-createButton("Teleport tool", function() print("Ativando Teleport...") end)
-createButton("Jump tool", function() print("Ativando Jump...") end)
-createButton("EM BREVE", function() print("Funcionalidade em breve...") end)
-
--- Função para alternar entre os modos
-local function toggleMode()
-    usingPagination = not usingPagination
-    if usingPagination then
-        -- Modo de Paginação
-        for _, button in ipairs(buttons) do
-            button.Parent = menuFrame
-        end
-        updateButtonVisibility()
-    else
-        -- Modo de Arrastar
-        for _, button in ipairs(buttons) do
-            button.Parent = scrollingFrame
-        end
-        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, #buttons * (50 + uiListLayout.Padding.Offset))
-        updateButtonVisibility()
-    end
-end
-
--- Botão de alternância
-local toggleButton = Instance.new("TextButton", menuFrame)
-toggleButton.Size = UDim2.new(1, -20, 0, 50)
-toggleButton.Position = UDim2.new(0, 10, 1, -110)
-toggleButton.Text = "Alternar Modo"
-toggleButton.TextColor3 = Color3.new(1, 1, 1)
-toggleButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-toggleButton.BorderSizePixel = 0
-toggleButton.Font = Enum.Font.SourceSans
-toggleButton.TextSize = 20
-
-toggleButton.MouseButton1Click:Connect(toggleMode)
-
--- Criar um ScrollingFrame para o modo de arrastar
+-- Criar um ScrollingFrame
 local scrollingFrame = Instance.new("ScrollingFrame", menuFrame)
 scrollingFrame.Size = UDim2.new(1, 0, 1, -60) -- Deixa espaço para os botões de navegação
 scrollingFrame.Position = UDim2.new(0, 0, 0, 50) -- Abaixo do título
@@ -112,8 +29,8 @@ scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Inicia com tamanho do canva
 scrollingFrame.ScrollBarThickness = 10
 
 -- Layout para os botões dentro do ScrollingFrame
-local uiListLayoutScrolling = Instance.new("UIListLayout", scrollingFrame)
-uiListLayoutScrolling.Padding = UDim.new(0, 10) -- Espaçamento entre os botões
+local uiListLayout = Instance.new("UIListLayout", scrollingFrame)
+uiListLayout.Padding = UDim.new(0, 10) -- Espaçamento entre os botões
 
 -- Variáveis para arrastar o menu
 local dragging
@@ -145,5 +62,39 @@ userInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Inicializa no modo de paginação
-updateButtonVisibility()
+-- Função para criar botões no ScrollingFrame
+local buttons = {}
+
+local function createButton(name, activateCallback)
+    local button = Instance.new("TextButton", scrollingFrame)
+    button.Size = UDim2.new(1, -20, 0, 50)
+    button.Text = name
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    button.BorderSizePixel = 0
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 20
+
+    button.MouseButton1Click:Connect(function()
+        activateCallback()
+        button.BackgroundColor3 = Color3.new(0.5, 1, 0.5)
+        wait(0.5)
+        button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    end)
+
+    table.insert(buttons, button)
+
+    -- Atualiza o tamanho do Canvas após adicionar um botão
+    local totalHeight = #buttons * (50 + uiListLayout.Padding.Offset)
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+end
+
+-- Criando alguns botões de exemplo
+createButton("INVENTÁRIO", function() print("Abrindo inventário...") end)
+createButton("Fly tool", function() print("Ativando Fly tool...") end)
+createButton("Speed Boost tool", function() print("Ativando Speed Boost...") end)
+createButton("Teleport tool", function() print("Ativando Teleport...") end)
+createButton("Jump tool", function() print("Ativando Jump...") end)
+createButton("EM BREVE", function() print("Funcionalidade em breve...") end)
+
+-- Agora você pode adicionar mais botões conforme necessário
