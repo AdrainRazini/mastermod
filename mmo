@@ -39,7 +39,7 @@ local function updatePosition(input)
 end
 
 menuFrame.InputBegan:Connect(function(input)
-    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not isMinimized then
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
         dragging = true
         dragStart = input.Position
         startPos = menuFrame.Position
@@ -148,7 +148,7 @@ end
 
 -- Função para controlar a visibilidade dos botões
 local function updateButtonVisibility()
-    for i, button in ipairs(buttons) do
+    for _, button in ipairs(buttons) do
         button.Visible = not isMinimized
     end
 end
