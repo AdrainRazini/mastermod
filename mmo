@@ -119,6 +119,7 @@ minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 minimizeButton.BorderSizePixel = 0
 minimizeButton.Font = Enum.Font.SourceSans
 minimizeButton.TextSize = 20
+minimizeButton.Visible = true
 
 minimizeButton.MouseButton1Click:Connect(function()
     menuFrame.Visible = not menuFrame.Visible
