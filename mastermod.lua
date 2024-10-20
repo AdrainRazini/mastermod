@@ -139,17 +139,7 @@ createButton("Jump tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
 end)
 
-createButton("EM BREVE", function()
-    loadstring(game:HttpGet(""))()
-end)
 
-createButton("EM BREVE", function()
-    loadstring(game:HttpGet(""))()
-end)
-
-createButton("EM BREVE", function()
-    loadstring(game:HttpGet(""))()
-end)
 
 
 -- Função para controlar páginas
