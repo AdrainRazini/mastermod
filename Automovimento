@@ -1,0 +1,68 @@
+-- Acessa o jogador local
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool")
+tool.Name = "MoverParaJogador"
+tool.RequiresHandle = true
+
+-- Cria o objeto Handle da ferramenta
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(1, 1, 1)  -- Defina o tamanho da ferramenta
+handle.Anchored = false
+handle.CanCollide = false
+handle.BrickColor = BrickColor.new("Bright red")  -- Defina a cor da ferramenta
+handle.Parent = tool
+
+-- Adiciona a ferramenta à mochila do jogador
+tool.Parent = player.Backpack
+
+local moving = false  -- Estado de movimentação
+
+-- Função para buscar o jogador mais próximo
+local function getNearestPlayer()
+    local nearestPlayer = nil
+    local nearestDistance = math.huge
+
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (otherPlayer.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).magnitude
+            
+            if distance < nearestDistance then
+                nearestDistance = distance
+                nearestPlayer = otherPlayer
+            end
+        end
+    end
+
+    return nearestPlayer
+end
+
+-- Função para mover até o jogador mais próximo
+local function moveToNearestPlayer()
+    while moving do
+        local nearestPlayer = getNearestPlayer()
+
+        if nearestPlayer then
+            local targetPosition = nearestPlayer.Character.HumanoidRootPart.Position
+            local humanoid = player.Character:WaitForChild("Humanoid")
+
+            humanoid:MoveTo(targetPosition)
+            humanoid.MoveToFinished:Wait()
+        end
+
+        wait(0.1)  -- Espera 1 segundo antes de procurar novamente
+    end
+end
+
+-- Função chamada quando a ferramenta é equipada
+tool.Equipped:Connect(function()
+    moving = true  -- Ativa a movimentação
+    moveToNearestPlayer()
+end)
+
+-- Função chamada quando a ferramenta é desequipada
+tool.Unequipped:Connect(function()
+    moving = false  -- Desativa a movimentação
+end)
+
+print("Ferramenta criada! Equipar para mover-se para o jogador mais próximo.")
