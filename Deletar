@@ -1,0 +1,6 @@
+local player = game.Players.LocalPlayer
+local backpack = player.Backpack
+
+for i, item in pairs(backpack:GetChildren()) do
+    item:Destroy()
+end
