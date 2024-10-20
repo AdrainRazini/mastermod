@@ -9,35 +9,44 @@ tool.RequiresHandle = true
 -- Cria o objeto Handle da ferramenta
 local handle = Instance.new("Part")
 handle.Name = "Handle"
-handle.Size = Vector3.new(1, 5, 1)  -- Defina o tamanho da ferramenta
+handle.Size = Vector3.new(1, 5, 1)  -- Define o tamanho da ferramenta
 handle.Anchored = false
 handle.CanCollide = false
-handle.BrickColor = BrickColor.new("Bright red")  -- Defina a cor da ferramenta
+handle.BrickColor = BrickColor.new("Bright red")  -- Define a cor da ferramenta
 handle.Parent = tool
 
--- Adiciona uma textura ao Handle
-local texture = Instance.new("Decal")
-texture.Texture = "rbxassetid://123456789"  -- Substitua pelo ID da sua textura
-texture.Parent = handle
+-- Cria a ScreenGui e a Frame
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(1, 0, 1, 0)  -- Tamanho total da tela
+frame.BackgroundColor3 = Color3.new(0, 0, 0)  -- Cor de fundo (preto)
+frame.Visible = false  -- Inicialmente invisível
 
--- Cria o AnimationController para controlar animações
-local animator = Instance.new("AnimationController")
-animator.Name = "AnimationController"
-animator.Parent = tool
+-- Adiciona um texto ao Frame
+local loadingText = Instance.new("TextLabel", frame)
+loadingText.Size = UDim2.new(1, 0, 1, 0)
+loadingText.Text = "...Em Breve..."
+loadingText.TextColor3 = Color3.new(1, 1, 1)  -- Cor do texto (branco)
+loadingText.TextScaled = true
+loadingText.TextWrapped = true
+loadingText.BackgroundTransparency = 1  -- Fundo transparente
 
--- Cria uma animação e define seu conteúdo
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://987654321"  -- Substitua pelo ID da sua animação
-animation.Parent = animator
+-- Função para mostrar a GUI quando a ferramenta é equipada
+local function onEquipped()
+    frame.Visible = true
+end
 
--- Configura a animação para ser tocada quando a ferramenta for ativada
-tool.Activated:Connect(function()
-    local animTrack = animator:LoadAnimation(animation)
-    animTrack:Play()
-end)
+-- Função para esconder a GUI quando a ferramenta é desequipada
+local function onUnequipped()
+    frame.Visible = false
+end
+
+-- Conecta as funções aos eventos da ferramenta
+tool.Equipped:Connect(onEquipped)
+tool.Unequipped:Connect(onUnequipped)
 
 -- Adiciona a ferramenta à mochila do jogador
 tool.Parent = player.Backpack
 
 -- Mensagem de confirmação
-print("Ferramenta com textura e animação criada e adicionada à sua mochila!")
+print("Ferramenta criada e adicionada à sua mochila!")
