@@ -1,0 +1,149 @@
+local player = game.Players.LocalPlayer
+local userInputService = game:GetService("UserInputService")
+
+-- Criação da interface gráfica
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local menuFrame = Instance.new("Frame", screenGui)
+menuFrame.Size = UDim2.new(0, 300, 0, 400)
+menuFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+menuFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+menuFrame.BorderSizePixel = 0
+menuFrame.Visible = true
+
+-- Título do menu
+local titleLabel = Instance.new("TextLabel", menuFrame)
+titleLabel.Size = UDim2.new(1, 0, 0, 50)
+titleLabel.Text = "Mod Menu"
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 24
+
+-- Layout para os botões
+local uiListLayout = Instance.new("UIListLayout", menuFrame)
+uiListLayout.Padding = UDim.new(0, 10)
+
+-- Variáveis para controle de página
+local buttonsPerPage = 4
+local currentPage = 1
+local buttons = {}
+local usingPagination = true -- Controle do modo atual
+
+-- Função para atualizar a visibilidade dos botões
+local function updateButtonVisibility()
+    local totalButtons = #buttons
+    local startIndex = (currentPage - 1) * buttonsPerPage + 1
+    local endIndex = math.min(startIndex + buttonsPerPage - 1, totalButtons)
+
+    for i, button in ipairs(buttons) do
+        button.Visible = (i >= startIndex and i <= endIndex)
+    end
+end
+
+-- Função para criar botões no menu
+local function createButton(name, activateCallback)
+    local button = Instance.new("TextButton", menuFrame)
+    button.Size = UDim2.new(1, -20, 0, 50)
+    button.Text = name
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    button.BorderSizePixel = 0
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 20
+
+    button.MouseButton1Click:Connect(function()
+        activateCallback()
+        button.BackgroundColor3 = Color3.new(0.5, 1, 0.5)
+        wait(0.5)
+        button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    end)
+
+    table.insert(buttons, button)
+    updateButtonVisibility() -- Atualiza a visibilidade ao adicionar um botão
+end
+
+-- Criando alguns botões de exemplo
+createButton("INVENTÁRIO", function() print("Abrindo inventário...") end)
+createButton("Fly tool", function() print("Ativando Fly tool...") end)
+createButton("Speed Boost tool", function() print("Ativando Speed Boost...") end)
+createButton("Teleport tool", function() print("Ativando Teleport...") end)
+createButton("Jump tool", function() print("Ativando Jump...") end)
+createButton("EM BREVE", function() print("Funcionalidade em breve...") end)
+
+-- Função para alternar entre os modos
+local function toggleMode()
+    usingPagination = not usingPagination
+    if usingPagination then
+        -- Modo de Paginação
+        for _, button in ipairs(buttons) do
+            button.Parent = menuFrame
+        end
+        updateButtonVisibility()
+    else
+        -- Modo de Arrastar
+        for _, button in ipairs(buttons) do
+            button.Parent = scrollingFrame
+        end
+        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, #buttons * (50 + uiListLayout.Padding.Offset))
+        updateButtonVisibility()
+    end
+end
+
+-- Botão de alternância
+local toggleButton = Instance.new("TextButton", menuFrame)
+toggleButton.Size = UDim2.new(1, -20, 0, 50)
+toggleButton.Position = UDim2.new(0, 10, 1, -110)
+toggleButton.Text = "Alternar Modo"
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+toggleButton.BorderSizePixel = 0
+toggleButton.Font = Enum.Font.SourceSans
+toggleButton.TextSize = 20
+
+toggleButton.MouseButton1Click:Connect(toggleMode)
+
+-- Criar um ScrollingFrame para o modo de arrastar
+local scrollingFrame = Instance.new("ScrollingFrame", menuFrame)
+scrollingFrame.Size = UDim2.new(1, 0, 1, -60) -- Deixa espaço para os botões de navegação
+scrollingFrame.Position = UDim2.new(0, 0, 0, 50) -- Abaixo do título
+scrollingFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+scrollingFrame.BorderSizePixel = 0
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Inicia com tamanho do canvas em zero
+scrollingFrame.ScrollBarThickness = 10
+
+-- Layout para os botões dentro do ScrollingFrame
+local uiListLayoutScrolling = Instance.new("UIListLayout", scrollingFrame)
+uiListLayoutScrolling.Padding = UDim.new(0, 10) -- Espaçamento entre os botões
+
+-- Variáveis para arrastar o menu
+local dragging
+local dragStart
+local startPos
+
+local function updatePosition(input)
+    local delta = input.Position - dragStart
+    menuFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+menuFrame.InputBegan:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+        dragging = true
+        dragStart = input.Position
+        startPos = menuFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+userInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updatePosition(input)
+    end
+end)
+
+-- Inicializa no modo de paginação
+updateButtonVisibility()
