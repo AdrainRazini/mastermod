@@ -110,9 +110,25 @@ createButton("Teleport tool", function() print("Ativando Teleport...") end, "Tel
 createButton("Jump tool", function() print("Ativando Jump...") end, "Aumente sua altura de salto.")
 createButton("EM BREVE", function() print("Funcionalidade em breve...") end, "Funcionalidade será adicionada em breve.")
 
+-- Botão para minimizar o menu
+local minimizeButton = Instance.new("TextButton", screenGui)
+minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+minimizeButton.Position = UDim2.new(1, -40, 0, 10)
+minimizeButton.Text = "⬜" -- Quadrado
+minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Font = Enum.Font.SourceSans
+minimizeButton.TextSize = 20
+
+minimizeButton.MouseButton1Click:Connect(function()
+    menuFrame.Visible = not menuFrame.Visible
+    minimizeButton.Text = menuFrame.Visible and "⬜" or "⬛" -- Muda o ícone
+end)
+
 -- Toggle visibility with 'M' key
 userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.M then
         menuFrame.Visible = not menuFrame.Visible
+        minimizeButton.Text = menuFrame.Visible and "⬜" or "⬛" -- Muda o ícone
     end
 end)
