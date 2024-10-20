@@ -123,6 +123,24 @@ createButton("Jump tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
 end)
 
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet(""))()
+end)
+
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet(""))()
+end)
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet(""))()
+end)
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet(""))()
+end)
+
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet(""))()
+end)
+
 -- Botão para minimizar o menu
 local minimizeButton = Instance.new("TextButton", screenGui)
 minimizeButton.Size = UDim2.new(0, 30, 0, 30)
