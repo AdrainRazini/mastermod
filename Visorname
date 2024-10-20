@@ -1,0 +1,53 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local proximityDistance = 10  -- Distância para ativar a tag
+local nameTags = {}
+
+-- Função para criar a BillboardGui
+local function createNameTag(object)
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Size = UDim2.new(0, 100, 0, 50)
+    billboardGui.Adornee = object
+    billboardGui.AlwaysOnTop = true
+    billboardGui.Enabled = false  -- Inicialmente oculto
+
+    local textLabel = Instance.new("TextLabel", billboardGui)
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.Text = object.Name
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.TextStrokeTransparency = 0.5  -- Adiciona contorno ao texto
+
+    billboardGui.Parent = object
+    return billboardGui
+end
+
+-- Função para atualizar a visibilidade das tags
+local function updateNameTags()
+    while true do
+        wait(0.1)  -- Verifica com mais frequência para melhor resposta
+        local characterPosition = humanoidRootPart.Position
+
+        for _, object in pairs(workspace:GetDescendants()) do
+            if object:IsA("Part") then
+                local distance = (characterPosition - object.Position).magnitude
+                
+                if distance < proximityDistance then
+                    if not nameTags[object] then
+                        nameTags[object] = createNameTag(object)
+                    end
+                    nameTags[object].Enabled = true  -- Mostra o nome
+                else
+                    if nameTags[object] then
+                        nameTags[object].Enabled = false  -- Oculta o nome
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Inicia a atualização das tags
+updateNameTags()
