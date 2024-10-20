@@ -19,55 +19,19 @@ titleLabel.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextSize = 24
 
--- Botão de minimizar
-local minimizeButton = Instance.new("TextButton", menuFrame)
-minimizeButton.Size = UDim2.new(0, 50, 0, 50)
-minimizeButton.Position = UDim2.new(1, -50, 0, 0)
-minimizeButton.Text = "_"
-minimizeButton.TextColor3 = Color3.new(1, 1, 1)
-minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-minimizeButton.Font = Enum.Font.SourceSansBold
-minimizeButton.TextSize = 20
+-- Criar um ScrollingFrame
+local scrollingFrame = Instance.new("ScrollingFrame", menuFrame)
+scrollingFrame.Size = UDim2.new(1, 0, 1, -60)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 50)
+scrollingFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+scrollingFrame.BorderSizePixel = 0
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollingFrame.ScrollBarThickness = 10
 
--- Variáveis para controle do menu
-local isMinimized = false
-local currentPage = 1
-local buttonsPerPage = 4
-local buttons = {}
+local uiListLayout = Instance.new("UIListLayout", scrollingFrame)
+uiListLayout.Padding = UDim.new(0, 10)
 
--- Função para minimizar o menu
-local function minimizeMenu()
-    isMinimized = true
-    menuFrame.Size = UDim2.new(0, 50, 0, 50)
-    menuFrame.Position = UDim2.new(1, -50, 0, 0)
-    for _, button in pairs(buttons) do
-        button.Visible = false
-    end
-end
-
--- Função para expandir o menu
-local function expandMenu()
-    isMinimized = false
-    menuFrame.Size = UDim2.new(0, 300, 0, 400)
-    menuFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-    for _, button in pairs(buttons) do
-        button.Visible = true
-    end
-    updateButtonVisibility() -- Atualiza a visibilidade dos botões ao expandir
-end
-
-minimizeButton.MouseButton1Click:Connect(function()
-    if isMinimized then
-        expandMenu()
-    else
-        minimizeMenu()
-    end
-end)
-
--- Função para arrastar o menu
-local dragging
-local dragStart
-local startPos
+local dragging, dragStart, startPos
 
 local function updatePosition(input)
     local delta = input.Position - dragStart
@@ -75,7 +39,7 @@ local function updatePosition(input)
 end
 
 menuFrame.InputBegan:Connect(function(input)
-    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not isMinimized then
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
         dragging = true
         dragStart = input.Position
         startPos = menuFrame.Position
@@ -94,13 +58,10 @@ userInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Layout para os botões
-local uiListLayout = Instance.new("UIListLayout", menuFrame)
-uiListLayout.Padding = UDim.new(0, 10) -- Espaçamento entre os botões
+local buttons = {}
 
--- Função para criar botões no menu
-local function createButton(name, activateCallback)
-    local button = Instance.new("TextButton", menuFrame)
+local function createButton(name, activateCallback, tooltipText)
+    local button = Instance.new("TextButton", scrollingFrame)
     button.Size = UDim2.new(1, -20, 0, 50)
     button.Text = name
     button.TextColor3 = Color3.new(1, 1, 1)
@@ -109,16 +70,39 @@ local function createButton(name, activateCallback)
     button.Font = Enum.Font.SourceSans
     button.TextSize = 20
 
+    -- Tooltip
+    if tooltipText then
+        local tooltip = Instance.new("TextLabel", menuFrame)
+        tooltip.Size = UDim2.new(0, 200, 0, 30)
+        tooltip.Text = tooltipText
+        tooltip.TextColor3 = Color3.new(1, 1, 1)
+        tooltip.BackgroundColor3 = Color3.new(0, 0, 0)
+        tooltip.Position = UDim2.new(0.5, -100, 0.5, -220)
+        tooltip.Visible = false
+
+        button.MouseEnter:Connect(function()
+            tooltip.Visible = true
+        end)
+
+        button.MouseLeave:Connect(function()
+            tooltip.Visible = false
+        end)
+    end
+
     button.MouseButton1Click:Connect(function()
-        activateCallback() -- Chama a lógica para ativar a função
-        button.BackgroundColor3 = Color3.new(0.5, 1, 0.5) -- Muda a cor do botão quando clicado
+        activateCallback()
+        button.BackgroundColor3 = Color3.new(0.5, 1, 0.5)
         wait(0.5)
-        button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3) -- Retorna à cor original
+        button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
     end)
 
-    -- Adiciona o botão à tabela para controle de visibilidade
     table.insert(buttons, button)
+
+    local totalHeight = #buttons * (50 + uiListLayout.Padding.Offset)
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end
+
+-- Criando alguns botões de exemplo
 createButton("INVENTÁRIO", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
@@ -139,62 +123,49 @@ createButton("Jump tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
 end)
 
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
+end)
 
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
+end)
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
+end)
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
+end)
 
+createButton("EM BREVE", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
+end)
 
--- Função para controlar páginas
-local function updateButtonVisibility()
-    local totalButtons = #buttons
-    local startIndex = (currentPage - 1) * buttonsPerPage + 1
-    local endIndex = math.min(startIndex + buttonsPerPage - 1, totalButtons)
+-- Botão para minimizar o menu
+local minimizeButton = Instance.new("TextButton", screenGui)
+minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+minimizeButton.Position = UDim2.new(1, -40, 0, 10)
+minimizeButton.Text = "⬜" -- Quadrado
+minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Font = Enum.Font.SourceSans
+minimizeButton.TextSize = 20
 
-    for i, button in ipairs(buttons) do
-        button.Visible = (i >= startIndex and i <= endIndex)
-    end
-
-    -- Atualiza a visibilidade dos botões de navegação
-    prevButton.Visible = currentPage > 1
-    nextButton.Visible = currentPage < math.ceil(totalButtons / buttonsPerPage)
-end
-
--- Botões de navegação
-local prevButton = Instance.new("TextButton", menuFrame)
-prevButton.Size = UDim2.new(0.5, -10, 0, 50)
-prevButton.Position = UDim2.new(0, 0, 1, -60)
-prevButton.Text = "Anterior"
-prevButton.TextColor3 = Color3.new(1, 1, 1)
-prevButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-prevButton.Font = Enum.Font.SourceSans
-prevButton.TextSize = 20
-
-local nextButton = Instance.new("TextButton", menuFrame)
-nextButton.Size = UDim2.new(0.5, -10, 0, 50)
-nextButton.Position = UDim2.new(0.5, 10, 1, -60)
-nextButton.Text = "Próximo"
-nextButton.TextColor3 = Color3.new(1, 1, 1)
-nextButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-nextButton.Font = Enum.Font.SourceSans
-nextButton.TextSize = 20
-
-prevButton.MouseButton1Click:Connect(function()
-    if currentPage > 1 then
-        currentPage = currentPage - 1
-        updateButtonVisibility()
+minimizeButton.MouseButton1Click:Connect(function()
+    if menuFrame.Size.Y.Offset > 60 then
+        menuFrame.Size = UDim2.new(0, 300, 0, 60) -- Minimiza
+        scrollingFrame.Visible = false -- Oculta o ScrollingFrame
+        minimizeButton.Text = "⬛" -- Muda o ícone
+    else
+        menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
+        scrollingFrame.Visible = true -- Mostra o ScrollingFrame
+        minimizeButton.Text = "⬜" -- Muda o ícone
     end
 end)
 
-nextButton.MouseButton1Click:Connect(function()
-    if currentPage < math.ceil(#buttons / buttonsPerPage) then
-        currentPage = currentPage + 1
-        updateButtonVisibility()
+-- Toggle visibility with 'M' key
+userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.M then
+        minimizeButton:Fire() -- Simula um clique no botão de minimizar
     end
 end)
-
-updateButtonVisibility() -- Chama a função na inicialização
-
--- Manipulação de eventos para atualizar a visibilidade ao adicionar ou remover botões
-for _, button in pairs(buttons) do
-    button.Changed:Connect(function()
-        updateButtonVisibility()
-    end)
-end
