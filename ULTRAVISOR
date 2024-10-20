@@ -1,0 +1,42 @@
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0.5, 0, 0.5, 0)
+frame.Position = UDim2.new(0.25, 0, 0.25, 0)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)
+frame.BackgroundTransparency = 0.5
+frame.Visible = true
+
+local textLabel = Instance.new("TextLabel", frame)
+textLabel.Size = UDim2.new(1, 0, 0.9, 0)
+textLabel.Text = "Pastas do Jogo:\n"
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.BackgroundTransparency = 1
+textLabel.TextWrapped = true
+
+local toggleButton = Instance.new("TextButton", frame)
+toggleButton.Size = UDim2.new(1, 0, 0.1, 0)
+toggleButton.Position = UDim2.new(0, 0, 0.9, 0)
+toggleButton.Text = "Atualizar"
+toggleButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+
+local function listFolders(folder, depth)
+    local indent = string.rep("  ", depth)
+    for _, child in pairs(folder:GetChildren()) do
+        if child:IsA("Folder") or child:IsA("Model") then
+            textLabel.Text = textLabel.Text .. indent .. child.Name .. "\n"
+            listFolders(child, depth + 1)  -- Chama recursivamente
+        end
+    end
+end
+
+local function updateFolderList()
+    textLabel.Text = "Pastas do Jogo:\n"  -- Reseta o texto
+    listFolders(workspace, 0)  -- Inicia a listagem a partir do Workspace
+end
+
+toggleButton.MouseButton1Click:Connect(updateFolderList)
+
+-- Atualiza a lista na inicialização
+updateFolderList()
