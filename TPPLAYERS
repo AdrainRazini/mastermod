@@ -47,7 +47,7 @@ end
 
 -- Cria uma nova ferramenta
 local tool = Instance.new("Tool")
-tool.Name = "MinhaFerramenta"
+tool.Name = "Tp Players"
 tool.RequiresHandle = true
 
 -- Cria o objeto Handle da ferramenta
