@@ -9,7 +9,7 @@ tool.RequiresHandle = true
 -- Cria o objeto Handle da ferramenta
 local handle = Instance.new("Part")
 handle.Name = "Handle"
-handle.Size = Vector3.new(1, 5, 1)  -- Tamanho da ferramenta
+handle.Size = Vector3.new(1, 1, 1)  -- Tamanho da ferramenta
 handle.Anchored = false
 handle.CanCollide = false
 handle.BrickColor = BrickColor.new("Bright red")  -- Cor da ferramenta
@@ -26,7 +26,7 @@ local function createBlock()
     local block = Instance.new("Part")
     block.Size = Vector3.new(1, 1, 1)  -- Tamanho do bloco
     block.Anchored = true
-    block.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 4, 0)  -- Abaixo do jogador
+    block.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 3, 0)  -- Abaixo do jogador
     block.BrickColor = BrickColor.new("Bright blue")  -- Cor do bloco
     block.Parent = workspace
     
