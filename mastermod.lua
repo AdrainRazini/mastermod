@@ -106,6 +106,10 @@ end
 createButton("INVENTÁRIO", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
+
+createButton("Block air tool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
+end)
 -- Funções de ativação para os botões
 createButton("Fly tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
