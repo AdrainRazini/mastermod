@@ -1,0 +1,76 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local DISTANCE_THRESHOLD = 100 -- Limite para teleportar em direção ao jogador
+local isActive = false
+
+local function calcularDistancia(pos1, pos2)
+    return (pos1 - pos2).magnitude
+end
+
+local function teleportarPara(jogadorAlvo)
+    if jogadorAlvo and jogadorAlvo.Character and jogadorAlvo.Character.PrimaryPart then
+        local alvoPosicao = jogadorAlvo.Character.PrimaryPart.Position + Vector3.new(0, 3, 0) -- Ajuste a altura do teletransporte
+        character:SetPrimaryPartCFrame(CFrame.new(alvoPosicao)) -- Teleporta o personagem para a posição do jogador alvo
+    end
+end
+
+local function atualizarJogador()
+    while isActive do
+        wait(0.1) -- Intervalo entre atualizações
+        local jogadorMaisProximo = nil
+        local menorDistancia = math.huge
+
+        -- Encontrar o jogador mais próximo
+        for _, jogador in ipairs(Players:GetPlayers()) do
+            if jogador ~= player and jogador.Character and jogador.Character.PrimaryPart then
+                local distancia = calcularDistancia(character.PrimaryPart.Position, jogador.Character.PrimaryPart.Position)
+                
+                if distancia < menorDistancia then
+                    menorDistancia = distancia
+                    jogadorMaisProximo = jogador
+                end
+            end
+        end
+
+        -- Teleportar para o jogador mais próximo se dentro do limite de distância
+        if jogadorMaisProximo and menorDistancia < DISTANCE_THRESHOLD then
+            teleportarPara(jogadorMaisProximo)
+        end
+    end
+end
+
+-- Cria uma nova ferramenta
+local tool = Instance.new("Tool")
+tool.Name = "MinhaFerramenta"
+tool.RequiresHandle = true
+
+-- Cria o objeto Handle da ferramenta
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(1, 5, 1)  -- Defina o tamanho da ferramenta
+handle.Anchored = false
+handle.CanCollide = false
+handle.BrickColor = BrickColor.new("Bright red")  -- Defina a cor da ferramenta
+handle.Parent = tool
+
+-- Adiciona a ferramenta à mochila do jogador
+tool.Parent = player.Backpack
+
+-- Mensagem de confirmação
+print("Ferramenta criada e adicionada à sua mochila!")
+
+-- Conectar eventos de Equipar e Desequipar
+tool.Equipped:Connect(function()
+    isActive = true
+    atualizarJogador() -- Inicia a atualização do jogador
+end)
+
+tool.Unequipped:Connect(function()
+    isActive = false
+end)
