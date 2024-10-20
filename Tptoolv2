@@ -4,13 +4,42 @@ local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 
-local isActive = false
-local screenGui, scrollingFrame, dragFrame, uiListLayout
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local mainFrame = Instance.new("Frame")
+local scrollingFrame = Instance.new("ScrollingFrame")
+local uiListLayout = Instance.new("UIListLayout")
+local dragFrame = Instance.new("Frame")
+local minimizeButton = Instance.new("TextButton")
 
-local function calcularDistancia(pos1, pos2)
-    return (pos1 - pos2).magnitude
-end
+local isActive = true
+local isMinimized = false
+local dragging = false
+local dragStart = Vector2.new()
+local startPos = UDim2.new()
 
+-- Configurações iniciais da GUI
+mainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
+mainFrame.Position = UDim2.new(0.7, 0, 0.1, 0)  -- Canto superior direito
+mainFrame.BackgroundColor3 = Color3.new(1, 1, 1)
+mainFrame.Parent = screenGui
+
+scrollingFrame.Size = UDim2.new(1, 0, 1, -30)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+scrollingFrame.ScrollBarThickness = 10
+scrollingFrame.Parent = mainFrame
+
+uiListLayout.Parent = scrollingFrame
+
+dragFrame.Size = UDim2.new(1, 0, 0, 30)  -- Tamanho do cabeçalho para arrastar
+dragFrame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+dragFrame.Parent = mainFrame
+
+minimizeButton.Size = UDim2.new(0.1, 0, 0.8, 0)
+minimizeButton.Position = UDim2.new(1, -40, 0.1, 0)
+minimizeButton.Text = "−"
+minimizeButton.Parent = dragFrame
+
+-- Função para teleportar o jogador alvo
 local function teleportarPara(jogadorAlvo)
     if jogadorAlvo and jogadorAlvo.Character and jogadorAlvo.Character.PrimaryPart then
         local alvoPosicao = jogadorAlvo.Character.PrimaryPart.Position + Vector3.new(0, 3, 0)
@@ -18,15 +47,14 @@ local function teleportarPara(jogadorAlvo)
     end
 end
 
+-- Função para atualizar a lista de jogadores
 local function atualizarListaDeJogadores()
-    -- Limpa itens existentes
     for _, child in ipairs(scrollingFrame:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
         end
     end
 
-    -- Adiciona um botão para cada jogador
     for _, jogador in ipairs(Players:GetPlayers()) do
         if jogador ~= player then
             local button = Instance.new("TextButton")
@@ -40,7 +68,6 @@ local function atualizarListaDeJogadores()
         end
     end
 
-    -- Se não houver jogadores, exibe uma mensagem
     if #scrollingFrame:GetChildren() == 0 then
         local msg = Instance.new("TextLabel")
         msg.Size = UDim2.new(1, 0, 1, 0)
@@ -51,22 +78,14 @@ local function atualizarListaDeJogadores()
     end
 end
 
--- Conecta arrastar
-local dragging
-local dragStart
-local startPos
-
-local function update(input)
-    local delta = input.Position - dragStart
-    scrollingFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-local function setupDrag()
+-- Função para criar a GUI
+local function criarGUI()
+    -- Configuração do arrasto
     dragFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
-            startPos = scrollingFrame.Position
+            startPos = mainFrame.Position
 
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
@@ -78,64 +97,31 @@ local function setupDrag()
 
     UserInputService.InputChanged:Connect(function(input)
         if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            update(input)
+            local delta = input.Position - dragStart
+            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    minimizeButton.MouseButton1Click:Connect(function()
+        isMinimized = not isMinimized
+        scrollingFrame.Visible = not isMinimized
+        minimizeButton.Text = isMinimized and "+" or "−"
+
+        if isMinimized then
+            mainFrame.Size = UDim2.new(0.1, 0, 0.1, 0)  -- Reduzir tamanho da GUI para um quadrado pequeno
+            mainFrame.Position = UDim2.new(0.7, 0, 0.1, 0)  -- Manter no canto superior direito
+        else
+            mainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)  -- Restaurar tamanho original
+            mainFrame.Position = UDim2.new(0.7, 0, 0.1, 0)  -- Manter no canto superior direito
         end
     end)
 end
 
--- Cria uma nova ferramenta
-local tool = Instance.new("Tool")
-tool.Name = "Tp Players"
-tool.RequiresHandle = true
+-- Chama a criação da GUI
+criarGUI()
 
--- Cria o objeto Handle da ferramenta
-local handle = Instance.new("Part")
-handle.Name = "Handle"
-handle.Size = Vector3.new(1, 5, 1)
-handle.Anchored = false
-handle.CanCollide = false
-handle.BrickColor = BrickColor.new("Bright red")
-handle.Parent = tool
-
--- Adiciona a ferramenta à mochila do jogador
-tool.Parent = player.Backpack
-
--- Mensagem de confirmação
-print("Ferramenta criada e adicionada à sua mochila!")
-
--- Conectar eventos de Equipar e Desequipar
-tool.Equipped:Connect(function()
-    if not isActive then
-        isActive = true
-        
-        -- Cria a GUI
-        screenGui = Instance.new("ScreenGui", player.PlayerGui)
-        scrollingFrame = Instance.new("ScrollingFrame")
-        scrollingFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
-        scrollingFrame.Position = UDim2.new(0.35, 0, 0.25, 0)
-        scrollingFrame.ScrollBarThickness = 10
-        scrollingFrame.Parent = screenGui
-
-        uiListLayout = Instance.new("UIListLayout")
-        uiListLayout.Parent = scrollingFrame
-
-        dragFrame = Instance.new("Frame")
-        dragFrame.Size = UDim2.new(1, 0, 0, 30) -- Tamanho do cabeçalho para arrastar
-        dragFrame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Cor do cabeçalho
-        dragFrame.Parent = scrollingFrame
-
-        setupDrag() -- Configura a lógica de arrastar
-
-        atualizarListaDeJogadores()
-        screenGui.Enabled = true -- Exibe a GUI
-    end
-end)
-
-tool.Unequipped:Connect(function()
-    isActive = false
-    if screenGui then
-        screenGui.Enabled = false -- Oculta a GUI
-        screenGui:Destroy() -- Remove a GUI ao desequipar
-        screenGui = nil
-    end
-end)
+-- Atualiza a lista de jogadores a cada segundo
+while isActive do
+    wait(1)
+    atualizarListaDeJogadores()
+end
