@@ -121,14 +121,20 @@ minimizeButton.Font = Enum.Font.SourceSans
 minimizeButton.TextSize = 20
 
 minimizeButton.MouseButton1Click:Connect(function()
-    menuFrame.Visible = not menuFrame.Visible
-    minimizeButton.Text = menuFrame.Visible and "⬜" or "⬛" -- Muda o ícone
+    if menuFrame.Size.Y.Offset > 60 then
+        menuFrame.Size = UDim2.new(0, 300, 0, 60) -- Minimiza
+        scrollingFrame.Visible = false -- Oculta o ScrollingFrame
+        minimizeButton.Text = "⬛" -- Muda o ícone
+    else
+        menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
+        scrollingFrame.Visible = true -- Mostra o ScrollingFrame
+        minimizeButton.Text = "⬜" -- Muda o ícone
+    end
 end)
 
 -- Toggle visibility with 'M' key
 userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.M then
-        menuFrame.Visible = not menuFrame.Visible
-        minimizeButton.Text = menuFrame.Visible and "⬜" or "⬛" -- Muda o ícone
+        minimizeButton:Fire() -- Simula um clique no botão de minimizar
     end
 end)
