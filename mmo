@@ -21,21 +21,17 @@ titleLabel.TextSize = 24
 
 -- Criar um ScrollingFrame
 local scrollingFrame = Instance.new("ScrollingFrame", menuFrame)
-scrollingFrame.Size = UDim2.new(1, 0, 1, -60) -- Deixa espaço para os botões de navegação
-scrollingFrame.Position = UDim2.new(0, 0, 0, 50) -- Abaixo do título
+scrollingFrame.Size = UDim2.new(1, 0, 1, -60)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 50)
 scrollingFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
 scrollingFrame.BorderSizePixel = 0
-scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Inicia com tamanho do canvas em zero
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollingFrame.ScrollBarThickness = 10
 
--- Layout para os botões dentro do ScrollingFrame
 local uiListLayout = Instance.new("UIListLayout", scrollingFrame)
-uiListLayout.Padding = UDim.new(0, 10) -- Espaçamento entre os botões
+uiListLayout.Padding = UDim.new(0, 10)
 
--- Variáveis para arrastar o menu
-local dragging
-local dragStart
-local startPos
+local dragging, dragStart, startPos
 
 local function updatePosition(input)
     local delta = input.Position - dragStart
@@ -62,10 +58,9 @@ userInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Função para criar botões no ScrollingFrame
 local buttons = {}
 
-local function createButton(name, activateCallback)
+local function createButton(name, activateCallback, tooltipText)
     local button = Instance.new("TextButton", scrollingFrame)
     button.Size = UDim2.new(1, -20, 0, 50)
     button.Text = name
@@ -74,6 +69,25 @@ local function createButton(name, activateCallback)
     button.BorderSizePixel = 0
     button.Font = Enum.Font.SourceSans
     button.TextSize = 20
+
+    -- Tooltip
+    if tooltipText then
+        local tooltip = Instance.new("TextLabel", menuFrame)
+        tooltip.Size = UDim2.new(0, 200, 0, 30)
+        tooltip.Text = tooltipText
+        tooltip.TextColor3 = Color3.new(1, 1, 1)
+        tooltip.BackgroundColor3 = Color3.new(0, 0, 0)
+        tooltip.Position = UDim2.new(0.5, -100, 0.5, -220)
+        tooltip.Visible = false
+
+        button.MouseEnter:Connect(function()
+            tooltip.Visible = true
+        end)
+
+        button.MouseLeave:Connect(function()
+            tooltip.Visible = false
+        end)
+    end
 
     button.MouseButton1Click:Connect(function()
         activateCallback()
@@ -84,17 +98,37 @@ local function createButton(name, activateCallback)
 
     table.insert(buttons, button)
 
-    -- Atualiza o tamanho do Canvas após adicionar um botão
     local totalHeight = #buttons * (50 + uiListLayout.Padding.Offset)
     scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end
 
 -- Criando alguns botões de exemplo
-createButton("INVENTÁRIO", function() print("Abrindo inventário...") end)
-createButton("Fly tool", function() print("Ativando Fly tool...") end)
-createButton("Speed Boost tool", function() print("Ativando Speed Boost...") end)
-createButton("Teleport tool", function() print("Ativando Teleport...") end)
-createButton("Jump tool", function() print("Ativando Jump...") end)
-createButton("EM BREVE", function() print("Funcionalidade em breve...") end)
+createButton("INVENTÁRIO", function() print("Abrindo inventário...") end, "Abra seu inventário.")
+createButton("Fly tool", function() print("Ativando Fly tool...") end, "Habilite a capacidade de voar.")
+createButton("Speed Boost tool", function() print("Ativando Speed Boost...") end, "Aumente sua velocidade.")
+createButton("Teleport tool", function() print("Ativando Teleport...") end, "Teleporte-se para uma posição.")
+createButton("Jump tool", function() print("Ativando Jump...") end, "Aumente sua altura de salto.")
+createButton("EM BREVE", function() print("Funcionalidade em breve...") end, "Funcionalidade será adicionada em breve.")
 
--- Agora você pode adicionar mais botões conforme necessário
+-- Botão para minimizar o menu
+local minimizeButton = Instance.new("TextButton", screenGui)
+minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+minimizeButton.Position = UDim2.new(1, -40, 0, 10)
+minimizeButton.Text = "⬜" -- Quadrado
+minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Font = Enum.Font.SourceSans
+minimizeButton.TextSize = 20
+
+minimizeButton.MouseButton1Click:Connect(function()
+    menuFrame.Visible = not menuFrame.Visible
+    minimizeButton.Text = menuFrame.Visible and "⬜" or "⬛" -- Muda o ícone
+end)
+
+-- Toggle visibility with 'M' key
+userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.M then
+        menuFrame.Visible = not menuFrame.Visible
+        minimizeButton.Text = menuFrame.Visible and "⬜" or "⬛" -- Muda o ícone
+    end
+end)
