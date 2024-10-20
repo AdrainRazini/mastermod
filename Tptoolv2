@@ -1,0 +1,141 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+local isActive = false
+local screenGui, scrollingFrame, dragFrame, uiListLayout
+
+local function calcularDistancia(pos1, pos2)
+    return (pos1 - pos2).magnitude
+end
+
+local function teleportarPara(jogadorAlvo)
+    if jogadorAlvo and jogadorAlvo.Character and jogadorAlvo.Character.PrimaryPart then
+        local alvoPosicao = jogadorAlvo.Character.PrimaryPart.Position + Vector3.new(0, 3, 0)
+        character:SetPrimaryPartCFrame(CFrame.new(alvoPosicao))
+    end
+end
+
+local function atualizarListaDeJogadores()
+    -- Limpa itens existentes
+    for _, child in ipairs(scrollingFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    -- Adiciona um botão para cada jogador
+    for _, jogador in ipairs(Players:GetPlayers()) do
+        if jogador ~= player then
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, 0, 0, 50)
+            button.Text = jogador.Name
+            button.Parent = scrollingFrame
+
+            button.MouseButton1Click:Connect(function()
+                teleportarPara(jogador)
+            end)
+        end
+    end
+
+    -- Se não houver jogadores, exibe uma mensagem
+    if #scrollingFrame:GetChildren() == 0 then
+        local msg = Instance.new("TextLabel")
+        msg.Size = UDim2.new(1, 0, 1, 0)
+        msg.Text = "Nenhum jogador disponível"
+        msg.TextScaled = true
+        msg.BackgroundTransparency = 1
+        msg.Parent = scrollingFrame
+    end
+end
+
+-- Conecta arrastar
+local dragging
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    scrollingFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+local function setupDrag()
+    dragFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = scrollingFrame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            update(input)
+        end
+    end)
+end
+
+-- Cria uma nova ferramenta
+local tool = Instance.new("Tool")
+tool.Name = "Tp Players"
+tool.RequiresHandle = true
+
+-- Cria o objeto Handle da ferramenta
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(1, 5, 1)
+handle.Anchored = false
+handle.CanCollide = false
+handle.BrickColor = BrickColor.new("Bright red")
+handle.Parent = tool
+
+-- Adiciona a ferramenta à mochila do jogador
+tool.Parent = player.Backpack
+
+-- Mensagem de confirmação
+print("Ferramenta criada e adicionada à sua mochila!")
+
+-- Conectar eventos de Equipar e Desequipar
+tool.Equipped:Connect(function()
+    if not isActive then
+        isActive = true
+        
+        -- Cria a GUI
+        screenGui = Instance.new("ScreenGui", player.PlayerGui)
+        scrollingFrame = Instance.new("ScrollingFrame")
+        scrollingFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
+        scrollingFrame.Position = UDim2.new(0.35, 0, 0.25, 0)
+        scrollingFrame.ScrollBarThickness = 10
+        scrollingFrame.Parent = screenGui
+
+        uiListLayout = Instance.new("UIListLayout")
+        uiListLayout.Parent = scrollingFrame
+
+        dragFrame = Instance.new("Frame")
+        dragFrame.Size = UDim2.new(1, 0, 0, 30) -- Tamanho do cabeçalho para arrastar
+        dragFrame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Cor do cabeçalho
+        dragFrame.Parent = scrollingFrame
+
+        setupDrag() -- Configura a lógica de arrastar
+
+        atualizarListaDeJogadores()
+        screenGui.Enabled = true -- Exibe a GUI
+    end
+end)
+
+tool.Unequipped:Connect(function()
+    isActive = false
+    if screenGui then
+        screenGui.Enabled = false -- Oculta a GUI
+        screenGui:Destroy() -- Remove a GUI ao desequipar
+        screenGui = nil
+    end
+end)
