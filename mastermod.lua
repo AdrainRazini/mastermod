@@ -100,7 +100,7 @@ local function createButton(name, activateCallback, tooltipText)
 
     local totalHeight = #buttons * (50 + uiListLayout.Padding.Offset)
     scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-end
+end)
 
 -- Criando alguns botões de exemplo
 createButton("INVENTÁRIO", function()
