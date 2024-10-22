@@ -147,7 +147,7 @@ createButton("Auto", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento"))()
 end)
 
-createButton("Tptoolv2", function()
+createButton("TpV2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
 end)
 
