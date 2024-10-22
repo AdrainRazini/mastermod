@@ -113,10 +113,15 @@ end)
 
 createButton("Block air tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
-end)
+end
+
 -- Funções de ativação para os botões
 createButton("Fly tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
+end)
+
+    createButton("Fly toolv2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
 end)
 
 createButton("Speed Boost tool", function()
