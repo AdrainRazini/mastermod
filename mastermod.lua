@@ -113,7 +113,7 @@ end)
 
 createButton("Block air tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
-end
+end)
 
 -- Funções de ativação para os botões
 createButton("Fly tool", function()
