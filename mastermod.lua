@@ -100,7 +100,8 @@ local function createButton(name, activateCallback, tooltipText)
 
     local totalHeight = #buttons * (50 + uiListLayout.Padding.Offset)
     scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-end)
+end
+
 
 -- Criando alguns botões de exemplo
 createButton("INVENTÁRIO", function()
@@ -115,12 +116,11 @@ createButton("Block air tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
 end)
 
--- Funções de ativação para os botões
 createButton("Fly tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
 end)
 
-    createButton("Fly toolv2", function()
+createButton("Fly toolv2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
 end)
 
@@ -163,6 +163,9 @@ end)
 createButton("Ultra Visor", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR"))()
 end)
+
+
+
 -- Botão para minimizar o menu
 local minimizeButton = Instance.new("TextButton", screenGui)
 minimizeButton.Size = UDim2.new(0, 30, 0, 30)
