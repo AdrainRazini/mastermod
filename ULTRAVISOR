@@ -1,54 +1,108 @@
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local activeBillboardGuis = {}
 
-local nameTags = {}
-local maxVisibleDistance = 10  -- Distância máxima para mostrar os nomes
-
--- Função para criar a BillboardGui
-local function createNameTag(object)
+local function createBillboardGui(targetPlayer)
     local billboardGui = Instance.new("BillboardGui")
-    billboardGui.Size = UDim2.new(0, 100, 0, 50)
-    billboardGui.Adornee = object
-    billboardGui.AlwaysOnTop = true
+    billboardGui.Adornee = targetPlayer.Character:WaitForChild("Head")
+    billboardGui.Size = UDim2.new(0, 150, 0, 80) -- Tamanho reduzido
+    billboardGui.StudsOffset = Vector3.new(0, 2, 0) -- Distância reduzida
+    billboardGui.Parent = targetPlayer.Character.Head
 
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Text = object.Name
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextColor3 = Color3.new(1, 1, 1)
-    textLabel.Parent = billboardGui
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BackgroundTransparency = 0.6
+    frame.Parent = billboardGui
 
-    billboardGui.Parent = object
-    return billboardGui
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 0.33, 0)
+    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+    nameLabel.Text = targetPlayer.Name
+    nameLabel.TextScaled = true
+    nameLabel.BackgroundTransparency = 1 -- Sem fundo
+    nameLabel.Parent = frame
+
+    local healthLabel = Instance.new("TextLabel")
+    healthLabel.Size = UDim2.new(1, 0, 0.33, 0)
+    healthLabel.Position = UDim2.new(0, 0, 0.33, 0)
+    healthLabel.TextColor3 = Color3.new(1, 0, 0)
+    healthLabel.TextScaled = true
+    healthLabel.BackgroundTransparency = 1
+    healthLabel.Parent = frame
+
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(1, 0, 0.33, 0)
+    statusLabel.Position = UDim2.new(0, 0, 0.66, 0)
+    statusLabel.TextColor3 = Color3.new(0, 1, 0)
+    statusLabel.TextScaled = true
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Parent = frame
+
+    -- Atualiza a vida do jogador
+    local humanoid = targetPlayer.Character:WaitForChild("Humanoid")
+    humanoid.HealthChanged:Connect(function(health)
+        healthLabel.Text = "Vida: " .. math.floor(health)
+    end)
+
+    -- Atualiza o status do jogador
+    statusLabel.Text = "Status: Ativo" -- Você pode modificar essa lógica conforme necessário
+
+    return {
+        gui = billboardGui,
+        healthLabel = healthLabel,
+        statusLabel = statusLabel,
+        humanoid = humanoid
+    }
 end
 
--- Atualiza a visibilidade dos nomes e objetos
-local function updateNameTags()
-    while true do
-        wait(1)  -- Tempo de espera entre verificações
-        local playerPosition = humanoidRootPart.Position
+local function hideBillboardGuis()
+    for _, gui in pairs(activeBillboardGuis) do
+        gui.gui:Destroy()
+    end
+    activeBillboardGuis = {}
+end
 
-        for _, object in ipairs(workspace:GetDescendants()) do
-            if object:IsA("Part") then
-                -- Define a transparência para 50%
-                object.Transparency = 0.5  
+while true do
+    wait(0.1)
+    local nearbyPlayers = {}
+    local closestDistance = 10
 
-                local distance = (playerPosition - object.Position).magnitude
-
-                if distance < maxVisibleDistance then
-                    if not nameTags[object] then
-                        nameTags[object] = createNameTag(object)
-                    end
-                    nameTags[object].Enabled = true  -- Mostra o nome
-                else
-                    if nameTags[object] then
-                        nameTags[object].Enabled = false  -- Oculta o nome
-                    end
-                end
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (humanoidRootPart.Position - otherPlayer.Character.HumanoidRootPart.Position).magnitude
+            if distance < closestDistance then
+                table.insert(nearbyPlayers, otherPlayer)
             end
         end
     end
-end
 
-updateNameTags()
+    -- Atualiza as GUIs para todos os jogadores próximos
+    for _, nearbyPlayer in ipairs(nearbyPlayers) do
+        local humanoid = nearbyPlayer.Character:FindFirstChild("Humanoid")
+        if humanoid and humanoid.Health > 0 then
+            local existingGui = activeBillboardGuis[nearbyPlayer.UserId]
+
+            if not existingGui then
+                activeBillboardGuis[nearbyPlayer.UserId] = createBillboardGui(nearbyPlayer)
+            end
+
+            -- Atualiza a vida
+            activeBillboardGuis[nearbyPlayer.UserId].healthLabel.Text = "Vida: " .. math.floor(humanoid.Health)
+        end
+    end
+
+    -- Oculta as GUIs para jogadores que não estão mais próximos
+    local toRemove = {}
+    for userId, gui in pairs(activeBillboardGuis) do
+        if not table.find(nearbyPlayers, game.Players:GetPlayerByUserId(userId)) then
+            table.insert(toRemove, userId)
+        end
+    end
+
+    for _, userId in ipairs(toRemove) do
+        activeBillboardGuis[userId].gui:Destroy()
+        activeBillboardGuis[userId] = nil
+    end
+end
