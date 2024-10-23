@@ -1,0 +1,48 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local camera = game.Workspace.CurrentCamera
+local players = game:GetService("Players")
+local detectionRadius = 50
+local lerpSpeed = 0.1
+
+function findClosestEnemy()
+    local closestEnemy = nil
+    local closestDistance = detectionRadius
+
+    for _, p in ipairs(players:GetPlayers()) do
+        if p ~= player and p.Character and p.Team ~= player.Team then
+            local head = p.Character:FindFirstChild("Head")
+            if head then
+                local distance = (humanoidRootPart.Position - head.Position).magnitude
+                if distance < closestDistance then
+                    closestDistance = distance
+                    closestEnemy = p
+
+                    -- Interrompe a busca se já encontramos um inimigo dentro do raio
+                    if closestDistance == 0 then
+                        break
+                    end
+                end
+            end
+        end
+    end
+
+    return closestEnemy
+end
+
+function aimAt(target)
+    if target and target.Character and target.Character:FindFirstChild("Head") then
+        local targetPosition = target.Character.Head.Position
+        local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
+        camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
+
+        local lookVector = (targetPosition - humanoidRootPart.Position).unit
+        humanoidRootPart.CFrame = CFrame.new(humanoidRootPart.Position) * CFrame.Angles(0, math.atan2(lookVector.Z, lookVector.X), 0)
+    end
+end
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    local targetEnemy = findClosestEnemy()
+    aimAt(targetEnemy)
+end)
