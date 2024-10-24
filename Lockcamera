@@ -1,0 +1,47 @@
+-- Acessa o jogador local
+local player = game.Players.LocalPlayer
+
+-- Cria uma nova ferramenta
+local tool = Instance.new("Tool")
+tool.Name = "Lock Câmera"
+tool.RequiresHandle = true
+
+-- Cria o objeto Handle da ferramenta
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(1, 5, 1)  -- Defina o tamanho da ferramenta
+handle.Anchored = false
+handle.CanCollide = false
+handle.BrickColor = BrickColor.new("Bright red")  -- Defina a cor da ferramenta
+handle.Parent = tool
+
+-- Adiciona a ferramenta à mochila do jogador
+tool.Parent = player.Backpack
+
+-- Referência à câmera
+local camera = game.Workspace.CurrentCamera
+
+-- Função chamada quando a ferramenta é equipada
+local function onEquipped()
+    print("Ferramenta equipada!")
+    camera.CameraType = Enum.CameraType.Scriptable
+    
+    -- Atualiza a posição da câmera
+    camera.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 1.5, 5) -- Ajuste a posição conforme necessário
+end
+
+-- Função chamada quando a ferramenta é desequipada
+local function onUnequipped()
+    print("Ferramenta desequipada!")
+    camera.CameraType = Enum.CameraType.Custom  -- Retorna à visão padrão
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        camera.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 1.5, 0) -- Retorna à posição normal
+    end
+end
+
+-- Conectar os eventos
+tool.Equipped:Connect(onEquipped)
+tool.Unequipped:Connect(onUnequipped)
+
+-- Mensagem de confirmação
+print("Ferramenta criada e adicionada à sua mochila!")
