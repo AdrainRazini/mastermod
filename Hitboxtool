@@ -3,16 +3,16 @@ local player = game.Players.LocalPlayer
 
 -- Cria uma nova ferramenta
 local tool = Instance.new("Tool")
-tool.Name = "MinhaFerramenta"
+tool.Name = "ControlarBloco"
 tool.RequiresHandle = true
 
 -- Cria o objeto Handle da ferramenta
 local handle = Instance.new("Part")
 handle.Name = "Handle"
-handle.Size = Vector3.new(1, 5, 1)  -- Defina o tamanho da ferramenta
+handle.Size = Vector3.new(0, 0, 0)
 handle.Anchored = false
 handle.CanCollide = false
-handle.BrickColor = BrickColor.new("Bright red")  -- Defina a cor da ferramenta
+handle.BrickColor = BrickColor.new("Bright red")
 handle.Parent = tool
 
 -- Adiciona a ferramenta à mochila do jogador
@@ -25,29 +25,38 @@ local block
 local function onEquipped()
     print("Ferramenta equipada!")
 
-    -- Cria um novo bloco
+    -- Cria o bloco que funcionará como um segundo corpo
     block = Instance.new("Part")
-    block.Size = Vector3.new(2000, 2000, 2000)  -- Define o tamanho do bloco
-    block.Position = player.Character.HumanoidRootPart.Position  -- Posição do bloco
-    block.BrickColor = BrickColor.new("Bright blue")  -- Define a cor do bloco
-    block.Anchored = false  -- O bloco não deve ser fixo
-    block.CanCollide = false  -- O bloco não deve colidir
-    block.Material = Enum.Material.Neon  -- Define um material leve e visualmente interessante
-    block.Parent = player.Character  -- Torna o bloco parte do modelo do jogador
+    block.Size = Vector3.new(5000, 5000, 5000)  -- Tamanho do bloco
+    block.Position = player.Character.PrimaryPart.Position + Vector3.new(3, 0, 0)  -- Posição ao lado do jogador
+    block.Anchored = false
+    block.CanCollide = false  -- Impede colisão com o jogador
+    block.BrickColor = BrickColor.new("Bright blue")
+    block.Parent = game.Workspace
 
-    -- Cria um weld para anexar o bloco ao torso
-    local weld = Instance.new("Weld")
-    weld.Part0 = player.Character:FindFirstChild("Torso") or player.Character:FindFirstChild("HumanoidRootPart")
-    weld.Part1 = block
-    weld.C0 = CFrame.new(0, 0, 0)  -- Ajuste a posição relativa do bloco ao torso
-    weld.Parent = block  -- Adiciona o weld ao bloco
+    -- Função para controlar o bloco
+    local function controlBlock()
+        while tool.Parent do
+            -- Posiciona o bloco na mesma posição do jogador
+            block.Position = player.Character.PrimaryPart.Position + Vector3.new(3, 0, 0)
+
+            -- Movimentação do bloco
+            if player.Character.Humanoid.MoveDirection.Magnitude > 0 then
+                block.CFrame = block.CFrame + (player.Character.Humanoid.MoveDirection * 0.1)
+            end
+
+            wait(0.1)
+        end
+    end
+
+    controlBlock()
 end
 
 -- Função chamada quando a ferramenta é desequipada
 local function onUnequipped()
     print("Ferramenta desequipada!")
 
-    -- Remove o bloco se ele existir
+    -- Remove o bloco se existir
     if block then
         block:Destroy()
         block = nil
@@ -59,4 +68,4 @@ tool.Equipped:Connect(onEquipped)
 tool.Unequipped:Connect(onUnequipped)
 
 -- Mensagem de confirmação
-print("Ferramenta criada e adicionada à sua mochila!")
+print("Ferramenta de controlar bloco criada e adicionada à sua mochila!")
