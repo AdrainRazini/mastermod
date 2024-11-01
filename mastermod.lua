@@ -112,6 +112,10 @@ createButton("DELETAR", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
 end)
 
+createButton("Hitboxtool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool"))()
+end)
+
 createButton("Lock Camera", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
 end)
