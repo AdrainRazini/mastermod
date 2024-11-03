@@ -14,7 +14,7 @@ local function dash()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     local dashDuration = 0.2
-    local dashDistance = 200
+    local dashDistance = 100
 
     -- Direção da câmera
     local camera = workspace.CurrentCamera
