@@ -140,7 +140,7 @@ createButton("Fly tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
 end)
 
-createButton("Fly toolv2", function()
+createButton("Dash", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
 end)
 
