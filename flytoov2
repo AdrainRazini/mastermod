@@ -1,72 +1,33 @@
-
--- Acessa o jogador local
+-- Criação da GUI
 local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local button = Instance.new("TextButton", screenGui)
 
--- Cria uma nova ferramenta
-local tool = Instance.new("Tool")
-tool.Name = ".EM BREVE."
-tool.RequiresHandle = true
+-- Configuração do botão
+button.Size = UDim2.new(0, 200, 0, 50)
+button.Position = UDim2.new(1, -220, 0, 50) -- Canto superior direito, um pouco para baixo
+button.Text = "Dash"
+button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 
--- Cria o objeto Handle da ferramenta
-local handle = Instance.new("Part")
-handle.Name = "Handle"
-handle.Size = Vector3.new(1, 5, 1)  -- Define o tamanho da ferramenta
-handle.Anchored = false
-handle.CanCollide = false
-handle.BrickColor = BrickColor.new("Bright red")  -- Define a cor da ferramenta
-handle.Parent = tool
+-- Função de impulso
+local function dash()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local dashDuration = 0.2
+    local dashDistance = 200
 
--- Cria a ScreenGui e a Frame
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(1, 0, 1, 0)  -- Tamanho total da tela
-frame.BackgroundColor3 = Color3.new(0, 0, 0)  -- Cor de fundo (preto)
-frame.Visible = false  -- Inicialmente invisível
+    -- Direção da câmera
+    local camera = workspace.CurrentCamera
+    local direction = camera.CFrame.LookVector
 
--- Adiciona um VideoFrame ao Frame
-local videoFrame = Instance.new("VideoFrame", frame)
-videoFrame.Size = UDim2.new(0.5, 0, 0.5, 0)  -- Tamanho do vídeo
-videoFrame.Position = UDim2.new(0.25, 0, 0.25, 0)  -- Centralizado
-videoFrame.Video = "rbxassetid://5670799859"  -- ID do vídeo
-videoFrame.Looped = true  -- Faz o vídeo repetir
-videoFrame.Visible = false  -- Inicialmente invisível
+    -- Calcular a velocidade necessária
+    local dashSpeed = dashDistance / dashDuration
 
--- Adiciona um texto ao Frame
-local loadingText = Instance.new("TextLabel", frame)
-loadingText.Size = UDim2.new(1, 0, 1, 0)
-loadingText.Text = "Em Breve...\nLoading..."
-loadingText.TextColor3 = Color3.new(1, 1, 1)  -- Cor do texto (branco)
-loadingText.TextScaled = true
-loadingText.TextWrapped = true
-loadingText.BackgroundTransparency = 1  -- Fundo transparente
+    humanoidRootPart.Velocity = direction * dashSpeed
 
--- Adiciona o som
-local sound = Instance.new("Sound", tool)
-sound.SoundId = "rbxassetid://1841647093"  -- ID do som
-sound.Looped = true  -- Faz o som repetir
-
--- Função para mostrar a GUI e tocar o som quando a ferramenta é equipada
-local function onEquipped()
-    frame.Visible = true
-    videoFrame.Visible = true
-    videoFrame:Play()  -- Inicia o vídeo
-    sound:Play()  -- Toca o som
+    wait(dashDuration)
+    humanoidRootPart.Velocity = Vector3.new(0, 0, 0) -- Para parar o impulso
 end
 
--- Função para esconder a GUI e parar o som quando a ferramenta é desequipada
-local function onUnequipped()
-    frame.Visible = false
-    videoFrame.Visible = false
-    videoFrame:Stop()  -- Para o vídeo
-    sound:Stop()  -- Para o som
-end
-
--- Conecta as funções aos eventos da ferramenta
-tool.Equipped:Connect(onEquipped)
-tool.Unequipped:Connect(onUnequipped)
-
--- Adiciona a ferramenta à mochila do jogador
-tool.Parent = player.Backpack
-
--- Mensagem de confirmação
-print("Ferramenta criada e adicionada à sua mochila!")
+-- Conexão do botão à função de impulso
+button.MouseButton1Click:Connect(dash)
