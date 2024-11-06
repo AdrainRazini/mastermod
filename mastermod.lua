@@ -186,11 +186,11 @@ end)
 
 
 
--- Botão para minimizar o menu
-local minimizeButton = Instance.new("TextButton", screenGui)
+-- Botão para minimizar o menu (dentro do título)
+local minimizeButton = Instance.new("TextButton", titleLabel)  -- Alterado para ser filho do titleLabel
 minimizeButton.Size = UDim2.new(0, 30, 0, 30)
-minimizeButton.Position = UDim2.new(1, -40, 0, 10)
-minimizeButton.Text = "🟢" -- Quadrado
+minimizeButton.Position = UDim2.new(1, -40, 0, 10)  -- Ajustado para posicionar o botão no canto superior direito do título
+minimizeButton.Text = "🟢"  -- Quadrado
 minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 minimizeButton.BorderSizePixel = 0
 minimizeButton.Font = Enum.Font.SourceSans
@@ -198,19 +198,12 @@ minimizeButton.TextSize = 20
 
 minimizeButton.MouseButton1Click:Connect(function()
     if menuFrame.Size.Y.Offset > 60 then
-        menuFrame.Size = UDim2.new(0, 300, 0, 60) -- Minimiza
-        scrollingFrame.Visible = false -- Oculta o ScrollingFrame
-        minimizeButton.Text = "🔴" -- Muda o ícone
+        menuFrame.Size = UDim2.new(0, 300, 0, 60)  -- Minimiza
+        scrollingFrame.Visible = false  -- Oculta o ScrollingFrame
+        minimizeButton.Text = "🔴"  -- Muda o ícone
     else
-        menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
-        scrollingFrame.Visible = true -- Mostra o ScrollingFrame
-        minimizeButton.Text = "🟢" -- Muda o ícone
-    end
-end)
-
--- Toggle visibility with 'M' key
-userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.M then
-        minimizeButton:Fire() -- Simula um clique no botão de minimizar
+        menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Restaura
+        scrollingFrame.Visible = true  -- Mostra o ScrollingFrame
+        minimizeButton.Text = "🟢"  -- Muda o ícone
     end
 end)
