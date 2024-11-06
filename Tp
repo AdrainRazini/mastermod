@@ -1,0 +1,156 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local mainFrame = Instance.new("Frame")
+local scrollingFrame = Instance.new("ScrollingFrame")
+local uiListLayout = Instance.new("UIListLayout")
+local dragFrame = Instance.new("Frame")
+local minimizeButton = Instance.new("TextButton")
+local toggleButton = Instance.new("TextButton")
+
+local isActive = true
+local isMinimized = false
+local dragging = false
+local dragStart = Vector2.new()
+local startPos = UDim2.new()
+
+local autoTeleporting = false
+local teleportInterval = 0.2  -- Intervalo entre teletransportes em segundos
+local playersList = {}
+local currentPlayerIndex = 1
+
+-- Configurações iniciais da GUI
+mainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
+mainFrame.Position = UDim2.new(0.7, 0, 0.1, 0)  -- Canto superior direito
+mainFrame.BackgroundColor3 = Color3.new(1, 1, 1)
+mainFrame.Parent = screenGui
+
+scrollingFrame.Size = UDim2.new(1, 0, 1, -30)  -- Ajusta para considerar o cabeçalho
+scrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+scrollingFrame.ScrollBarThickness = 10
+scrollingFrame.Parent = mainFrame
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)  -- Inicializa a CanvasSize
+
+uiListLayout.FillDirection = Enum.FillDirection.Vertical
+uiListLayout.Parent = scrollingFrame
+
+dragFrame.Size = UDim2.new(1, 0, 0, 30)  -- Tamanho do cabeçalho para arrastar
+dragFrame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+dragFrame.Parent = mainFrame
+
+minimizeButton.Size = UDim2.new(0.1, 0, 0.8, 0)
+minimizeButton.Position = UDim2.new(1, -40, 0.1, 0)
+minimizeButton.Text = "−"
+minimizeButton.Parent = dragFrame
+
+toggleButton.Size = UDim2.new(0.3, 0, 0.8, 0)
+toggleButton.Position = UDim2.new(0.7, -40, 0.1, 0)
+toggleButton.Text = "Iniciar Teleporte"
+toggleButton.Parent = dragFrame
+
+-- Função para teleportar os braços do jogador alvo
+local function teleportarPara(jogadorAlvo)
+    if jogadorAlvo and jogadorAlvo.Character then
+        local alvo = jogadorAlvo.Character
+        local jogadorBraçoEsquerdo = alvo:FindFirstChild("LeftArm")
+        local jogadorBraçoDireito = alvo:FindFirstChild("RightArm")
+        
+        -- Verificar se os braços existem no personagem alvo
+        if jogadorBraçoEsquerdo and jogadorBraçoDireito then
+            -- Calcula a nova posição dos braços (ajustado para cima para não sobrepor o corpo)
+            local alvoPosicao = jogadorAlvo.Character.PrimaryPart.Position + Vector3.new(0, 3, 0)
+            
+            -- Teletransporta os braços para a nova posição
+            jogadorBraçoEsquerdo.CFrame = CFrame.new(alvoPosicao)  -- Teleportando braço esquerdo
+            jogadorBraçoDireito.CFrame = CFrame.new(alvoPosicao)  -- Teleportando braço direito
+        end
+    end
+end
+
+-- Função para atualizar a lista de jogadores
+local function atualizarListaDeJogadores()
+    playersList = {}
+    for _, jogador in ipairs(Players:GetPlayers()) do
+        if jogador ~= player then
+            table.insert(playersList, jogador)
+        end
+    end
+end
+
+-- Função para teletransportar automaticamente
+local function teleportarAutomaticamente()
+    while autoTeleporting do
+        if #playersList > 0 then
+            local jogadorAlvo = playersList[currentPlayerIndex]
+            teleportarPara(jogadorAlvo)  -- Chama a função modificada que teleporta os braços
+
+            -- Atualiza o índice para o próximo jogador
+            currentPlayerIndex = currentPlayerIndex + 1
+            if currentPlayerIndex > #playersList then
+                currentPlayerIndex = 1  -- Volta para o primeiro jogador
+            end
+        end
+        wait(teleportInterval)
+    end
+end
+
+-- Função para ativar/desativar o teleportador automático
+toggleButton.MouseButton1Click:Connect(function()
+    autoTeleporting = not autoTeleporting
+    if autoTeleporting then
+        toggleButton.Text = "Parar Teleporte"
+        teleportarAutomaticamente()  -- Inicia o teletransporte automático
+    else
+        toggleButton.Text = "Iniciar Teleporte"
+    end
+end)
+
+-- Função para criar a GUI
+local function criarGUI()
+    -- Configuração do arrasto
+    dragFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = mainFrame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    minimizeButton.MouseButton1Click:Connect(function()
+        isMinimized = not isMinimized
+        scrollingFrame.Visible = not isMinimized
+        minimizeButton.Text = isMinimized and "+" or "−"
+
+        if isMinimized then
+            mainFrame.Size = UDim2.new(0.1, 0, 0.1, 0)  -- Reduzir tamanho da GUI para um quadrado pequeno
+        else
+            mainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)  -- Restaurar tamanho original
+        end
+    end)
+end
+
+-- Chama a criação da GUI
+criarGUI()
+
+-- Atualiza a lista de jogadores a cada segundo
+while isActive do
+    wait(1)
+    atualizarListaDeJogadores()
+end
