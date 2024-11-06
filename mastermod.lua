@@ -2,34 +2,55 @@ local player = game.Players.LocalPlayer
 local userInputService = game:GetService("UserInputService")
 
 -- Criação da interface gráfica
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-local menuFrame = Instance.new("Frame", screenGui)
-menuFrame.Size = UDim2.new(0, 300, 0, 400)
-menuFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-menuFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-menuFrame.BorderSizePixel = 0
-menuFrame.Visible = true
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")  -- Adiciona o ScreenGui ao PlayerGui
+screenGui.Enabled = true  -- Garantir que o ScreenGui esteja visível
+
+-- Criação do menu
+local menuFrame = Instance.new("Frame")
+menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Tamanho do menu
+menuFrame.Position = UDim2.new(0.5, -150, 0.5, -200)  -- Posição do menu no centro da tela
+menuFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)  -- Cor de fundo
+menuFrame.Parent = screenGui
 
 -- Título do menu
-local titleLabel = Instance.new("TextLabel", menuFrame)
-titleLabel.Size = UDim2.new(1, 0, 0, 50)
+local titleFrame = Instance.new("Frame")
+titleFrame.Size = UDim2.new(1, 0, 0, 50)
+titleFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+titleFrame.Parent = menuFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.9, 0, 1, 0)
 titleLabel.Text = "Mod Menu"
 titleLabel.TextColor3 = Color3.new(1, 1, 1)
-titleLabel.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextSize = 24
+titleLabel.BackgroundTransparency = 1  -- Sem fundo
+titleLabel.Parent = titleFrame
 
--- Criar um ScrollingFrame
-local scrollingFrame = Instance.new("ScrollingFrame", menuFrame)
-scrollingFrame.Size = UDim2.new(1, 0, 1, -60)
+-- Botão de minimizar/restaurar
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0.1, 0, 1, 0)
+minimizeButton.Position = UDim2.new(0.9, 0, 0, 0)
+minimizeButton.Text = "⬜"
+minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Font = Enum.Font.SourceSans
+minimizeButton.TextSize = 20
+minimizeButton.Parent = titleFrame
+
+-- Criar um ScrollingFrame para os botões
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, -60)  -- Ajusta para abaixo do título
 scrollingFrame.Position = UDim2.new(0, 0, 0, 50)
 scrollingFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-scrollingFrame.BorderSizePixel = 0
-scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollingFrame.ScrollBarThickness = 10
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)  -- Inicialize o CanvasSize com zero
+scrollingFrame.Parent = menuFrame
 
-local uiListLayout = Instance.new("UIListLayout", scrollingFrame)
+local uiListLayout = Instance.new("UIListLayout")
 uiListLayout.Padding = UDim.new(0, 10)
+uiListLayout.Parent = scrollingFrame
 
 local dragging, dragStart, startPos
 
@@ -58,10 +79,9 @@ userInputService.InputChanged:Connect(function(input)
     end
 end)
 
-local buttons = {}
-
-local function createButton(name, activateCallback, tooltipText)
-    local button = Instance.new("TextButton", scrollingFrame)
+-- Função para criar botões no menu
+local function createButton(name, activateCallback)
+    local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, -20, 0, 50)
     button.Text = name
     button.TextColor3 = Color3.new(1, 1, 1)
@@ -69,25 +89,7 @@ local function createButton(name, activateCallback, tooltipText)
     button.BorderSizePixel = 0
     button.Font = Enum.Font.SourceSans
     button.TextSize = 20
-
-    -- Tooltip
-    if tooltipText then
-        local tooltip = Instance.new("TextLabel", menuFrame)
-        tooltip.Size = UDim2.new(0, 200, 0, 30)
-        tooltip.Text = tooltipText
-        tooltip.TextColor3 = Color3.new(1, 1, 1)
-        tooltip.BackgroundColor3 = Color3.new(0, 0, 0)
-        tooltip.Position = UDim2.new(0.5, -100, 0.5, -220)
-        tooltip.Visible = false
-
-        button.MouseEnter:Connect(function()
-            tooltip.Visible = true
-        end)
-
-        button.MouseLeave:Connect(function()
-            tooltip.Visible = false
-        end)
-    end
+    button.Parent = scrollingFrame
 
     button.MouseButton1Click:Connect(function()
         activateCallback()
@@ -96,12 +98,9 @@ local function createButton(name, activateCallback, tooltipText)
         button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
     end)
 
-    table.insert(buttons, button)
-
-    local totalHeight = #buttons * (50 + uiListLayout.Padding.Offset)
-    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+    -- Atualiza o CanvasSize para garantir rolagem
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, scrollingFrame.UIListLayout.AbsoluteContentSize.Y)
 end
-
 
 -- Criando alguns botões de exemplo
 createButton("INVENTÁRIO", function()
@@ -112,6 +111,9 @@ createButton("DELETAR", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
 end)
 
+createButton("Lock Camera", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
+end)
 createButton("Hitboxtool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool"))()
 end)
@@ -120,12 +122,20 @@ createButton("Hitboxtoolv2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitbooxv2"))()
 end)
 
-createButton("Lock Camera", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
-end)
-
 createButton("Block air tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
+end)
+
+createButton("Dash", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
+end)
+
+createButton("Fly tool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
+end)
+
+createButton("Jump tool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
 end)
 
 createButton("Aimbot all", function()
@@ -136,32 +146,31 @@ createButton("Aimbot team", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
 end)
 
-createButton("Fly tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
-end)
-
-createButton("Dash", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
-end)
-
 createButton("Speed Boost tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua"))()
 end)
-
 createButton("Teleport tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
-end)
-
-createButton("Jump tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
 end)
 
 createButton("Tp Players", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
 end)
 
+createButton("TpV2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
+end)
+
+createButton("Tpv3", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpv3"))()
+end)
+
 createButton("Visor Objetos", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Visorname"))()
+end)
+
+createButton("Ultra Visor", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR"))()
 end)
 
 createButton("Linhas", function()
@@ -172,38 +181,32 @@ createButton("Auto", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento"))()
 end)
 
-createButton("TpV2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
-end)
-
 createButton("EM BREVE", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
 end)
 
-createButton("Ultra Visor", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR"))()
-end)
 
 
 
--- Botão para minimizar o menu (dentro do título)
-local minimizeButton = Instance.new("TextButton", titleLabel)  -- Alterado para ser filho do titleLabel
-minimizeButton.Size = UDim2.new(0, 30, 0, 30)
-minimizeButton.Position = UDim2.new(1, -40, 0, 10)  -- Ajustado para posicionar o botão no canto superior direito do título
-minimizeButton.Text = "🟢"  -- Quadrado
-minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-minimizeButton.BorderSizePixel = 0
-minimizeButton.Font = Enum.Font.SourceSans
-minimizeButton.TextSize = 20
-
-minimizeButton.MouseButton1Click:Connect(function()
+-- Função para alternar entre minimizar e restaurar o menu
+local function toggleMenu()
     if menuFrame.Size.Y.Offset > 60 then
-        menuFrame.Size = UDim2.new(0, 300, 0, 60)  -- Minimiza
-        scrollingFrame.Visible = false  -- Oculta o ScrollingFrame
-        minimizeButton.Text = "🔴"  -- Muda o ícone
+        menuFrame.Size = UDim2.new(0, 300, 0, 60) -- Minimiza
+        scrollingFrame.Visible = false -- Oculta o ScrollingFrame
+        minimizeButton.Text = "🟥" -- Muda o ícone
     else
-        menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Restaura
-        scrollingFrame.Visible = true  -- Mostra o ScrollingFrame
-        minimizeButton.Text = "🟢"  -- Muda o ícone
+        menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
+        scrollingFrame.Visible = true -- Mostra o ScrollingFrame
+        minimizeButton.Text = "🟩" -- Muda o ícone
+    end
+end
+
+-- Chama a função de minimizar/restaurar ao clicar no botão
+minimizeButton.MouseButton1Click:Connect(toggleMenu)
+
+-- Alternar visibilidade com a tecla 'M'
+userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.M then
+        toggleMenu() -- Chama a função diretamente
     end
 end)
