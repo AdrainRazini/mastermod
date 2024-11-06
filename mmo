@@ -2,52 +2,55 @@ local player = game.Players.LocalPlayer
 local userInputService = game:GetService("UserInputService")
 
 -- Criação da interface gráfica
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")  -- Adiciona o ScreenGui ao PlayerGui
 screenGui.Enabled = true  -- Garantir que o ScreenGui esteja visível
 
-local menuFrame = Instance.new("Frame", screenGui)
-menuFrame.Size = UDim2.new(0, 300, 0, 400)
-menuFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-menuFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-menuFrame.BorderSizePixel = 0
-menuFrame.Visible = true
+-- Criação do menu
+local menuFrame = Instance.new("Frame")
+menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Tamanho do menu
+menuFrame.Position = UDim2.new(0.5, -150, 0.5, -200)  -- Posição do menu no centro da tela
+menuFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)  -- Cor de fundo
+menuFrame.Parent = screenGui
 
 -- Título do menu
-local titleFrame = Instance.new("Frame", menuFrame)
+local titleFrame = Instance.new("Frame")
 titleFrame.Size = UDim2.new(1, 0, 0, 50)
 titleFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-titleFrame.BorderSizePixel = 0
+titleFrame.Parent = menuFrame
 
--- Título do menu
-local titleLabel = Instance.new("TextLabel", titleFrame)
-titleLabel.Size = UDim2.new(0.9, 0, 1, 0)  -- Título ocupa 90% da largura
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.9, 0, 1, 0)
 titleLabel.Text = "Mod Menu"
 titleLabel.TextColor3 = Color3.new(1, 1, 1)
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextSize = 24
-titleLabel.BackgroundTransparency = 1  -- Sem fundo para o título
+titleLabel.BackgroundTransparency = 1  -- Sem fundo
+titleLabel.Parent = titleFrame
 
 -- Botão de minimizar/restaurar
-local minimizeButton = Instance.new("TextButton", titleFrame)
-minimizeButton.Size = UDim2.new(0.1, 0, 1, 0)  -- O botão ocupa 10% da largura
-minimizeButton.Position = UDim2.new(0.9, 0, 0, 0)  -- Fica no final do título
-minimizeButton.Text = "⬜"  -- Quadrado inicial
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0.1, 0, 1, 0)
+minimizeButton.Position = UDim2.new(0.9, 0, 0, 0)
+minimizeButton.Text = "⬜"
 minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 minimizeButton.BorderSizePixel = 0
 minimizeButton.Font = Enum.Font.SourceSans
 minimizeButton.TextSize = 20
+minimizeButton.Parent = titleFrame
 
--- Criar um ScrollingFrame
-local scrollingFrame = Instance.new("ScrollingFrame", menuFrame)
-scrollingFrame.Size = UDim2.new(1, 0, 1, -60)  -- Ajusta o tamanho para abaixo do título
+-- Criar um ScrollingFrame para os botões
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, -60)  -- Ajusta para abaixo do título
 scrollingFrame.Position = UDim2.new(0, 0, 0, 50)
 scrollingFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-scrollingFrame.BorderSizePixel = 0
-scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollingFrame.ScrollBarThickness = 10
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)  -- Inicialize o CanvasSize com zero
+scrollingFrame.Parent = menuFrame
 
-local uiListLayout = Instance.new("UIListLayout", scrollingFrame)
+local uiListLayout = Instance.new("UIListLayout")
 uiListLayout.Padding = UDim.new(0, 10)
+uiListLayout.Parent = scrollingFrame
 
 local dragging, dragStart, startPos
 
@@ -76,9 +79,9 @@ userInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Criando alguns botões de exemplo (substitua por seus próprios scripts)
+-- Função para criar botões no menu
 local function createButton(name, activateCallback)
-    local button = Instance.new("TextButton", scrollingFrame)
+    local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, -20, 0, 50)
     button.Text = name
     button.TextColor3 = Color3.new(1, 1, 1)
@@ -86,6 +89,7 @@ local function createButton(name, activateCallback)
     button.BorderSizePixel = 0
     button.Font = Enum.Font.SourceSans
     button.TextSize = 20
+    button.Parent = scrollingFrame
 
     button.MouseButton1Click:Connect(function()
         activateCallback()
@@ -93,6 +97,9 @@ local function createButton(name, activateCallback)
         wait(0.5)
         button.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
     end)
+
+    -- Atualiza o CanvasSize para garantir rolagem
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, scrollingFrame.UIListLayout.AbsoluteContentSize.Y)
 end
 
 
