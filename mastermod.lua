@@ -190,7 +190,7 @@ end)
 local minimizeButton = Instance.new("TextButton", screenGui)
 minimizeButton.Size = UDim2.new(0, 30, 0, 30)
 minimizeButton.Position = UDim2.new(1, -40, 0, 10)
-minimizeButton.Text = "⬜" -- Quadrado
+minimizeButton.Text = "🟢" -- Quadrado
 minimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 minimizeButton.BorderSizePixel = 0
 minimizeButton.Font = Enum.Font.SourceSans
@@ -200,11 +200,11 @@ minimizeButton.MouseButton1Click:Connect(function()
     if menuFrame.Size.Y.Offset > 60 then
         menuFrame.Size = UDim2.new(0, 300, 0, 60) -- Minimiza
         scrollingFrame.Visible = false -- Oculta o ScrollingFrame
-        minimizeButton.Text = "⬛" -- Muda o ícone
+        minimizeButton.Text = "🔴" -- Muda o ícone
     else
         menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
         scrollingFrame.Visible = true -- Mostra o ScrollingFrame
-        minimizeButton.Text = "⬜" -- Muda o ícone
+        minimizeButton.Text = "🟢" -- Muda o ícone
     end
 end)
 
