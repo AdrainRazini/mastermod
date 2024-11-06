@@ -1,0 +1,79 @@
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+
+-- Cria o ImageLabel
+local imageLabel = Instance.new("ImageLabel", gui)
+imageLabel.Size = UDim2.new(0, 100, 0, 100)
+imageLabel.Position = UDim2.new(0.5, -50, 0.3, -50)
+imageLabel.BackgroundTransparency = 1
+imageLabel.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=1393562880&width=420&height=420&format=png"
+
+-- Adiciona texto
+local textLabel = Instance.new("TextLabel", gui)
+textLabel.Size = UDim2.new(0, 400, 0, 50)
+textLabel.Position = UDim2.new(0.5, -200, 0.45, -25)
+textLabel.Text = "adrian75556435\nAdrainRazini"
+textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+textLabel.BackgroundTransparency = 1
+textLabel.TextScaled = true
+textLabel.TextStrokeTransparency = 0.5
+
+-- Cria o Frame de loading
+local loadingFrame = Instance.new("Frame", gui)
+loadingFrame.Size = UDim2.new(0, 300, 0, 50)
+loadingFrame.Position = UDim2.new(0.5, -150, 0.7, -25)
+loadingFrame.BackgroundTransparency = 1  -- Fundo invisível
+
+-- Texto de loading
+local loadingLabel = Instance.new("TextLabel", loadingFrame)
+loadingLabel.Size = UDim2.new(1, 0, 1, 0)
+loadingLabel.Text = "Loading..."
+loadingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+loadingLabel.BackgroundTransparency = 1
+loadingLabel.TextScaled = true
+
+-- Função para executar o script remoto
+local function executarScript()
+    loadstring(game:HttpGet(""))()
+end
+
+-- Animação de loading com contagem e efeitos
+local function animateLoading()
+    local points = 0
+    while points < 3 do
+        loadingLabel.Text = "Loading" .. string.rep(".", points)
+        loadingLabel.TextTransparency = 0  -- Certifique-se de que o texto é visível
+
+        -- Animação de entrada
+        loadingLabel:TweenPosition(UDim2.new(0.5, -50, 0.7, -25), "InOut", "Sine", 0.5, true)
+        wait(0.5)
+
+        -- Animação de saída
+        loadingLabel:TweenPosition(UDim2.new(0.5, -50, 0.75, -25), "InOut", "Sine", 0.5, true)
+        wait(0.5)
+
+        points = points + 1
+    end
+
+    -- Resetando os pontos
+    for i = 1, 3 do
+        loadingLabel.Text = "Loading" .. string.rep(".", i)
+        loadingLabel:TweenPosition(UDim2.new(0.5, -50, 0.7, -25), "InOut", "Sine", 0.5, true)
+        wait(1)
+    end
+end
+
+-- Inicia a animação de loading
+animateLoading()
+
+-- Simula o loading
+wait(1) -- Duração final do loading
+
+-- Fecha o GUI após o loading
+gui:Destroy()
+
+-- Simula a saída da apresentação (substitua por seu evento real)
+local apresentacaoSaiu = true  -- Simule que a apresentação saiu
+if apresentacaoSaiu then
+    executarScript()
+end
