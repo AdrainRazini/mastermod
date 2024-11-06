@@ -34,7 +34,7 @@ loadingLabel.TextScaled = true
 
 -- Função para executar o script remoto
 local function executarScript()
-    loadstring(game:HttpGet(""))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/mastermod.lua"))()
 end
 
 -- Animação de loading com contagem e efeitos
