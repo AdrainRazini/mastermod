@@ -22,7 +22,7 @@ end
 
 local function atualizarJogador()
     while isActive do
-        wait(0.1) -- Intervalo entre atualizações
+        wait(0) -- Intervalo entre atualizações
         local jogadorMaisProximo = nil
         local menorDistancia = math.huge
 
