@@ -21,7 +21,7 @@ titleFrame.Parent = menuFrame
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0.9, 0, 1, 0)
-titleLabel.Text = "Mod Menu"
+titleLabel.Text = "MASTERMOD"
 titleLabel.TextColor3 = Color3.new(1, 1, 1)
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextSize = 24
@@ -114,6 +114,11 @@ end)
 createButton("Lock Camera", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
 end)
+
+createButton("Coordenadas", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
+end)
+
 createButton("Hitboxtool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool"))()
 end)
