@@ -1,4 +1,3 @@
--- Acessa o jogador local
 local player = game.Players.LocalPlayer
 
 -- Cria uma nova ferramenta
@@ -25,12 +24,16 @@ local block
 local function onEquipped()
     print("Ferramenta equipada!")
 
+    -- Verifica se o personagem do jogador está carregado
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
     -- Cria o bloco que funcionará como um segundo corpo
     block = Instance.new("Part")
     block.Size = Vector3.new(2000, 50, 2000)  -- Tamanho do bloco
     block.Anchored = false
     block.CanCollide = false  -- Impede colisão com o jogador
-    block.BrickColor = BrickColor.new("Bright blue")
+    block.Transparency = 1  -- Torna o bloco invisível
     block.Parent = game.Workspace
 
     -- Função para controlar o bloco
