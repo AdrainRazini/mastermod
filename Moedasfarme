@@ -3,60 +3,30 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local tweenService = game:GetService("TweenService")
 
--- Função para obter as coordenadas de objetos chamados "Chest" ou "Coin"
-local function getObjectCoordinates()
-    local coordinates = {}
-
+-- Função para mover os objetos chamados "Chest" ou "Coin" até o jogador
+local function moveObjectsToPlayer()
     -- Procurar por objetos chamados "Chest" ou "Coin" em todo o jogo
     for _, object in pairs(workspace:GetDescendants()) do
         if object:IsA("BasePart") and (object.Name == "Chest" or object.Name == "Coin") then
-            -- Adiciona a coordenada do objeto à tabela
-            table.insert(coordinates, object.Position)
+            -- Criar o CFrame para a nova posição (na posição do jogador, ajustada para o centro do corpo)
+            local targetPosition = humanoidRootPart.Position + Vector3.new(0, 2, 0)  -- Ajuste a altura para ficar na altura do corpo
+
+            -- Criar a animação de movimento (usando Tween)
+            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)  -- 2 segundos para animação suave
+            local goal = {Position = targetPosition}  -- Objetivo é mover o objeto para a posição do jogador
+            local tween = tweenService:Create(object, tweenInfo, goal)
+
+            -- Inicia a animação de movimento
+            tween:Play()
         end
     end
-
-    return coordinates
 end
 
--- Função para teletransportar o jogador com animação (usando Tween)
-local function teleportToNextCoordinate(coordinates, currentIndex)
-    local targetPosition = coordinates[currentIndex]
+-- Chama a função para mover os objetos até o jogador
+moveObjectsToPlayer()
 
-    -- Criar o CFrame para a nova posição
-    local targetCFrame = CFrame.new(targetPosition)
-
-    -- Criar a animação de teleporte
-    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)  -- 1 segundo para animação suave
-    local goal = {CFrame = targetCFrame}  -- Objetivo de teleporte é o CFrame da nova posição
-    local tween = tweenService:Create(humanoidRootPart, tweenInfo, goal)
-
-    -- Inicia a animação de teleporte
-    tween:Play()
-
-    -- Atualiza o índice para a próxima coordenada
-    currentIndex = currentIndex + 1
-
-    -- Se atingir o final da lista, volta para o começo
-    if currentIndex > #coordinates then
-        currentIndex = 1
-    end
-
-    return currentIndex
-end
-
--- Atualiza a lista de coordenadas periodicamente e teletransporta o jogador
-local currentIndex = 1
+-- Loop para mover os objetos repetidamente
 while true do
-    -- Obtém a lista atualizada de coordenadas
-    local coordinates = getObjectCoordinates()
-
-    -- Verifica se há objetos encontrados
-    if #coordinates == 0 then
-        print("Nenhum objeto 'Chest' ou 'Coin' encontrado no jogo.")
-    else
-        -- Teletransporta o jogador para a próxima coordenada
-        currentIndex = teleportToNextCoordinate(coordinates, currentIndex)
-    end
-
-    wait(0.5)  -- Aguarda 0.5 segundos antes de atualizar as coordenadas e teletransportar novamente
+    moveObjectsToPlayer()
+    wait(0.5)  -- Espera 2 segundos antes de tentar mover novamente (ajustado para ser 2 segundos)
 end
