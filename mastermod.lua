@@ -111,6 +111,10 @@ createButton("DELETAR", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
 end)
 
+createButton("AUTO FARME MOEDAS", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
+end)
+
 createButton("Lock Camera", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
 end)
