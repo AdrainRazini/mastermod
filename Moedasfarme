@@ -1,22 +1,37 @@
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local tweenService = game:GetService("TweenService")
 
--- Lista de coordenadas (você pode adicionar mais coordenadas aqui)
-local coordinates = {
-    Vector3.new(104.63, 643.79, 605.35),  -- Coordenada 1
-    Vector3.new(116, 643, 540),  -- Coordenada 2
-    Vector3.new(135.65, 643.74, 571.89),  -- Coordenada 3
-    Vector3.new(207.35, 641.86, 616.87),  -- Coordenada 4
-    -- Adicione mais coordenadas conforme necessário
-}
+-- Função para obter as coordenadas de objetos chamados "Chest" ou "Coin"
+local function getObjectCoordinates()
+    local coordinates = {}
 
-local currentIndex = 1  -- Inicia na primeira coordenada
+    -- Procurar por objetos chamados "Chest" ou "Coin" em todo o jogo
+    for _, object in pairs(workspace:GetDescendants()) do
+        if object:IsA("BasePart") and (object.Name == "Chest" or object.Name == "Coin") then
+            -- Adiciona a coordenada do objeto à tabela
+            table.insert(coordinates, object.Position)
+        end
+    end
 
--- Função para teletransportar o jogador para a coordenada
-local function teleportToNextCoordinate()
-    -- Move para a coordenada atual na lista
-    humanoidRootPart.CFrame = CFrame.new(coordinates[currentIndex])
+    return coordinates
+end
+
+-- Função para teletransportar o jogador com animação (usando Tween)
+local function teleportToNextCoordinate(coordinates, currentIndex)
+    local targetPosition = coordinates[currentIndex]
+
+    -- Criar o CFrame para a nova posição
+    local targetCFrame = CFrame.new(targetPosition)
+
+    -- Criar a animação de teleporte
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)  -- 1 segundo para animação suave
+    local goal = {CFrame = targetCFrame}  -- Objetivo de teleporte é o CFrame da nova posição
+    local tween = tweenService:Create(humanoidRootPart, tweenInfo, goal)
+
+    -- Inicia a animação de teleporte
+    tween:Play()
 
     -- Atualiza o índice para a próxima coordenada
     currentIndex = currentIndex + 1
@@ -25,10 +40,23 @@ local function teleportToNextCoordinate()
     if currentIndex > #coordinates then
         currentIndex = 1
     end
+
+    return currentIndex
 end
 
--- Faz o teleporte a cada 0 segundos
+-- Atualiza a lista de coordenadas periodicamente e teletransporta o jogador
+local currentIndex = 1
 while true do
-    teleportToNextCoordinate()
-    wait(0)  -- Aguarda 0 segundos antes de teletransportar para a próxima coordenada
+    -- Obtém a lista atualizada de coordenadas
+    local coordinates = getObjectCoordinates()
+
+    -- Verifica se há objetos encontrados
+    if #coordinates == 0 then
+        print("Nenhum objeto 'Chest' ou 'Coin' encontrado no jogo.")
+    else
+        -- Teletransporta o jogador para a próxima coordenada
+        currentIndex = teleportToNextCoordinate(coordinates, currentIndex)
+    end
+
+    wait(0.5)  -- Aguarda 0.5 segundos antes de atualizar as coordenadas e teletransportar novamente
 end
