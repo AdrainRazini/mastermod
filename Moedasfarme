@@ -1,0 +1,34 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Lista de coordenadas (você pode adicionar mais coordenadas aqui)
+local coordinates = {
+    Vector3.new(104.63, 643.79, 605.35),  -- Coordenada 1
+    Vector3.new(116, 643, 540),  -- Coordenada 2
+    Vector3.new(135.65, 643.74, 571.89),  -- Coordenada 3
+    Vector3.new(207.35, 641.86, 616.87),  -- Coordenada 4
+    -- Adicione mais coordenadas conforme necessário
+}
+
+local currentIndex = 1  -- Inicia na primeira coordenada
+
+-- Função para teletransportar o jogador para a coordenada
+local function teleportToNextCoordinate()
+    -- Move para a coordenada atual na lista
+    humanoidRootPart.CFrame = CFrame.new(coordinates[currentIndex])
+
+    -- Atualiza o índice para a próxima coordenada
+    currentIndex = currentIndex + 1
+
+    -- Se atingir o final da lista, volta para o começo
+    if currentIndex > #coordinates then
+        currentIndex = 1
+    end
+end
+
+-- Faz o teleporte a cada 0 segundos
+while true do
+    teleportToNextCoordinate()
+    wait(0)  -- Aguarda 0 segundos antes de teletransportar para a próxima coordenada
+end
