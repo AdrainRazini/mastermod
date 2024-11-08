@@ -1,0 +1,34 @@
+-- Criar o ScreenGui e um TextLabel para exibir as coordenadas
+local player = game.Players.LocalPlayer
+local playerCharacter = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = playerCharacter:WaitForChild("HumanoidRootPart")
+
+-- Criar o ScreenGui e adicionar ao Player
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Criar o TextLabel para mostrar as coordenadas
+local coordinatesLabel = Instance.new("TextLabel")
+coordinatesLabel.Size = UDim2.new(0, 300, 0, 50)  -- Aumentei o tamanho para garantir que o texto não seja cortado
+coordinatesLabel.Position = UDim2.new(1, -310, 0, 20)  -- Ajustei a posição para garantir que não sobreponha com a borda
+coordinatesLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+coordinatesLabel.BackgroundTransparency = 0.5
+coordinatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+coordinatesLabel.TextSize = 18
+coordinatesLabel.TextStrokeTransparency = 0.8
+coordinatesLabel.TextWrapped = true  -- Permite que o texto quebre a linha, se necessário
+coordinatesLabel.Text = "(0.00, 0.00, 0.00)"  -- Texto inicial sem "Coordenadas:"
+coordinatesLabel.Parent = screenGui
+
+-- Função para atualizar as coordenadas
+local function updateCoordinates()
+    while true do
+        local position = humanoidRootPart.Position
+        -- Apenas as coordenadas em formato (X, Y, Z)
+        coordinatesLabel.Text = string.format("(%.2f, %.2f, %.2f)", position.X, position.Y, position.Z)
+        wait(0.1) -- Atualizar a cada 0.1 segundos
+    end
+end
+
+-- Iniciar o loop de atualização das coordenadas
+updateCoordinates()
