@@ -1,1 +1,108 @@
+-- Criando a tela principal
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MenuArrastavel"
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Criando o painel do menu
+local menuPanel = Instance.new("Frame")
+menuPanel.Size = UDim2.new(0, 300, 0, 500)  -- Tamanho do menu
+menuPanel.Position = UDim2.new(0, 50, 0, 50)  -- Posição inicial do menu
+menuPanel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  -- Cor de fundo do menu
+menuPanel.BorderSizePixel = 2
+menuPanel.Parent = screenGui
+
+-- Criando a barra de título do menu (com possibilidade de arrastar)
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 30)  -- Tamanho da barra de título
+titleBar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Cor de fundo da barra
+titleBar.Parent = menuPanel
+
+-- Criando o botão de minimizar (que vira um botão de imagem)
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 50, 0, 30)
+minimizeButton.Position = UDim2.new(1, -50, 0, 0)
+minimizeButton.Text = "_"
+minimizeButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+minimizeButton.Parent = titleBar
+
+-- Função para minimizar o menu
+local function minimizeMenu()
+    if menuPanel.Visible then
+        menuPanel.Visible = false
+        local iconButton = Instance.new("TextButton")
+        iconButton.Size = UDim2.new(0, 50, 0, 50)
+        iconButton.Position = UDim2.new(0, 50, 0, 50)
+        iconButton.Text = "M"
+        iconButton.BackgroundImage = "rbxassetid://125503842985497" -- ID da imagem para o botão minimizado
+        iconButton.Parent = screenGui
+        
+        -- Quando clicar no botão de imagem, o menu será restaurado
+        iconButton.MouseButton1Click:Connect(function()
+            menuPanel.Visible = true
+            iconButton:Destroy()  -- Remove o botão de imagem
+        end)
+    end
+end
+
+-- Conectando o botão de minimizar
+minimizeButton.MouseButton1Click:Connect(minimizeMenu)
+
+-- Criando o painel de rolagem
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, -30)  -- Tamanho da área de rolagem (abaixo da barra de título)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+scrollingFrame.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+scrollingFrame.ScrollBarThickness = 10
+scrollingFrame.Parent = menuPanel
+
+-- Criando botões que executam links externos
+local button1 = Instance.new("TextButton")
+button1.Size = UDim2.new(0, 250, 0, 40)
+button1.Position = UDim2.new(0, 25, 0, 10)
+button1.Text = "Abrir Link Externo 1"
+button1.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+button1.TextColor3 = Color3.fromRGB(255, 255, 255)
+button1.Parent = scrollingFrame
+
+button1.MouseButton1Click:Connect(function()
+    -- Substitua o URL abaixo pelo link desejado
+    game:GetService("GuiService"):OpenBrowserWindow("https://www.example.com")
+end)
+
+local button2 = Instance.new("TextButton")
+button2.Size = UDim2.new(0, 250, 0, 40)
+button2.Position = UDim2.new(0, 25, 0, 60)
+button2.Text = "Abrir Link Externo 2"
+button2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+button2.TextColor3 = Color3.fromRGB(255, 255, 255)
+button2.Parent = scrollingFrame
+
+button2.MouseButton1Click:Connect(function()
+    -- Substitua o URL abaixo pelo link desejado
+    game:GetService("GuiService"):OpenBrowserWindow("https://www.example2.com")
+end)
+
+-- Função para arrastar o menu
+local dragStart = nil
+local startPos = nil
+
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragStart = input.Position
+        startPos = menuPanel.Position
+    end
+end)
+
+titleBar.InputChanged:Connect(function(input)
+    if dragStart then
+        local delta = input.Position - dragStart
+        menuPanel.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragStart = nil
+    end
+end)
 
