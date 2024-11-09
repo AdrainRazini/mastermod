@@ -1,3 +1,4 @@
+-- Referências para o Player e a GUI
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local tweenService = game:GetService("TweenService")
