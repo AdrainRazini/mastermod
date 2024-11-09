@@ -200,13 +200,13 @@ end)
 -- Função para alternar entre minimizar e restaurar o menu
 local function toggleMenu()
     if menuFrame.Size.Y.Offset > 60 then
-        menuFrame.Size = UDim2.new(0, 300, 0, 60) -- Minimiza
+        menuFrame.Size = UDim2.new(0, 100, 0, 60) -- Minimiza
         scrollingFrame.Visible = false -- Oculta o ScrollingFrame
         minimizeButton.Text = "🟥" -- Muda o ícone
     else
         menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
         scrollingFrame.Visible = true -- Mostra o ScrollingFrame
-        minimizeButton.Image.Text = "rbxassetid://125503842985497"
+         minimizeButton.Text = "🟩" -- Muda o ícone
     end
 end
 
