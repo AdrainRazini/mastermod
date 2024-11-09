@@ -1,16 +1,1 @@
--- Criação de uma GUI simples com link para o YouTube
-local player = game.Players.LocalPlayer
-local screenGui = Instance.new("ScreenGui")
-local textButton = Instance.new("TextButton")
 
-screenGui.Parent = player:WaitForChild("PlayerGui")
-textButton.Parent = screenGui
-textButton.Text = "Clique aqui para assistir ao vídeo"
-textButton.Size = UDim2.new(0, 300, 0, 50)
-textButton.Position = UDim2.new(0.5, -150, 0.5, -25)
-
-textButton.MouseButton1Click:Connect(function()
-    -- Abrir link do YouTube em um navegador externo
-    -- Infelizmente, o Roblox não permite redirecionamento direto do jogo para sites, mas você pode orientar o usuário a abrir em um navegador.
-    print("Acesse o link no seu navegador: https://www.youtube.com/watch?v=VFY1TMIyQR4&list=RDMMVFY1TMIyQR4&start_radio=1")
-end)
