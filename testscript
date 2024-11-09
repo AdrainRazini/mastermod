@@ -30,8 +30,8 @@ titleLabel.Parent = titleFrame
 
 -- Adiciona a imagem que será exibida ao minimizar
 local minimizedImage = Instance.new("ImageLabel")
-minimizedImage.Size = UDim2.new(1, 0, 1, 0)  -- Tamanho da imagem
-minimizedImage.Position = UDim2.new(0, 0, 0, 50)  -- Imagem fica no lugar do título
+minimizedImage.Size = UDim2.new(0, 50, 0, 50)  -- Tamanho da imagem quando minimizado
+minimizedImage.Position = UDim2.new(0.5, -25, 0.5, -25)  -- Posição centralizada
 minimizedImage.BackgroundTransparency = 1
 minimizedImage.Image = "rbxassetid://125503842985497"  -- ID da imagem
 minimizedImage.Visible = false  -- Inicialmente invisível
@@ -173,17 +173,18 @@ createButton("Noclip", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/noclip"))()
 end)
 
--- Lógica para minimizar/restaurar o menu com a imagem como botão
+-- Lógica para minimizar/restaurar o menu com a imagem como quadrado
 minimizedImage.MouseButton1Click:Connect(function()
-    if menuFrame.Size.Y.Offset > 60 then
-        menuFrame.Size = UDim2.new(0, 150, 0, 60)  -- Minimiza
+    if menuFrame.Size.X.Offset > 60 then
+        menuFrame.Size = UDim2.new(0, 60, 0, 60)  -- Minimiza o menu para um quadrado
         scrollingFrame.Visible = false  -- Oculta a lista de botões
         minimizedImage.Visible = true  -- Exibe a imagem ao minimizar
         titleLabel.Visible = false  -- Oculta o título
     else
-        menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Restaura
+        menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Restaura o menu
         scrollingFrame.Visible = true  -- Mostra a lista de botões
-        minimizedImage.Visible = false  -- Oculta a imagem quando restaurar
+        minimizedImage.Visible = false  -- Oculta a imagem ao restaurar
         titleLabel.Visible = true  -- Mostra o título novamente
+ minimizeButton.Text = "🟩" -- Muda o ícone
     end
 end)
