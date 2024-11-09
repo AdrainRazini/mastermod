@@ -203,13 +203,13 @@ local function toggleMenu()
         menuFrame.Size = UDim2.new(0, 150, 0, 60) -- Minimiza
         scrollingFrame.Visible = false -- Oculta o ScrollingFrame
         minimizeButton.Text = "🟥" -- Muda o ícone
-        imageButton.Image = "rbxassetid://125503842985497"
-        imageButton.BackgroundTransparency = 0
+       titleLabel.BackgroundTransparency = 1  -- Sem fundo
     else
         menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
         scrollingFrame.Visible = true -- Mostra o ScrollingFrame
          minimizeButton.Text = "🟩" -- Muda o ícone
-        imageButton.BackgroundTransparency = 1
+        titleLabel.BackgroundTransparency = 0  -- Sem fundo
+      
     end
 end
 
