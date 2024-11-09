@@ -119,6 +119,10 @@ createButton("Lock Camera", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
 end)
 
+createButton("Lock Air", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar"))()
+end)
+
 createButton("Coordenadas", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
 end)
