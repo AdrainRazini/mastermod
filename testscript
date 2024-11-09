@@ -50,33 +50,6 @@ local uiListLayout = Instance.new("UIListLayout")
 uiListLayout.Padding = UDim.new(0, 10)
 uiListLayout.Parent = scrollingFrame
 
-local dragging, dragStart, startPos
-
-local function updatePosition(input)
-    local delta = input.Position - dragStart
-    menuFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-menuFrame.InputBegan:Connect(function(input)
-    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-        dragging = true
-        dragStart = input.Position
-        startPos = menuFrame.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-userInputService.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        updatePosition(input)
-    end
-end)
-
 -- Função para criar botões no menu
 local function createButton(name, activateCallback)
     local button = Instance.new("TextButton")
@@ -176,15 +149,16 @@ end)
 -- Lógica para minimizar/restaurar o menu com a imagem como quadrado
 minimizedImage.MouseButton1Click:Connect(function()
     if menuFrame.Size.X.Offset > 60 then
-        menuFrame.Size = UDim2.new(0, 60, 0, 60)  -- Minimiza o menu para um quadrado
+        -- Minimiza o menu para um quadrado
+        menuFrame.Size = UDim2.new(0, 60, 0, 60)
         scrollingFrame.Visible = false  -- Oculta a lista de botões
         minimizedImage.Visible = true  -- Exibe a imagem ao minimizar
         titleLabel.Visible = false  -- Oculta o título
     else
-        menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Restaura o menu
+        -- Restaura o menu
+        menuFrame.Size = UDim2.new(0, 300, 0, 400)
         scrollingFrame.Visible = true  -- Mostra a lista de botões
         minimizedImage.Visible = false  -- Oculta a imagem ao restaurar
         titleLabel.Visible = true  -- Mostra o título novamente
- minimizeButton.Text = "🟩" -- Muda o ícone
     end
 end)
