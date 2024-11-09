@@ -206,8 +206,7 @@ local function toggleMenu()
     else
         menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
         scrollingFrame.Visible = true -- Mostra o ScrollingFrame
-        minimizeButton.Text = "rbxassetid://125503842985497"
-        imageButton.Image.Text =
+        minimizeButton.Image.Text = "rbxassetid://125503842985497"
     end
 end
 
