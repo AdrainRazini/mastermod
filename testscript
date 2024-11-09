@@ -1,1 +1,14 @@
 
+-- Requer a biblioteca socket para abrir links em um navegador (pode ser necessário instalar o luarocks)
+local socket = require("socket.http")
+
+-- Função para abrir o vídeo no YouTube
+local function openYouTubeVideo()
+    local url = "https://www.youtube.com/watch?v=VFY1TMIyQR4&list=RDMMVFY1TMIyQR4&start_radio=1"
+    
+    -- Isso abriria o link no navegador, mas em um ambiente Lua não há uma maneira nativa de reproduzir vídeos diretamente
+    socket.open(url)
+end
+
+-- Chamando a função para abrir o link
+openYouTubeVideo()
