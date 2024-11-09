@@ -203,13 +203,10 @@ local function toggleMenu()
         menuFrame.Size = UDim2.new(0, 150, 0, 60) -- Minimiza
         scrollingFrame.Visible = false -- Oculta o ScrollingFrame
         minimizeButton.Text = "🟥" -- Muda o ícone
-       titleLabel.Transparency = 1  -- Sem text
     else
         menuFrame.Size = UDim2.new(0, 300, 0, 400) -- Restaura
         scrollingFrame.Visible = true -- Mostra o ScrollingFrame
          minimizeButton.Text = "🟩" -- Muda o ícone
-        titleLabel.Transparency = 0  -- Com text
-      
     end
 end
 
