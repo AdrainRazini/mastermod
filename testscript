@@ -39,6 +39,15 @@ minimizeButton.Font = Enum.Font.SourceSans
 minimizeButton.TextSize = 20
 minimizeButton.Parent = titleFrame
 
+-- Adiciona a imagem que será exibida ao minimizar
+local minimizedImage = Instance.new("ImageLabel")
+minimizedImage.Size = UDim2.new(1, 0, 1, 0)  -- Tamanho da imagem (substitui o menu)
+minimizedImage.Position = UDim2.new(0, 0, 0, 50)
+minimizedImage.BackgroundTransparency = 1
+minimizedImage.Image = "rbxassetid://125503842985497"  -- ID da imagem
+minimizedImage.Visible = false  -- Inicialmente invisível
+minimizedImage.Parent = menuFrame
+
 -- Criar um ScrollingFrame para os botões
 local scrollingFrame = Instance.new("ScrollingFrame")
 scrollingFrame.Size = UDim2.new(1, 0, 1, -60)  -- Ajusta para abaixo do título
@@ -168,19 +177,7 @@ createButton("Teleport tool", function()
 end)
 
 createButton("Tp Players", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
-end)
-
-createButton("TpV2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
-end)
-
-createButton("Tpv3", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpv3"))()
-end)
-
-createButton("Visor Objetos", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Visorname"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleportplayers.lua"))()
 end)
 
 createButton("Noclip", function()
@@ -193,9 +190,11 @@ minimizeButton.MouseButton1Click:Connect(function()
         menuFrame.Size = UDim2.new(0, 150, 0, 60)  -- Minimiza
         scrollingFrame.Visible = false  -- Oculta a lista de botões
         minimizeButton.Text = "🟩"  -- Muda o ícone para restaurar
+        minimizedImage.Visible = true  -- Exibe a imagem ao minimizar
     else
         menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Restaura
         scrollingFrame.Visible = true  -- Mostra a lista de botões
         minimizeButton.Text = "🟥"  -- Muda o ícone para minimizar
+        minimizedImage.Visible = false  -- Oculta a imagem quando restaurar
     end
 end)
