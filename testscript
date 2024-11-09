@@ -1,4 +1,3 @@
-
 local player = game.Players.LocalPlayer
 local userInputService = game:GetService("UserInputService")
 
@@ -20,6 +19,7 @@ titleFrame.Size = UDim2.new(1, 0, 0, 50)
 titleFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 titleFrame.Parent = menuFrame
 
+-- Aqui criamos tanto o TextButton quanto o ImageButton para alternar entre eles
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0.9, 0, 1, 0)
 titleLabel.Text = "MASTERMOD"
@@ -29,16 +29,51 @@ titleLabel.TextSize = 24
 titleLabel.BackgroundTransparency = 1
 titleLabel.Parent = titleFrame
 
--- Botão de minimizar/restaurar (Agora com imagem)
-local minimizeButton = Instance.new("ImageButton")
-minimizeButton.Size = UDim2.new(0.2, 0, 0.2, 0)
-minimizeButton.Position = UDim2.new(0.9, 0, 0, 0)
-minimizeButton.Image = "http://www.roblox.com/asset/?id=125503842985497"  -- Coloque aqui a URL do ID da imagem
-minimizeButton.BackgroundTransparency = 1
-minimizeButton.BorderSizePixel = 0
-minimizeButton.Parent = titleFrame
+local minimizeButtonText = Instance.new("TextButton")
+minimizeButtonText.Size = UDim2.new(0.2, 0, 0.2, 0)
+minimizeButtonText.Position = UDim2.new(0.9, 0, 0, 0)
+minimizeButtonText.Text = "-"
+minimizeButtonText.TextColor3 = Color3.new(1, 1, 1)
+minimizeButtonText.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+minimizeButtonText.Font = Enum.Font.SourceSans
+minimizeButtonText.TextSize = 24
+minimizeButtonText.Parent = titleFrame
 
--- Criar um ScrollingFrame para os botões
+local minimizeButtonImage = Instance.new("ImageButton")
+minimizeButtonImage.Size = UDim2.new(0.2, 0, 0.2, 0)
+minimizeButtonImage.Position = UDim2.new(0.9, 0, 0, 0)
+minimizeButtonImage.Image = "http://www.roblox.com/asset/?id=125503842985497"  -- Coloque aqui o ID da imagem
+minimizeButtonImage.BackgroundTransparency = 1
+minimizeButtonImage.BorderSizePixel = 0
+minimizeButtonImage.Parent = titleFrame
+
+-- Esconde a imagem inicialmente
+minimizeButtonImage.Visible = false
+
+-- Botão de alternância entre minimizar/restaurar
+local isMinimized = false
+
+local function toggleMenu()
+    if isMinimized then
+        -- Restaura o menu
+        menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Tamanho original
+        scrollingFrame.Visible = true  -- Torna o ScrollingFrame visível
+        minimizeButtonText.Visible = true  -- Exibe o TextButton
+        minimizeButtonImage.Visible = false  -- Esconde a ImageButton
+    else
+        -- Minimiza o menu
+        menuFrame.Size = UDim2.new(0, 150, 0, 60)  -- Tamanho minimizado
+        scrollingFrame.Visible = false  -- Torna o ScrollingFrame invisível
+        minimizeButtonText.Visible = false  -- Esconde o TextButton
+        minimizeButtonImage.Visible = true  -- Exibe a ImageButton
+    end
+    isMinimized = not isMinimized
+end
+
+minimizeButtonText.MouseButton1Click:Connect(toggleMenu)  -- Clique no botão de texto para minimizar/restaurar
+minimizeButtonImage.MouseButton1Click:Connect(toggleMenu)  -- Clique na imagem para minimizar/restaurar
+
+-- Criação do ScrollingFrame para os botões
 local scrollingFrame = Instance.new("ScrollingFrame")
 scrollingFrame.Size = UDim2.new(1, 0, 1, -60)
 scrollingFrame.Position = UDim2.new(0, 0, 0, 50)
@@ -105,22 +140,6 @@ end
 createButton("INVENTÁRIO", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
-
--- Função para alternar entre minimizar e restaurar o menu
-local function toggleMenu()
-    if menuFrame.Size.Y.Offset > 60 then
-        menuFrame.Size = UDim2.new(0, 150, 0, 60)  -- Minimiza
-        scrollingFrame.Visible = false  -- Oculta o ScrollingFrame
-        minimizeButton.Image = "http://www.roblox.com/asset/?id=125503842985497"  -- Imagem de minimizado
-    else
-        menuFrame.Size = UDim2.new(0, 300, 0, 400)  -- Restaura
-        scrollingFrame.Visible = true  -- Mostra o ScrollingFrame
-        minimizeButton.Image = "http://www.roblox.com/asset/?id=125503842985497"  -- Imagem de restaurado
-    end
-end
-
--- Chama a função de minimizar/restaurar ao clicar no botão
-minimizeButton.MouseButton1Click:Connect(toggleMenu)
 
 -- Alternar visibilidade com a tecla 'M'
 userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
