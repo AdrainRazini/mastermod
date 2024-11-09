@@ -1,4 +1,119 @@
-local sound = Instance.new("Sound")
-sound.SoundId = "rbxassetid://[14145623221]"
-sound.Parent = game.Workspace
-sound:Play()
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local tweenService = game:GetService("TweenService")
+
+-- Função para criar a GUI arrastável
+local function createMovableGui()
+    -- Criar a janela da GUI
+    local guiFrame = Instance.new("Frame")
+    guiFrame.Size = UDim2.new(0, 300, 0, 150)
+    guiFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+    guiFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    guiFrame.BorderSizePixel = 2
+    guiFrame.Parent = playerGui
+
+    -- Criar o título da janela
+    local titleBar = Instance.new("Frame")
+    titleBar.Size = UDim2.new(1, 0, 0, 30)
+    titleBar.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+    titleBar.Parent = guiFrame
+
+    -- Criar o campo de texto para o nome do objeto
+    local objectNameBox = Instance.new("TextBox")
+    objectNameBox.Size = UDim2.new(0.8, 0, 0, 30)
+    objectNameBox.Position = UDim2.new(0.1, 0, 0.3, 0)
+    objectNameBox.PlaceholderText = "Digite o nome do objeto"
+    objectNameBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    objectNameBox.Parent = guiFrame
+
+    -- Criar o botão para puxar o objeto
+    local pullButton = Instance.new("TextButton")
+    pullButton.Size = UDim2.new(0.8, 0, 0, 30)
+    pullButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+    pullButton.Text = "Puxar Objeto"
+    pullButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    pullButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    pullButton.Parent = guiFrame
+
+    -- Função para puxar o objeto baseado no nome digitado
+    pullButton.MouseButton1Click:Connect(function()
+        local objectName = objectNameBox.Text
+        local targetObject = workspace:FindFirstChild(objectName)
+        if targetObject then
+            -- Supondo que o jogador tenha um personagem com humanoide
+            local playerCharacter = player.Character
+            local humanoidRootPart = playerCharacter:WaitForChild("HumanoidRootPart")
+            if targetObject:IsA("BasePart") then
+                -- Mover o objeto para a posição do jogador (humanoidRootPart)
+                local targetPosition = humanoidRootPart.Position + Vector3.new(0, 2, 0)  -- Ajusta altura
+                local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+                local goal = {Position = targetPosition}
+                local tween = tweenService:Create(targetObject, tweenInfo, goal)
+                tween:Play()
+            end
+        else
+            print("Objeto não encontrado!")
+        end
+    end)
+
+    -- Criar o botão de minimizar
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Size = UDim2.new(0.2, 0, 0.8, 0)
+    minimizeButton.Position = UDim2.new(0.8, 0, 0, 0)
+    minimizeButton.Text = "_"
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minimizeButton.Parent = titleBar
+
+    -- Criar o botão de maximizar
+    local maximizeButton = Instance.new("TextButton")
+    maximizeButton.Size = UDim2.new(0.2, 0, 0.8, 0)
+    maximizeButton.Position = UDim2.new(0.8, 0, 0, 30)
+    maximizeButton.Text = "+"
+    maximizeButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    maximizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    maximizeButton.Parent = titleBar
+
+    -- Função para minimizar a janela
+    minimizeButton.MouseButton1Click:Connect(function()
+        guiFrame.Size = UDim2.new(0, 300, 0, 30)
+        objectNameBox.Visible = false
+        pullButton.Visible = false
+    end)
+
+    -- Função para maximizar a janela
+    maximizeButton.MouseButton1Click:Connect(function()
+        guiFrame.Size = UDim2.new(0, 300, 0, 150)
+        objectNameBox.Visible = true
+        pullButton.Visible = true
+    end)
+
+    -- Função para arrastar a janela com o mouse
+    local dragging = false
+    local dragInput, mousePos, framePos
+
+    titleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragInput = input
+            mousePos = input.Position
+            framePos = guiFrame.Position
+        end
+    end)
+
+    titleBar.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - mousePos
+            guiFrame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        end
+    end)
+
+    titleBar.InputEnded:Connect(function(input)
+        if input == dragInput then
+            dragging = false
+        end
+    end)
+end
+
+-- Criar a GUI ao iniciar
+createMovableGui()
