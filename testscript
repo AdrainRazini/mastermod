@@ -12,7 +12,7 @@ local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 300, 0, 150)
 frame.Position = UDim2.new(0.5, -150, 0.5, -75)
 frame.BackgroundColor3 = Color3.new(0, 0, 0)
-frame.Visible = false
+frame.Visible = false  -- Começa invisível
 frame.Parent = screenGui
 
 local label = Instance.new("TextLabel")
@@ -68,8 +68,23 @@ playButton.MouseButton1Click:Connect(function()
         music.SoundId = "rbxassetid://" .. musicId
         music.Parent = soundService
         music:Play()
+
+        -- Esconde a GUI após tocar a música
+        frame.Visible = false
     else
         print("ID inválido de música!")
     end
 end)
 
+-- Função para mostrar a GUI ao clicar na tela
+local userInputService = game:GetService("UserInputService")
+
+userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        -- Verifica se a música está tocando
+        if music and music.IsPlaying then
+            -- Exibe a GUI novamente para mudar o ID
+            frame.Visible = true
+        end
+    end
+end)
