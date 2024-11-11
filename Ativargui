@@ -1,0 +1,111 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = playerGui
+
+-- Título da GUI
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Text = "GUIs do Jogo"
+titleLabel.Size = UDim2.new(0, 200, 0, 40)
+titleLabel.Position = UDim2.new(0, 10, 0, 10)
+titleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 18
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = ScreenGui
+
+-- Função para criar uma lista de GUIs
+local function mostrarGUIs()
+    -- Criação do frame para rolagem
+    local guiListFrame = Instance.new("ScrollingFrame")
+    guiListFrame.Size = UDim2.new(0, 200, 0, 300)
+    guiListFrame.Position = UDim2.new(0, 10, 0, 50)
+    guiListFrame.BackgroundTransparency = 1
+    guiListFrame.ScrollBarThickness = 10  -- Ajuste a espessura da barra de rolagem
+    guiListFrame.Parent = ScreenGui
+
+    -- Definindo a estrutura do conteúdo dentro do ScrollingFrame
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Size = UDim2.new(1, 0, 0, 0)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.Parent = guiListFrame
+
+    -- Para cada ScreenGui no PlayerGui, crie um botão de listagem
+    local yPos = 0  -- Começa logo abaixo do título
+    for _, child in pairs(playerGui:GetChildren()) do
+        if child:IsA("ScreenGui") and child ~= ScreenGui then
+            -- Criação de um botão para cada ScreenGui
+            local guiButton = Instance.new("TextButton")
+            guiButton.Text = child.Name
+            guiButton.Size = UDim2.new(1, 0, 0, 30)
+            guiButton.Position = UDim2.new(0, 0, 0, yPos)
+            guiButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            guiButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            guiButton.TextSize = 16
+            guiButton.Parent = contentFrame
+
+            -- Ação ao clicar no botão (mostrar a GUI)
+            guiButton.MouseButton1Click:Connect(function()
+                -- Alternar a visibilidade da ScreenGui correspondente
+                child.Enabled = not child.Enabled
+            end)
+
+            -- Atualiza a posição para o próximo botão
+            yPos = yPos + 35
+        end
+    end
+
+    -- Ajuste a altura do contentFrame conforme o número de botões
+    contentFrame.Size = UDim2.new(1, 0, 0, yPos)
+end
+
+-- Chama a função para exibir as GUIs no jogo
+mostrarGUIs()
+
+-- Função para posicionar a GUI no lado direito
+local function positionGuiRight(gui)
+    -- Espera até que a GUI tenha sido completamente renderizada
+    gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        local screenSize = workspace.CurrentCamera.ViewportSize
+        local guiSize = gui.AbsoluteSize
+        -- Posiciona a GUI no lado direito e centraliza verticalmente
+        gui.Position = UDim2.new(1, -guiSize.X - 10, 0.5, -guiSize.Y / 2)
+    end)
+end
+
+-- Posiciona a GUI principal no lado direito
+positionGuiRight(ScreenGui)
+
+-- Função para tornar qualquer GUI arrastável
+local function makeDraggable(gui)
+    local dragging = false
+    local dragInput, mousePos, framePos
+
+    -- Adiciona um listener para quando o jogador clicar e segurar para arrastar
+    gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragInput = input
+            mousePos = input.Position
+            framePos = gui.Position
+        end
+    end)
+
+    -- Atualiza a posição enquanto o jogador arrasta
+    gui.InputChanged:Connect(function(input)
+        if dragging and (input == dragInput) then
+            local delta = input.Position - mousePos
+            gui.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        end
+    end)
+
+    -- Finaliza o arrasto quando o jogador solta o botão do mouse
+    gui.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+end
+
+-- Faz a GUI principal arrastável
+makeDraggable(ScreenGui)
