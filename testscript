@@ -14,7 +14,7 @@ MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 MainFrame.Size = UDim2.new(0, 250, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -125, 0.5, -200)
+MainFrame.Position = UDim2.new(0.5, -125, 0.5, -200)  -- Centro da tela
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 
 -- Barra de título
@@ -92,15 +92,54 @@ local function createButton(name)
     end)
 end
 
+-- Função para atualizar o tamanho do Canvas baseado no número de botões
+local function updateCanvasSize()
+    ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, #Buttons * 60) -- Ajuste a altura baseada no número de botões
+end
+
 -- Criação de 4 botões como exemplo
 createButton("Função 1")
 createButton("Função 2")
 createButton("Função 3")
 createButton("Função 4")
 
+-- Atualiza o tamanho do Canvas após adicionar os botões
+updateCanvasSize()
+
 -- Minimizar e restaurar o menu
 local minimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     minimized = not minimized
     MainFrame.Visible = not minimized
+end)
+
+-- Função para arrastar o MainFrame
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+-- Começo do arraste
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Consumed = true
+    end
+end)
+
+-- Durante o arraste
+TitleBar.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Fim do arraste
+TitleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
 end)
