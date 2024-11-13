@@ -3,7 +3,7 @@ local ScreenGui = Instance.new("ScreenGui")
 local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
 local MinimizeButton = Instance.new("TextButton")
-local Content = Instance.new("ScrollingFrame") -- Alterado para ScrollingFrame
+local Content = Instance.new("ScrollingFrame")
 local Buttons = {}
 
 -- Propriedades do GUI
@@ -46,7 +46,7 @@ Content.Parent = ModMenu
 Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 Content.Size = UDim2.new(1, 0, 1, -30)
 Content.Position = UDim2.new(0, 0, 0, 30)
-Content.CanvasSize = UDim2.new(0, 0, 1.5, 0) -- Ajuste da altura do conteúdo para permitir rolagem
+Content.CanvasSize = UDim2.new(0, 0, 1.5, 0)
 Content.ScrollBarThickness = 8
 
 -- Layout para organizar os botões em lista
@@ -55,16 +55,22 @@ ListLayout.Padding = UDim.new(0, 5)
 ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Criar botões no menu
-for i = 1, 10 do
+-- Função para criar botões com ação
+local function createButton(text, callback)
     local Button = Instance.new("TextButton")
     Button.Parent = Content
     Button.Size = UDim2.new(0.8, 0, 0, 40)
-    Button.Text = "Opção " .. i
+    Button.Text = text
     Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
     Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.MouseButton1Click:Connect(callback)
     table.insert(Buttons, Button)
 end
+
+-- Criar o botão "INVENTÁRIO" com o callback para carregar o inventário
+createButton("INVENTÁRIO", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
+end)
 
 -- Variável de estado para minimizar
 local isMinimized = false
@@ -75,7 +81,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
     if isMinimized then
         Content.Visible = false
         Title.Text = ""
-        ModMenu.Size = UDim2.new(0, 50, 0, 50) -- Reduz para um quadrado
+        ModMenu.Size = UDim2.new(0, 50, 0, 50)
         local ImageIcon = Instance.new("ImageLabel", ModMenu)
         ImageIcon.Name = "MinimizedIcon"
         ImageIcon.Size = UDim2.new(1, 0, 1, 0)
@@ -84,7 +90,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
     else
         Content.Visible = true
         Title.Text = "MODMASTER"
-        ModMenu.Size = UDim2.new(0, 200, 0, 300) -- Restaura o tamanho original
+        ModMenu.Size = UDim2.new(0, 200, 0, 300)
         if ModMenu:FindFirstChild("MinimizedIcon") then
             ModMenu.MinimizedIcon:Destroy()
         end
