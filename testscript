@@ -86,7 +86,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
         ImageIcon.Name = "MinimizedIcon"
         ImageIcon.Size = UDim2.new(1, 0, 1, 0)
         ImageIcon.BackgroundTransparency = 1
-        ImageIcon.Image = "rbxassetid://103058585772565" -- Substitua pelo ID da imagem desejada
+        ImageIcon.Image = "rbxassetid://125503842985497" -- Substitua pelo ID da imagem desejada
     else
         Content.Visible = true
         Title.Text = "MODMASTER"
