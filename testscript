@@ -1,3 +1,5 @@
+local TweenService = game:GetService("TweenService")
+
 -- Criação do GUI
 local ScreenGui = Instance.new("ScreenGui")
 local ModMenu = Instance.new("Frame")
@@ -46,7 +48,7 @@ Content.Parent = ModMenu
 Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 Content.Size = UDim2.new(1, 0, 1, -30)
 Content.Position = UDim2.new(0, 0, 0, 30)
-Content.CanvasSize = UDim2.new(0, 0, 1.5, 0)
+Content.CanvasSize = UDim2.new(0, 0, 1, 0)  -- CanvasSize inicial, ajusta-se conforme o conteúdo cresce
 Content.ScrollBarThickness = 8
 
 -- Layout para organizar os botões em lista
@@ -54,6 +56,16 @@ local ListLayout = Instance.new("UIListLayout", Content)
 ListLayout.Padding = UDim.new(0, 5)
 ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Função para atualizar o CanvasSize do ScrollingFrame
+local function updateCanvasSize()
+    -- Ajusta o tamanho do canvas com base na altura dos itens no Content (botões)
+    local totalHeight = 0
+    for _, button in pairs(Buttons) do
+        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
+    end
+    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)  -- Ajusta o CanvasSize de acordo com a altura dos botões
+end
 
 -- Função para criar botões com ação
 local function createButton(text, callback)
@@ -70,15 +82,33 @@ local function createButton(text, callback)
     updateCanvasSize()
 end
 
--- Função para atualizar o tamanho do conteúdo (Canvas)
-local function updateCanvasSize()
-    Content.CanvasSize = UDim2.new(0, 0, 0, #Buttons * 45 + 10) -- Atualiza o tamanho do conteúdo conforme a quantidade de botões
-end
+-- Função para minimizar/maximizar com animação
+local isMinimized = false
+local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
--- Função para carregar scripts externos
-local function loadExternalScript(url)
-    loadstring(game:HttpGet(url))()
-end
+-- Função de minimizar/maximizar
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    local sizeTween
+    local positionTween
+    local titleTween
+    
+    if isMinimized then
+        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
+        positionTween = TweenService:Create(ModMenu, tweenInfo, {Position = UDim2.new(0.1, 0, 0.1, 0)})
+        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
+        Content.Visible = false
+    else
+        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
+        positionTween = TweenService:Create(ModMenu, tweenInfo, {Position = UDim2.new(0.1, 0, 0.1, 0)})
+        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
+        Content.Visible = true
+    end
+    
+    sizeTween:Play()
+    positionTween:Play()
+    titleTween:Play()
+end)
 
 
 -- Criando alguns botões de exemplo
@@ -187,41 +217,3 @@ end)
 
 
 
-
--- Variável de estado para minimizar
-local isMinimized = false
-
--- Função de minimizar/maximizar
-MinimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    if isMinimized then
-        Content.Visible = false
-        Title.Text = ""
-        ModMenu.Size = UDim2.new(0, 50, 0, 50)
-        local ImageIcon = Instance.new("ImageLabel", ModMenu)
-        ImageIcon.Name = "MinimizedIcon"
-        ImageIcon.Size = UDim2.new(1, 0, 1, 0)
-        ImageIcon.BackgroundTransparency = 1
-        ImageIcon.Image = "rbxassetid://125503842985497" -- Substitua pelo ID da imagem desejada
-    else
-        Content.Visible = true
-        Title.Text = "MODMASTER"
-        ModMenu.Size = UDim2.new(0, 200, 0, 300)
-        if ModMenu:FindFirstChild("MinimizedIcon") then
-            ModMenu.MinimizedIcon:Destroy()
-        end
-    end
-end)
-
--- Função para restaurar ao clicar no quadrado minimizado
-ModMenu.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 and isMinimized then
-        isMinimized = false
-        Content.Visible = true
-        Title.Text = "MODMASTER"
-        ModMenu.Size = UDim2.new(0, 200, 0, 300)
-        if ModMenu:FindFirstChild("MinimizedIcon") then
-            ModMenu.MinimizedIcon:Destroy()
-        end
-    end
-end)
