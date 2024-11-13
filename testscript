@@ -70,6 +70,16 @@ local function createButton(text, callback)
     updateCanvasSize()
 end
 
+-- Função para atualizar o tamanho do conteúdo (Canvas)
+local function updateCanvasSize()
+    Content.CanvasSize = UDim2.new(0, 0, 0, #Buttons * 45 + 10) -- Atualiza o tamanho do conteúdo conforme a quantidade de botões
+end
+
+-- Função para carregar scripts externos
+local function loadExternalScript(url)
+    loadstring(game:HttpGet(url))()
+end
+
 
 -- Criando alguns botões de exemplo
 createButton("INVENTÁRIO", function()
