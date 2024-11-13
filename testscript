@@ -3,7 +3,7 @@ local ScreenGui = Instance.new("ScreenGui")
 local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
 local MinimizeButton = Instance.new("TextButton")
-local Content = Instance.new("Frame")
+local Content = Instance.new("ScrollingFrame") -- Alterado para ScrollingFrame
 local Buttons = {}
 
 -- Propriedades do GUI
@@ -40,19 +40,26 @@ MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
 MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
 MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
 
--- Conteúdo do menu
+-- Conteúdo do menu (ScrollingFrame)
 Content.Name = "Content"
 Content.Parent = ModMenu
 Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 Content.Size = UDim2.new(1, 0, 1, -30)
 Content.Position = UDim2.new(0, 0, 0, 30)
+Content.CanvasSize = UDim2.new(0, 0, 1.5, 0) -- Ajuste da altura do conteúdo para permitir rolagem
+Content.ScrollBarThickness = 8
+
+-- Layout para organizar os botões em lista
+local ListLayout = Instance.new("UIListLayout", Content)
+ListLayout.Padding = UDim.new(0, 5)
+ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- Criar botões no menu
-for i = 1, 4 do
+for i = 1, 10 do
     local Button = Instance.new("TextButton")
     Button.Parent = Content
     Button.Size = UDim2.new(0.8, 0, 0, 40)
-    Button.Position = UDim2.new(0.1, 0, 0, (i - 1) * 45 + 10)
     Button.Text = "Opção " .. i
     Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
     Button.TextColor3 = Color3.new(1, 1, 1)
@@ -68,7 +75,8 @@ MinimizeButton.MouseButton1Click:Connect(function()
     if isMinimized then
         Content.Visible = false
         Title.Text = ""
-        local ImageIcon = Instance.new("ImageLabel", TitleBar)
+        ModMenu.Size = UDim2.new(0, 50, 0, 50) -- Reduz para um quadrado
+        local ImageIcon = Instance.new("ImageLabel", ModMenu)
         ImageIcon.Name = "MinimizedIcon"
         ImageIcon.Size = UDim2.new(1, 0, 1, 0)
         ImageIcon.BackgroundTransparency = 1
@@ -76,8 +84,22 @@ MinimizeButton.MouseButton1Click:Connect(function()
     else
         Content.Visible = true
         Title.Text = "MODMASTER"
-        if TitleBar:FindFirstChild("MinimizedIcon") then
-            TitleBar.MinimizedIcon:Destroy()
+        ModMenu.Size = UDim2.new(0, 200, 0, 300) -- Restaura o tamanho original
+        if ModMenu:FindFirstChild("MinimizedIcon") then
+            ModMenu.MinimizedIcon:Destroy()
+        end
+    end
+end)
+
+-- Função para restaurar ao clicar no quadrado minimizado
+ModMenu.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and isMinimized then
+        isMinimized = false
+        Content.Visible = true
+        Title.Text = "MODMASTER"
+        ModMenu.Size = UDim2.new(0, 200, 0, 300)
+        if ModMenu:FindFirstChild("MinimizedIcon") then
+            ModMenu.MinimizedIcon:Destroy()
         end
     end
 end)
