@@ -65,6 +65,9 @@ local function createButton(text, callback)
     Button.TextColor3 = Color3.new(1, 1, 1)
     Button.MouseButton1Click:Connect(callback)
     table.insert(Buttons, Button)
+
+    -- Atualiza a rolagem após adicionar o novo botão
+    updateCanvasSize()
 end
 
 
