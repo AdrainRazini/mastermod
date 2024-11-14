@@ -6,6 +6,8 @@ local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
 local MinimizeButton = Instance.new("TextButton")
 local Content = Instance.new("ScrollingFrame")
+local ConfigButton = Instance.new("TextButton")
+local ConfigFrame = Instance.new("Frame")
 local Buttons = {}
 
 -- Propriedades do GUI
@@ -51,185 +53,97 @@ Content.Position = UDim2.new(0, 0, 0, 30)
 Content.CanvasSize = UDim2.new(0, 0, 1, 0)
 Content.ScrollBarThickness = 8
 
--- Layout para organizar os botões em lista
-local ListLayout = Instance.new("UIListLayout", Content)
-ListLayout.Padding = UDim.new(0, 5)
-ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+-- Botão de Configurações
+ConfigButton.Name = "ConfigButton"
+ConfigButton.Parent = TitleBar
+ConfigButton.Text = "⚙️"
+ConfigButton.Size = UDim2.new(0, 30, 1, 0)
+ConfigButton.Position = UDim2.new(0, 0, 0, 0)
+ConfigButton.TextColor3 = Color3.new(1, 1, 1)
+ConfigButton.BackgroundColor3 = Color3.fromRGB(0, 0, 200)
+
+-- Janela de configurações
+ConfigFrame.Name = "ConfigFrame"
+ConfigFrame.Parent = ScreenGui
+ConfigFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ConfigFrame.Size = UDim2.new(0, 150, 0, 200)
+ConfigFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
+ConfigFrame.Visible = false
+
+local ColorPicker = Instance.new("TextBox", ConfigFrame)
+ColorPicker.PlaceholderText = "Cor RGB (60,60,60)"
+ColorPicker.Size = UDim2.new(1, -10, 0, 30)
+ColorPicker.Position = UDim2.new(0, 5, 0, 5)
+ColorPicker.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ColorPicker.TextColor3 = Color3.new(0, 0, 0)
+
+local SizeSlider = Instance.new("TextBox", ConfigFrame)
+SizeSlider.PlaceholderText = "Tamanho (ex: 200)"
+SizeSlider.Size = UDim2.new(1, -10, 0, 30)
+SizeSlider.Position = UDim2.new(0, 5, 0, 40)
+SizeSlider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SizeSlider.TextColor3 = Color3.new(0, 0, 0)
+
+local ApplyButton = Instance.new("TextButton", ConfigFrame)
+ApplyButton.Text = "Aplicar"
+ApplyButton.Size = UDim2.new(1, -10, 0, 30)
+ApplyButton.Position = UDim2.new(0, 5, 0, 75)
+ApplyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+ApplyButton.TextColor3 = Color3.new(1, 1, 1)
 
 -- Variável para saber o estado de minimização
 local isMinimized = false
 
--- Função para atualizar o CanvasSize do ScrollingFrame
-local function updateCanvasSize()
-    local totalHeight = 0
-    for _, button in pairs(Buttons) do
-        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
-    end
-    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-end
+-- Função para abrir/fechar configurações
+ConfigButton.MouseButton1Click:Connect(function()
+    ConfigFrame.Visible = not ConfigFrame.Visible
+end)
 
--- Função para criar botões com ação
-local function createButton(text, callback)
-    local Button = Instance.new("TextButton")
-    Button.Parent = Content
-    Button.Size = UDim2.new(0.8, 0, 0, 40)
-    Button.Text = text
-    Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-    Button.TextColor3 = Color3.new(1, 1, 1)
-    Button.MouseButton1Click:Connect(callback)
-    table.insert(Buttons, Button)
-    
-    updateCanvasSize()
-end
+-- Função de aplicação de configurações
+ApplyButton.MouseButton1Click:Connect(function()
+    local colorValues = ColorPicker.Text:match("(%d+),(%d+),(%d+)")
+    if colorValues then
+        local r, g, b = colorValues:match("(%d+),(%d+),(%d+)")
+        ModMenu.BackgroundColor3 = Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b))
+    end
+    local sizeValue = tonumber(SizeSlider.Text)
+    if sizeValue then
+        ModMenu.Size = UDim2.new(0, sizeValue, 0, 300)
+    end
+end)
+
+-- Créditos
+local Credits = Instance.new("TextLabel", ModMenu)
+Credits.Text = "Criado por: adrian75556435"
+Credits.Size = UDim2.new(1, 0, 0, 20)
+Credits.Position = UDim2.new(0, 0, 1, -20)
+Credits.BackgroundTransparency = 1
+Credits.TextColor3 = Color3.new(1, 1, 1)
+Credits.TextScaled = true
 
 -- Função para minimizar/maximizar com animação
 local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-local minimizeImage = Instance.new("ImageLabel")
-minimizeImage.Parent = ModMenu
-minimizeImage.Size = UDim2.new(1, 0, 1, 0)
-minimizeImage.BackgroundTransparency = 1
-minimizeImage.Image = "rbxassetid://125503842985497" -- Substitua pelo ID da imagem desejada
-minimizeImage.Visible = false
-
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
-    local sizeTween, titleTween, imageTween
-    
+    local sizeTween, titleTween
+
     if isMinimized then
         -- Minimizar o menu
         sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
         titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
         Content.Visible = false
-        
-        -- Exibir a imagem
-        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
-        minimizeImage.Visible = true
-        imageTween:Play()
     else
         -- Restaurar o menu
         sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
         titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
         Content.Visible = true
-        
-        -- Ocultar a imagem
-        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
-        imageTween:Play()
-        imageTween.Completed:Connect(function()
-            minimizeImage.Visible = false
-        end)
     end
-    
+
     sizeTween:Play()
     titleTween:Play()
 end)
 
--- Atualizar a posição do menu sempre que ele for movido
-ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
-    -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
-end)
--- Criando alguns botões de exemplo
+-- Criando um botão de exemplo
 createButton("INVENTÁRIO", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
-end)
-
-
-createButton("Clone item", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/CloneItem"))()
-end)
-
-createButton("DELETAR", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
-end)
-
-createButton("Ativar guis", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Ativargui"))()
-end)
-
-createButton("AUTO FARME MOEDAS", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
-end)
-
-createButton("Lock Camera", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
-end)
-
-createButton("Lock Air", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar"))()
-end)
-
-createButton("Coordenadas", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
-end)
-
-createButton("Hitboxtool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool"))()
-end)
-
-createButton("Hitboxtoolv2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitbooxv2"))()
-end)
-
-createButton("Block air tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
-end)
-
-createButton("Dash", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
-end)
-
-createButton("Fly tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
-end)
-
-createButton("Jump tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
-end)
-
-createButton("Aimbot all", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
-end)
-
-createButton("Aimbot team", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
-end)
-
-createButton("Speed Boost tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua"))()
-end)
-createButton("Teleport tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
-end)
-
-createButton("Tp Players", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
-end)
-
-createButton("TpV2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
-end)
-
-createButton("Tpv3", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpv3"))()
-end)
-
-createButton("Visor Objetos", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Visorname"))()
-end)
-
-createButton("Ultra Visor", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR"))()
-end)
-
-createButton("Linhas", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Linhas"))()
-end)
-
-createButton("Auto", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento"))()
-end)
-
-createButton("EM BREVE", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
 end)
