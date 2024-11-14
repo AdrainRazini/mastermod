@@ -159,6 +159,10 @@ createButton("Lock Air", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar"))()
 end)
 
+createButton("Abrir Música", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
+end)
+
 createButton("Coordenadas", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
 end)
