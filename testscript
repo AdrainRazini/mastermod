@@ -48,101 +48,6 @@ Content.Parent = ModMenu
 Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 Content.Size = UDim2.new(1, 0, 1, -30)
 Content.Position = UDim2.new(0, 0, 0, 30)
-Content.CanvasSize = UDim2.new(0, 0, 1, 0)  -- CanvasSize inicial, ajusta-se conforme o conteúdo cresce
-Content.ScrollBarThickness = 8
-
--- Layout para organizar os botões em lista
-local ListLayout = Instance.new("UIListLayout", Content)
-ListLayout.Padding = UDim.new(0, 5)
-ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
--- Variáveis para armazenar a posição e o tamanho do menu
-local originalSize = ModMenu.Size
-local originalPosition = ModMenu.Position
-
--- Função para atualizar o CanvasSize do ScrollingFrame
-local function updateCanvasSize()
-    local totalHeight = 0
-    for _, button in pairs(Buttons) do
-        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
-    end
-    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-end
-
--- Função para criar botões com ação
-local function createButton(text, callback)
-    local Button = Instance.new("TextButton")
-    Button.Parent = Content
-    Button.Size = UDim2.new(0.8, 0, 0, 40)
-    Button.Text = text
-    Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-    Button.TextColor3 = Color3.new(1, 1, 1)
-    Button.MouseButton1Click:Connect(callback)
-    table.insert(Buttons, Button)
-    
-    updateCanvasSize()
-end
-
--- Função para minimizar/maximizar com animação
-local isMinimized = false
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
--- Criando a imagem que aparece quando o menu está minimizado
-local minimizeImage = Instance.new("ImageLabel")
-minimizeImage.Parent = ModMenu
-minimizeImage.Size = UDim2.new(1, 0, 1, 0)
-minimizeImage.BackgroundTransparency = 1
-local TweenService = game:GetService("TweenService")
-
--- Criação do GUI
-local ScreenGui = Instance.new("ScreenGui")
-local ModMenu = Instance.new("Frame")
-local TitleBar = Instance.new("Frame")
-local MinimizeButton = Instance.new("TextButton")
-local Content = Instance.new("ScrollingFrame")
-local Buttons = {}
-
--- Propriedades do GUI
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
--- Configuração do menu principal
-ModMenu.Name = "ModMenu"
-ModMenu.Parent = ScreenGui
-ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ModMenu.Size = UDim2.new(0, 200, 0, 300)
-ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
-ModMenu.Active = true
-ModMenu.Draggable = true
-
--- Barra de título
-TitleBar.Name = "TitleBar"
-TitleBar.Parent = ModMenu
-TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-TitleBar.Size = UDim2.new(1, 0, 0, 30)
-
-local Title = Instance.new("TextLabel", TitleBar)
-Title.Text = "MODMASTER"
-Title.Size = UDim2.new(1, -30, 1, 0)
-Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.TextScaled = true
-
--- Botão de minimizar
-MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Parent = TitleBar
-MinimizeButton.Text = "-"
-MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
-MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
-MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-
--- Conteúdo do menu (ScrollingFrame)
-Content.Name = "Content"
-Content.Parent = ModMenu
-Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-Content.Size = UDim2.new(1, 0, 1, -30)
-Content.Position = UDim2.new(0, 0, 0, 30)
 Content.CanvasSize = UDim2.new(0, 0, 1, 0)
 Content.ScrollBarThickness = 8
 
@@ -224,7 +129,6 @@ end)
 ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
     -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
 end)
-
 -- Criando alguns botões de exemplo
 createButton("INVENTÁRIO", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
@@ -329,4 +233,3 @@ end)
 createButton("EM BREVE", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
 end)
-
