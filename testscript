@@ -56,6 +56,21 @@ ListLayout.Padding = UDim.new(0, 5)
 ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
+-- Minimize Functionality
+local isMinimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        Content.Visible = false
+        ModMenu.Size = UDim2.new(0, 200, 0, 30)  -- Ajuste o tamanho para apenas a barra de título
+        MinimizeButton.Text = "+"
+    else
+        Content.Visible = true
+        ModMenu.Size = UDim2.new(0, 200, 0, 300)  -- Tamanho original com o conteúdo visível
+        MinimizeButton.Text = "-"
+    end
+end)
+
 -- Function to create sections
 local function createSection(title)
     local SectionTitle = Instance.new("TextLabel")
@@ -98,13 +113,6 @@ createButton("Lock Camera", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
 end)
 
-createSection("FERRAMENTAS")
-createButton("Teleport tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
-end)
-createButton("Tp Players", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
-end)
 -- Continue adding other sections and buttons as needed
 
 -- Update Canvas Size based on added content
