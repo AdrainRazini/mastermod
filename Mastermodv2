@@ -131,7 +131,7 @@ ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
 end)
 
 -- Criando alguns botões de exemplo
-
+createSection("INVENTÁRIO")
 createButton("INVENTÁRIO", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
