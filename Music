@@ -1,0 +1,56 @@
+-- Definindo o jogador local e o PlayerGui
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Função para garantir que a GUI DRadio_Gui seja visível
+local function mostrarDRadioGui()
+    -- Verificar se a GUI já existe
+    local DRadio_Gui = playerGui:FindFirstChild("DRadio_Gui")
+    
+    if DRadio_Gui then
+        -- A GUI já existe, então apenas a ativamos
+        DRadio_Gui.Enabled = true  -- Torna a GUI visível
+    else
+        -- Caso a GUI não exista, criamos uma nova
+        local DRadio_Gui = Instance.new("ScreenGui")
+        DRadio_Gui.Name = "DRadio_Gui"
+        DRadio_Gui.Parent = playerGui
+        DRadio_Gui.Enabled = true  -- Tornar a GUI visível
+
+        -- Criar o frame principal da GUI
+        local frame = Instance.new("Frame")
+        frame.Size = UDim2.new(0.5, 0, 0.5, 0)
+        frame.Position = UDim2.new(0.25, 0, 0.25, 0)
+        frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        frame.Parent = DRadio_Gui
+
+        -- Criar o título da GUI
+        local titleLabel = Instance.new("TextLabel")
+        titleLabel.Text = "DRadio - Interface"
+        titleLabel.Size = UDim2.new(1, 0, 0, 40)
+        titleLabel.Position = UDim2.new(0, 0, 0, 0)
+        titleLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        titleLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+        titleLabel.TextSize = 18
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+        titleLabel.Parent = frame
+
+        -- Criar um botão de exemplo dentro da GUI
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(0.6, 0, 0, 40)
+        button.Position = UDim2.new(0.2, 0, 0.3, 0)
+        button.Text = "Abrir Música"
+        button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.TextSize = 16
+        button.Parent = frame
+
+        -- Conectar a função para ativar alguma ação no botão
+        button.MouseButton1Click:Connect(function()
+            print("Botão clicado! Música será tocada.")  -- Substitua com a ação desejada
+        end)
+    end
+end
+
+-- Chamar a função para exibir a GUI
+mostrarDRadioGui()
