@@ -1,6 +1,6 @@
 local TweenService = game:GetService("TweenService")
 
--- GUI Creation
+-- Criação do GUI
 local ScreenGui = Instance.new("ScreenGui")
 local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
@@ -8,10 +8,10 @@ local MinimizeButton = Instance.new("TextButton")
 local Content = Instance.new("ScrollingFrame")
 local Buttons = {}
 
--- GUI Properties
+-- Propriedades do GUI
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Main Menu Setup
+-- Configuração do menu principal
 ModMenu.Name = "ModMenu"
 ModMenu.Parent = ScreenGui
 ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
@@ -20,7 +20,7 @@ ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
 ModMenu.Active = true
 ModMenu.Draggable = true
 
--- Title Bar
+-- Barra de título
 TitleBar.Name = "TitleBar"
 TitleBar.Parent = ModMenu
 TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -33,7 +33,7 @@ Title.BackgroundTransparency = 1
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextScaled = true
 
--- Minimize Button
+-- Botão de minimizar
 MinimizeButton.Name = "MinimizeButton"
 MinimizeButton.Parent = TitleBar
 MinimizeButton.Text = "-"
@@ -42,7 +42,7 @@ MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
 MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
 MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
 
--- Content Setup (ScrollingFrame)
+-- Conteúdo do menu (ScrollingFrame)
 Content.Name = "Content"
 Content.Parent = ModMenu
 Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -51,24 +51,83 @@ Content.Position = UDim2.new(0, 0, 0, 30)
 Content.CanvasSize = UDim2.new(0, 0, 1, 0)
 Content.ScrollBarThickness = 8
 
+-- Layout para organizar os botões em lista
 local ListLayout = Instance.new("UIListLayout", Content)
 ListLayout.Padding = UDim.new(0, 5)
 ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Minimize Functionality
+-- Variável para saber o estado de minimização
 local isMinimized = false
+
+-- Função para atualizar o CanvasSize do ScrollingFrame
+local function updateCanvasSize()
+    local totalHeight = 0
+    for _, button in pairs(Buttons) do
+        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
+    end
+    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+end
+
+-- Função para criar botões com ação
+local function createButton(text, callback)
+    local Button = Instance.new("TextButton")
+    Button.Parent = Content
+    Button.Size = UDim2.new(0.8, 0, 0, 40)
+    Button.Text = text
+    Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.MouseButton1Click:Connect(callback)
+    table.insert(Buttons, Button)
+    
+    updateCanvasSize()
+end
+
+-- Função para minimizar/maximizar com animação
+local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+local minimizeImage = Instance.new("ImageLabel")
+minimizeImage.Parent = ModMenu
+minimizeImage.Size = UDim2.new(1, 0, 1, 0)
+minimizeImage.BackgroundTransparency = 1
+minimizeImage.Image = "rbxassetid://125503842985497" -- Substitua pelo ID da imagem desejada
+minimizeImage.Visible = false
+
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
+    local sizeTween, titleTween, imageTween
+    
     if isMinimized then
+        -- Minimizar o menu
+        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
+        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
         Content.Visible = false
-        ModMenu.Size = UDim2.new(0, 200, 0, 30)  -- Ajuste o tamanho para apenas a barra de título
-        MinimizeButton.Text = "+"
+        
+        -- Exibir a imagem
+        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
+        minimizeImage.Visible = true
+        imageTween:Play()
     else
+        -- Restaurar o menu
+        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
+        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
         Content.Visible = true
-        ModMenu.Size = UDim2.new(0, 200, 0, 300)  -- Tamanho original com o conteúdo visível
-        MinimizeButton.Text = "-"
+        
+        -- Ocultar a imagem
+        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
+        imageTween:Play()
+        imageTween.Completed:Connect(function()
+            minimizeImage.Visible = false
+        end)
     end
+    
+    sizeTween:Play()
+    titleTween:Play()
+end)
+
+-- Atualizar a posição do menu sempre que ele for movido
+ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
+    -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
 end)
 
 -- Function to create sections
