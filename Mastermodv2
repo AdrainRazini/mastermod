@@ -129,7 +129,9 @@ end)
 ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
     -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
 end)
+
 -- Criando alguns botões de exemplo
+
 createButton("INVENTÁRIO", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
