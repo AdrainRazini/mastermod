@@ -1,6 +1,6 @@
 local TweenService = game:GetService("TweenService")
 
--- Criação do GUI
+-- GUI Creation
 local ScreenGui = Instance.new("ScreenGui")
 local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
@@ -8,10 +8,10 @@ local MinimizeButton = Instance.new("TextButton")
 local Content = Instance.new("ScrollingFrame")
 local Buttons = {}
 
--- Propriedades do GUI
+-- GUI Properties
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Configuração do menu principal
+-- Main Menu Setup
 ModMenu.Name = "ModMenu"
 ModMenu.Parent = ScreenGui
 ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
@@ -20,7 +20,7 @@ ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
 ModMenu.Active = true
 ModMenu.Draggable = true
 
--- Barra de título
+-- Title Bar
 TitleBar.Name = "TitleBar"
 TitleBar.Parent = ModMenu
 TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -33,7 +33,7 @@ Title.BackgroundTransparency = 1
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextScaled = true
 
--- Botão de minimizar
+-- Minimize Button
 MinimizeButton.Name = "MinimizeButton"
 MinimizeButton.Parent = TitleBar
 MinimizeButton.Text = "-"
@@ -42,7 +42,7 @@ MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
 MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
 MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
 
--- Conteúdo do menu (ScrollingFrame)
+-- Content Setup (ScrollingFrame)
 Content.Name = "Content"
 Content.Parent = ModMenu
 Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -51,25 +51,23 @@ Content.Position = UDim2.new(0, 0, 0, 30)
 Content.CanvasSize = UDim2.new(0, 0, 1, 0)
 Content.ScrollBarThickness = 8
 
--- Layout para organizar os botões em lista
 local ListLayout = Instance.new("UIListLayout", Content)
 ListLayout.Padding = UDim.new(0, 5)
 ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Variável para saber o estado de minimização
-local isMinimized = false
-
--- Função para atualizar o CanvasSize do ScrollingFrame
-local function updateCanvasSize()
-    local totalHeight = 0
-    for _, button in pairs(Buttons) do
-        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
-    end
-    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+-- Function to create sections
+local function createSection(title)
+    local SectionTitle = Instance.new("TextLabel")
+    SectionTitle.Parent = Content
+    SectionTitle.Text = title
+    SectionTitle.Size = UDim2.new(1, 0, 0, 30)
+    SectionTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    SectionTitle.TextColor3 = Color3.new(1, 1, 1)
+    SectionTitle.TextScaled = true
 end
 
--- Função para criar botões com ação
+-- Function to create buttons within a section
 local function createButton(text, callback)
     local Button = Instance.new("TextButton")
     Button.Parent = Content
@@ -78,54 +76,46 @@ local function createButton(text, callback)
     Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
     Button.TextColor3 = Color3.new(1, 1, 1)
     Button.MouseButton1Click:Connect(callback)
-    table.insert(Buttons, Button)
-    
-    updateCanvasSize()
 end
 
--- Função para minimizar/maximizar com animação
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-local minimizeImage = Instance.new("ImageLabel")
-minimizeImage.Parent = ModMenu
-minimizeImage.Size = UDim2.new(1, 0, 1, 0)
-minimizeImage.BackgroundTransparency = 1
-minimizeImage.Image = "rbxassetid://125503842985497" -- Substitua pelo ID da imagem desejada
-minimizeImage.Visible = false
-
-MinimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    local sizeTween, titleTween, imageTween
-    
-    if isMinimized then
-        -- Minimizar o menu
-        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
-        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
-        Content.Visible = false
-        
-        -- Exibir a imagem
-        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
-        minimizeImage.Visible = true
-        imageTween:Play()
-    else
-        -- Restaurar o menu
-        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
-        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
-        Content.Visible = true
-        
-        -- Ocultar a imagem
-        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
-        imageTween:Play()
-        imageTween.Completed:Connect(function()
-            minimizeImage.Visible = false
-        end)
-    end
-    
-    sizeTween:Play()
-    titleTween:Play()
-end)
-
--- Criando o botão de exemplo "INVENTÁRIO"
+-- Creating categories and adding buttons
+createSection("INVENTÁRIO")
 createButton("INVENTÁRIO", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
+createButton("Clone item", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/CloneItem"))()
+end)
+createButton("DELETAR", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
+end)
+
+createSection("HABILIDADES")
+createButton("AUTO FARME MOEDAS", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
+end)
+createButton("Lock Camera", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
+end)
+
+createSection("FERRAMENTAS")
+createButton("Teleport tool", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
+end)
+createButton("Tp Players", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
+end)
+-- Continue adding other sections and buttons as needed
+
+-- Update Canvas Size based on added content
+local function updateCanvasSize()
+    local totalHeight = 0
+    for _, item in pairs(Content:GetChildren()) do
+        if item:IsA("TextButton") or item:IsA("TextLabel") then
+            totalHeight = totalHeight + item.Size.Y.Offset + ListLayout.Padding.Offset
+        end
+    end
+    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+end
+
+updateCanvasSize()
