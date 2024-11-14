@@ -1,148 +1,131 @@
--- Criação da GUI
+local TweenService = game:GetService("TweenService")
+
+-- Criação do GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ComplexMenuGUI"
-ScreenGui.Parent = game.CoreGui
-
--- Criação do Frame principal do Menu
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 400, 0, 500) -- Tamanho completo
-MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
-MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-MainFrame.BorderSizePixel = 0
-MainFrame.Parent = ScreenGui
-MainFrame.Active = true
-MainFrame.Draggable = true -- Permite arrastar o menu
-
--- Variáveis de Tamanho Original e Minimizado
-local originalSize = UDim2.new(0, 400, 0, 500)
-local minimizedSize = UDim2.new(0, 50, 0, 50) -- Tamanho do quadrado minimizado
-
--- Título com botão de minimizar e fechar
+local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
-TitleBar.Name = "TitleBar"
-TitleBar.Size = UDim2.new(1, 0, 0, 30)
-TitleBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-TitleBar.Parent = MainFrame
-
-local Title = Instance.new("TextLabel")
-Title.Name = "Title"
-Title.Size = UDim2.new(0.8, 0, 1, 0)
-Title.Position = UDim2.new(0, 10, 0, 0)
-Title.BackgroundTransparency = 1
-Title.Text = "Menu Completo"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 18
-Title.Parent = TitleBar
-
--- Botão Minimizar
 local MinimizeButton = Instance.new("TextButton")
+local Content = Instance.new("ScrollingFrame")
+local Buttons = {}
+
+-- Propriedades do GUI
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Configuração do menu principal
+ModMenu.Name = "ModMenu"
+ModMenu.Parent = ScreenGui
+ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+ModMenu.Size = UDim2.new(0, 200, 0, 300)
+ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
+ModMenu.Active = true
+ModMenu.Draggable = true
+
+-- Barra de título
+TitleBar.Name = "TitleBar"
+TitleBar.Parent = ModMenu
+TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TitleBar.Size = UDim2.new(1, 0, 0, 30)
+
+local Title = Instance.new("TextLabel", TitleBar)
+Title.Text = "MODMASTER"
+Title.Size = UDim2.new(1, -30, 1, 0)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextScaled = true
+
+-- Botão de minimizar
 MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
-MinimizeButton.Position = UDim2.new(0.85, 0, 0, 0)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinimizeButton.Font = Enum.Font.SourceSansBold
-MinimizeButton.Text = "-"
-MinimizeButton.TextSize = 18
 MinimizeButton.Parent = TitleBar
+MinimizeButton.Text = "-"
+MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
+MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
+MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
 
--- Botão Fechar
-local CloseButton = Instance.new("TextButton")
-CloseButton.Name = "CloseButton"
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(0.93, 0, 0, 0)
-CloseButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.Font = Enum.Font.SourceSansBold
-CloseButton.Text = "X"
-CloseButton.TextSize = 18
-CloseButton.Parent = TitleBar
+-- Conteúdo do menu (ScrollingFrame)
+Content.Name = "Content"
+Content.Parent = ModMenu
+Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+Content.Size = UDim2.new(1, 0, 1, -30)
+Content.Position = UDim2.new(0, 0, 0, 30)
+Content.CanvasSize = UDim2.new(0, 0, 1, 0)
+Content.ScrollBarThickness = 8
 
--- Função para fechar
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
+-- Layout para organizar os botões em lista
+local ListLayout = Instance.new("UIListLayout", Content)
+ListLayout.Padding = UDim.new(0, 5)
+ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Estado minimizado
+-- Variável para saber o estado de minimização
 local isMinimized = false
 
--- Função para alternar entre o tamanho minimizado e normal
-local function toggleMinimize()
-    if isMinimized then
-        -- Volta ao tamanho original
-        MainFrame.Size = originalSize
-        TitleBar.Visible = true
-        Title.Visible = true
-        MinimizeButton.Text = "-"
-    else
-        -- Minimiza para um pequeno quadrado
-        MainFrame.Size = minimizedSize
-        TitleBar.Visible = false
-        Title.Visible = false
-        MinimizeButton.Text = "+"
+-- Função para atualizar o CanvasSize do ScrollingFrame
+local function updateCanvasSize()
+    local totalHeight = 0
+    for _, button in pairs(Buttons) do
+        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
     end
+    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+end
+
+-- Função para criar botões com ação
+local function createButton(text, callback)
+    local Button = Instance.new("TextButton")
+    Button.Parent = Content
+    Button.Size = UDim2.new(0.8, 0, 0, 40)
+    Button.Text = text
+    Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.MouseButton1Click:Connect(callback)
+    table.insert(Buttons, Button)
+    
+    updateCanvasSize()
+end
+
+-- Função para minimizar/maximizar com animação
+local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+local minimizeImage = Instance.new("ImageLabel")
+minimizeImage.Parent = ModMenu
+minimizeImage.Size = UDim2.new(1, 0, 1, 0)
+minimizeImage.BackgroundTransparency = 1
+minimizeImage.Image = "rbxassetid://125503842985497" -- Substitua pelo ID da imagem desejada
+minimizeImage.Visible = false
+
+MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
-end
+    local sizeTween, titleTween, imageTween
+    
+    if isMinimized then
+        -- Minimizar o menu
+        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
+        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
+        Content.Visible = false
+        
+        -- Exibir a imagem
+        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
+        minimizeImage.Visible = true
+        imageTween:Play()
+    else
+        -- Restaurar o menu
+        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
+        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
+        Content.Visible = true
+        
+        -- Ocultar a imagem
+        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
+        imageTween:Play()
+        imageTween.Completed:Connect(function()
+            minimizeImage.Visible = false
+        end)
+    end
+    
+    sizeTween:Play()
+    titleTween:Play()
+end)
 
--- Conecta o botão minimizar para alternar o estado
-MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
-
--- Área de rolagem
-local ScrollingFrame = Instance.new("ScrollingFrame")
-ScrollingFrame.Name = "ScrollingFrame"
-ScrollingFrame.Size = UDim2.new(1, -20, 1, -40)
-ScrollingFrame.Position = UDim2.new(0, 10, 0, 40)
-ScrollingFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-ScrollingFrame.BorderSizePixel = 0
-ScrollingFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- Permite rolagem vertical
-ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.Parent = MainFrame
-
--- Função para criar uma seção/painel
-local function createPanel(name, text, posY)
-    local PanelFrame = Instance.new("Frame")
-    PanelFrame.Name = name
-    PanelFrame.Size = UDim2.new(1, -20, 0, 100)
-    PanelFrame.Position = UDim2.new(0, 10, 0, posY)
-    PanelFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    PanelFrame.BorderSizePixel = 0
-    PanelFrame.Parent = ScrollingFrame
-
-    local PanelLabel = Instance.new("TextLabel")
-    PanelLabel.Name = "PanelLabel"
-    PanelLabel.Size = UDim2.new(1, -10, 1, -10)
-    PanelLabel.Position = UDim2.new(0, 5, 0, 5)
-    PanelLabel.BackgroundTransparency = 1
-    PanelLabel.Text = text
-    PanelLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    PanelLabel.Font = Enum.Font.SourceSans
-    PanelLabel.TextSize = 16
-    PanelLabel.TextWrapped = true
-    PanelLabel.TextXAlignment = Enum.TextXAlignment.Left
-    PanelLabel.Parent = PanelFrame
-end
-
--- Criação de vários painéis no menu
-createPanel("ScriptPanel", "Executar Script - Painel de Scripts", 10)
-createPanel("SettingsPanel", "Configurações - Painel de Configurações", 120)
-createPanel("InfoPanel", "Informações - Painel de Informações", 230)
-createPanel("HelpPanel", "Ajuda - Painel de Ajuda", 340)
-
--- Botão de exemplo dentro do painel de Scripts
-local ScriptButton = Instance.new("TextButton")
-ScriptButton.Name = "ScriptButton"
-ScriptButton.Size = UDim2.new(1, -20, 0, 40)
-ScriptButton.Position = UDim2.new(0, 10, 0, 70)
-ScriptButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-ScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ScriptButton.Font = Enum.Font.SourceSansBold
-ScriptButton.Text = "Executar Script"
-ScriptButton.TextSize = 16
-ScriptButton.Parent = ScrollingFrame
-
-ScriptButton.MouseButton1Click:Connect(function()
-    print("Script executado!")
-    -- Adicione seu código de script aqui
+-- Criando o botão de exemplo "INVENTÁRIO"
+createButton("INVENTÁRIO", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
