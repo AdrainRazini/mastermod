@@ -1,156 +1,63 @@
-local TweenService = game:GetService("TweenService")
-
--- GUI principal
+-- Cria a GUI
 local ScreenGui = Instance.new("ScreenGui")
-local ModMenu = Instance.new("Frame")
-local TitleBar = Instance.new("Frame")
-local MinimizeButton = Instance.new("TextButton")
-local Content = Instance.new("ScrollingFrame")
-local ConfigButton = Instance.new("TextButton")
-local ConfigFrame = Instance.new("Frame")
-local ApplyButton = Instance.new("TextButton")
-local Credits = Instance.new("TextLabel")
+ScreenGui.Name = "MenuGUI"
+ScreenGui.Parent = game.CoreGui
 
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+-- Cria o Frame principal do Menu
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 300, 0, 400) -- tamanho do frame
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200) -- posição central na tela
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
 
--- Configuração do menu principal
-ModMenu.Name = "ModMenu"
-ModMenu.Parent = ScreenGui
-ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ModMenu.Size = UDim2.new(0, 220, 0, 350)
-ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
-ModMenu.Active = true
-ModMenu.Draggable = true
-
--- Barra de título com animação de minimizar
-TitleBar.Name = "TitleBar"
-TitleBar.Parent = ModMenu
-TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-TitleBar.Size = UDim2.new(1, 0, 0, 40)
-
-local Title = Instance.new("TextLabel", TitleBar)
-Title.Text = "MODMASTER PRO"
-Title.Size = UDim2.new(1, -50, 1, 0)
+-- Cria o título do Menu
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0, 50)
 Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.TextScaled = true
+Title.Text = "Menu Principal"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 24
+Title.Parent = MainFrame
 
--- Botão de minimizar
-MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Parent = TitleBar
-MinimizeButton.Text = "−"
-MinimizeButton.Size = UDim2.new(0, 40, 1, 0)
-MinimizeButton.Position = UDim2.new(1, -40, 0, 0)
-MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-
--- Conteúdo principal (área de rolagem para botões)
-Content.Name = "Content"
-Content.Parent = ModMenu
-Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-Content.Size = UDim2.new(1, 0, 1, -40)
-Content.Position = UDim2.new(0, 0, 0, 40)
-Content.CanvasSize = UDim2.new(0, 0, 3, 0)
-Content.ScrollBarThickness = 8
-
--- Botão para abrir configurações
-ConfigButton.Name = "ConfigButton"
-ConfigButton.Parent = TitleBar
-ConfigButton.Text = "⚙️"
-ConfigButton.Size = UDim2.new(0, 40, 1, 0)
-ConfigButton.Position = UDim2.new(0, 0, 0, 0)
-ConfigButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ConfigButton.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
-
--- Janela de Configurações (para cor e tamanho)
-ConfigFrame.Name = "ConfigFrame"
-ConfigFrame.Parent = ScreenGui
-ConfigFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-ConfigFrame.Size = UDim2.new(0, 200, 0, 150)
-ConfigFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
-ConfigFrame.Visible = false
-
-local ColorPicker = Instance.new("TextBox", ConfigFrame)
-ColorPicker.PlaceholderText = "Cor RGB (ex: 60,60,60)"
-ColorPicker.Size = UDim2.new(1, -10, 0, 30)
-ColorPicker.Position = UDim2.new(0, 5, 0, 10)
-ColorPicker.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-ColorPicker.TextColor3 = Color3.new(0, 0, 0)
-
-local SizeSlider = Instance.new("TextBox", ConfigFrame)
-SizeSlider.PlaceholderText = "Tamanho (ex: 220)"
-SizeSlider.Size = UDim2.new(1, -10, 0, 30)
-SizeSlider.Position = UDim2.new(0, 5, 0, 50)
-SizeSlider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-SizeSlider.TextColor3 = Color3.new(0, 0, 0)
-
-ApplyButton.Name = "ApplyButton"
-ApplyButton.Parent = ConfigFrame
-ApplyButton.Text = "Aplicar"
-ApplyButton.Size = UDim2.new(1, -10, 0, 30)
-ApplyButton.Position = UDim2.new(0, 5, 0, 90)
-ApplyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-ApplyButton.TextColor3 = Color3.new(1, 1, 1)
-
--- Créditos
-Credits.Name = "Credits"
-Credits.Parent = ModMenu
-Credits.Text = "Criado por: adrian75556435"
-Credits.Size = UDim2.new(1, 0, 0, 20)
-Credits.Position = UDim2.new(0, 0, 1, -20)
-Credits.BackgroundTransparency = 1
-Credits.TextColor3 = Color3.new(1, 1, 1)
-Credits.TextScaled = true
-
--- Funções de Configurações
-ConfigButton.MouseButton1Click:Connect(function()
-    ConfigFrame.Visible = not ConfigFrame.Visible
-end)
-
-ApplyButton.MouseButton1Click:Connect(function()
-    local r, g, b = ColorPicker.Text:match("(%d+),(%d+),(%d+)")
-    if r and g and b then
-        ModMenu.BackgroundColor3 = Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b))
-    end
-    local newSize = tonumber(SizeSlider.Text)
-    if newSize then
-        ModMenu.Size = UDim2.new(0, newSize, 0, 350)
-    end
-end)
-
--- Animação de Minimizar
-local isMinimized = false
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-MinimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    local sizeTween, titleTween
-    if isMinimized then
-        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 60, 0, 40)})
-        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
-        Content.Visible = false
-    else
-        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 220, 0, 350)})
-        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
-        Content.Visible = true
-    end
-    sizeTween:Play()
-    titleTween:Play()
-end)
-
--- Função para adicionar botões dinamicamente no menu
-local function createButton(name, callback)
-    local button = Instance.new("TextButton", Content)
-    button.Text = name
-    button.Size = UDim2.new(1, -10, 0, 40)
-    button.Position = UDim2.new(0, 5, 0, #Buttons * 45)
-    button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.MouseButton1Click:Connect(callback)
-    table.insert(Buttons, button)
+-- Cria um botão para cada funcionalidade
+local function createButton(name, text, positionY, callback)
+    local Button = Instance.new("TextButton")
+    Button.Name = name
+    Button.Size = UDim2.new(1, -20, 0, 50)
+    Button.Position = UDim2.new(0, 10, 0, positionY)
+    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.SourceSansBold
+    Button.TextSize = 18
+    Button.Text = text
+    Button.Parent = MainFrame
+    Button.MouseButton1Click:Connect(callback)
 end
 
--- Exemplo de um botão de funcionalidade
-createButton("INVENTÁRIO", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrianRazini/mastermod/refs/heads/main/inventario.lua"))()
-end)
+-- Função de callback de exemplo
+local function onExecuteScript()
+    print("Executando Script...")
+    -- Insira o código do script que você quer executar aqui
+end
+
+local function onOpenSettings()
+    print("Abrindo Configurações...")
+    -- Código para abrir configurações
+end
+
+local function onCloseMenu()
+    ScreenGui:Destroy()
+end
+
+-- Cria os botões com as funções de callback associadas
+createButton("ExecuteButton", "Executar Script", 70, onExecuteScript)
+createButton("SettingsButton", "Configurações", 130, onOpenSettings)
+createButton("CloseButton", "Fechar Menu", 190, onCloseMenu)
+
+-- Opções adicionais: Animação de abertura do Menu (opcional)
+MainFrame.Position = UDim2.new(0.5, -150, 1, 0)
+MainFrame:TweenPosition(UDim2.new(0.5, -150, 0.5, -200), "Out", "Bounce", 1, true)
