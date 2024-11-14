@@ -6,13 +6,17 @@ ScreenGui.Parent = game.CoreGui
 -- Criação do Frame principal do Menu
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 400, 0, 500) -- Ajuste do tamanho do frame
+MainFrame.Size = UDim2.new(0, 400, 0, 500) -- Tamanho completo
 MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
 MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
 MainFrame.Active = true
-MainFrame.Draggable = true -- Torna o menu arrastável
+MainFrame.Draggable = true -- Permite arrastar o menu
+
+-- Variáveis de Tamanho Original e Minimizado
+local originalSize = UDim2.new(0, 400, 0, 500)
+local minimizedSize = UDim2.new(0, 50, 0, 50) -- Tamanho do quadrado minimizado
 
 -- Título com botão de minimizar e fechar
 local TitleBar = Instance.new("Frame")
@@ -56,17 +60,34 @@ CloseButton.Text = "X"
 CloseButton.TextSize = 18
 CloseButton.Parent = TitleBar
 
--- Função para minimizar
-local isMinimized = false
-MinimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    MainFrame.Visible = not isMinimized
-end)
-
 -- Função para fechar
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
+
+-- Estado minimizado
+local isMinimized = false
+
+-- Função para alternar entre o tamanho minimizado e normal
+local function toggleMinimize()
+    if isMinimized then
+        -- Volta ao tamanho original
+        MainFrame.Size = originalSize
+        TitleBar.Visible = true
+        Title.Visible = true
+        MinimizeButton.Text = "-"
+    else
+        -- Minimiza para um pequeno quadrado
+        MainFrame.Size = minimizedSize
+        TitleBar.Visible = false
+        Title.Visible = false
+        MinimizeButton.Text = "+"
+    end
+    isMinimized = not isMinimized
+end
+
+-- Conecta o botão minimizar para alternar o estado
+MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
 
 -- Área de rolagem
 local ScrollingFrame = Instance.new("ScrollingFrame")
