@@ -1,63 +1,127 @@
--- Cria a GUI
+-- Criação da GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "MenuGUI"
+ScreenGui.Name = "ComplexMenuGUI"
 ScreenGui.Parent = game.CoreGui
 
--- Cria o Frame principal do Menu
+-- Criação do Frame principal do Menu
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 300, 0, 400) -- tamanho do frame
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200) -- posição central na tela
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.Size = UDim2.new(0, 400, 0, 500) -- Ajuste do tamanho do frame
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
+MainFrame.Active = true
+MainFrame.Draggable = true -- Torna o menu arrastável
 
--- Cria o título do Menu
+-- Título com botão de minimizar e fechar
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.Size = UDim2.new(1, 0, 0, 30)
+TitleBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+TitleBar.Parent = MainFrame
+
 local Title = Instance.new("TextLabel")
 Title.Name = "Title"
-Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Size = UDim2.new(0.8, 0, 1, 0)
+Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "Menu Principal"
+Title.Text = "Menu Completo"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 24
-Title.Parent = MainFrame
+Title.TextSize = 18
+Title.Parent = TitleBar
 
--- Cria um botão para cada funcionalidade
-local function createButton(name, text, positionY, callback)
-    local Button = Instance.new("TextButton")
-    Button.Name = name
-    Button.Size = UDim2.new(1, -20, 0, 50)
-    Button.Position = UDim2.new(0, 10, 0, positionY)
-    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Font = Enum.Font.SourceSansBold
-    Button.TextSize = 18
-    Button.Text = text
-    Button.Parent = MainFrame
-    Button.MouseButton1Click:Connect(callback)
-end
+-- Botão Minimizar
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Position = UDim2.new(0.85, 0, 0, 0)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.Font = Enum.Font.SourceSansBold
+MinimizeButton.Text = "-"
+MinimizeButton.TextSize = 18
+MinimizeButton.Parent = TitleBar
 
--- Função de callback de exemplo
-local function onExecuteScript()
-    print("Executando Script...")
-    -- Insira o código do script que você quer executar aqui
-end
+-- Botão Fechar
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(0.93, 0, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.Text = "X"
+CloseButton.TextSize = 18
+CloseButton.Parent = TitleBar
 
-local function onOpenSettings()
-    print("Abrindo Configurações...")
-    -- Código para abrir configurações
-end
+-- Função para minimizar
+local isMinimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    MainFrame.Visible = not isMinimized
+end)
 
-local function onCloseMenu()
+-- Função para fechar
+CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
+end)
+
+-- Área de rolagem
+local ScrollingFrame = Instance.new("ScrollingFrame")
+ScrollingFrame.Name = "ScrollingFrame"
+ScrollingFrame.Size = UDim2.new(1, -20, 1, -40)
+ScrollingFrame.Position = UDim2.new(0, 10, 0, 40)
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+ScrollingFrame.BorderSizePixel = 0
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- Permite rolagem vertical
+ScrollingFrame.ScrollBarThickness = 8
+ScrollingFrame.Parent = MainFrame
+
+-- Função para criar uma seção/painel
+local function createPanel(name, text, posY)
+    local PanelFrame = Instance.new("Frame")
+    PanelFrame.Name = name
+    PanelFrame.Size = UDim2.new(1, -20, 0, 100)
+    PanelFrame.Position = UDim2.new(0, 10, 0, posY)
+    PanelFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    PanelFrame.BorderSizePixel = 0
+    PanelFrame.Parent = ScrollingFrame
+
+    local PanelLabel = Instance.new("TextLabel")
+    PanelLabel.Name = "PanelLabel"
+    PanelLabel.Size = UDim2.new(1, -10, 1, -10)
+    PanelLabel.Position = UDim2.new(0, 5, 0, 5)
+    PanelLabel.BackgroundTransparency = 1
+    PanelLabel.Text = text
+    PanelLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    PanelLabel.Font = Enum.Font.SourceSans
+    PanelLabel.TextSize = 16
+    PanelLabel.TextWrapped = true
+    PanelLabel.TextXAlignment = Enum.TextXAlignment.Left
+    PanelLabel.Parent = PanelFrame
 end
 
--- Cria os botões com as funções de callback associadas
-createButton("ExecuteButton", "Executar Script", 70, onExecuteScript)
-createButton("SettingsButton", "Configurações", 130, onOpenSettings)
-createButton("CloseButton", "Fechar Menu", 190, onCloseMenu)
+-- Criação de vários painéis no menu
+createPanel("ScriptPanel", "Executar Script - Painel de Scripts", 10)
+createPanel("SettingsPanel", "Configurações - Painel de Configurações", 120)
+createPanel("InfoPanel", "Informações - Painel de Informações", 230)
+createPanel("HelpPanel", "Ajuda - Painel de Ajuda", 340)
 
--- Opções adicionais: Animação de abertura do Menu (opcional)
-MainFrame.Position = UDim2.new(0.5, -150, 1, 0)
-MainFrame:TweenPosition(UDim2.new(0.5, -150, 0.5, -200), "Out", "Bounce", 1, true)
+-- Botão de exemplo dentro do painel de Scripts
+local ScriptButton = Instance.new("TextButton")
+ScriptButton.Name = "ScriptButton"
+ScriptButton.Size = UDim2.new(1, -20, 0, 40)
+ScriptButton.Position = UDim2.new(0, 10, 0, 70)
+ScriptButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+ScriptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ScriptButton.Font = Enum.Font.SourceSansBold
+ScriptButton.Text = "Executar Script"
+ScriptButton.TextSize = 16
+ScriptButton.Parent = ScrollingFrame
+
+ScriptButton.MouseButton1Click:Connect(function()
+    print("Script executado!")
+    -- Adicione seu código de script aqui
+end)
