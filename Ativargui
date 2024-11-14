@@ -1,40 +1,46 @@
+-- Definir o jogador local e a interface gráfica
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = playerGui
 
--- Título da GUI
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "GUIs do Jogo"
-titleLabel.Size = UDim2.new(0, 200, 0, 40)
-titleLabel.Position = UDim2.new(0, 10, 0, 10)
-titleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 18
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.Parent = ScreenGui
+-- Criar a GUI principal
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
 
--- Função para criar uma lista de GUIs
-local function mostrarGUIs()
+-- Função para criar o título da GUI
+local function createTitle()
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Text = "GUIs do Jogo"
+    titleLabel.Size = UDim2.new(0, 200, 0, 40)
+    titleLabel.Position = UDim2.new(0, 10, 0, 10)
+    titleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextSize = 18
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = screenGui
+end
+
+-- Função para criar a lista de GUIs disponíveis
+local function createGuiList()
     -- Criação do frame para rolagem
     local guiListFrame = Instance.new("ScrollingFrame")
     guiListFrame.Size = UDim2.new(0, 200, 0, 300)
     guiListFrame.Position = UDim2.new(0, 10, 0, 50)
     guiListFrame.BackgroundTransparency = 1
-    guiListFrame.ScrollBarThickness = 10  -- Ajuste a espessura da barra de rolagem
-    guiListFrame.Parent = ScreenGui
+    guiListFrame.ScrollBarThickness = 10  -- Espessura da barra de rolagem
+    guiListFrame.Parent = screenGui
 
-    -- Definindo a estrutura do conteúdo dentro do ScrollingFrame
+    -- Frame que contém os botões
     local contentFrame = Instance.new("Frame")
     contentFrame.Size = UDim2.new(1, 0, 0, 0)
     contentFrame.BackgroundTransparency = 1
     contentFrame.Parent = guiListFrame
 
-    -- Para cada ScreenGui no PlayerGui, crie um botão de listagem
-    local yPos = 0  -- Começa logo abaixo do título
-    for _, child in pairs(playerGui:GetChildren()) do
-        if child:IsA("ScreenGui") and child ~= ScreenGui then
-            -- Criação de um botão para cada ScreenGui
+    -- Variável para a posição do botão
+    local yPos = 0
+
+    -- Criar botões para cada ScreenGui
+    for _, child in ipairs(playerGui:GetChildren()) do
+        if child:IsA("ScreenGui") and child ~= screenGui then
             local guiButton = Instance.new("TextButton")
             guiButton.Text = child.Name
             guiButton.Size = UDim2.new(1, 0, 0, 30)
@@ -44,13 +50,12 @@ local function mostrarGUIs()
             guiButton.TextSize = 16
             guiButton.Parent = contentFrame
 
-            -- Ação ao clicar no botão (mostrar a GUI)
+            -- Ação de alternar a visibilidade da GUI ao clicar
             guiButton.MouseButton1Click:Connect(function()
-                -- Alternar a visibilidade da ScreenGui correspondente
                 child.Enabled = not child.Enabled
             end)
 
-            -- Atualiza a posição para o próximo botão
+            -- Atualizar a posição do próximo botão
             yPos = yPos + 35
         end
     end
@@ -59,29 +64,22 @@ local function mostrarGUIs()
     contentFrame.Size = UDim2.new(1, 0, 0, yPos)
 end
 
--- Chama a função para exibir as GUIs no jogo
-mostrarGUIs()
-
--- Função para posicionar a GUI no lado direito
+-- Função para posicionar a GUI no lado direito da tela
 local function positionGuiRight(gui)
-    -- Espera até que a GUI tenha sido completamente renderizada
+    -- Aguarda o redimensionamento da GUI para posicioná-la corretamente
     gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
         local screenSize = workspace.CurrentCamera.ViewportSize
         local guiSize = gui.AbsoluteSize
-        -- Posiciona a GUI no lado direito e centraliza verticalmente
         gui.Position = UDim2.new(1, -guiSize.X - 10, 0.5, -guiSize.Y / 2)
     end)
 end
 
--- Posiciona a GUI principal no lado direito
-positionGuiRight(ScreenGui)
-
--- Função para tornar qualquer GUI arrastável
+-- Função para tornar a GUI arrastável
 local function makeDraggable(gui)
     local dragging = false
     local dragInput, mousePos, framePos
 
-    -- Adiciona um listener para quando o jogador clicar e segurar para arrastar
+    -- Detecta quando o jogador clica para começar a arrastar
     gui.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -91,7 +89,7 @@ local function makeDraggable(gui)
         end
     end)
 
-    -- Atualiza a posição enquanto o jogador arrasta
+    -- Atualiza a posição da GUI enquanto arrasta
     gui.InputChanged:Connect(function(input)
         if dragging and (input == dragInput) then
             local delta = input.Position - mousePos
@@ -107,5 +105,12 @@ local function makeDraggable(gui)
     end)
 end
 
--- Faz a GUI principal arrastável
-makeDraggable(ScreenGui)
+-- Inicialização: criar elementos da GUI e aplicar comportamentos
+createTitle()
+createGuiList()
+
+-- Posiciona a GUI no lado direito da tela
+positionGuiRight(screenGui)
+
+-- Torna a GUI arrastável
+makeDraggable(screenGui)
