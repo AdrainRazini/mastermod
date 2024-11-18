@@ -1,0 +1,6 @@
+local weaponID = "10288498712"  -- ID da Azure Sword
+local insertService = game:GetService("InsertService")
+
+-- Carregar o item da loja e adicioná-lo ao Workspace
+local weapon = insertService:LoadAsset(weaponID)
+weapon.Parent = game.Workspace  -- Adiciona a arma ao ambiente
