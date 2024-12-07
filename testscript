@@ -1,280 +1,93 @@
-local TweenService = game:GetService("TweenService")
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoide = character:WaitForChild("Humanoid")
+local camera = game.Workspace.CurrentCamera
+local flying = false
+local speed = 50  -- Velocidade de voo
+local jumpHeight = 0.2  -- Altura de salto ao começar o voo
 
--- Criação do GUI
-local ScreenGui = Instance.new("ScreenGui")
-local ModMenu = Instance.new("Frame")
-local TitleBar = Instance.new("Frame")
-local MinimizeButton = Instance.new("TextButton")
-local Content = Instance.new("ScrollingFrame")
-local Buttons = {}
+-- Função para começar o voo
+local function startFlying()
+    flying = true
+    humanoide.PlatformStand = true
+    humanoide:ChangeState(Enum.HumanoidStateType.Physics)
+    humanoide.WalkSpeed = 0  -- Desabilita a velocidade de caminhada
 
--- Propriedades do GUI
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
--- Configuração do menu principal
-ModMenu.Name = "ModMenu"
-ModMenu.Parent = ScreenGui
-ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ModMenu.Size = UDim2.new(0, 200, 0, 300)
-ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
-ModMenu.Active = true
-ModMenu.Draggable = true
-
--- Barra de título
-TitleBar.Name = "TitleBar"
-TitleBar.Parent = ModMenu
-TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-TitleBar.Size = UDim2.new(1, 0, 0, 30)
-
-local Title = Instance.new("TextLabel", TitleBar)
-Title.Text = "MODMASTER"
-Title.Size = UDim2.new(1, -30, 1, 0)
-Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.TextScaled = true
-
--- Botão de minimizar
-MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Parent = TitleBar
-MinimizeButton.Text = "-"
-MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
-MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
-MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-
--- Conteúdo do menu (ScrollingFrame)
-Content.Name = "Content"
-Content.Parent = ModMenu
-Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-Content.Size = UDim2.new(1, 0, 1, -30)
-Content.Position = UDim2.new(0, 0, 0, 30)
-Content.CanvasSize = UDim2.new(0, 0, 1, 0)
-Content.ScrollBarThickness = 8
-
--- Layout para organizar os botões em lista
-local ListLayout = Instance.new("UIListLayout", Content)
-ListLayout.Padding = UDim.new(0, 5)
-ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
--- Variável para saber o estado de minimização
-local isMinimized = false
-
--- Função para atualizar o CanvasSize do ScrollingFrame
-local function updateCanvasSize()
-    local totalHeight = 0
-    for _, button in pairs(Buttons) do
-        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
-    end
-    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+    -- Define a posição inicial do voo
+    character:WaitForChild("HumanoidRootPart").Anchored = true
 end
 
--- Função para criar botões com ação
-local function createButton(text, callback)
-    local Button = Instance.new("TextButton")
-    Button.Parent = Content
-    Button.Size = UDim2.new(0.8, 0, 0, 40)
-    Button.Text = text
-    Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-    Button.TextColor3 = Color3.new(1, 1, 1)
-    Button.MouseButton1Click:Connect(callback)
-    table.insert(Buttons, Button)
-    
-    updateCanvasSize()
+-- Função para parar o voo
+local function stopFlying()
+    flying = false
+    humanoide.PlatformStand = false
+    humanoide:ChangeState(Enum.HumanoidStateType.GettingUp)
+    humanoide.WalkSpeed = 16  -- Retorna a velocidade de caminhada
+
+    -- Deixa o personagem voltar ao chão
+    character:WaitForChild("HumanoidRootPart").Anchored = false
 end
 
--- Função para minimizar/maximizar com animação
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-local minimizeImage = Instance.new("ImageLabel")
-minimizeImage.Parent = ModMenu
-minimizeImage.Size = UDim2.new(1, 0, 1, 0)
-minimizeImage.BackgroundTransparency = 1
-minimizeImage.Image = "rbxassetid://125503842985497" -- Substitua pelo ID da imagem desejada
-minimizeImage.Visible = false
-
-MinimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    local sizeTween, titleTween, imageTween
-    
-    if isMinimized then
-        -- Minimizar o menu
-        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
-        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
-        Content.Visible = false
-        
-        -- Exibir a imagem
-        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
-        minimizeImage.Visible = true
-        imageTween:Play()
-    else
-        -- Restaurar o menu
-        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
-        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
-        Content.Visible = true
-        
-        -- Ocultar a imagem
-        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
-        imageTween:Play()
-        imageTween.Completed:Connect(function()
-            minimizeImage.Visible = false
-        end)
-    end
-    
-    sizeTween:Play()
-    titleTween:Play()
-end)
-
--- Atualizar a posição do menu sempre que ele for movido
-ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
-    -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
-end)
-
--- Function to create sections
-local function createSection(title)
-    local SectionTitle = Instance.new("TextLabel")
-    SectionTitle.Parent = Content
-    SectionTitle.Text = title
-    SectionTitle.Size = UDim2.new(1, 0, 0, 30)
-    SectionTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    SectionTitle.TextColor3 = Color3.new(1, 1, 1)
-    SectionTitle.TextScaled = true
+-- Detecta se o jogador está no chão
+local function isGrounded()
+    return humanoide:GetState() == Enum.HumanoidStateType.Physics or humanoide:GetState() == Enum.HumanoidStateType.Seated
 end
 
--- Function to create buttons within a section
-local function createButton(text, callback)
-    local Button = Instance.new("TextButton")
-    Button.Parent = Content
-    Button.Size = UDim2.new(0.8, 0, 0, 40)
-    Button.Text = text
-    Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-    Button.TextColor3 = Color3.new(1, 1, 1)
-    Button.MouseButton1Click:Connect(callback)
-end
+-- Função para mover o jogador enquanto voa
+local function moveFlying()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    local direction = Vector3.new()
 
--- Creating categories and adding buttons
-createSection("INVENTÁRIO")
-createButton("INVENTÁRIO", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
-end)
+    if flying then
+        -- Controle via teclado (W, A, S, D)
+        local moveDirection = Vector3.new(0, 0, 0)
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+            moveDirection = moveDirection + camera.CFrame.LookVector
+        end
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+            moveDirection = moveDirection - camera.CFrame.LookVector
+        end
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+            moveDirection = moveDirection - camera.CFrame.RightVector
+        end
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+            moveDirection = moveDirection + camera.CFrame.RightVector
+        end
 
+        -- Adiciona direção do movimento
+        direction = moveDirection.Unit * speed
+        hrp.Velocity = Vector3.new(direction.X, hrp.Velocity.Y, direction.Z)  -- Mantém a altura constante
 
-createButton("Clone item", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/CloneItem"))()
-end)
-
-createButton("DELETAR", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
-end)
-
-createSection("EFEITOS")
-createButton("Ativar guis", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Ativargui"))()
-end)
-
-createButton("Lock Camera", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
-end)
-
-createButton("Coordenadas", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
-end)
-
-createButton("Visor Objetos", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Visorname"))()
-end)
-
-createButton("Ultra Visor", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR"))()
-end)
-
-createSection("ANIMAL SIMULATOR")
-createButton("AUTO FARME MOEDAS", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
-end)
-
-createButton("Abrir Música", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
-end)
-
-createButton("Hitboxtool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool"))()
-end)
-
-createButton("Hitboxtoolv2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitbooxv2"))()
-end)
-
-createButton("Fly tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
-end)
-
-createButton("Lock Air", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar"))()
-end)
-
-createButton("Block air tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
-end)
-
-createButton("Dash", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
-end)
-
-createButton("Jump tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
-end)
-
-createButton("Speed Boost tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua"))()
-end)
-createButton("Teleport tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
-end)
-
-createButton("Tp Players", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
-end)
-
-createButton("TpV2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
-end)
-
-createButton("Tpv3", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpv3"))()
-end)
-
-createButton("Linhas", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Linhas"))()
-end)
-createSection("JOGO DE TIRO")
-createButton("Aimbot all", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
-end)
-
-createButton("Aimbot team", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
-end)
-
-createButton("Auto", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento"))()
-end)
-
-createButton("EM BREVE", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
-end)
-
--- Continue adding other sections and buttons as needed
-
--- Update Canvas Size based on added content
-local function updateCanvasSize()
-    local totalHeight = 0
-    for _, item in pairs(Content:GetChildren()) do
-        if item:IsA("TextButton") or item:IsA("TextLabel") then
-            totalHeight = totalHeight + item.Size.Y.Offset + ListLayout.Padding.Offset
+        -- Controle de altura (subir/descer)
+        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+            hrp.Velocity = Vector3.new(hrp.Velocity.X, jumpHeight * speed, hrp.Velocity.Z)  -- Subir
+        elseif game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
+            hrp.Velocity = Vector3.new(hrp.Velocity.X, -jumpHeight * speed, hrp.Velocity.Z)  -- Descer
         end
     end
-    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end
 
-updateCanvasSize()
+-- Detecta se o jogador está pressionando o botão de "pular"
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if not flying and isGrounded() then
+        startFlying()
+    end
+end)
+
+-- Ação para parar de voar se o jogador tocar o chão
+humanoide.FreeFalling:Connect(function()
+    if flying then
+        stopFlying()
+    end
+end)
+
+-- Controle de movimento enquanto voa
+game:GetService("RunService").Heartbeat:Connect(function()
+    moveFlying()
+end)
+
+-- Quando o personagem é adicionado ao jogo, verificamos se ele já está no chão
+player.CharacterAdded:Connect(function()
+    character = player.Character or player.CharacterAdded:Wait()
+    humanoide = character:WaitForChild("Humanoid")
+end)
