@@ -3,17 +3,17 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoide = character:WaitForChild("Humanoid")
 local camera = game.Workspace.CurrentCamera
 local flying = false
-local speed = 50  -- Velocidade de voo
-local jumpHeight = 0.2  -- Altura de salto ao começar o voo
+local speed = 50  -- Velocidade do voo
+local jumpHeight = 0.2  -- Altura de subida
 
--- Função para começar o voo
+-- Função para iniciar o voo
 local function startFlying()
     flying = true
     humanoide.PlatformStand = true
     humanoide:ChangeState(Enum.HumanoidStateType.Physics)
-    humanoide.WalkSpeed = 0  -- Desabilita a velocidade de caminhada
+    humanoide.WalkSpeed = 0  -- Desativa a velocidade de caminhada
 
-    -- Define a posição inicial do voo
+    -- Desanexa o personagem do chão
     character:WaitForChild("HumanoidRootPart").Anchored = true
 end
 
@@ -22,18 +22,18 @@ local function stopFlying()
     flying = false
     humanoide.PlatformStand = false
     humanoide:ChangeState(Enum.HumanoidStateType.GettingUp)
-    humanoide.WalkSpeed = 16  -- Retorna a velocidade de caminhada
+    humanoide.WalkSpeed = 16  -- Volta à velocidade normal de caminhada
 
-    -- Deixa o personagem voltar ao chão
+    -- Reconecta o personagem ao chão
     character:WaitForChild("HumanoidRootPart").Anchored = false
 end
 
--- Detecta se o jogador está no chão
+-- Verifica se o personagem está no chão
 local function isGrounded()
     return humanoide:GetState() == Enum.HumanoidStateType.Physics or humanoide:GetState() == Enum.HumanoidStateType.Seated
 end
 
--- Função para mover o jogador enquanto voa
+-- Função de movimentação enquanto voa
 local function moveFlying()
     local hrp = character:WaitForChild("HumanoidRootPart")
     local direction = Vector3.new()
@@ -54,7 +54,7 @@ local function moveFlying()
             moveDirection = moveDirection + camera.CFrame.RightVector
         end
 
-        -- Adiciona direção do movimento
+        -- Define a direção final com base nos controles
         direction = moveDirection.Unit * speed
         hrp.Velocity = Vector3.new(direction.X, hrp.Velocity.Y, direction.Z)  -- Mantém a altura constante
 
@@ -67,26 +67,26 @@ local function moveFlying()
     end
 end
 
--- Detecta se o jogador está pressionando o botão de "pular"
+-- Verifica se o jogador pressionou pular para iniciar o voo
 game:GetService("UserInputService").JumpRequest:Connect(function()
     if not flying and isGrounded() then
         startFlying()
     end
 end)
 
--- Ação para parar de voar se o jogador tocar o chão
+-- Para de voar se o jogador cair
 humanoide.FreeFalling:Connect(function()
     if flying then
         stopFlying()
     end
 end)
 
--- Controle de movimento enquanto voa
+-- Movimenta o personagem enquanto voa
 game:GetService("RunService").Heartbeat:Connect(function()
     moveFlying()
 end)
 
--- Quando o personagem é adicionado ao jogo, verificamos se ele já está no chão
+-- Verifica se o personagem está no chão ao iniciar o jogo
 player.CharacterAdded:Connect(function()
     character = player.Character or player.CharacterAdded:Wait()
     humanoide = character:WaitForChild("Humanoid")
