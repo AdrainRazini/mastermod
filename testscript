@@ -1,93 +1,94 @@
+-- Obter o jogador e seu personagem
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoide = character:WaitForChild("Humanoid")
+local humanoid = character:WaitForChild("Humanoid")
 local camera = game.Workspace.CurrentCamera
+local primaryPart = character.PrimaryPart
+
+-- Variável para controlar o voo
 local flying = false
-local speed = 50  -- Velocidade do voo
-local jumpHeight = 0.2  -- Altura de subida
+
+-- Criar e configurar BodyVelocity e BodyGyro uma vez
+local bodyVelocity = Instance.new("BodyVelocity")
+bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+bodyVelocity.Velocity = Vector3.new()
+bodyVelocity.P = 10000
+bodyVelocity.Parent = primaryPart
+
+local bodyGyro = Instance.new("BodyGyro")
+bodyGyro.MaxTorque = Vector3.new(4000, 4000, 4000)
+bodyGyro.CFrame = primaryPart.CFrame
+bodyGyro.P = 3000
+bodyGyro.Parent = primaryPart
+
+-- Função para aplicar movimento para frente, controle de altura e estabilizar o voo
+local function applyMovement()
+    local moveDirection = Vector3.new(0, 0, 0)
+    
+    -- Controle via teclas W, A, S, D
+    if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+        moveDirection = moveDirection + camera.CFrame.LookVector
+    end
+    if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+        moveDirection = moveDirection - camera.CFrame.LookVector
+    end
+    if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+        moveDirection = moveDirection - camera.CFrame.RightVector
+    end
+    if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+        moveDirection = moveDirection + camera.CFrame.RightVector
+    end
+    
+    -- Aplica a velocidade e direção de movimento
+    bodyVelocity.Velocity = moveDirection.Unit * 100  -- Ajuste a velocidade conforme necessário
+    
+    -- Controla a altura com o espaço (subir) e Ctrl (descer)
+    if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+        bodyVelocity.Velocity = bodyVelocity.Velocity + Vector3.new(0, 50, 0)  -- Subir
+    elseif game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
+        bodyVelocity.Velocity = bodyVelocity.Velocity + Vector3.new(0, -50, 0)  -- Descer
+    end
+
+    -- Aplica estabilização para manter o voo estável
+    bodyGyro.CFrame = CFrame.new(primaryPart.Position, primaryPart.Position + camera.CFrame.LookVector)
+end
 
 -- Função para iniciar o voo
 local function startFlying()
-    flying = true
-    humanoide.PlatformStand = true
-    humanoide:ChangeState(Enum.HumanoidStateType.Physics)
-    humanoide.WalkSpeed = 0  -- Desativa a velocidade de caminhada
-
-    -- Desanexa o personagem do chão
-    character:WaitForChild("HumanoidRootPart").Anchored = true
+    if humanoid:GetState() == Enum.HumanoidStateType.Seated then
+        return
+    end
+    if not flying then
+        flying = true
+        bodyVelocity.Velocity = Vector3.new()  -- Zera a velocidade ao começar a voar
+        bodyGyro.CFrame = primaryPart.CFrame  -- Define a rotação inicial
+        
+        -- Loop de voo contínuo
+        while flying do
+            applyMovement()
+            wait(0.1) -- Ajuste o intervalo conforme necessário
+        end
+    end
 end
 
--- Função para parar o voo
+-- Função para parar de voar
 local function stopFlying()
     flying = false
-    humanoide.PlatformStand = false
-    humanoide:ChangeState(Enum.HumanoidStateType.GettingUp)
-    humanoide.WalkSpeed = 16  -- Volta à velocidade normal de caminhada
-
-    -- Reconecta o personagem ao chão
-    character:WaitForChild("HumanoidRootPart").Anchored = false
+    bodyVelocity.Velocity = Vector3.new()  -- Zera a velocidade
+    bodyGyro.CFrame = primaryPart.CFrame  -- Reseta a rotação
 end
 
--- Verifica se o personagem está no chão
-local function isGrounded()
-    return humanoide:GetState() == Enum.HumanoidStateType.Physics or humanoide:GetState() == Enum.HumanoidStateType.Seated
+-- Função para detectar a solicitação de pulo e iniciar o voo
+humanoid.Jumping:Connect(function()
+    startFlying()
+end)
+
+-- Detecção de quando o personagem aterrissa e parar o voo
+humanoid.Landed:Connect(function()
+    stopFlying()
+end)
+
+-- Se o personagem já estiver no chão ao entrar, iniciar o voo
+if humanoid:GetState() ~= Enum.HumanoidStateType.Seated then
+    startFlying()
 end
-
--- Função de movimentação enquanto voa
-local function moveFlying()
-    local hrp = character:WaitForChild("HumanoidRootPart")
-    local direction = Vector3.new()
-
-    if flying then
-        -- Controle via teclado (W, A, S, D)
-        local moveDirection = Vector3.new(0, 0, 0)
-        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
-            moveDirection = moveDirection + camera.CFrame.LookVector
-        end
-        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
-            moveDirection = moveDirection - camera.CFrame.LookVector
-        end
-        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
-            moveDirection = moveDirection - camera.CFrame.RightVector
-        end
-        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
-            moveDirection = moveDirection + camera.CFrame.RightVector
-        end
-
-        -- Define a direção final com base nos controles
-        direction = moveDirection.Unit * speed
-        hrp.Velocity = Vector3.new(direction.X, hrp.Velocity.Y, direction.Z)  -- Mantém a altura constante
-
-        -- Controle de altura (subir/descer)
-        if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
-            hrp.Velocity = Vector3.new(hrp.Velocity.X, jumpHeight * speed, hrp.Velocity.Z)  -- Subir
-        elseif game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
-            hrp.Velocity = Vector3.new(hrp.Velocity.X, -jumpHeight * speed, hrp.Velocity.Z)  -- Descer
-        end
-    end
-end
-
--- Verifica se o jogador pressionou pular para iniciar o voo
-game:GetService("UserInputService").JumpRequest:Connect(function()
-    if not flying and isGrounded() then
-        startFlying()
-    end
-end)
-
--- Para de voar se o jogador cair
-humanoide.FreeFalling:Connect(function()
-    if flying then
-        stopFlying()
-    end
-end)
-
--- Movimenta o personagem enquanto voa
-game:GetService("RunService").Heartbeat:Connect(function()
-    moveFlying()
-end)
-
--- Verifica se o personagem está no chão ao iniciar o jogo
-player.CharacterAdded:Connect(function()
-    character = player.Character or player.CharacterAdded:Wait()
-    humanoide = character:WaitForChild("Humanoid")
-end)
