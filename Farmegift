@@ -23,11 +23,14 @@ local function createGui()
     return toggleButton
 end
 
--- Função para mover os objetos chamados "Chest" ou "Coin" até o jogador
+-- Função para mover os objetos chamados "Tie" ou "Gift" até o jogador
 local function moveObjectsToPlayer(humanoidRootPart)
     -- Procurar por objetos chamados "Chest" ou "Coin" em todo o jogo
     for _, object in pairs(workspace:GetDescendants()) do
         if object:IsA("BasePart") and (object.Name == "Tie" or object.Name == "Gift") then
+            -- Desabilitar a colisão do objeto
+            object.CanCollide = false
+
             -- Verificar se o objeto não está sendo movido
             if not object:FindFirstChild("Tweening") then
                 local targetPosition = humanoidRootPart.Position + Vector3.new(0, 2, 0)  -- Ajuste a altura para ficar na altura do corpo
@@ -45,6 +48,8 @@ local function moveObjectsToPlayer(humanoidRootPart)
                 -- Concluir o movimento e remover a flag após a animação
                 tween.Completed:Connect(function()
                     tweeningFlag:Destroy()
+                    -- Restaurar a colisão após o movimento
+                    object.CanCollide = true
                 end)
 
                 -- Inicia a animação de movimento
