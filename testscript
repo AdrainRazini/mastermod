@@ -39,7 +39,7 @@ end
 -- Função para remover ESP
 local function removeESP(target)
     if target:FindFirstChild("ESP") then
-        target.ESP:Destroy()
+        target.ESP:Clone()
     end
 end
 
