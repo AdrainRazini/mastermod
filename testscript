@@ -12,14 +12,15 @@ local function createESP(target)
     espPart.Size = target.Character.HumanoidRootPart.Size + Vector3.new(1, 3, 1)
     espPart.Color3 = Color3.fromRGB(255, 0, 0) -- Cor vermelha
     espPart.Transparency = 0.5
-    espPart.ZIndex = 10
+    espPart.ZIndex = 10 -- Faz a caixa ficar visível acima de outros objetos
+    espPart.CanCollide = false -- Desativa colisão
     espPart.Parent = target.Character
 
     -- Criar um nome flutuante sobre a cabeça do jogador
     local nameTag = Instance.new("BillboardGui")
     nameTag.Adornee = target.Character:WaitForChild("Head")
     nameTag.Size = UDim2.new(0, 100, 0, 50)
-    nameTag.StudsOffset = Vector3.new(0, 3, 0)
+    nameTag.StudsOffset = Vector3.new(0, 3, 0) -- Distância do nome da cabeça
     nameTag.Parent = target.Character
 
     local nameLabel = Instance.new("TextLabel")
