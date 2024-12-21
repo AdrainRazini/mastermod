@@ -3,8 +3,6 @@ local players = game.Players:GetPlayers()
 
 -- Função para criar ESP
 local function createESP(target)
-    -- Verifica se o alvo já tem um ESP
-    if target:FindFirstChild("ESP") then return end
 
     -- Criação do BoxHandleAdornment (caixa ao redor)
     local espPart = Instance.new("BoxHandleAdornment")
