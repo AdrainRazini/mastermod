@@ -1,5 +1,5 @@
 -- Referências principais
-local players = game.Players:GetPlayers()
+local players = game:GetService("Players")
 
 -- Função para criar ESP
 local function createESP(target)
@@ -37,23 +37,42 @@ local function createESP(target)
     espFolder.Parent = target
 end
 
+-- Função para remover ESP
+local function removeESP(target)
+    if target:FindFirstChild("ESP") then
+        target.ESP:Destroy()
+    end
+end
 
 -- Função para atualizar o ESP dos jogadores
 local function updateESP()
-    for _, target in pairs(players) do
+    for _, target in pairs(players:GetPlayers()) do
         if target.Character and target.Character:FindFirstChild("Humanoid") then
             local humanoid = target.Character:FindFirstChild("Humanoid")
+
+            -- Detecta se o personagem morreu
             if humanoid.Health <= 0 then
-                removeESP(target)  -- Remove ESP de jogadores mortos
+                removeESP(target)  -- Remove o ESP quando o jogador morre
             elseif not target:FindFirstChild("ESP") then
-                createESP(target)   -- Cria ESP para jogadores vivos
+                createESP(target)   -- Cria o ESP para jogadores vivos
             end
         end
     end
 end
+
+-- Detecta morte e renascimento de jogadores
+players.PlayerAdded:Connect(function(player)
+    -- Quando um jogador entrar, cria o ESP
+    player.CharacterAdded:Connect(function(character)
+        -- Espera o personagem ter as partes necessárias
+        wait(1)
+        createESP(player)
+    end)
+end)
 
 -- Loop de atualização
 while true do
     updateESP()
     wait(1) -- Atualiza a cada 1 segundo
 end
+
