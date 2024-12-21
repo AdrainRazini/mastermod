@@ -39,7 +39,7 @@ end
 -- Função para remover ESP
 local function removeESP(target)
     if target:FindFirstChild("ESP") then
-        target.ESP:Clone()
+        target.ESP:Destroy()
     end
 end
 
@@ -60,4 +60,5 @@ end
 -- Loop de atualização
 while true do
     updateESP()
-    wait(0.5) -- Atualiza a cada 0.5 segundo
+    wait(1) -- Atualiza a cada 1 segundo
+end
