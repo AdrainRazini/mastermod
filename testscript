@@ -12,7 +12,8 @@ local function createESP(target)
     espPart.Size = target.Character.HumanoidRootPart.Size + Vector3.new(1, 3, 1)
     espPart.Color3 = Color3.fromRGB(255, 0, 0) -- Cor vermelha
     espPart.Transparency = 0.5
-    espPart.ZIndex = 10
+    espPart.ZIndex = 10 -- Garante que o ESP fique visível acima de objetos
+    espPart.CanCollide = false -- Desativa a colisão da caixa
     espPart.Parent = target.Character
 
     -- Criar um nome flutuante sobre a cabeça do jogador
