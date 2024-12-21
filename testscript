@@ -60,4 +60,4 @@ end
 -- Loop de atualização
 while true do
     updateESP()
-    wait(1) -- Atualiza a cada 1 segundo
+    wait(0.5) -- Atualiza a cada 0.5 segundo
