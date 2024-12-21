@@ -1,5 +1,5 @@
 -- Referências principais
-local players = game:GetService("Players")
+local players = game.Players:GetPlayers()
 
 -- Função para criar ESP
 local function createESP(target)
@@ -12,15 +12,14 @@ local function createESP(target)
     espPart.Size = target.Character.HumanoidRootPart.Size + Vector3.new(1, 3, 1)
     espPart.Color3 = Color3.fromRGB(255, 0, 0) -- Cor vermelha
     espPart.Transparency = 0.5
-    espPart.ZIndex = 10 -- Faz a caixa ficar visível acima de outros objetos
-    espPart.CanCollide = false -- Desativa colisão
+    espPart.ZIndex = 10
     espPart.Parent = target.Character
 
     -- Criar um nome flutuante sobre a cabeça do jogador
     local nameTag = Instance.new("BillboardGui")
     nameTag.Adornee = target.Character:WaitForChild("Head")
     nameTag.Size = UDim2.new(0, 100, 0, 50)
-    nameTag.StudsOffset = Vector3.new(0, 3, 0) -- Distância do nome da cabeça
+    nameTag.StudsOffset = Vector3.new(0, 3, 0)
     nameTag.Parent = target.Character
 
     local nameLabel = Instance.new("TextLabel")
@@ -46,33 +45,19 @@ end
 
 -- Função para atualizar o ESP dos jogadores
 local function updateESP()
-    for _, target in pairs(players:GetPlayers()) do
+    for _, target in pairs(players) do
         if target.Character and target.Character:FindFirstChild("Humanoid") then
             local humanoid = target.Character:FindFirstChild("Humanoid")
-
-            -- Detecta se o personagem morreu
             if humanoid.Health <= 0 then
-                removeESP(target)  -- Remove o ESP quando o jogador morre
+                removeESP(target)  -- Remove ESP de jogadores mortos
             elseif not target:FindFirstChild("ESP") then
-                createESP(target)   -- Cria o ESP para jogadores vivos
+                createESP(target)   -- Cria ESP para jogadores vivos
             end
         end
     end
 end
 
--- Detecta morte e renascimento de jogadores
-players.PlayerAdded:Connect(function(player)
-    -- Quando um jogador entrar, cria o ESP
-    player.CharacterAdded:Connect(function(character)
-        -- Espera o personagem ter as partes necessárias
-        wait(1)
-        createESP(player)
-    end)
-end)
-
 -- Loop de atualização
 while true do
     updateESP()
     wait(1) -- Atualiza a cada 1 segundo
-end
-
