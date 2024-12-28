@@ -1,0 +1,100 @@
+local player = game.Players.LocalPlayer
+local tweenService = game:GetService("TweenService")
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Função para criar a GUI no canto direito
+local function createGui()
+    -- Criar um Frame para a GUI
+    local guiFrame = Instance.new("Frame")
+    guiFrame.Size = UDim2.new(0, 100, 0, 50)
+    guiFrame.Position = UDim2.new(1, -120, 0, 20)  -- Posição no canto direito
+    guiFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    guiFrame.BackgroundTransparency = 0.5
+    guiFrame.Parent = playerGui
+
+    -- Criar um botão para ativar/desativar o movimento
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Size = UDim2.new(1, 0, 1, 0)
+    toggleButton.Text = "Ativar Movimento"
+    toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleButton.Parent = guiFrame
+
+    return toggleButton
+end
+
+-- Função para mover os objetos chamados "Chest" ou "Coin" até o jogador
+local function moveObjectsToPlayer(humanoidRootPart)
+    -- Procurar por objetos chamados "Chest" ou "Coin" em todo o jogo
+    for _, object in pairs(workspace:GetDescendants()) do
+        if object:IsA("BasePart") and (object.Name == "Hoop" or object.Name == "Hoop") then
+            -- Verificar se o objeto não está sendo movido
+            if not object:FindFirstChild("Tweening") then
+                local targetPosition = humanoidRootPart.Position + Vector3.new(0, 2, 0)  -- Ajuste a altura para ficar na altura do corpo
+                
+                -- Criar o CFrame para a nova posição
+                local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)  -- 2 segundos para animação suave
+                local goal = {Position = targetPosition}  -- Objetivo é mover o objeto para a posição do jogador
+                local tween = tweenService:Create(object, tweenInfo, goal)
+
+                -- Marcar o objeto como "Tweening" para evitar múltiplos movimentos simultâneos
+                local tweeningFlag = Instance.new("BoolValue")
+                tweeningFlag.Name = "Tweening"
+                tweeningFlag.Parent = object
+
+                -- Concluir o movimento e remover a flag após a animação
+                tween.Completed:Connect(function()
+                    tweeningFlag:Destroy()
+                end)
+
+                -- Inicia a animação de movimento
+                tween:Play()
+            end
+        end
+    end
+end
+
+-- Função para monitorar a morte do jogador e reiniciar o script
+local function monitorCharacterDeath()
+    local function onCharacterAdded(character)
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        return humanoidRootPart
+    end
+
+    -- Inicializa com o personagem atual
+    local humanoidRootPart = onCharacterAdded(player.Character or player.CharacterAdded:Wait())
+
+    -- Espera pela morte do jogador
+    player.CharacterAdded:Connect(function(character)
+        humanoidRootPart = onCharacterAdded(character)
+    end)
+
+    return humanoidRootPart
+end
+
+-- Variável de controle para ativar/desativar o movimento
+local isMovingEnabled = true
+
+-- Criar a GUI e o botão de ativação/desativação
+local toggleButton = createGui()
+
+-- Definir a função que alterna o movimento
+toggleButton.MouseButton1Click:Connect(function()
+    isMovingEnabled = not isMovingEnabled  -- Alterna o estado
+    if isMovingEnabled then
+        toggleButton.Text = "Desativar Movimento"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    else
+        toggleButton.Text = "Ativar Movimento"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    end
+end)
+
+-- Loop para mover os objetos
+while true do
+    if isMovingEnabled then
+        local humanoidRootPart = monitorCharacterDeath()  -- A cada ciclo, verifica a posição do jogador
+        moveObjectsToPlayer(humanoidRootPart)
+    end
+    wait(0.5)  -- Espera 0.5 segundos antes de tentar mover novamente
+end
