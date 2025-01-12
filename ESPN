@@ -1,37 +1,72 @@
+-- Configurações
 local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
 
-local function createOutline(character)
-    if character then
-        local outline = Instance.new("BoxHandleAdornment")
-        outline.Size = character:GetExtentsSize() + Vector3.new(0.5, 0.5, 0.5)
-        outline.Adornee = character
-        outline.ZIndex = 2
-        outline.Color3 = Color3.new(1, 0, 0) -- Cor da borda (vermelho)
-        outline.Transparency = 0.2 -- Transparência
-        outline.AlwaysOnTop = true
-        outline.Parent = character
+-- Função para aplicar o efeito de brilho
+local function applyGlow(character)
+    -- Adiciona um Highlight se não existir
+    if not character:FindFirstChildOfClass("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "Highlight"
+        highlight.Parent = character
+        highlight.Adornee = character
+        highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Cor do brilho
+        highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- Cor do contorno do brilho
+        highlight.OutlineTransparency = 0.5 -- Transparência do contorno
     end
 end
 
-local function onCharacterAdded(character)
-    wait(0.1) -- Espera o personagem carregar
-    createOutline(character)
+-- Função para fazer os jogadores aparecerem através das paredes
+local function makeVisible(character)
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            -- Desabilita colisão para permitir que o personagem atravesse partes
+            part.CanCollide = false
+            part.Transparency = 0.5  -- Torna o jogador parcialmente transparente
+        end
+    end
+
+    -- Desabilita colisão do HumanoidRootPart também, para garantir que o personagem possa atravessar as paredes
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        humanoidRootPart.CanCollide = false
+    end
 end
 
-local function onPlayerAdded(player)
-    player.CharacterAdded:Connect(onCharacterAdded)
-    
+-- Função para reverter o efeito quando o personagem voltar ao normal
+local function revertVisibility(character)
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true   -- Restaura a colisão
+            part.Transparency = 0    -- Restaura a transparência
+        end
+    end
+
+    -- Restaura a colisão do HumanoidRootPart
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        humanoidRootPart.CanCollide = true
+    end
+end
+
+-- Atualiza os efeitos para todos os jogadores
+local function updatePlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            -- Adiciona efeitos a cada jogador
+            local character = player.Character
+            applyGlow(character)
+            makeVisible(character)
+        end
+    end
+end
+
+-- Atualiza a cada frame
+RunService.RenderStepped:Connect(updatePlayers)
+
+-- Evento para reverter os efeitos quando o jogador sair do jogo ou for removido
+Players.PlayerRemoving:Connect(function(player)
     if player.Character then
-        onCharacterAdded(player.Character)
+        revertVisibility(player.Character)
     end
-end
-
--- Conecta os jogadores já existentes
-for _, player in pairs(Players:GetPlayers()) do
-    onPlayerAdded(player)
-end
-
--- Conecta novos jogadores que entrarem
-Players.PlayerAdded:Connect(onPlayerAdded)
+end)
