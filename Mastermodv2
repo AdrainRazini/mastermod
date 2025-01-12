@@ -130,125 +130,35 @@ ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
     -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
 end)
 
--- Criando alguns botões de exemplo
+-- Adicionando botões
+createButton("INVENTÁRIO", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua")
+createButton("Clone item", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/CloneItem")
+createButton("DELETAR", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar")
+createButton("Ativar guis", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Ativargui")
+createButton("AUTO FARME MOEDAS", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme")
+createButton("AUTO FARME PRESENTES", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Farmegift")
+createButton("Lock Camera", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera")
+createButton("ESP", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ESPN")
+createButton("Lock Air", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar")
+createButton("Abrir Música", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music")
+createButton("Coordenadas", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local")
+createButton("Tp coordenadas", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpcordenadas")
+createButton("Hitboxtool", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool")
+createButton("Hitboxtoolv2", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitbooxv2")
+createButton("Block air tool", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar")
+createButton("Dash", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2")
+createButton("Fly tool", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua")
+createButton("Jump tool", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua")
+createButton("Aimbot all", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall")
+createButton("Aimbot team", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam")
+createButton("Speed Boost tool", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua")
+createButton("Teleport tool", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua")
+createButton("Tp Players", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS")
+createButton("TpV2", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2")
+createButton("Tpv3", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpv3")
+createButton("Visor Objetos", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Visorname")
+createButton("Ultra Visor", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR")
+createButton("Linhas", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Linhas")
+createButton("Auto", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento")
+createButton("EM BREVE", "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE")
 
-createButton("INVENTÁRIO", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
-end)
-
-
-createButton("Clone item", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/CloneItem"))()
-end)
-
-createButton("DELETAR", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
-end)
-
-createButton("Ativar guis", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Ativargui"))()
-end)
-
-createButton("AUTO FARME MOEDAS", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
-end)
-
-createButton("AUTO FARME PRESENTES", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Farmegift"))()
-end)
-
-createButton("Lock Camera", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
-end)
-
-createButton("ESP", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ESPN"))()
-end)
-
-
-createButton("Lock Air", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar"))()
-end)
-
-createButton("Abrir Música", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
-end)
-
-createButton("Coordenadas", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
-end)
-
-createButton("Tp coordenadas", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpcordenadas"))()
-end)
-
-createButton("Hitboxtool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool"))()
-end)
-
-createButton("Hitboxtoolv2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitbooxv2"))()
-end)
-
-createButton("Block air tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
-end)
-
-createButton("Dash", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
-end)
-
-createButton("Fly tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
-end)
-
-createButton("Jump tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
-end)
-
-createButton("Aimbot all", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
-end)
-
-createButton("Aimbot team", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
-end)
-
-createButton("Speed Boost tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua"))()
-end)
-createButton("Teleport tool", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
-end)
-
-createButton("Tp Players", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
-end)
-
-createButton("TpV2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
-end)
-
-createButton("Tpv3", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpv3"))()
-end)
-
-createButton("Visor Objetos", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Visorname"))()
-end)
-
-createButton("Ultra Visor", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR"))()
-end)
-
-createButton("Linhas", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Linhas"))()
-end)
-
-createButton("Auto", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento"))()
-end)
-
-createButton("EM BREVE", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
-end)
