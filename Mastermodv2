@@ -145,6 +145,10 @@ createButton("DELETAR", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
 end)
 
+createButton("VOAR NO CÉU", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/FlyGui"))()
+end)
+
 createButton("Ativar guis", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Ativargui"))()
 end)
