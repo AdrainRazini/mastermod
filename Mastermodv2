@@ -140,11 +140,6 @@ end)
 -- Criando alguns botões de exemplo
 
 createButton("INVENTÁRIO", function()
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-    Title = "INVENTÁRIO";
-    Text = "Ativado";
-    Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
-Duration = 5;
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
 
