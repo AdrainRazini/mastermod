@@ -1,4 +1,11 @@
+
 local TweenService = game:GetService("TweenService")
+
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+    Title = "MASTERMOD";
+    Text = "Adrian75556435";
+    Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
+Duration = 16;
 
 -- Criação do GUI
 local ScreenGui = Instance.new("ScreenGui")
