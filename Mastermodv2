@@ -1,6 +1,16 @@
 
 local TweenService = game:GetService("TweenService")
 
+-- Função para verificar se já existe um objeto com o nome especificado
+local function doesObjectExist(parent, name)
+    for _, object in pairs(parent:GetChildren()) do
+        if object.Name == name then
+            return true  -- O objeto já existe
+        end
+    end
+    return false  -- O objeto não existe
+end
+
 game:GetService("StarterGui"):SetCore("SendNotification", { 
     Title = "MASTERMOD";
     Text = "Adrian75556435";
