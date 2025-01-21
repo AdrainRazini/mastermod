@@ -9,7 +9,7 @@ Duration = 16;
 
 -- Criação do GUI
 if identifyexecutor then
-    if game:GetService("ScreenGui"):FindFirstChild(guiName) then
+    if game:GetService("ModMenu"):FindFirstChild(guiName) then
         return
     end
 
@@ -22,6 +22,7 @@ local Buttons = {}
 
 -- Propriedades do GUI
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local guiName = "ModMenu"
 
 -- Configuração do menu principal
 ModMenu.Name = "ModMenu"
