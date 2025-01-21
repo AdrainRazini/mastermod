@@ -7,19 +7,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
 Duration = 16;
 
---- Definição do nome do GUI
-local guiName = "ModMenu"
-
--- Verificação do executor e criação do GUI
-if identifyexecutor then
-    if game:GetService("ModMenu"):FindFirstChild(guiName) then
-        return -- Sai se o GUI já existir
-    end
-
-    -- Criação do ScreenGui
-    local ScreenGui = Instance.new("ScreenGui", game:GetService("ModMenu"))
-    ScreenGui.Name = guiName -- Nomeia o GUI para evitar duplicação
-end
+-- Criação do GUI
 local ScreenGui = Instance.new("ScreenGui")
 local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
@@ -29,7 +17,6 @@ local Buttons = {}
 
 -- Propriedades do GUI
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
 
 -- Configuração do menu principal
 ModMenu.Name = "ModMenu"
