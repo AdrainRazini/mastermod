@@ -13,7 +13,8 @@ if identifyexecutor then
         return
     end
 
-local ScreenGui = Instance.new("ScreenGui")
+local ScreenGui = Instance.new("ScreenGui", game:GetService("ModMenu"))
+    local guiName = "ModMenu"
 local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
 local MinimizeButton = Instance.new("TextButton")
@@ -22,7 +23,7 @@ local Buttons = {}
 
 -- Propriedades do GUI
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-local guiName = "ModMenu"
+
 
 -- Configuração do menu principal
 ModMenu.Name = "ModMenu"
