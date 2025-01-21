@@ -8,6 +8,11 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 Duration = 16;
 
 -- Criação do GUI
+if identifyexecutor then
+    if game:GetService("ScreenGui"):FindFirstChild(guiName) then
+        return
+    end
+
 local ScreenGui = Instance.new("ScreenGui")
 local ModMenu = Instance.new("Frame")
 local TitleBar = Instance.new("Frame")
