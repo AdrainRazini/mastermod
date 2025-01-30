@@ -1,3 +1,9 @@
+local existingScreenGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("ModMenu")
+
+-- Se o GUI já existir, retorne e não crie um novo
+if existingScreenGui then
+    return
+end
 
 local TweenService = game:GetService("TweenService")
 
