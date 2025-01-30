@@ -1,11 +1,4 @@
 
-
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-    Title = "MASTERMOD";
-    Text = "Adrian75556435";
-    Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
-Duration = 16;
-
 -- Verificar se já existe um ScreenGui com o nome "ModMenu"
 local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ModMenu")
 
@@ -14,6 +7,15 @@ if existingScreenGui then
     return
 end
 
+
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+    Title = "MASTERMOD";
+    Text = "Adrian75556435";
+    Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
+Duration = 16;
+
+
+local TweenService = game:GetService("TweenService")
 -- Criação do GUI
 local ScreenGui = Instance.new("ScreenGui")
 local ModMenu = Instance.new("Frame")
@@ -24,7 +26,6 @@ local Buttons = {}
 
 -- Propriedades do GUI
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.Name = "ModMenu"
 
 -- Configuração do menu principal
 ModMenu.Name = "ModMenu"
@@ -34,13 +35,6 @@ ModMenu.Size = UDim2.new(0, 200, 0, 300)
 ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
 ModMenu.Active = true
 ModMenu.Draggable = true
-
--- Resto do código...
-
-
--- Resto do código...
-
-
 
 -- Barra de título
 TitleBar.Name = "TitleBar"
