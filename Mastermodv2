@@ -6,9 +6,10 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
 Duration = 16;
 
-local existingScreenGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("ModMenu")
+-- Verificar se já existe um ScreenGui com o nome "ModMenu"
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ModMenu")
 
--- Se o GUI já existir, retorne e não crie um novo
+-- Se já existir, retorna para evitar a criação do GUI
 if existingScreenGui then
     return
 end
@@ -33,6 +34,9 @@ ModMenu.Size = UDim2.new(0, 200, 0, 300)
 ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
 ModMenu.Active = true
 ModMenu.Draggable = true
+
+-- Resto do código...
+
 
 -- Resto do código...
 
