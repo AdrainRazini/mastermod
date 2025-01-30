@@ -1,6 +1,6 @@
 
 -- Verificar se já existe um ScreenGui com o nome "ModMenu"
-local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ModMenu")
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ModMenuGui")
 
 -- Se já existir, retorna para evitar a criação do GUI
 if existingScreenGui then
@@ -28,6 +28,7 @@ local Buttons = {}
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Configuração do menu principal
+ScreenGui.Name = "ModMenuGui"
 ModMenu.Name = "ModMenu"
 ModMenu.Parent = ScreenGui
 ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
