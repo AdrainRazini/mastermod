@@ -3,10 +3,43 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local camera = game.Workspace.CurrentCamera
 local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+
 local detectionRadius = 50
 local lerpSpeed = 0.1
+local aimEnabled = true
+
+-- Criar UI
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)
+frame.BackgroundTransparency = 0.5
+
+local toggleButton = Instance.new("TextButton", frame)
+toggleButton.Size = UDim2.new(1, 0, 0.4, 0)
+toggleButton.Position = UDim2.new(0, 0, 0, 0)
+toggleButton.Text = "Desativar Mira"
+toggleButton.MouseButton1Click:Connect(function()
+    aimEnabled = not aimEnabled
+    toggleButton.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
+end)
+
+local distanceSlider = Instance.new("TextBox", frame)
+distanceSlider.Size = UDim2.new(1, 0, 0.4, 0)
+distanceSlider.Position = UDim2.new(0, 0, 0.5, 0)
+distanceSlider.Text = tostring(detectionRadius)
+distanceSlider.FocusLost:Connect(function()
+    local newDistance = tonumber(distanceSlider.Text)
+    if newDistance then
+        detectionRadius = math.clamp(newDistance, 10, 200)
+    end
+end)
 
 function findClosestPlayer()
+    if not aimEnabled then return nil end
+    
     local closestPlayer = nil
     local closestDistance = detectionRadius
 
@@ -18,31 +51,26 @@ function findClosestPlayer()
                 if distance < closestDistance then
                     closestDistance = distance
                     closestPlayer = p
-
-                    -- Interrompe a busca se já encontramos um jogador dentro do raio
-                    if closestDistance == 0 then
-                        break
-                    end
                 end
             end
         end
     end
-
+    
     return closestPlayer
 end
 
 function aimAt(target)
-    if target and target.Character and target.Character:FindFirstChild("Head") then
-        local targetPosition = target.Character.Head.Position
+    if not aimEnabled or not target or not target.Character then return end
+    
+    local head = target.Character:FindFirstChild("Head")
+    if head then
+        local targetPosition = head.Position
         local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
         camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
-
-        local lookVector = (targetPosition - humanoidRootPart.Position).unit
-        humanoidRootPart.CFrame = CFrame.new(humanoidRootPart.Position) * CFrame.Angles(0, math.atan2(lookVector.Z, lookVector.X), 0)
     end
 end
 
-game:GetService("RunService").RenderStepped:Connect(function()
+runService.RenderStepped:Connect(function()
     local targetPlayer = findClosestPlayer()
     aimAt(targetPlayer)
 end)
