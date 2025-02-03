@@ -1,0 +1,113 @@
+local player = game.Players.LocalPlayer
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local teams = game:GetService("Teams")
+local camera = game.Workspace.CurrentCamera
+
+local detectionRadius = 50
+local lerpSpeed = 0.1
+local aimEnabled = true
+local targetEnemiesOnly = false -- Define se deve mirar apenas na equipe inimiga
+
+local screenGui
+
+function createUI()
+    if screenGui then screenGui:Destroy() end
+    
+    screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 150)
+    frame.Position = UDim2.new(0, 10, 0, 10)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BackgroundTransparency = 0.5
+    
+    -- Botão de ativar/desativar mira
+    local toggleButton = Instance.new("TextButton", frame)
+    toggleButton.Size = UDim2.new(1, 0, 0.3, 0)
+    toggleButton.Position = UDim2.new(0, 0, 0, 0)
+    toggleButton.Text = "Desativar Mira"
+    toggleButton.MouseButton1Click:Connect(function()
+        aimEnabled = not aimEnabled
+        toggleButton.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
+    end)
+    
+    -- Caixa para definir distância
+    local distanceSlider = Instance.new("TextBox", frame)
+    distanceSlider.Size = UDim2.new(1, 0, 0.3, 0)
+    distanceSlider.Position = UDim2.new(0, 0, 0.35, 0)
+    distanceSlider.Text = tostring(detectionRadius)
+    distanceSlider.FocusLost:Connect(function()
+        local newDistance = tonumber(distanceSlider.Text)
+        if newDistance then
+            detectionRadius = math.clamp(newDistance, 10, 200)
+        end
+    end)
+
+    -- Botão para alternar entre todos e inimigos
+    local targetModeButton = Instance.new("TextButton", frame)
+    targetModeButton.Size = UDim2.new(1, 0, 0.3, 0)
+    targetModeButton.Position = UDim2.new(0, 0, 0.7, 0)
+    targetModeButton.Text = "Mirar em Todos"
+    targetModeButton.MouseButton1Click:Connect(function()
+        targetEnemiesOnly = not targetEnemiesOnly
+        targetModeButton.Text = targetEnemiesOnly and "Mirar na Equipe Inimiga" or "Mirar em Todos"
+    end)
+end
+
+function findClosestPlayer()
+    if not aimEnabled then return nil end
+    
+    local character = player.Character
+    if not character then return nil end
+    
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return nil end
+    
+    local closestPlayer = nil
+    local closestDistance = detectionRadius
+
+    for _, p in ipairs(players:GetPlayers()) do
+        if p ~= player and p.Character then
+            -- Se a opção de mirar apenas na equipe inimiga estiver ativada
+            if targetEnemiesOnly and p.Team == player.Team then
+                continue
+            end
+            
+            local head = p.Character:FindFirstChild("Head")
+            if head then
+                local distance = (humanoidRootPart.Position - head.Position).magnitude
+                if distance < closestDistance then
+                    closestDistance = distance
+                    closestPlayer = p
+                end
+            end
+        end
+    end
+    
+    return closestPlayer
+end
+
+function aimAt(target)
+    if not aimEnabled or not target or not target.Character then return end
+    
+    local head = target.Character:FindFirstChild("Head")
+    if head then
+        local targetPosition = head.Position
+        local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
+        camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
+    end
+end
+
+local function onCharacterAdded(character)
+    createUI()
+end
+
+player.CharacterAdded:Connect(onCharacterAdded)
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+
+runService.RenderStepped:Connect(function()
+    local targetPlayer = findClosestPlayer()
+    aimAt(targetPlayer)
+end)
