@@ -30,6 +30,7 @@ function createUI()
     if screenGui then screenGui:Destroy() end
     
     screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    ScreenGui.Name = "AimbotV1"
     local frame = Instance.new("Frame", screenGui)
     frame.Size = UDim2.new(0, 200, 0, 100)
     frame.Position = UDim2.new(0, 10, 0, 10)
