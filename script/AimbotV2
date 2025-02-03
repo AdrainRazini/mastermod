@@ -1,3 +1,20 @@
+-- Verificar se já existe um ScreenGui com o nome "AimbotV1"
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV1")
+
+-- Se já existir, retorna para evitar a criação do GUI
+if existingScreenGui then
+    return
+end
+
+
+
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+    Title = "Mastermod";
+    Text = "AimBot V1";
+    Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150"})
+Duration = 16;
+
+
 local player = game.Players.LocalPlayer
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
@@ -13,6 +30,7 @@ function createUI()
     if screenGui then screenGui:Destroy() end
     
     screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    screenGui.Name = "AimbotV1"
     local frame = Instance.new("Frame", screenGui)
     frame.Size = UDim2.new(0, 200, 0, 100)
     frame.Position = UDim2.new(0, 10, 0, 10)
