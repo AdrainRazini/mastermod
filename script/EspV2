@@ -1,0 +1,107 @@
+-- Configurações
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+-- Variável para controlar se o efeito está ativado ou desativado
+local effectEnabled = true
+
+-- Função para criar a interface de controle
+local function createControlUI()
+    local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 50)
+    frame.Position = UDim2.new(0.5, -100, 0, 10)
+    frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    frame.BackgroundTransparency = 0.5
+    frame.Active = true
+    frame.Draggable = true
+
+    local toggleButton = Instance.new("TextButton", frame)
+    toggleButton.Size = UDim2.new(1, 0, 1, 0)
+    toggleButton.Text = "Desativar Efeito"
+    toggleButton.TextColor3 = Color3.new(1, 1, 1)
+    toggleButton.BackgroundTransparency = 1
+    toggleButton.MouseButton1Click:Connect(function()
+        effectEnabled = not effectEnabled
+        toggleButton.Text = effectEnabled and "Desativar Efeito" or "Ativar Efeito"
+    end)
+end
+
+-- Função para aplicar o efeito de brilho
+local function applyGlow(character)
+    if not character:FindFirstChildOfClass("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "Highlight"
+        highlight.Parent = character
+        highlight.Adornee = character
+        highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Cor do brilho
+        highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- Cor do contorno do brilho
+        highlight.OutlineTransparency = 0.5 -- Transparência do contorno
+    end
+end
+
+-- Função para fazer os jogadores aparecerem através das paredes
+local function makeVisible(character)
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+            part.Transparency = 0.5
+        end
+    end
+
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        humanoidRootPart.CanCollide = false
+    end
+end
+
+-- Função para reverter o efeito quando o personagem voltar ao normal
+local function revertVisibility(character)
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+            part.Transparency = 0
+        end
+    end
+
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        humanoidRootPart.CanCollide = true
+    end
+end
+
+-- Atualiza os efeitos para todos os jogadores
+local function updatePlayers()
+    if not effectEnabled then return end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            local character = player.Character
+            applyGlow(character)
+            makeVisible(character)
+        end
+    end
+end
+
+-- Cria a interface de controle
+createControlUI()
+
+-- Atualiza a cada frame
+RunService.RenderStepped:Connect(updatePlayers)
+
+-- Evento para reverter os efeitos quando o jogador sair do jogo ou for removido
+Players.PlayerRemoving:Connect(function(player)
+    if player.Character then
+        revertVisibility(player.Character)
+    end
+end)
+
+-- Garante que o script continue funcionando mesmo se o jogador morrer
+player.CharacterAdded:Connect(function(character)
+    while not character:FindFirstChildOfClass("Humanoid") do
+        wait()
+    end
+    updatePlayers()
+end)
