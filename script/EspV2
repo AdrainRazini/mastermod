@@ -27,6 +27,7 @@ local effectEnabled = true
 -- Função para criar a interface de controle
 local function createControlUI()
     local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+    screenGui.Name = "EspV2"
     local frame = Instance.new("Frame", screenGui)
     frame.Size = UDim2.new(0, 200, 0, 50)
     frame.Position = UDim2.new(0.5, -100, 0, 10)
