@@ -1,3 +1,20 @@
+-- Verificar se já existe um ScreenGui com o nome "EspV2"
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("EspV2")
+
+-- Se já existir, retorna para evitar a criação do GUI
+if existingScreenGui then
+    return
+end
+
+
+
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+    Title = "Mastermod";
+    Text = "AimBot V1";
+    Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150"})
+Duration = 16;
+
+
 -- Configurações
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
