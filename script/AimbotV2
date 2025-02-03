@@ -5,13 +5,16 @@ local camera = game.Workspace.CurrentCamera
 local players = game:GetService("Players")
 local detectionRadius = 50
 local lerpSpeed = 0.1
+local checkInterval = 0.1  -- Verificar a cada 0.1 segundos para melhorar desempenho
+local lastCheckTime = 0  -- Controla o tempo da última verificação
 
 function findClosestPlayer()
     local closestPlayer = nil
     local closestDistance = detectionRadius
 
     for _, p in ipairs(players:GetPlayers()) do
-        if p ~= player and p.Character then
+        -- Ignorar o próprio jogador e jogadores sem personagem ou mortos
+        if p ~= player and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
             local head = p.Character:FindFirstChild("Head")
             if head then
                 local distance = (humanoidRootPart.Position - head.Position).magnitude
@@ -34,6 +37,7 @@ end
 function aimAt(target)
     if target and target.Character and target.Character:FindFirstChild("Head") then
         local targetPosition = target.Character.Head.Position
+        -- Suavização da câmera
         local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
         camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
 
@@ -43,6 +47,10 @@ function aimAt(target)
 end
 
 game:GetService("RunService").RenderStepped:Connect(function()
-    local targetPlayer = findClosestPlayer()
-    aimAt(targetPlayer)
+    local currentTime = tick()
+    if currentTime - lastCheckTime >= checkInterval then
+        lastCheckTime = currentTime  -- Atualiza o tempo da última verificação
+        local targetPlayer = findClosestPlayer()
+        aimAt(targetPlayer)
+    end
 end)
