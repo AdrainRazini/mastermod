@@ -163,6 +163,14 @@ Duration = 16;
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
 end)
 
+createButton("Aimbot all", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
+end)
+
+createButton("AimbotV2", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
+end)
+
 createButton("Clone item", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/CloneItem"))()
 end)
@@ -234,14 +242,6 @@ end)
 
 createButton("Jump tool", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
-end)
-
-createButton("Aimbot all", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
-end)
-
-createButton("Aimbot team", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
 end)
 
 createButton("Speed Boost tool", function()
