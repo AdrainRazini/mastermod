@@ -26,12 +26,19 @@ local function createControlUI()
     toggleButton.MouseButton1Click:Connect(function()
         effectEnabled = not effectEnabled
         toggleButton.Text = effectEnabled and "Desativar Efeito" or "Ativar Efeito"
+        if not effectEnabled then
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player.Character then
+                    revertVisibility(player.Character)
+                end
+            end
+        end
     end)
 end
 
 -- Função para aplicar o efeito de brilho
 local function applyGlow(character)
-    if not character:FindFirstChildOfClass("Highlight") then
+    if not character:FindFirstChild("Highlight") then
         local highlight = Instance.new("Highlight")
         highlight.Name = "Highlight"
         highlight.Parent = character
@@ -39,6 +46,14 @@ local function applyGlow(character)
         highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Cor do brilho
         highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- Cor do contorno do brilho
         highlight.OutlineTransparency = 0.5 -- Transparência do contorno
+    end
+end
+
+-- Função para remover o efeito de brilho
+local function removeGlow(character)
+    local highlight = character:FindFirstChild("Highlight")
+    if highlight then
+        highlight:Destroy()
     end
 end
 
@@ -50,25 +65,16 @@ local function makeVisible(character)
             part.Transparency = 0.5
         end
     end
-
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if humanoidRootPart then
-        humanoidRootPart.CanCollide = false
-    end
 end
 
--- Função para reverter o efeito quando o personagem voltar ao normal
+-- Função para reverter o efeito quando desativado
 local function revertVisibility(character)
+    removeGlow(character)
     for _, part in ipairs(character:GetDescendants()) do
         if part:IsA("BasePart") then
             part.CanCollide = true
             part.Transparency = 0
         end
-    end
-
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if humanoidRootPart then
-        humanoidRootPart.CanCollide = true
     end
 end
 
