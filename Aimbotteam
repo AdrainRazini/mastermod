@@ -1,5 +1,5 @@
 
--- Verificar se já existe um ScreenGui com o nome "ModMenu"
+-- Verificar se já existe um ScreenGui com o nome "AimbotV2"
 local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV2")
 
 -- Se já existir, retorna para evitar a criação do GUI
