@@ -5,17 +5,13 @@ local camera = game.Workspace.CurrentCamera
 local players = game:GetService("Players")
 local detectionRadius = 50
 local lerpSpeed = 0.1
-local rotationSpeed = 5  -- A velocidade de rotação para o personagem
-local checkInterval = 0.1  -- Verificar a cada 0.1 segundos para melhorar desempenho
-local lastCheckTime = 0  -- Controla o tempo da última verificação
 
 function findClosestPlayer()
     local closestPlayer = nil
     local closestDistance = detectionRadius
 
     for _, p in ipairs(players:GetPlayers()) do
-        -- Ignorar o próprio jogador e jogadores sem personagem ou mortos
-        if p ~= player and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
+        if p ~= player and p.Character then
             local head = p.Character:FindFirstChild("Head")
             if head then
                 local distance = (humanoidRootPart.Position - head.Position).magnitude
@@ -39,30 +35,14 @@ function aimAt(target)
     if target and target.Character and target.Character:FindFirstChild("Head") then
         local targetPosition = target.Character.Head.Position
         local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
-        
-        -- Suavização da câmera
         camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
 
-        -- Melhorando a rotação do personagem
         local lookVector = (targetPosition - humanoidRootPart.Position).unit
-        local targetRotation = CFrame.new(humanoidRootPart.Position, targetPosition).LookVector
-        local currentRotation = humanoidRootPart.CFrame.LookVector
-        local rotationDelta = targetRotation:Cross(currentRotation).unit
-
-        -- Calculando o ângulo de rotação necessário para ajustar o personagem
-        local angle = math.acos(currentRotation:Dot(targetRotation))
-        local rotationStep = math.min(rotationSpeed * angle, math.rad(10))  -- Limita a rotação a 10 graus por vez
-        local newRotation = humanoidRootPart.CFrame * CFrame.Angles(0, rotationStep * math.sign(rotationDelta.Y), 0)
-
-        humanoidRootPart.CFrame = newRotation
+        humanoidRootPart.CFrame = CFrame.new(humanoidRootPart.Position) * CFrame.Angles(0, math.atan2(lookVector.Z, lookVector.X), 0)
     end
 end
 
 game:GetService("RunService").RenderStepped:Connect(function()
-    local currentTime = tick()
-    if currentTime - lastCheckTime >= checkInterval then
-        lastCheckTime = currentTime  -- Atualiza o tempo da última verificação
-        local targetPlayer = findClosestPlayer()
-        aimAt(targetPlayer)
-    end
+    local targetPlayer = findClosestPlayer()
+    aimAt(targetPlayer)
 end)
