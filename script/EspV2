@@ -10,7 +10,7 @@ end
 
 game:GetService("StarterGui"):SetCore("SendNotification", { 
     Title = "Mastermod";
-    Text = "AimBot V1";
+    Text = "Fantasma";
     Icon = "rbxthumb://type=Asset&id=125572286896228&w=150&h=150"})
 Duration = 16;
 
