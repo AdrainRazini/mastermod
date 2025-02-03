@@ -1,7 +1,7 @@
 
 game:GetService("StarterGui"):SetCore("SendNotification", { 
     Title = "Mastermod";
-    Text = "AimBot V2";
+    Text = "AimBot V1";
     Icon = "rbxthumb://type=Asset&id=114600008550767&w=150&h=150"})
 Duration = 16;
 
