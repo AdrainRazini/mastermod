@@ -11,7 +11,7 @@ end
 game:GetService("StarterGui"):SetCore("SendNotification", { 
     Title = "MASTERMOD";
     Text = "Adrian75556435";
-    Icon = "rbxthumb://type=Asset&id=116457999308650&w=150&h=150"})
+    Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
 Duration = 16;
 
 
@@ -107,7 +107,7 @@ local minimizeImage = Instance.new("ImageLabel")
 minimizeImage.Parent = ModMenu
 minimizeImage.Size = UDim2.new(1, 0, 1, 0)
 minimizeImage.BackgroundTransparency = 1
-minimizeImage.Image = "rbxassetid://116457999308650" -- Substitua pelo ID da imagem desejada
+minimizeImage.Image = "rbxassetid://102637810511338" -- Substitua pelo ID da imagem desejada
 minimizeImage.Visible = false
 
 MinimizeButton.MouseButton1Click:Connect(function()
