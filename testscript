@@ -47,7 +47,7 @@ local function updateESP()
         if target.Character and target.Character:FindFirstChild("Humanoid") then
             local humanoid = target.Character:FindFirstChild("Humanoid")
             if humanoid.Health <= 0 then
-                removeESP(target)  -- Remove ESP de jogadores mortos
+                createESP(target)  -- Remove ESP de jogadores mortos
             elseif not target:FindFirstChild("ESP") then
                 createESP(target)   -- Cria ESP para jogadores vivos
             end
@@ -60,3 +60,6 @@ while true do
     updateESP()
     wait(0.5) -- Atualiza a cada 0.5 segundo
 end
+
+
+--esp Visores 
