@@ -282,3 +282,7 @@ end)
 createButton("EM BREVE", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
 end)
+
+createButton("Menu", function()
+loadstring(game:HttpGet(""))
+end)
