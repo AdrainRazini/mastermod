@@ -177,10 +177,10 @@ createButton ("Mod Inv" , function()
 loadstring(game;HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/inventario"))
 end)
 
-createButton ("Mode Test" , function()
-loadstring(game:HttpGet(""))
+createButton ("Esp V2" , function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/EspV2"))
 end) 
-                    
+                   
 
 createButton ("" , function()
 loadstring(game:HttpGet(""))
