@@ -49,4 +49,4 @@ Contribuições são bem-vindas! Se quiser adicionar novas funcionalidades, abra
 ## 📜 Licença
 Este projeto é para uso educacional e não possui nenhuma ligação oficial com Roblox Corporation.
 
-**Autor:** [Arian Razini Rangel]
+**Autor:** [Adrian Razini Rangel]
