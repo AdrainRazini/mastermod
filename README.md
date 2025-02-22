@@ -8,7 +8,7 @@ O **Mastermod** é um conjunto de ferramentas personalizadas desenvolvidas para 
 O uso de mods e scripts em jogos online pode violar os Termos de Serviço do Roblox, resultando em banimentos ou outras penalidades. Use este projeto por sua conta e risco.
 ---
 ---
-## 📂 Para Usar basta colar em um Executor lua
+##  👨‍💻 Para Usar basta colar em um Executor lua 👨‍💻
 ```
  loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/apresentar"))()
 ```
