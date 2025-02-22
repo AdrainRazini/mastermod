@@ -10,12 +10,10 @@ O uso de mods e scripts em jogos online pode violar os Termos de Serviço do Rob
 
 ## 📂 Para Usar basta colar em um Executor lua
 ```
-
-```
  loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/apresentar"))()
+```
+---
 
----
----
 
 ## 📂 Estrutura do Projeto
 ```
