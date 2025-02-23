@@ -1,64 +1,10 @@
--- Criar a bola voadora
-local bola = Instance.new("Part")
-bola.Name = "BolaVoadora"
-bola.Shape = Enum.PartType.Ball
-bola.Size = Vector3.new(2, 2, 2)
-bola.Position = Vector3.new(0, 10, 0)
-bola.Anchored = false
-bola.CanCollide = true
-bola.BrickColor = BrickColor.new("Bright red")
-bola.Parent = workspace
+-- Encontrar a Part no jogo
+local bolaInimiga = workspace:FindFirstChild("BolaInimiga")  -- Substitua "BolaInimiga" pelo nome da sua Part
 
--- Adicionar um Highlight para destacar a bola
-local highlight = Instance.new("Highlight")
-highlight.FillTransparency = 0.5
-highlight.OutlineTransparency = 0
-highlight.Parent = bola
-
--- Adicionar um BodyVelocity para fazer a bola voar
-local bodyVelocity = Instance.new("BodyVelocity")
-bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-bodyVelocity.Parent = bola
-
--- Função para mover a bola em direção ao jogador
-local function moverBolaParaJogador()
-    local jogador = game.Players.LocalPlayer
-    local personagem = jogador.Character
-    local raiz = personagem and personagem:FindFirstChild("HumanoidRootPart")
-    
-    if raiz then
-        local direcao = (raiz.Position - bola.Position).unit
-        bodyVelocity.Velocity = direcao * 10  -- Velocidade da bola
-    end
+if not bolaInimiga then
+    warn("Part 'BolaInimiga' não encontrada no workspace!")
+    return
 end
-
--- Função para verificar a proximidade e simular a tecla F
-local function verificarProximidadeESimularTeclaF()
-    local jogador = game.Players.LocalPlayer
-    local personagem = jogador.Character
-    local raiz = personagem and personagem:FindFirstChild("HumanoidRootPart")
-    
-    if raiz then
-        local distancia = (raiz.Position - bola.Position).Magnitude
-        
-        -- Se a bola estiver próxima (distância menor que 5 unidades)
-        if distancia < 5 then
-            -- Simular a tecla F
-            local teclaF = Enum.KeyCode.F
-            game:GetService("UserInputService"):SetKeysDown({teclaF})
-            wait(0.1)  -- Simula o tempo de pressionar a tecla
-            game:GetService("UserInputService"):SetKeysUp({teclaF})
-            print("Tecla F simulada!")
-        end
-    end
-end
-
--- Loop para mover a bola e verificar a proximidade continuamente
-game:GetService("RunService").Heartbeat:Connect(function()
-    moverBolaParaJogador()
-    verificarProximidadeESimularTeclaF()
-end)
 
 -- Criar um botão na tela
 local screenGui = Instance.new("ScreenGui")
@@ -67,20 +13,46 @@ screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(0, 200, 0, 50)
 button.Position = UDim2.new(0.5, -100, 0.9, -25)
-button.Text = "Iniciar Bola"
+button.Text = "Ativar Defesa"
 button.Parent = screenGui
 
--- Variável para controlar o estado da bola
-local bolaAtiva = false
+-- Variável para controlar o estado da automação
+local automaçãoAtiva = false
 
--- Função para iniciar/parar a bola
+-- Função para iniciar/parar a automação
 button.MouseButton1Click:Connect(function()
-    bolaAtiva = not bolaAtiva
-    if bolaAtiva then
-        button.Text = "Parar Bola"
-        bola.Parent = workspace  -- Ativar a bola
+    automaçãoAtiva = not automaçãoAtiva
+    if automaçãoAtiva then
+        button.Text = "Desativar Defesa"
+        print("Automação de defesa ativada!")
     else
-        button.Text = "Iniciar Bola"
-        bola.Parent = nil  -- Desativar a bola
+        button.Text = "Ativar Defesa"
+        print("Automação de defesa desativada.")
     end
+end)
+
+-- Função para verificar a proximidade e simular a tecla F
+local function verificarProximidadeESimularTeclaF()
+    if not automaçãoAtiva then return end  -- Só funciona se a automação estiver ativa
+    
+    local jogador = game.Players.LocalPlayer
+    local personagem = jogador.Character
+    local raiz = personagem and personagem:FindFirstChild("HumanoidRootPart")
+    
+    if raiz and bolaInimiga then
+        local distancia = (raiz.Position - bolaInimiga.Position).Magnitude
+        
+        if distancia < 10 then
+            local teclaF = Enum.KeyCode.F
+            game:GetService("UserInputService"):SetKeysDown({teclaF})
+            wait(0.1)
+            game:GetService("UserInputService"):SetKeysUp({teclaF})
+            print("Tecla F simulada para defesa!")
+        end
+    end
+end
+
+-- Loop para verificar a proximidade continuamente
+game:GetService("RunService").Heartbeat:Connect(function()
+    verificarProximidadeESimularTeclaF()
 end)
