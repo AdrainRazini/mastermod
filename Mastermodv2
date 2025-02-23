@@ -153,6 +153,10 @@ createButton("INVENTÁRIO", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
 end)
 
+createButton("Keyboard", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Keyboard"))()
+end)
+
 createButton("HD ADMIM", function()
 
 game:GetService("StarterGui"):SetCore("SendNotification", { 
@@ -279,9 +283,6 @@ createButton("Auto", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento"))()
 end)
 
-createButton("EM BREVE", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/EMBREVE"))()
-end)
 
 createButton("Menu", function()
 loadstring(game:HttpGet(""))
