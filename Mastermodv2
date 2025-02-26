@@ -107,7 +107,7 @@ local minimizeImage = Instance.new("ImageLabel")
 minimizeImage.Parent = ModMenu
 minimizeImage.Size = UDim2.new(1, 0, 1, 0)
 minimizeImage.BackgroundTransparency = 1
-minimizeImage.Image = "rbxassetid://93638563594123" -- Substitua pelo ID da imagem desejada
+minimizeImage.Image = "rbxassetid://95813677939286" -- Substitua pelo ID da imagem desejada
 minimizeImage.Visible = false
 
 MinimizeButton.MouseButton1Click:Connect(function()
