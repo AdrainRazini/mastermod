@@ -1,52 +1,32 @@
+# 👋 Olá! Eu sou **Adrian Razini**  
 
-# Roblox Mod Menu V1
+💻 **Desenvolvedor | Criador de Mods e Jogos | Programador Web**  
 
-## 📌 Sobre o Projeto
-O **Mastermod** é um conjunto de ferramentas personalizadas desenvolvidas para aprimorar a experiência no jogo Roblox. Este menu oferece funcionalidades avançadas para personalização e automação dentro do jogo.
+## 🚀 Sobre mim  
+Apaixonado por tecnologia, programação e inovação. Tenho experiência em desenvolvimento de **Mod Menus para Roblox**, **sites de vendas** e **projetos de jogos**. Sempre buscando aprimorar minhas habilidades e criar soluções inovadoras.  
 
-## ⚠️ Aviso
-O uso de mods e scripts em jogos online pode violar os Termos de Serviço do Roblox, resultando em banimentos ou outras penalidades. Use este projeto por sua conta e risco.
----
----
-##  👨‍💻 Para Usar basta colar em um Executor lua 👨‍💻
-```
- loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/apresentar"))()
-```
----
+## 🔥 Habilidades  
+- 🎮 **Desenvolvimento de Mods** – Criação de scripts e ferramentas para Roblox  
+- 🌐 **Desenvolvimento Web** – HTML, CSS, JavaScript, Node.js  
+- 🎲 **Criação de Jogos** – Desenvolvimento de jogos 2D e 3D  
+- ⚙️ **Automação e Bots** – Ferramentas para facilitar processos (Hackers ou Mods)  
 
+## 📂 Projetos em Destaque  
+🔹 **Site-Central** – [Acesse aqui](https://site-central-silk.vercel.app/)  
+🔹 **Mod Menu para Roblox** – [Acesse aqui](https://adrian-razini.netlify.app/introducao)  
+🔹 **Sites de Vendas** – [Acesse aqui](https://adrianrazini8.netlify.app/)  
+🔹 **Jogos Personalizados** –  
+   - [Scratch](https://scratch.mit.edu/studios/33798273)  
+   - [Roblox (RP Brasil)](https://www.roblox.com/pt/games/80751586210622/RP-Brasil)  
+   - [Roblox (Coroa Imortal)](https://www.roblox.com/pt/games/99388174674538/Coroa-Imortal)
 
-## 📂 Estrutura do Projeto
-```
-mastermod/
-├── scripts/          # Scripts principais do mod menu     
-├── README.md         # Documentação do projeto
-└── Mastermod         # Arquivo principal do mod menu
-```
+## 📬 Contato  
+📧 **E-mail:** [adrianrazin60@gmail.com]  
+🌍 **Portfólio/Site:** [https://adrian-razini.netlify.app/]  
+📌 **GitHub:** [https://github.com/AdrainRazini]  
 
----
-
-## 🚀 Funcionalidades
-- 📌 **Modos de jogo personalizados**
-- 🛠 **Ferramentas de automação**
-- 🎭 **Modificações de personagem**
-- 🎮 **Melhoria na jogabilidade**
-
----
+Sempre explorando novas tecnologias e desafios! 🚀
 
 
-## 📜 Requisitos
-- Executor de Lua compatível com Roblox.
-- Conexão com a internet.
-- Conhecimento básico de scripts Lua (opcional).
 
----
-
-## 🤝 Contribuição
-Contribuições são bem-vindas! Se quiser adicionar novas funcionalidades, abra um **Pull Request** ou entre em contato.
-
----
-
-## 📜 Licença
-Este projeto é para uso educacional e não possui nenhuma ligação oficial com Roblox Corporation.
-
-**Autor:** [Adrian Razini Rangel]
+![](https://gifdb.com/images/high/dark-violet-light-phonk-9jw6zy7wxa0b533t.webp)
