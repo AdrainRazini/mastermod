@@ -7,6 +7,11 @@ if existingScreenGui then
     return
 end
 
+-- URL da API do GitHub para listar os scripts
+local GITHUB_USER = "AdrainRazini"
+local GITHUB_REPO = "mastermod"
+local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/script"
+
 
 game:GetService("StarterGui"):SetCore("SendNotification", { 
     Title = "MASTERMOD";
