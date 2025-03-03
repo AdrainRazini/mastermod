@@ -9,7 +9,7 @@ end
 -- URL da API do GitHub para listar os scripts
 local GITHUB_USER = "AdrainRazini"
 local GITHUB_REPO = "mastermod"
-local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/scripts"
+local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/script"
 
 -- Notificação inicial
 game:GetService("StarterGui"):SetCore("SendNotification", { 
