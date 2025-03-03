@@ -1,4 +1,3 @@
-print(" TEST MODS ")
 -- Verificar se já existe um ScreenGui com o nome "ModMenu"
 local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ModMenuGui")
 
@@ -125,8 +124,16 @@ local function loadScriptsFromGitHub()
             local scriptName = scriptData.name
             local scriptUrl = scriptData.download_url
 
+            print("Script encontrado:", scriptName, "URL:", scriptUrl)
+
             createButton(scriptName, function()
-                loadstring(game:HttpGet(scriptUrl))()
+                local success, errorMessage = pcall(function()
+                    loadstring(game:HttpGet(scriptUrl))()
+                end)
+
+                if not success then
+                    warn("Erro ao carregar o script " .. scriptName .. ": " .. errorMessage)
+                end
             end)
         end
     end
