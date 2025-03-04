@@ -27,7 +27,7 @@ local function createBlock()
     local block = Instance.new("Part")
     block.Size = Vector3.new(50, 1, 50)  -- Tamanho do bloco
     block.Anchored = true
-    block.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 3, 0)  -- Abaixo do jogador
+    block.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)  -- Abaixo do jogador
     block.BrickColor = BrickColor.new("Bright blue")  -- Cor do bloco
     block.Transparency = 0  -- Deixa o bloco invisível
     block.Parent = workspace
