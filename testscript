@@ -25,11 +25,11 @@ local isEquipped = false
 -- Função para criar blocos
 local function createBlock()
     local block = Instance.new("Part")
-    block.Size = Vector3.new(10, 1, 10)  -- Tamanho do bloco
+    block.Size = Vector3.new(10, 5, 10)  -- Tamanho do bloco
     block.Anchored = true
-    block.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 4, 0)  -- Abaixo do jogador
+    block.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 3, 0)  -- Abaixo do jogador
     block.BrickColor = BrickColor.new("Bright blue")  -- Cor do bloco
-    block.Transparency = 1  -- Deixa o bloco invisível
+    block.Transparency = 0  -- Deixa o bloco invisível
     block.Parent = workspace
     
     game:GetService("Debris"):AddItem(block, 1)
