@@ -152,6 +152,15 @@ ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
     -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
 end)
 
+createButton("HD ADMIM", function()
+
+    game:GetService("StarterGui"):SetCore("SendNotification", { 
+        Title = "HD ADMIM";
+        Text = "YIELD";
+        Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
+    Duration = 16;
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
+    end)
 
 local url = {
     {name = "inventario", path = "inventario"},
