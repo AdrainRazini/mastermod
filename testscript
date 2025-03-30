@@ -1,20 +1,40 @@
-
-
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
+local SoundService = game:GetService("SoundService")
+local StarterGui = game:GetService("StarterGui")
 
-local animationId = 91387203046156 -- ID da animação
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://" .. animationId
+-- Criando a GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-local animator = humanoid:FindFirstChildOfClass("Animator")
-if not animator then
-    animator = Instance.new("Animator", humanoid)
-end
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 150)
+frame.Position = UDim2.new(0.5, -150, 0.4, -75)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.Parent = screenGui
 
-local danceAnimation = humanoid:LoadAnimation(animation)
-danceAnimation:Play()
+local textBox = Instance.new("TextBox")
+textBox.Size = UDim2.new(0, 250, 0, 30)
+textBox.Position = UDim2.new(0.5, -125, 0.2, 0)
+textBox.PlaceholderText = "Digite o ID da música"
+textBox.Parent = frame
 
-print("Dança iniciada!")
+local playButton = Instance.new("TextButton")
+playButton.Size = UDim2.new(0, 100, 0, 30)
+playButton.Position = UDim2.new(0.5, -50, 0.6, 0)
+playButton.Text = "Tocar"
+playButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+playButton.Parent = frame
+
+-- Criando o som no SoundService
+local sound = Instance.new("Sound")
+sound.Parent = SoundService
+
+playButton.MouseButton1Click:Connect(function()
+    local musicID = tonumber(textBox.Text)
+    if musicID then
+        sound.SoundId = "rbxassetid://" .. musicID
+        sound:Play()
+    else
+        textBox.Text = "ID inválido"
+    end
+end)
