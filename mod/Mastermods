@@ -154,7 +154,7 @@ end)
 
 
 local url = {
-    "inventario", "flyGui", "TpTool", "Keyboard", "dash", "Lockcamera", "AimbotV2", "AimbotV3", "Andarnoar", "EspV2", "JumpTool", "SpeedTool"  
+    "inventario", "flyGui", "TpTool", "cordenadas", "Tpcordenadas", "Keyboard", "dash", "Lockcamera", "AimbotV2", "AimbotV3", "Andarnoar", "EspV2", "JumpTool", "SpeedTool"  
 }
 
 for _, name in ipairs(url) do
