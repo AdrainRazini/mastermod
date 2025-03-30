@@ -165,6 +165,7 @@ createButton("HD ADMIM", function()
 local url = {
     {name = "inventario", path = "inventario"},
     {name = "flyGui", path = "flyGui"},
+    {name = "Emote", path = "dance"},
     {name = "TpTool", path = "TpTool"},
     {name = "cordenadas", path = "Local"},
     {name = "Tpcordenadas", path = "Tpcordenadas"},
