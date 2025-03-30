@@ -154,12 +154,26 @@ end)
 
 
 local url = {
-    "inventario", "flyGui", "TpTool", "cordenadas", "Tpcordenadas", "Keyboard", "dash", "Lockcamera", "AimbotV2", "AimbotV3", "Andarnoar", "EspV2", "JumpTool", "SpeedTool",  
+    {name = "INVENTARIO", path = "inventario"},
+    {name = "VOAR", path = "flyGui"},
+    {name = "TELEPORT", path = "TpTool"},
+    {name = "MOSTRAR COORDENADAS", path = "cordenadas"},
+    {name = "TP COORDENADAS", path = "Tpcordenadas"},
+    {name = "KEYBOARD", path = "Keyboard"},
+    {name = "DASH", path = "dash"},
+    {name = "LOCK CAMERA", path = "Lockcamera"},
+    {name = "AIMBOT V2", path = "AimbotV2"},
+    {name = "AIMBOT V3", path = "AimbotV3"},
+    {name = "ANDAR NO AR", path = "Andarnoar"},
+    {name = "ESP V2", path = "EspV2"},
+    {name = "JUMP TOOL", path = "JumpTool"},
+    {name = "SPEED TOOL", path = "SpeedTool"}
 }
 
-for _, name in ipairs(url) do
-    createButton(name:upper(), function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/" .. name))()
+for _, script in ipairs(url) do
+    createButton(script.name, function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/" .. script.path))()
     end)
 end
+
 
