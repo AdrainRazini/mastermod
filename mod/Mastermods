@@ -159,13 +159,13 @@ local url = {
     {name = "TELEPORT", path = "TpTool"},
     {name = "MOSTRAR COORDENADAS", path = "cordenadas"},
     {name = "TP COORDENADAS", path = "Tpcordenadas"},
-    {name = "KEYBOARD", path = "Keyboard"},
+    {name = "TECLADO", path = "Keyboard"},
     {name = "DASH", path = "dash"},
-    {name = "LOCK CAMERA", path = "Lockcamera"},
+    {name = "PARAR CAMERA", path = "Lockcamera"},
     {name = "AIMBOT V2", path = "AimbotV2"},
     {name = "AIMBOT V3", path = "AimbotV3"},
     {name = "ANDAR NO AR", path = "Andarnoar"},
-    {name = "ESP V2", path = "EspV2"},
+    {name = "VISÃO", path = "EspV2"},
     {name = "JUMP TOOL", path = "JumpTool"},
     {name = "SPEED TOOL", path = "SpeedTool"}
 }
