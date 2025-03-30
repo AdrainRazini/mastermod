@@ -1,0 +1,165 @@
+
+-- Verificar se já existe um ScreenGui com o nome "ModMenu"
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ModMenuGui")
+
+-- Se já existir, retorna para evitar a criação do GUI
+if existingScreenGui then
+    return
+end
+
+-- URL da API do GitHub para listar os scripts
+local GITHUB_USER = "AdrainRazini"
+local GITHUB_REPO = "mastermod"
+local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/script"
+
+
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+    Title = "MASTERMOD";
+    Text = "Adrian75556435";
+    Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
+Duration = 16;
+
+
+local TweenService = game:GetService("TweenService")
+-- Criação do GUI
+local ScreenGui = Instance.new("ScreenGui")
+local ModMenu = Instance.new("Frame")
+local TitleBar = Instance.new("Frame")
+local MinimizeButton = Instance.new("TextButton")
+local Content = Instance.new("ScrollingFrame")
+local Buttons = {}
+
+-- Propriedades do GUI
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Configuração do menu principal
+ScreenGui.Name = "ModMenuGui"
+ModMenu.Name = "ModMenu"
+ModMenu.Parent = ScreenGui
+ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+ModMenu.Size = UDim2.new(0, 200, 0, 300)
+ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
+ModMenu.Active = true
+ModMenu.Draggable = true
+
+-- Barra de título
+TitleBar.Name = "TitleBar"
+TitleBar.Parent = ModMenu
+TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TitleBar.Size = UDim2.new(1, 0, 0, 30)
+
+local Title = Instance.new("TextLabel", TitleBar)
+Title.Text = "MASTERMODS"
+Title.Size = UDim2.new(1, -30, 1, 0)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextScaled = true
+
+-- Botão de minimizar
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = TitleBar
+MinimizeButton.Text = "-"
+MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
+MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
+MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+
+-- Conteúdo do menu (ScrollingFrame)
+Content.Name = "Content"
+Content.Parent = ModMenu
+Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+Content.Size = UDim2.new(1, 0, 1, -30)
+Content.Position = UDim2.new(0, 0, 0, 30)
+Content.CanvasSize = UDim2.new(0, 0, 1, 0)
+Content.ScrollBarThickness = 8
+
+-- Layout para organizar os botões em lista
+local ListLayout = Instance.new("UIListLayout", Content)
+ListLayout.Padding = UDim.new(0, 5)
+ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Variável para saber o estado de minimização
+local isMinimized = false
+
+-- Função para atualizar o CanvasSize do ScrollingFrame
+local function updateCanvasSize()
+    local totalHeight = 0
+    for _, button in pairs(Buttons) do
+        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
+    end
+    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+end
+
+-- Função para criar botões com ação
+local function createButton(text, callback)
+    local Button = Instance.new("TextButton")
+    Button.Parent = Content
+    Button.Size = UDim2.new(0.8, 0, 0, 40)
+    Button.Text = text
+    Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.MouseButton1Click:Connect(callback)
+    table.insert(Buttons, Button)
+    
+    updateCanvasSize()
+end
+
+-- Função para minimizar/maximizar com animação
+local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+local minimizeImage = Instance.new("ImageLabel")
+minimizeImage.Parent = ModMenu
+minimizeImage.Size = UDim2.new(1, 0, 1, 0)
+minimizeImage.BackgroundTransparency = 1
+minimizeImage.Image = "rbxassetid://117585506735209" -- Substitua pelo ID da imagem desejada
+minimizeImage.Visible = false
+
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    local sizeTween, titleTween, imageTween
+    
+    if isMinimized then
+        -- Minimizar o menu
+        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
+        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
+        Content.Visible = false
+        
+        -- Exibir a imagem
+        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
+        minimizeImage.Visible = true
+        imageTween:Play()
+    else
+        -- Restaurar o menu
+        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
+        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
+        Content.Visible = true
+        
+        -- Ocultar a imagem
+        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
+        imageTween:Play()
+        imageTween.Completed:Connect(function()
+            minimizeImage.Visible = false
+        end)
+    end
+    
+    sizeTween:Play()
+    titleTween:Play()
+end)
+
+-- Atualizar a posição do menu sempre que ele for movido
+ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
+    -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
+end)
+
+
+local url = {
+    "inventario", "AimbotV2", "AimbotV3", "Andarnoar", "EspV2", "JumpTool", "SpeedTool", "TpTool", "flyGui"
+}
+
+for _, name in ipairs(url) do
+    createButton(name:upper(), function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/" .. name))()
+    end)
+end
+
