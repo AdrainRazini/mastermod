@@ -7,48 +7,72 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
--- Criar a GUI
-local screenGui = Instance.new("ScreenGui", player.PlayerGui)
-local frame = Instance.new("Frame", screenGui)
-local textBox = Instance.new("TextBox", frame)
-local playButton = Instance.new("TextButton", frame)
+-- Criar GUI para entrada de ID
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local frame = Instance.new("Frame")
+local textBox = Instance.new("TextBox")
+local playButton = Instance.new("TextButton")
+local dragFrame = Instance.new("Frame")
 
--- Configuração da Frame
-frame.Size = UDim2.new(0.2, 0, 0.15, 0)
+frame.Size = UDim2.new(0.2, 0, 0.2, 0)
 frame.Position = UDim2.new(0.4, 0, 0.4, 0)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BackgroundColor3 = Color3.new(1, 1, 1)
+frame.Parent = screenGui
 
--- Configuração da TextBox
-textBox.Size = UDim2.new(0.8, 0, 0.4, 0)
-textBox.Position = UDim2.new(0.1, 0, 0.1, 0)
-textBox.PlaceholderText = "Digite o ID da animação"
-textBox.Text = ""
+-- Área de arraste
 
--- Configuração do Botão
+dragFrame.Size = UDim2.new(1, 0, 0.2, 0)
+dragFrame.BackgroundColor3 = Color3.new(0.7, 0.7, 0.7)
+dragFrame.Parent = frame
+
+testBox.Size = UDim2.new(0.8, 0, 0.3, 0)
+testBox.Position = UDim2.new(0.1, 0, 0.3, 0)
+testBox.PlaceholderText = "Insira o ID da animação"
+testBox.Parent = frame
+
 playButton.Size = UDim2.new(0.8, 0, 0.3, 0)
-playButton.Position = UDim2.new(0.1, 0, 0.6, 0)
-playButton.Text = "Executar Animação"
+playButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+playButton.Text = "Reproduzir Animação"
+playButton.Parent = frame
 
--- Função para executar animação
-table.insert({})
 local function playAnimation()
-    local animationId = tonumber(textBox.Text)
-    if animationId then
+    local animationId = textBox.Text
+    if tonumber(animationId) then
         local animation = Instance.new("Animation")
         animation.AnimationId = "rbxassetid://" .. animationId
-        
+
         local animator = humanoid:FindFirstChildOfClass("Animator")
         if not animator then
-            animator = Instance.new("Animator", humanoid)
+            animator = Instance.new("Animator")
+            animator.Parent = humanoid
         end
-        
-        local danceAnimation = humanoid:LoadAnimation(animation)
+
+        local danceAnimation = animator:LoadAnimation(animation)
         danceAnimation:Play()
-    else
-        warn("ID de animação inválido!")
     end
 end
 
 playButton.MouseButton1Click:Connect(playAnimation)
 
-print("GUI de animação carregada!")
+-- Habilitar arrastar a Frame
+local dragging, dragStart, startPos = false, Vector2.new(), UDim2.new()
+
+dragFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
