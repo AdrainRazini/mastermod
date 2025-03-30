@@ -172,11 +172,6 @@ Duration = 16;
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
 end)
 
-
-createButton("Dash V2", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/dash"))()
-end)
-
 createButton("Aimbot all", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
 end)
@@ -248,6 +243,10 @@ end)
 
 createButton("Dash", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
+end)
+
+createButton("Dash V2", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/dash"))()
 end)
 
 createButton("Fly tool", function()
