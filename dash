@@ -1,9 +1,23 @@
 -- Criação da GUI
 local player = game.Players.LocalPlayer
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
-local button = Instance.new("TextButton", screenGui)
 
--- Configuração do botão
+-- Criando a Frame de Controle
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(1, -220, 0, 120)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+-- Criando um Slider para controle de velocidade
+local slider = Instance.new("TextBox", frame)
+slider.Size = UDim2.new(0, 180, 0, 30)
+slider.Position = UDim2.new(0, 10, 0, 10)
+slider.Text = "80" -- Velocidade inicial
+slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+slider.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+-- Criando o botão Dash
+local button = Instance.new("TextButton", screenGui)
 button.Size = UDim2.new(0, 200, 0, 50)
 button.Position = UDim2.new(1, -220, 0, 50) -- Canto superior direito, um pouco para baixo
 button.Text = "Dash"
@@ -15,7 +29,7 @@ local running = false
 local function startDash()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local dashSpeed = 80
+    local dashSpeed = tonumber(slider.Text) or 80 -- Pega a velocidade do slider
 
     running = true
     while running do
