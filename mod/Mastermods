@@ -2,7 +2,7 @@ local url = {
     {name = "inventario", path = "inventario"},
     {name = "flyGui", path = "flyGui"},
     {name = "TpTool", path = "TpTool"},
-    {name = "cordenadas", path = "cordenadas"},
+    {name = "cordenadas", path = "Local"},
     {name = "Tpcordenadas", path = "Tpcordenadas"},
     {name = "Keyboard", path = "Keyboard"},
     {name = "dash", path = "dash"},
