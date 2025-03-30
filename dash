@@ -9,25 +9,35 @@ button.Position = UDim2.new(1, -220, 0, 50) -- Canto superior direito, um pouco 
 button.Text = "Dash"
 button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 
+local running = false
+
 -- Função de impulso
-local function dash()
+local function startDash()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local dashDuration = 0.2
-    local dashDistance = 80
+    local dashSpeed = 80
 
-    -- Direção da câmera
-    local camera = workspace.CurrentCamera
-    local direction = camera.CFrame.LookVector
-
-    -- Calcular a velocidade necessária
-    local dashSpeed = dashDistance / dashDuration
-
-    humanoidRootPart.Velocity = direction * dashSpeed
-
-    wait(dashDuration)
-    humanoidRootPart.Velocity = Vector3.new(0, 0, 0) -- Para parar o impulso
+    running = true
+    while running do
+        -- Direção da câmera
+        local camera = workspace.CurrentCamera
+        local direction = camera.CFrame.LookVector
+        
+        -- Aplicar velocidade constantemente
+        humanoidRootPart.Velocity = direction * dashSpeed
+        wait(0.1) -- Pequeno intervalo para manter a fluidez
+    end
 end
 
--- Conexão do botão à função de impulso
-button.MouseButton1Click:Connect(dash)
+local function stopDash()
+    running = false
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        humanoidRootPart.Velocity = Vector3.new(0, 0, 0) -- Para parar o impulso
+    end
+end
+
+-- Conectar eventos do botão
+button.MouseButton1Down:Connect(startDash)
+button.MouseButton1Up:Connect(stopDash)
