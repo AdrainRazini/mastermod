@@ -35,6 +35,7 @@ uiListLayout.Parent = scrollingFrame
 dragFrame.Size = UDim2.new(1, 0, 0, 30)  -- Tamanho do cabeçalho para arrastar
 dragFrame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
 dragFrame.Parent = mainFrame
+dragFrame.Active = true -- Permite que a GUI seja movida
 
 minimizeButton.Size = UDim2.new(0.1, 0, 0.8, 0)
 minimizeButton.Position = UDim2.new(1, -40, 0.1, 0)
@@ -74,7 +75,7 @@ local function atualizarListaDeJogadores()
         end
     end
 
-    if #scrollingFrame:GetChildren() == 0 then
+    if #scrollingFrame:GetChildren() == 1 then  -- Apenas o UIListLayout
         local msg = Instance.new("TextLabel")
         msg.Size = UDim2.new(1, 0, 1, 0)
         msg.Text = "Nenhum jogador disponível"
@@ -88,18 +89,12 @@ end
 
 -- Função para criar a GUI
 local function criarGUI()
-    -- Configuração do arrasto
+    -- Configuração do arrasto apenas pelo título
     dragFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = mainFrame.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
         end
     end)
 
@@ -107,6 +102,12 @@ local function criarGUI()
         if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
             local delta = input.Position - dragStart
             mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
         end
     end)
 
@@ -129,7 +130,9 @@ end
 criarGUI()
 
 -- Atualiza a lista de jogadores a cada segundo
-while isActive do
-    wait(1)
-    atualizarListaDeJogadores()
-end
+task.spawn(function()
+    while isActive do
+        wait(1)
+        atualizarListaDeJogadores()
+    end
+end)
