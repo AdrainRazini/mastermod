@@ -18,7 +18,8 @@ O uso de mods e scripts em jogos online pode violar os Termos de Serviço do Rob
 ## 📂 Estrutura do Projeto
 ```
 mastermod/
-├── scripts/          # Scripts principais do mod menu     
+├── mod/              # mod menu   
+├── script/           # Scripts principais do mod menu     
 ├── README.md         # Documentação do projeto
 └── Mastermod         # Arquivo principal do mod menu
 ```
