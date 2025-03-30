@@ -1,11 +1,11 @@
--- Criado por SMARTGAMER0007
+
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
-local animationId = 134723016031069 -- ID da animação
+local animationId = 15122972413 -- ID da animação
 local animation = Instance.new("Animation")
 animation.AnimationId = "rbxassetid://" .. animationId
 
