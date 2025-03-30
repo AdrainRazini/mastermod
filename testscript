@@ -1,20 +1,54 @@
-
+-- Criado por SMARTGAMER0007
 
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
-local animationId = 15122972413 -- ID da animação
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://" .. animationId
+-- Criar a GUI
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local frame = Instance.new("Frame", screenGui)
+local textBox = Instance.new("TextBox", frame)
+local playButton = Instance.new("TextButton", frame)
 
-local animator = humanoid:FindFirstChildOfClass("Animator")
-if not animator then
-    animator = Instance.new("Animator", humanoid)
+-- Configuração da Frame
+frame.Size = UDim2.new(0.2, 0, 0.15, 0)
+frame.Position = UDim2.new(0.4, 0, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+-- Configuração da TextBox
+textBox.Size = UDim2.new(0.8, 0, 0.4, 0)
+textBox.Position = UDim2.new(0.1, 0, 0.1, 0)
+textBox.PlaceholderText = "Digite o ID da animação"
+textBox.Text = ""
+
+-- Configuração do Botão
+playButton.Size = UDim2.new(0.8, 0, 0.3, 0)
+playButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+playButton.Text = "Executar Animação"
+
+-- Função para executar animação
+table.insert({})
+local function playAnimation()
+    local animationId = tonumber(textBox.Text)
+    if animationId then
+        local animation = Instance.new("Animation")
+        animation.AnimationId = "rbxassetid://" .. animationId
+        
+        local animator = humanoid:FindFirstChildOfClass("Animator")
+        if not animator then
+            animator = Instance.new("Animator", humanoid)
+        end
+        
+        local danceAnimation = humanoid:LoadAnimation(animation)
+        danceAnimation:Play()
+    else
+        warn("ID de animação inválido!")
+    end
 end
 
-local danceAnimation = humanoid:LoadAnimation(animation)
-danceAnimation:Play()
+playButton.MouseButton1Click:Connect(playAnimation)
 
-print("Dança iniciada!")
+print("GUI de animação carregada!")
