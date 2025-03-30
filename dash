@@ -1,0 +1,33 @@
+-- Criação da GUI
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local button = Instance.new("TextButton", screenGui)
+
+-- Configuração do botão
+button.Size = UDim2.new(0, 200, 0, 50)
+button.Position = UDim2.new(1, -220, 0, 50) -- Canto superior direito, um pouco para baixo
+button.Text = "Dash"
+button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+
+-- Função de impulso
+local function dash()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local dashDuration = 0.2
+    local dashDistance = 80
+
+    -- Direção da câmera
+    local camera = workspace.CurrentCamera
+    local direction = camera.CFrame.LookVector
+
+    -- Calcular a velocidade necessária
+    local dashSpeed = dashDistance / dashDuration
+
+    humanoidRootPart.Velocity = direction * dashSpeed
+
+    wait(dashDuration)
+    humanoidRootPart.Velocity = Vector3.new(0, 0, 0) -- Para parar o impulso
+end
+
+-- Conexão do botão à função de impulso
+button.MouseButton1Click:Connect(dash)
