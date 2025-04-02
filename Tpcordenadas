@@ -58,7 +58,7 @@ deleteButton.Parent = frame
 
 -- Criar ScrollingFrame para armazenar os botões salvos
 local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(0, 100, 0, 120)
+scrollFrame.Size = UDim2.new(0, 100, 0, 200)
 scrollFrame.Position = UDim2.new(1, 5, 0, 30)
 scrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 scrollFrame.ScrollBarThickness = 5
