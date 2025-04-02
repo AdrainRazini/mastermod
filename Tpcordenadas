@@ -1,26 +1,26 @@
-
 local player = game.Players.LocalPlayer
-local mouse = player:GetMouse()
 
--- Criar os componentes da GUI
+-- Criar GUI principal
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player.PlayerGui
 
--- Frame principal (menor e com área para arrastar)
+-- Criar frame principal
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 150) -- Tamanho reduzido
-frame.Position = UDim2.new(0, 50, 0, 50) -- Posição inicial
+frame.Size = UDim2.new(0, 250, 0, 200)
+frame.Position = UDim2.new(0, 50, 0, 50)
 frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 frame.BorderSizePixel = 0
+frame.Draggable = true
+frame.Active = true
 frame.Parent = screenGui
 
--- Barra de título (para arrastar)
+-- Criar barra de título
 local dragBar = Instance.new("Frame")
-dragBar.Size = UDim2.new(1, 0, 0, 30) -- Tamanho da barra para arrastar (cobre toda a largura)
+dragBar.Size = UDim2.new(1, 0, 0, 30)
 dragBar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 dragBar.Parent = frame
 
--- Botão de minimizar
+-- Criar botão de minimizar
 local minimizeButton = Instance.new("TextButton")
 minimizeButton.Size = UDim2.new(0, 50, 0, 30)
 minimizeButton.Position = UDim2.new(0.8, 0, 0, 0)
@@ -32,76 +32,111 @@ minimizeButton.Parent = frame
 -- Caixa de texto para coordenadas
 local textBox = Instance.new("TextBox")
 textBox.Size = UDim2.new(0, 160, 0, 30)
-textBox.Position = UDim2.new(0.1, 0, 0.3, 0)
-textBox.PlaceholderText = "Digite as coordenadas X, Y, Z"
+textBox.Position = UDim2.new(0.1, 0, 0.2, 0)
+textBox.PlaceholderText = "Digite X, Y, Z"
 textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 textBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 textBox.Parent = frame
 
--- Botão de teleportar
-local teleportButton = Instance.new("TextButton")
-teleportButton.Size = UDim2.new(0, 100, 0, 40)
-teleportButton.Position = UDim2.new(0.5, 0, 0.8, 0)
-teleportButton.Text = "Teleport"
-teleportButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-teleportButton.Parent = frame
+-- Botão para salvar posição
+local saveButton = Instance.new("TextButton")
+saveButton.Size = UDim2.new(0, 80, 0, 30)
+saveButton.Position = UDim2.new(0.1, 0, 0.4, 0)
+saveButton.Text = "Salvar"
+saveButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+saveButton.Parent = frame
 
--- Variáveis para arrastar
-local dragging = false
-local dragStart = nil
-local startPos = nil
+-- Botão para deletar última posição
+local deleteButton = Instance.new("TextButton")
+deleteButton.Size = UDim2.new(0, 80, 0, 30)
+deleteButton.Position = UDim2.new(0.5, 0, 0.4, 0)
+deleteButton.Text = "Deletar"
+deleteButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+deleteButton.Parent = frame
 
--- Função para mover a GUI (arrastável)
-dragBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = frame.Position
+-- Criar ScrollingFrame para armazenar os botões salvos
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(0, 100, 0, 120)
+scrollFrame.Position = UDim2.new(1, 5, 0, 30)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+scrollFrame.ScrollBarThickness = 5
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Ajusta dinamicamente
+scrollFrame.Parent = frame
+
+-- Criar Layout para organizar os botões em coluna
+local layout = Instance.new("UIListLayout")
+layout.Parent = scrollFrame
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 5) -- Espaço entre os botões
+
+-- Lista de coordenadas salvas
+local savedCoords = {}
+
+-- Função para criar um botão de teleporte
+local function createTeleportButton(coords)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.Text = coords
+    btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Parent = scrollFrame
+    btn.LayoutOrder = #savedCoords -- Organiza em ordem de adição
+
+    -- Ajusta a rolagem para sempre mostrar o último botão
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+
+    btn.MouseButton1Click:Connect(function()
+        local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
+        if x and y and z then
+            local position = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
+            if position then
+                player.Character:SetPrimaryPartCFrame(CFrame.new(position))
+            end
+        else
+            warn("Coordenadas inválidas")
+        end
+    end)
+end
+
+-- Função para salvar coordenadas
+saveButton.MouseButton1Click:Connect(function()
+    local coords = textBox.Text
+    if coords ~= "" then
+        table.insert(savedCoords, coords)
+        createTeleportButton(coords)
+        textBox.Text = ""
     end
 end)
 
-dragBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
-    end
-end)
+-- Função para deletar última posição salva
+deleteButton.MouseButton1Click:Connect(function()
+    if #savedCoords > 0 then
+        table.remove(savedCoords, #savedCoords)
 
-dragBar.InputChanged:Connect(function(input)
-    if dragging then
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        -- Remove o último botão salvo
+        local buttons = scrollFrame:GetChildren()
+        for i = #buttons, 1, -1 do
+            if buttons[i]:IsA("TextButton") then
+                buttons[i]:Destroy()
+                break
+            end
+        end
+
+        -- Atualiza a altura da rolagem
+        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
     end
 end)
 
 -- Função para minimizar a GUI
 minimizeButton.MouseButton1Click:Connect(function()
-    if frame.Size == UDim2.new(0, 200, 0, 150) then
-        -- Minimizar a GUI
-        frame.Size = UDim2.new(0, 200, 0, 30)  -- Minimiza para um quadrado pequeno
-        -- Ocultar os elementos de controle
-        textBox.Visible = false
-        teleportButton.Visible = false
-    else
-        -- Maximizar a GUI
-        frame.Size = UDim2.new(0, 200, 0, 150)  -- Maximiza para o tamanho original
-        -- Exibir novamente os elementos de controle
-        textBox.Visible = true
-        teleportButton.Visible = true
-    end
-end)
+    local isMinimized = frame.Size == UDim2.new(0, 250, 0, 200)
 
--- Função para teleportar o jogador para as coordenadas inseridas
-teleportButton.MouseButton1Click:Connect(function()
-    local coords = textBox.Text
-    local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
-    
-    if x and y and z then
-        local position = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
-        if position then
-            player.Character:SetPrimaryPartCFrame(CFrame.new(position))
-        end
-    else
-        warn("Coordenadas inválidas")
-    end
+    frame.Size = isMinimized and UDim2.new(0, 250, 0, 30) or UDim2.new(0, 250, 0, 200)
+
+    textBox.Visible = not isMinimized
+    saveButton.Visible = not isMinimized
+    deleteButton.Visible = not isMinimized
+    scrollFrame.Visible = not isMinimized
 end)
