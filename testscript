@@ -1,82 +1,97 @@
-local player = game.Players.LocalPlayer
-local mouse = player:GetMouse()
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local CloseButton = Instance.new("TextButton")
+local MinimizeButton = Instance.new("TextButton")
+local XBox = Instance.new("TextBox")
+local YBox = Instance.new("TextBox")
+local ZBox = Instance.new("TextBox")
+local TeleportButton = Instance.new("TextButton")
+local SaveButton = Instance.new("TextButton")
+local DeleteButton = Instance.new("TextButton")
+local savedPosition = nil
 
--- Criar GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui")
+-- Configurações da Interface
+ScreenGui.Parent = game.CoreGui
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Frame.Size = UDim2.new(0, 200, 0, 200)
+Frame.Position = UDim2.new(0.5, -100, 0.5, -100)
+Frame.Draggable = true
+Frame.Active = true
+Frame.BorderSizePixel = 2
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 200)
-frame.Position = UDim2.new(0.2, 0, 0.2, 0)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-frame.BorderSizePixel = 0
-frame.Active = true
-frame.Draggable = true -- Torna toda a frame arrastável
-frame.Parent = screenGui
+Title.Parent = Frame
+Title.Text = "Teleport GUI"
+Title.Size = UDim2.new(1, 0, 0, 25)
+Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- Área de rolagem
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 0.5, 0)
-scrollFrame.Position = UDim2.new(0, 0, 0.3, 0)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.CanvasSize = UDim2.new(0, 0, 3, 0)
-scrollFrame.ScrollBarThickness = 5
-scrollFrame.Parent = frame
+MinimizeButton.Parent = Frame
+MinimizeButton.Text = "-"
+MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
+MinimizeButton.Position = UDim2.new(1, -50, 0, 0)
 
--- Botão para salvar local
-local saveButton = Instance.new("TextButton")
-saveButton.Size = UDim2.new(0.4, 0, 0.2, 0)
-saveButton.Position = UDim2.new(0.05, 0, 0.05, 0)
-saveButton.Text = "Salvar"
-saveButton.BackgroundColor3 = Color3.fromRGB(80, 150, 80)
-saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-saveButton.Parent = frame
+CloseButton.Parent = Frame
+CloseButton.Text = "X"
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Position = UDim2.new(1, -25, 0, 0)
 
--- Caixa de texto para nomear o local
-local nameBox = Instance.new("TextBox")
-nameBox.Size = UDim2.new(0.5, 0, 0.2, 0)
-nameBox.Position = UDim2.new(0.5, 0, 0.05, 0)
-nameBox.PlaceholderText = "Nome do local"
-nameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-nameBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-nameBox.Parent = frame
+XBox.Parent = Frame
+XBox.PlaceholderText = "X"
+XBox.Size = UDim2.new(0.8, 0, 0, 25)
+XBox.Position = UDim2.new(0.1, 0, 0.2, 0)
 
-local savedLocations = {} -- Tabela para armazenar locais
+YBox.Parent = Frame
+YBox.PlaceholderText = "Y"
+YBox.Size = UDim2.new(0.8, 0, 0, 25)
+YBox.Position = UDim2.new(0.1, 0, 0.4, 0)
 
--- Função para salvar local
-saveButton.MouseButton1Click:Connect(function()
-    local name = nameBox.Text
-    if name ~= "" and player.Character then
-        local pos = player.Character.PrimaryPart.Position
-        savedLocations[name] = pos
-        
-        -- Criar botão na rolagem
-        local locButton = Instance.new("TextButton")
-        locButton.Size = UDim2.new(1, 0, 0, 30)
-        locButton.Text = name
-        locButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-        locButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        locButton.Parent = scrollFrame
-        
-        -- Teleportar ao clicar
-        locButton.MouseButton1Click:Connect(function()
-            if savedLocations[name] then
-                player.Character:SetPrimaryPartCFrame(CFrame.new(savedLocations[name]))
-            end
-        end)
-        
-        -- Botão para deletar local
-        local deleteButton = Instance.new("TextButton")
-        deleteButton.Size = UDim2.new(0, 30, 1, 0)
-        deleteButton.Position = UDim2.new(0.9, 0, 0, 0)
-        deleteButton.Text = "X"
-        deleteButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-        deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        deleteButton.Parent = locButton
-        
-        deleteButton.MouseButton1Click:Connect(function()
-            savedLocations[name] = nil
-            locButton:Destroy()
-        end)
+ZBox.Parent = Frame
+ZBox.PlaceholderText = "Z"
+ZBox.Size = UDim2.new(0.8, 0, 0, 25)
+ZBox.Position = UDim2.new(0.1, 0, 0.6, 0)
+
+TeleportButton.Parent = Frame
+TeleportButton.Text = "Teleport"
+TeleportButton.Size = UDim2.new(0.8, 0, 0, 25)
+TeleportButton.Position = UDim2.new(0.1, 0, 0.8, 0)
+
+SaveButton.Parent = Frame
+SaveButton.Text = "Salvar"
+SaveButton.Size = UDim2.new(0.4, 0, 0, 25)
+SaveButton.Position = UDim2.new(0.1, 0, 0.9, 0)
+
+DeleteButton.Parent = Frame
+DeleteButton.Text = "Deletar"
+DeleteButton.Size = UDim2.new(0.4, 0, 0, 25)
+DeleteButton.Position = UDim2.new(0.5, 0, 0.9, 0)
+
+-- Funcionalidades
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+MinimizeButton.MouseButton1Click:Connect(function()
+    Frame.Visible = not Frame.Visible
+end)
+
+SaveButton.MouseButton1Click:Connect(function()
+    local x = tonumber(XBox.Text)
+    local y = tonumber(YBox.Text)
+    local z = tonumber(ZBox.Text)
+    if x and y and z then
+        savedPosition = Vector3.new(x, y, z)
+    end
+end)
+
+DeleteButton.MouseButton1Click:Connect(function()
+    savedPosition = nil
+end)
+
+TeleportButton.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    if player and player.Character and savedPosition then
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(savedPosition)
     end
 end)
