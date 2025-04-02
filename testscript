@@ -1,40 +1,114 @@
-local Players = game:GetService("Players")
-local SoundService = game:GetService("SoundService")
-local StarterGui = game:GetService("StarterGui")
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
 
--- Criando a GUI
+-- Criar os componentes da GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.Parent = player.PlayerGui
 
+-- Frame principal (menor e com área para arrastar)
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 150)
-frame.Position = UDim2.new(0.5, -150, 0.4, -75)
+frame.Size = UDim2.new(0, 250, 0, 200)
+frame.Position = UDim2.new(0, 50, 0, 50)
 frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BorderSizePixel = 0
 frame.Parent = screenGui
 
+-- Barra de título (para arrastar)
+local dragBar = Instance.new("Frame")
+dragBar.Size = UDim2.new(1, 0, 0, 30)
+dragBar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+dragBar.Parent = frame
+
+-- Caixa de texto para coordenadas
 local textBox = Instance.new("TextBox")
-textBox.Size = UDim2.new(0, 250, 0, 30)
-textBox.Position = UDim2.new(0.5, -125, 0.2, 0)
-textBox.PlaceholderText = "Digite o ID da música"
+textBox.Size = UDim2.new(0, 160, 0, 30)
+textBox.Position = UDim2.new(0.1, 0, 0.2, 0)
+textBox.PlaceholderText = "X, Y, Z"
+textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 textBox.Parent = frame
 
-local playButton = Instance.new("TextButton")
-playButton.Size = UDim2.new(0, 100, 0, 30)
-playButton.Position = UDim2.new(0.5, -50, 0.6, 0)
-playButton.Text = "Tocar"
-playButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-playButton.Parent = frame
+-- Botão de teleportar
+local teleportButton = Instance.new("TextButton")
+teleportButton.Size = UDim2.new(0, 100, 0, 30)
+teleportButton.Position = UDim2.new(0.5, -50, 0.4, 0)
+teleportButton.Text = "Teleport"
+teleportButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+teleportButton.Parent = frame
 
--- Criando o som no SoundService
-local sound = Instance.new("Sound")
-sound.Parent = SoundService
+-- Caixa de texto para nome do local
+local nameBox = Instance.new("TextBox")
+nameBox.Size = UDim2.new(0, 160, 0, 30)
+nameBox.Position = UDim2.new(0.1, 0, 0.55, 0)
+nameBox.PlaceholderText = "Nome do local"
+nameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+nameBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+nameBox.Parent = frame
 
-playButton.MouseButton1Click:Connect(function()
-    local musicID = tonumber(textBox.Text)
-    if musicID then
-        sound.SoundId = "rbxassetid://" .. musicID
-        sound:Play()
+-- Botão de salvar local
+local saveButton = Instance.new("TextButton")
+saveButton.Size = UDim2.new(0, 100, 0, 30)
+saveButton.Position = UDim2.new(0.5, -50, 0.7, 0)
+saveButton.Text = "Salvar"
+saveButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+saveButton.Parent = frame
+
+-- Frame para locais salvos
+local savedLocationsFrame = Instance.new("Frame")
+savedLocationsFrame.Size = UDim2.new(1, -20, 0, 80)
+savedLocationsFrame.Position = UDim2.new(0, 10, 1, 10)
+savedLocationsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+savedLocationsFrame.Parent = frame
+
+local savedLocations = {}
+
+-- Função para teleportar
+teleportButton.MouseButton1Click:Connect(function()
+    local coords = textBox.Text
+    local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
+    
+    if x and y and z then
+        local position = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
+        player.Character:SetPrimaryPartCFrame(CFrame.new(position))
     else
-        textBox.Text = "ID inválido"
+        warn("Coordenadas inválidas")
+    end
+end)
+
+-- Função para salvar locais
+saveButton.MouseButton1Click:Connect(function()
+    local name = nameBox.Text
+    local coords = textBox.Text
+    if name ~= "" and coords ~= "" then
+        savedLocations[name] = coords
+        local newButton = Instance.new("TextButton")
+        newButton.Size = UDim2.new(1, 0, 0, 20)
+        newButton.Text = name
+        newButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        newButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        newButton.Parent = savedLocationsFrame
+        
+        newButton.MouseButton1Click:Connect(function()
+            local savedCoords = savedLocations[name]
+            local sx, sy, sz = savedCoords:match("([^,]+),([^,]+),([^,]+)")
+            if sx and sy and sz then
+                player.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(tonumber(sx), tonumber(sy), tonumber(sz))))
+            end
+        end)
+        
+        -- Adicionar botão de deletar
+        local deleteButton = Instance.new("TextButton")
+        deleteButton.Size = UDim2.new(0, 20, 1, 0)
+        deleteButton.Position = UDim2.new(1, -20, 0, 0)
+        deleteButton.Text = "X"
+        deleteButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+        deleteButton.Parent = newButton
+        
+        deleteButton.MouseButton1Click:Connect(function()
+            savedLocations[name] = nil
+            newButton:Destroy()
+        end)
     end
 end)
