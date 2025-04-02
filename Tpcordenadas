@@ -1,3 +1,4 @@
+
 local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 
@@ -11,8 +12,6 @@ frame.Size = UDim2.new(0, 200, 0, 150) -- Tamanho reduzido
 frame.Position = UDim2.new(0, 50, 0, 50) -- Posição inicial
 frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 frame.BorderSizePixel = 0
-frame.Draggable = true
-frame.Active = true
 frame.Parent = screenGui
 
 -- Barra de título (para arrastar)
@@ -48,15 +47,6 @@ teleportButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 teleportButton.Parent = frame
 
--- Botão de deletar posição salva
-local deleteButton = Instance.new("TextButton")
-deleteButton.Size = UDim2.new(0, 100, 0, 40)
-deleteButton.Position = UDim2.new(0, 0, 0.8, 0)
-deleteButton.Text = "Deletar"
-deleteButton.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-deleteButton.Parent = frame
-
 -- Variáveis para arrastar
 local dragging = false
 local dragStart = nil
@@ -87,15 +77,17 @@ end)
 -- Função para minimizar a GUI
 minimizeButton.MouseButton1Click:Connect(function()
     if frame.Size == UDim2.new(0, 200, 0, 150) then
-        frame.Size = UDim2.new(0, 200, 0, 30)  -- Minimiza
+        -- Minimizar a GUI
+        frame.Size = UDim2.new(0, 200, 0, 30)  -- Minimiza para um quadrado pequeno
+        -- Ocultar os elementos de controle
         textBox.Visible = false
         teleportButton.Visible = false
-        deleteButton.Visible = false
     else
-        frame.Size = UDim2.new(0, 200, 0, 150)  -- Maximiza
+        -- Maximizar a GUI
+        frame.Size = UDim2.new(0, 200, 0, 150)  -- Maximiza para o tamanho original
+        -- Exibir novamente os elementos de controle
         textBox.Visible = true
         teleportButton.Visible = true
-        deleteButton.Visible = true
     end
 end)
 
@@ -112,9 +104,4 @@ teleportButton.MouseButton1Click:Connect(function()
     else
         warn("Coordenadas inválidas")
     end
-end)
-
--- Função para deletar posição salva
-deleteButton.MouseButton1Click:Connect(function()
-    textBox.Text = ""
 end)
