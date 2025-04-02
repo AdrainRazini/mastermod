@@ -1,120 +1,82 @@
 local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 
--- Criar os componentes da GUI
+-- Criar GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
+screenGui.Parent = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui")
 
--- Frame principal (arrastável)
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 220, 0, 180) -- Tamanho ajustado
-frame.Position = UDim2.new(0, 50, 0, 50) -- Posição inicial
+frame.Size = UDim2.new(0, 250, 0, 200)
+frame.Position = UDim2.new(0.2, 0, 0.2, 0)
 frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true -- Torna toda a frame arrastável
 frame.Parent = screenGui
 
--- Barra de título (para arrastar)
-local dragBar = Instance.new("Frame")
-dragBar.Size = UDim2.new(1, 0, 0, 30)
-dragBar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-dragBar.Parent = frame
-
-dragBar.Active = true
-dragBar.Draggable = true
-
--- Botão de minimizar
-local minimizeButton = Instance.new("TextButton")
-minimizeButton.Size = UDim2.new(0, 50, 0, 30)
-minimizeButton.Position = UDim2.new(0.8, 0, 0, 0)
-minimizeButton.Text = "Min"
-minimizeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-minimizeButton.Parent = frame
-
--- Caixa de texto para coordenadas
-local textBox = Instance.new("TextBox")
-textBox.Size = UDim2.new(0, 160, 0, 30)
-textBox.Position = UDim2.new(0.1, 0, 0.3, 0)
-textBox.PlaceholderText = "Digite X, Y, Z"
-textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-textBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-textBox.Parent = frame
-
--- Botão de teleportar
-local teleportButton = Instance.new("TextButton")
-teleportButton.Size = UDim2.new(0, 100, 0, 30)
-teleportButton.Position = UDim2.new(0.5, 0, 0.5, 0)
-teleportButton.Text = "Teleport"
-teleportButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-teleportButton.Parent = frame
-
--- Botão de salvar local
-local saveButton = Instance.new("TextButton")
-saveButton.Size = UDim2.new(0, 100, 0, 30)
-saveButton.Position = UDim2.new(0.1, 0, 0.5, 0)
-saveButton.Text = "Salvar Local"
-saveButton.BackgroundColor3 = Color3.fromRGB(100, 150, 100)
-saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-saveButton.Parent = frame
-
--- ScrollFrame para locais salvos
+-- Área de rolagem
 local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 0.4, 0)
-scrollFrame.Position = UDim2.new(0, 0, 0.65, 0)
-scrollFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
-scrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+scrollFrame.Size = UDim2.new(1, 0, 0.5, 0)
+scrollFrame.Position = UDim2.new(0, 0, 0.3, 0)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.CanvasSize = UDim2.new(0, 0, 3, 0)
 scrollFrame.ScrollBarThickness = 5
 scrollFrame.Parent = frame
 
-local savedLocations = {}
+-- Botão para salvar local
+local saveButton = Instance.new("TextButton")
+saveButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+saveButton.Position = UDim2.new(0.05, 0, 0.05, 0)
+saveButton.Text = "Salvar"
+saveButton.BackgroundColor3 = Color3.fromRGB(80, 150, 80)
+saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+saveButton.Parent = frame
 
--- Função para salvar um local
+-- Caixa de texto para nomear o local
+local nameBox = Instance.new("TextBox")
+nameBox.Size = UDim2.new(0.5, 0, 0.2, 0)
+nameBox.Position = UDim2.new(0.5, 0, 0.05, 0)
+nameBox.PlaceholderText = "Nome do local"
+nameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+nameBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+nameBox.Parent = frame
+
+local savedLocations = {} -- Tabela para armazenar locais
+
+-- Função para salvar local
 saveButton.MouseButton1Click:Connect(function()
-    local coords = textBox.Text
-    local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
-    if x and y and z then
-        local locationName = "Local " .. tostring(#savedLocations + 1)
-        table.insert(savedLocations, {name = locationName, pos = Vector3.new(tonumber(x), tonumber(y), tonumber(z))})
-
-        local locationButton = Instance.new("TextButton")
-        locationButton.Size = UDim2.new(1, 0, 0, 30)
-        locationButton.Text = locationName
-        locationButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-        locationButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        locationButton.Parent = scrollFrame
+    local name = nameBox.Text
+    if name ~= "" and player.Character then
+        local pos = player.Character.PrimaryPart.Position
+        savedLocations[name] = pos
+        
+        -- Criar botão na rolagem
+        local locButton = Instance.new("TextButton")
+        locButton.Size = UDim2.new(1, 0, 0, 30)
+        locButton.Text = name
+        locButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+        locButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        locButton.Parent = scrollFrame
         
         -- Teleportar ao clicar
-        locationButton.MouseButton1Click:Connect(function()
-            player.Character:SetPrimaryPartCFrame(CFrame.new(savedLocations[#savedLocations].pos))
+        locButton.MouseButton1Click:Connect(function()
+            if savedLocations[name] then
+                player.Character:SetPrimaryPartCFrame(CFrame.new(savedLocations[name]))
+            end
         end)
-    end
-end)
-
--- Minimizar e maximizar a GUI
-minimizeButton.MouseButton1Click:Connect(function()
-    if frame.Size == UDim2.new(0, 220, 0, 180) then
-        frame.Size = UDim2.new(0, 220, 0, 30)
-        textBox.Visible = false
-        teleportButton.Visible = false
-        saveButton.Visible = false
-        scrollFrame.Visible = false
-    else
-        frame.Size = UDim2.new(0, 220, 0, 180)
-        textBox.Visible = true
-        teleportButton.Visible = true
-        saveButton.Visible = true
-        scrollFrame.Visible = true
-    end
-end)
-
--- Teleportar ao clicar no botão
-teleportButton.MouseButton1Click:Connect(function()
-    local coords = textBox.Text
-    local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
-    if x and y and z then
-        player.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(tonumber(x), tonumber(y), tonumber(z))))
-    else
-        warn("Coordenadas inválidas")
+        
+        -- Botão para deletar local
+        local deleteButton = Instance.new("TextButton")
+        deleteButton.Size = UDim2.new(0, 30, 1, 0)
+        deleteButton.Position = UDim2.new(0.9, 0, 0, 0)
+        deleteButton.Text = "X"
+        deleteButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        deleteButton.Parent = locButton
+        
+        deleteButton.MouseButton1Click:Connect(function()
+            savedLocations[name] = nil
+            locButton:Destroy()
+        end)
     end
 end)
