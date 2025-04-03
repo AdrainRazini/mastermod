@@ -1,1 +1,21 @@
 
+
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local animationId = 92863598771976 -- ID da animação
+local animation = Instance.new("Animation")
+animation.AnimationId = "rbxassetid://" .. animationId
+
+local animator = humanoid:FindFirstChildOfClass("Animator")
+if not animator then
+    animator = Instance.new("Animator", humanoid)
+end
+
+local danceAnimation = humanoid:LoadAnimation(animation)
+danceAnimation:Play()
+
+print("Dança iniciada!")
