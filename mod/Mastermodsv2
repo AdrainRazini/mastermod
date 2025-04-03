@@ -166,6 +166,7 @@ local url = {
     {name = "inventario", path = "inventario"},
     {name = "flyGui", path = "flyGui"},
     {name = "Emote", path = "dance"},
+    {name = "RatDance", path = "RatDance"},
     {name = "TpTool", path = "TpTool"},
     {name = "cordenadas", path = "Local"},
     {name = "Tpcordenadas", path = "Tpcordenadas"},
