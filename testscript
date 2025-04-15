@@ -1,4 +1,4 @@
--- // Ghost.lua | Desync visual (Ghost Mode)
+-- // GhostControl.lua | Controle total de clone (Ghost Mode)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -20,7 +20,7 @@ frame.Draggable = true
 
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "Ghost Mode"
+title.Text = "Ghost Control"
 title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.SourceSansBold
@@ -29,7 +29,7 @@ title.TextSize = 18
 local activateBtn = Instance.new("TextButton", frame)
 activateBtn.Size = UDim2.new(0.9, 0, 0, 30)
 activateBtn.Position = UDim2.new(0.05, 0, 0.4, 0)
-activateBtn.Text = "Ativar Ghost"
+activateBtn.Text = "Ativar Clone"
 activateBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 activateBtn.TextColor3 = Color3.new(1, 1, 1)
 activateBtn.Font = Enum.Font.SourceSans
@@ -38,7 +38,7 @@ activateBtn.TextSize = 16
 local deactivateBtn = Instance.new("TextButton", frame)
 deactivateBtn.Size = UDim2.new(0.9, 0, 0, 30)
 deactivateBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
-deactivateBtn.Text = "Desativar Ghost"
+deactivateBtn.Text = "Desativar Clone"
 deactivateBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 deactivateBtn.TextColor3 = Color3.new(1, 1, 1)
 deactivateBtn.Font = Enum.Font.SourceSans
@@ -46,50 +46,43 @@ deactivateBtn.TextSize = 16
 
 -- Ghost Logic
 local ghosting = false
-local fakeChar = nil
+local cloneChar = nil
 local netBypass = nil
-local renderLoop = nil
+local originalChar = nil
 
 local function startGhost()
     if ghosting then return end
     ghosting = true
 
-    local frozenPosition = hrp.Position
+    originalChar = player.Character
+    local frozenPos = hrp.Position
 
-    -- Trava o HRP no servidor
+    -- Congelar personagem original
     netBypass = RunService.Stepped:Connect(function()
         if hrp and hrp.Parent then
             hrp.Velocity = Vector3.zero
-            hrp.CFrame = CFrame.new(frozenPosition)
+            hrp.CFrame = CFrame.new(frozenPos)
         end
     end)
 
-    -- Cria uma cópia do personagem
-    fakeChar = char:Clone()
-    fakeChar.Name = "GhostChar"
-    for _, obj in pairs(fakeChar:GetDescendants()) do
-        if obj:IsA("BasePart") then
-            obj.Anchored = false
-            obj.CanCollide = false
-        elseif obj:IsA("Humanoid") then
-            obj.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+    -- Clonar personagem
+    cloneChar = originalChar:Clone()
+    cloneChar.Name = "ControlledClone"
+    for _, part in ipairs(cloneChar:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Anchored = false
+            part.CanCollide = true
         end
     end
-    fakeChar.Parent = workspace
+    cloneChar.Parent = workspace
+    workspace.CurrentCamera.CameraSubject = cloneChar:FindFirstChildOfClass("Humanoid")
 
-    -- Mover a câmera para o fake char
-    workspace.CurrentCamera.CameraSubject = fakeChar:FindFirstChildOfClass("Humanoid")
-
-    -- Fazer o personagem fake seguir a câmera
-    renderLoop = RunService.RenderStepped:Connect(function()
-        if ghosting and fakeChar and fakeChar.PrimaryPart then
-            local cam = workspace.CurrentCamera
-            fakeChar:SetPrimaryPartCFrame(cam.CFrame + cam.CFrame.LookVector * 2)
-        end
-    end)
+    -- Redefinir o personagem controlado localmente
+    player.Character = cloneChar
 end
 
 local function stopGhost()
+    if not ghosting then return end
     ghosting = false
 
     if netBypass then
@@ -97,19 +90,15 @@ local function stopGhost()
         netBypass = nil
     end
 
-    if renderLoop then
-        renderLoop:Disconnect()
-        renderLoop = nil
+    if cloneChar then
+        cloneChar:Destroy()
+        cloneChar = nil
     end
 
-    if fakeChar then
-        fakeChar:Destroy()
-        fakeChar = nil
-    end
-
-    workspace.CurrentCamera.CameraSubject = player.Character:FindFirstChildOfClass("Humanoid")
+    player.Character = originalChar
+    workspace.CurrentCamera.CameraSubject = originalChar:FindFirstChildOfClass("Humanoid")
 end
 
--- Botões
+-- Conectar botões
 activateBtn.MouseButton1Click:Connect(startGhost)
 deactivateBtn.MouseButton1Click:Connect(stopGhost)
