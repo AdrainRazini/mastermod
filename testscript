@@ -1,142 +1,71 @@
-local player = game.Players.LocalPlayer
+-- // Ghost.lua | Script de desync visual
 
--- Criar GUI principal
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
 
--- Criar frame principal
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 200)
-frame.Position = UDim2.new(0, 50, 0, 50)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+-- UI Setup
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.Name = "GhostUI"
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 200, 0, 120)
+frame.Position = UDim2.new(0.05, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
-frame.Draggable = true
 frame.Active = true
-frame.Parent = screenGui
+frame.Draggable = true
 
--- Criar barra de título
-local dragBar = Instance.new("Frame")
-dragBar.Size = UDim2.new(1, 0, 0, 30)
-dragBar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-dragBar.Parent = frame
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "Ghost Mode"
+title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
 
--- Criar botão de minimizar
-local minimizeButton = Instance.new("TextButton")
-minimizeButton.Size = UDim2.new(0, 50, 0, 30)
-minimizeButton.Position = UDim2.new(0.8, 0, 0, 0)
-minimizeButton.Text = "Min"
-minimizeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-minimizeButton.Parent = frame
+local activateBtn = Instance.new("TextButton", frame)
+activateBtn.Size = UDim2.new(0.9, 0, 0, 30)
+activateBtn.Position = UDim2.new(0.05, 0, 0.4, 0)
+activateBtn.Text = "Ativar Ghost"
+activateBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+activateBtn.TextColor3 = Color3.new(1, 1, 1)
+activateBtn.Font = Enum.Font.SourceSans
+activateBtn.TextSize = 16
 
--- Caixa de texto para coordenadas
-local textBox = Instance.new("TextBox")
-textBox.Size = UDim2.new(0, 160, 0, 30)
-textBox.Position = UDim2.new(0.1, 0, 0.2, 0)
-textBox.PlaceholderText = "Digite X, Y, Z"
-textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-textBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-textBox.Parent = frame
+local deactivateBtn = Instance.new("TextButton", frame)
+deactivateBtn.Size = UDim2.new(0.9, 0, 0, 30)
+deactivateBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
+deactivateBtn.Text = "Desativar Ghost"
+deactivateBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+deactivateBtn.TextColor3 = Color3.new(1, 1, 1)
+deactivateBtn.Font = Enum.Font.SourceSans
+deactivateBtn.TextSize = 16
 
--- Botão para salvar posição
-local saveButton = Instance.new("TextButton")
-saveButton.Size = UDim2.new(0, 80, 0, 30)
-saveButton.Position = UDim2.new(0.1, 0, 0.4, 0)
-saveButton.Text = "Salvar"
-saveButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-saveButton.Parent = frame
+-- Ghost Logic
+local ghosting = false
+local frozenPosition = hrp.Position
+local ghostConnection
 
--- Botão para deletar última posição
-local deleteButton = Instance.new("TextButton")
-deleteButton.Size = UDim2.new(0, 80, 0, 30)
-deleteButton.Position = UDim2.new(0.5, 0, 0.4, 0)
-deleteButton.Text = "Deletar"
-deleteButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-deleteButton.Parent = frame
+activateBtn.MouseButton1Click:Connect(function()
+    if ghosting then return end
+    ghosting = true
+    frozenPosition = hrp.Position
 
--- Criar ScrollingFrame para armazenar os botões salvos
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(0, 100, 0, 120)
-scrollFrame.Position = UDim2.new(1, 5, 0, 30)
-scrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-scrollFrame.ScrollBarThickness = 5
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Ajusta dinamicamente
-scrollFrame.Parent = frame
-
--- Criar Layout para organizar os botões em coluna
-local layout = Instance.new("UIListLayout")
-layout.Parent = scrollFrame
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.Padding = UDim.new(0, 5) -- Espaço entre os botões
-
--- Lista de coordenadas salvas
-local savedCoords = {}
-
--- Função para criar um botão de teleporte
-local function createTeleportButton(coords)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 30)
-    btn.Text = coords
-    btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Parent = scrollFrame
-    btn.LayoutOrder = #savedCoords -- Organiza em ordem de adição
-
-    -- Ajusta a rolagem para sempre mostrar o último botão
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-
-    btn.MouseButton1Click:Connect(function()
-        local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
-        if x and y and z then
-            local position = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
-            if position then
-                player.Character:SetPrimaryPartCFrame(CFrame.new(position))
-            end
-        else
-            warn("Coordenadas inválidas")
+    ghostConnection = RunService.Stepped:Connect(function()
+        if ghosting and hrp then
+            hrp.Velocity = Vector3.zero
+            hrp.CFrame = CFrame.new(frozenPosition)
         end
     end)
-end
-
--- Função para salvar coordenadas
-saveButton.MouseButton1Click:Connect(function()
-    local coords = textBox.Text
-    if coords ~= "" then
-        table.insert(savedCoords, coords)
-        createTeleportButton(coords)
-        textBox.Text = ""
-    end
 end)
 
--- Função para deletar última posição salva
-deleteButton.MouseButton1Click:Connect(function()
-    if #savedCoords > 0 then
-        table.remove(savedCoords, #savedCoords)
-
-        -- Remove o último botão salvo
-        local buttons = scrollFrame:GetChildren()
-        for i = #buttons, 1, -1 do
-            if buttons[i]:IsA("TextButton") then
-                buttons[i]:Destroy()
-                break
-            end
-        end
-
-        -- Atualiza a altura da rolagem
-        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+deactivateBtn.MouseButton1Click:Connect(function()
+    ghosting = false
+    if ghostConnection then
+        ghostConnection:Disconnect()
+        ghostConnection = nil
     end
-end)
-
--- Função para minimizar a GUI
-minimizeButton.MouseButton1Click:Connect(function()
-    local isMinimized = frame.Size == UDim2.new(0, 250, 0, 200)
-
-    frame.Size = isMinimized and UDim2.new(0, 250, 0, 30) or UDim2.new(0, 250, 0, 200)
-
-    textBox.Visible = not isMinimized
-    saveButton.Visible = not isMinimized
-    deleteButton.Visible = not isMinimized
-    scrollFrame.Visible = not isMinimized
 end)
