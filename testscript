@@ -12,7 +12,7 @@ local screenGui = Instance.new("ScreenGui", game.CoreGui)
 screenGui.Name = "GhostUI"
 
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 200, 0, 120)
+frame.Size = UDim2.new(0, 200, 0, 180)
 frame.Position = UDim2.new(0.05, 0, 0.3, 0)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
@@ -44,6 +44,48 @@ deactivateBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 deactivateBtn.TextColor3 = Color3.new(1, 1, 1)
 deactivateBtn.Font = Enum.Font.SourceSans
 deactivateBtn.TextSize = 16
+
+-- Mobile Controls Setup
+local mobileControlsFrame = Instance.new("Frame", screenGui)
+mobileControlsFrame.Size = UDim2.new(1, 0, 1, 0)
+mobileControlsFrame.Position = UDim2.new(0, 0, 0, 0)
+mobileControlsFrame.BackgroundTransparency = 1
+
+local upButton = Instance.new("TextButton", mobileControlsFrame)
+upButton.Size = UDim2.new(0, 100, 0, 100)
+upButton.Position = UDim2.new(0.5, -50, 0.5, -50)
+upButton.Text = "↑"
+upButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+upButton.Font = Enum.Font.SourceSansBold
+upButton.TextSize = 24
+upButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+
+local downButton = Instance.new("TextButton", mobileControlsFrame)
+downButton.Size = UDim2.new(0, 100, 0, 100)
+downButton.Position = UDim2.new(0.5, -50, 0.5, 50)
+downButton.Text = "↓"
+downButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+downButton.Font = Enum.Font.SourceSansBold
+downButton.TextSize = 24
+downButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+
+local leftButton = Instance.new("TextButton", mobileControlsFrame)
+leftButton.Size = UDim2.new(0, 100, 0, 100)
+leftButton.Position = UDim2.new(0.5, -150, 0.5, 0)
+leftButton.Text = "←"
+leftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+leftButton.Font = Enum.Font.SourceSansBold
+leftButton.TextSize = 24
+leftButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+
+local rightButton = Instance.new("TextButton", mobileControlsFrame)
+rightButton.Size = UDim2.new(0, 100, 0, 100)
+rightButton.Position = UDim2.new(0.5, 50, 0.5, 0)
+rightButton.Text = "→"
+rightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+rightButton.Font = Enum.Font.SourceSansBold
+rightButton.TextSize = 24
+rightButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 
 -- Ghost Logic
 local ghosting = false
@@ -85,7 +127,7 @@ local function startGhost()
     -- Câmera para o clone
     workspace.CurrentCamera.CameraSubject = cloneHum
 
-    -- Controle básico WASD
+    -- Controle básico WASD (Desktop)
     UserInputService.InputBegan:Connect(function(input, gpe)
         if gpe then return end
         if input.KeyCode == Enum.KeyCode.W then moveDir = Vector3.new(0, 0, -1)
@@ -101,6 +143,19 @@ local function startGhost()
         end
     end)
 
+    -- Controle mobile (Botões de movimento)
+    upButton.MouseButton1Click:Connect(function() moveDir = Vector3.new(0, 0, -1) end)
+    downButton.MouseButton1Click:Connect(function() moveDir = Vector3.new(0, 0, 1) end)
+    leftButton.MouseButton1Click:Connect(function() moveDir = Vector3.new(-1, 0, 0) end)
+    rightButton.MouseButton1Click:Connect(function() moveDir = Vector3.new(1, 0, 0) end)
+
+    -- Parar movimento ao soltar o botão
+    upButton.MouseButton1Up:Connect(function() moveDir = Vector3.zero end)
+    downButton.MouseButton1Up:Connect(function() moveDir = Vector3.zero end)
+    leftButton.MouseButton1Up:Connect(function() moveDir = Vector3.zero end)
+    rightButton.MouseButton1Up:Connect(function() moveDir = Vector3.zero end)
+
+    -- Renderiza o movimento
     renderMove = RunService.RenderStepped:Connect(function()
         if ghosting and cloneHRP then
             local camCF = workspace.CurrentCamera.CFrame
