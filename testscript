@@ -1,4 +1,4 @@
--- // Ghost.lua | Script de desync visual
+-- // Ghost.lua | Desync visual (Ghost Mode)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -46,26 +46,70 @@ deactivateBtn.TextSize = 16
 
 -- Ghost Logic
 local ghosting = false
-local frozenPosition = hrp.Position
-local ghostConnection
+local fakeChar = nil
+local netBypass = nil
+local renderLoop = nil
 
-activateBtn.MouseButton1Click:Connect(function()
+local function startGhost()
     if ghosting then return end
     ghosting = true
-    frozenPosition = hrp.Position
 
-    ghostConnection = RunService.Stepped:Connect(function()
-        if ghosting and hrp then
+    local frozenPosition = hrp.Position
+
+    -- Trava o HRP no servidor
+    netBypass = RunService.Stepped:Connect(function()
+        if hrp and hrp.Parent then
             hrp.Velocity = Vector3.zero
             hrp.CFrame = CFrame.new(frozenPosition)
         end
     end)
-end)
 
-deactivateBtn.MouseButton1Click:Connect(function()
-    ghosting = false
-    if ghostConnection then
-        ghostConnection:Disconnect()
-        ghostConnection = nil
+    -- Cria uma cópia do personagem
+    fakeChar = char:Clone()
+    fakeChar.Name = "GhostChar"
+    for _, obj in pairs(fakeChar:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            obj.Anchored = false
+            obj.CanCollide = false
+        elseif obj:IsA("Humanoid") then
+            obj.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+        end
     end
-end)
+    fakeChar.Parent = workspace
+
+    -- Mover a câmera para o fake char
+    workspace.CurrentCamera.CameraSubject = fakeChar:FindFirstChildOfClass("Humanoid")
+
+    -- Fazer o personagem fake seguir a câmera
+    renderLoop = RunService.RenderStepped:Connect(function()
+        if ghosting and fakeChar and fakeChar.PrimaryPart then
+            local cam = workspace.CurrentCamera
+            fakeChar:SetPrimaryPartCFrame(cam.CFrame + cam.CFrame.LookVector * 2)
+        end
+    end)
+end
+
+local function stopGhost()
+    ghosting = false
+
+    if netBypass then
+        netBypass:Disconnect()
+        netBypass = nil
+    end
+
+    if renderLoop then
+        renderLoop:Disconnect()
+        renderLoop = nil
+    end
+
+    if fakeChar then
+        fakeChar:Destroy()
+        fakeChar = nil
+    end
+
+    workspace.CurrentCamera.CameraSubject = player.Character:FindFirstChildOfClass("Humanoid")
+end
+
+-- Botões
+activateBtn.MouseButton1Click:Connect(startGhost)
+deactivateBtn.MouseButton1Click:Connect(stopGhost)
