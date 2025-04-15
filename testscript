@@ -1,7 +1,8 @@
--- // GhostControl.lua | Controle total de clone (Ghost Mode)
+-- // GhostControl.lua | Clone controlável (Ghost Mode)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
@@ -48,7 +49,9 @@ deactivateBtn.TextSize = 16
 local ghosting = false
 local cloneChar = nil
 local netBypass = nil
+local renderMove = nil
 local originalChar = nil
+local moveDir = Vector3.zero
 
 local function startGhost()
     if ghosting then return end
@@ -57,7 +60,7 @@ local function startGhost()
     originalChar = player.Character
     local frozenPos = hrp.Position
 
-    -- Congelar personagem original
+    -- Congela personagem original
     netBypass = RunService.Stepped:Connect(function()
         if hrp and hrp.Parent then
             hrp.Velocity = Vector3.zero
@@ -75,14 +78,39 @@ local function startGhost()
         end
     end
     cloneChar.Parent = workspace
-    workspace.CurrentCamera.CameraSubject = cloneChar:FindFirstChildOfClass("Humanoid")
 
-    -- Redefinir o personagem controlado localmente
-    player.Character = cloneChar
+    local cloneHum = cloneChar:FindFirstChildOfClass("Humanoid")
+    local cloneHRP = cloneChar:FindFirstChild("HumanoidRootPart")
+
+    -- Câmera para o clone
+    workspace.CurrentCamera.CameraSubject = cloneHum
+
+    -- Controle básico WASD
+    UserInputService.InputBegan:Connect(function(input, gpe)
+        if gpe then return end
+        if input.KeyCode == Enum.KeyCode.W then moveDir = Vector3.new(0, 0, -1)
+        elseif input.KeyCode == Enum.KeyCode.S then moveDir = Vector3.new(0, 0, 1)
+        elseif input.KeyCode == Enum.KeyCode.A then moveDir = Vector3.new(-1, 0, 0)
+        elseif input.KeyCode == Enum.KeyCode.D then moveDir = Vector3.new(1, 0, 0)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.S or input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.D then
+            moveDir = Vector3.zero
+        end
+    end)
+
+    renderMove = RunService.RenderStepped:Connect(function()
+        if ghosting and cloneHRP then
+            local camCF = workspace.CurrentCamera.CFrame
+            local dir = camCF:VectorToWorldSpace(moveDir) * 0.5
+            cloneHRP.CFrame = cloneHRP.CFrame + dir
+        end
+    end)
 end
 
 local function stopGhost()
-    if not ghosting then return end
     ghosting = false
 
     if netBypass then
@@ -90,13 +118,19 @@ local function stopGhost()
         netBypass = nil
     end
 
+    if renderMove then
+        renderMove:Disconnect()
+        renderMove = nil
+    end
+
     if cloneChar then
         cloneChar:Destroy()
         cloneChar = nil
     end
 
-    player.Character = originalChar
-    workspace.CurrentCamera.CameraSubject = originalChar:FindFirstChildOfClass("Humanoid")
+    if originalChar then
+        workspace.CurrentCamera.CameraSubject = originalChar:FindFirstChildOfClass("Humanoid")
+    end
 end
 
 -- Conectar botões
