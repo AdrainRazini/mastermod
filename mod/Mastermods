@@ -4,19 +4,20 @@ local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):Fin
 
 -- Se já existir, retorna para evitar a criação do GUI
 if existingScreenGui then
-    return
+	return
 end
 
 -- URL da API do GitHub para listar os scripts
 local GITHUB_USER = "AdrainRazini"
 local GITHUB_REPO = "mastermod"
+local Owner = "Adrian75556435"
 local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/script"
 
 
 game:GetService("StarterGui"):SetCore("SendNotification", { 
-    Title = "MASTERMOD";
-    Text = "Adrian75556435";
-    Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
+	Title = "MASTERMOD";
+	Text = "Adrian75556435";
+	Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
 Duration = 16;
 
 
@@ -28,6 +29,77 @@ local TitleBar = Instance.new("Frame")
 local MinimizeButton = Instance.new("TextButton")
 local Content = Instance.new("ScrollingFrame")
 local Buttons = {}
+
+
+
+-- 🔔 Alerta no canto inferior direito do Mod_Explorer - Empilhamento
+local activeAlerts = {}
+
+local function showAlertInMenu(menuGui, text, duration)
+	if not menuGui then return end
+
+	
+	-- Cria o frame do alerta
+	local alertFrame = Instance.new("Frame")
+	alertFrame.Size = UDim2.new(0, 280, 0, 50)
+	alertFrame.Position = UDim2.new(1, -300, 1, -60 - (#activeAlerts * 60)) -- canto inferior direito
+	alertFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	alertFrame.BackgroundTransparency = 0.15
+	alertFrame.BorderSizePixel = 0
+	alertFrame.AnchorPoint = Vector2.new(0, 1) -- âncora no canto inferior esquerdo do alerta
+	alertFrame.Name = "LocalAlert"
+	alertFrame.ZIndex = 999
+	alertFrame.Parent = menuGui
+
+	table.insert(activeAlerts, alertFrame)
+
+	local corner = Instance.new("UICorner", alertFrame)
+	corner.CornerRadius = UDim.new(0, 8)
+
+	local label = Instance.new("TextLabel", alertFrame)
+	label.Size = UDim2.new(1, -20, 1, -10)
+	label.Position = UDim2.new(0, 10, 0, 5)
+	label.BackgroundTransparency = 1
+	label.Text = text
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 17
+	label.TextWrapped = true
+	label.ZIndex = 1000
+
+	-- Fade e destruição depois de um tempo
+	task.delay(duration or 3, function()
+		for i = 1, 10 do
+			alertFrame.BackgroundTransparency += 0.05
+			label.TextTransparency += 0.05
+			task.wait(0.04)
+		end
+
+		alertFrame:Destroy()
+
+		-- Remove da lista e atualiza posições restantes
+		for i, alert in ipairs(activeAlerts) do
+			if alert == alertFrame then
+				table.remove(activeAlerts, i)
+				break
+			end
+		end
+
+		for i, alert in ipairs(activeAlerts) do
+			alert:TweenPosition(
+				UDim2.new(1, -300, 1, -60 - ((i - 1) * 60)),
+				Enum.EasingDirection.Out,
+				Enum.EasingStyle.Quad,
+				0.25,
+				true
+			)
+		end
+	end)
+end
+
+local player = game.Players.LocalPlayer
+-- showAlertInMenu(ScreenGui, "Bem Vindo " ..player.Name  , 10)
+
 
 -- Propriedades do GUI
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -84,25 +156,26 @@ local isMinimized = false
 
 -- Função para atualizar o CanvasSize do ScrollingFrame
 local function updateCanvasSize()
-    local totalHeight = 0
-    for _, button in pairs(Buttons) do
-        totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
-    end
-    Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+	local totalHeight = 0
+	for _, button in pairs(Buttons) do
+		totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
+	end
+	Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end
 
 -- Função para criar botões com ação
 local function createButton(text, callback)
-    local Button = Instance.new("TextButton")
-    Button.Parent = Content
-    Button.Size = UDim2.new(0.8, 0, 0, 40)
-    Button.Text = text
-    Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-    Button.TextColor3 = Color3.new(1, 1, 1)
-    Button.MouseButton1Click:Connect(callback)
-    table.insert(Buttons, Button)
-    
-    updateCanvasSize()
+	local Button = Instance.new("TextButton")
+	Button.Parent = Content
+	Button.Size = UDim2.new(0.8, 0, 0, 40)
+	Button.Text = text
+	Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+	Button.TextColor3 = Color3.new(1, 1, 1)
+	Button.MouseButton1Click:Connect(callback)
+	table.insert(Buttons, Button)
+
+	updateCanvasSize()
+	
 end
 
 -- Função para minimizar/maximizar com animação
@@ -116,40 +189,40 @@ minimizeImage.Image = "rbxassetid://117585506735209" -- Substitua pelo ID da ima
 minimizeImage.Visible = false
 
 MinimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    local sizeTween, titleTween, imageTween
-    
-    if isMinimized then
-        -- Minimizar o menu
-        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
-        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
-        Content.Visible = false
-        
-        -- Exibir a imagem
-        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
-        minimizeImage.Visible = true
-        imageTween:Play()
-    else
-        -- Restaurar o menu
-        sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
-        titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
-        Content.Visible = true
-        
-        -- Ocultar a imagem
-        imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
-        imageTween:Play()
-        imageTween.Completed:Connect(function()
-            minimizeImage.Visible = false
-        end)
-    end
-    
-    sizeTween:Play()
-    titleTween:Play()
+	isMinimized = not isMinimized
+	local sizeTween, titleTween, imageTween
+
+	if isMinimized then
+		-- Minimizar o menu
+		sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
+		titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
+		Content.Visible = false
+
+		-- Exibir a imagem
+		imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
+		minimizeImage.Visible = true
+		imageTween:Play()
+	else
+		-- Restaurar o menu
+		sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
+		titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
+		Content.Visible = true
+
+		-- Ocultar a imagem
+		imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
+		imageTween:Play()
+		imageTween.Completed:Connect(function()
+			minimizeImage.Visible = false
+		end)
+	end
+
+	sizeTween:Play()
+	titleTween:Play()
 end)
 
 -- Atualizar a posição do menu sempre que ele for movido
 ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
-    -- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
+	-- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
 end)
 
 -- Criando alguns botões de exemplo
@@ -164,11 +237,11 @@ end)
 
 createButton("HD ADMIM", function()
 
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-    Title = "HD ADMIM";
-    Text = "YIELD";
-    Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
-Duration = 16;
+	game:GetService("StarterGui"):SetCore("SendNotification", { 
+		Title = "HD ADMIM";
+		Text = "YIELD";
+		Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
+	Duration = 16;
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
 end)
 
@@ -294,5 +367,5 @@ end)
 
 
 createButton("Menu", function()
-loadstring(game:HttpGet(""))
+	loadstring(game:HttpGet(""))
 end)
