@@ -1,6 +1,11 @@
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+	Title = "MASTERMOD";
+	Text = "Adrian75556435";
+	Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
+Duration = 16;
 
 -- Verificar se já existe um ScreenGui com o nome "ModMenu"
-local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("ModMenuGui")
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("Mastermod")
 
 -- Se já existir, retorna para evitar a criação do GUI
 if existingScreenGui then
@@ -9,363 +14,388 @@ end
 
 -- URL da API do GitHub para listar os scripts
 local GITHUB_USER = "AdrainRazini"
-local GITHUB_REPO = "mastermod"
+local GITHUB_REPO = "Mastermod"
 local Owner = "Adrian75556435"
 local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/script"
+local IMG_ICON = "rbxassetid://117585506735209"
+local NAME_MOD_MENU = "ModMenuGui"
 
+function criar_Gui_Frame()
+	local TweenService = game:GetService("TweenService")
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+	local PlayerGui = player:WaitForChild("PlayerGui")
 
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-	Title = "MASTERMOD";
-	Text = "Adrian75556435";
-	Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
-Duration = 16;
+	local ScreenGui = Instance.new("ScreenGui")
+	ScreenGui.Name = GITHUB_REPO
+	ScreenGui.Parent = PlayerGui
+	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+	local ModMenu = Instance.new("Frame")
+	ModMenu.Name = "ModMenu"
+	ModMenu.Parent = ScreenGui
+	ModMenu.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+	ModMenu.Size = UDim2.new(0, 240, 0, 320)
+	ModMenu.Position = UDim2.new(0.05, 0, 0.1, 0)
+	ModMenu.Active = true
+	ModMenu.Draggable = true
 
-local TweenService = game:GetService("TweenService")
--- Criação do GUI
-local ScreenGui = Instance.new("ScreenGui")
-local ModMenu = Instance.new("Frame")
-local TitleBar = Instance.new("Frame")
-local MinimizeButton = Instance.new("TextButton")
-local Content = Instance.new("ScrollingFrame")
-local Buttons = {}
+	Instance.new("UICorner", ModMenu).CornerRadius = UDim.new(0, 10)
+	local stroke = Instance.new("UIStroke", ModMenu)
+	stroke.Thickness = 2
+	stroke.Color = Color3.fromRGB(60, 120, 255)
 
+	local TitleBar = Instance.new("Frame")
+	TitleBar.Name = "TitleBar"
+	TitleBar.Parent = ModMenu
+	TitleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+	TitleBar.Size = UDim2.new(1, 0, 0, 35)
 
+	Instance.new("UICorner", TitleBar).CornerRadius = UDim.new(0, 8)
 
--- 🔔 Alerta no canto inferior direito do Mod_Explorer - Empilhamento
-local activeAlerts = {}
+	local Title = Instance.new("TextLabel")
+	Title.Parent = TitleBar
+	Title.Text = NAME_MOD_MENU
+	Title.BackgroundTransparency = 1
+	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Title.Font = Enum.Font.GothamBold
+	Title.TextSize = 18
+	Title.TextXAlignment = Enum.TextXAlignment.Left
+	Title.Size = UDim2.new(1, -40, 1, 0)
+	Title.Position = UDim2.new(0, 10, 0, 0)
 
-local function showAlertInMenu(menuGui, text, duration)
-	if not menuGui then return end
+	local MinimizeButton = Instance.new("TextButton")
+	MinimizeButton.Parent = TitleBar
+	MinimizeButton.Text = "–"
+	MinimizeButton.Font = Enum.Font.GothamBold
+	MinimizeButton.TextSize = 22
+	MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	MinimizeButton.BackgroundColor3 = Color3.fromRGB(60, 120, 255)
+	MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
+	MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
+	Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(1, 0)
 
-	
-	-- Cria o frame do alerta
-	local alertFrame = Instance.new("Frame")
-	alertFrame.Size = UDim2.new(0, 280, 0, 50)
-	alertFrame.Position = UDim2.new(1, -300, 1, -60 - (#activeAlerts * 60)) -- canto inferior direito
-	alertFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	alertFrame.BackgroundTransparency = 0.15
-	alertFrame.BorderSizePixel = 0
-	alertFrame.AnchorPoint = Vector2.new(0, 1) -- âncora no canto inferior esquerdo do alerta
-	alertFrame.Name = "LocalAlert"
-	alertFrame.ZIndex = 999
-	alertFrame.Parent = menuGui
+	local Content = Instance.new("ScrollingFrame")
+	Content.Parent = ModMenu
+	Content.Name = "Content"
+	Content.Size = UDim2.new(1, 0, 1, -35)
+	Content.Position = UDim2.new(0, 0, 0, 35)
+	Content.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+	Content.ScrollBarThickness = 6
+	Content.CanvasSize = UDim2.new(0, 0, 0, 0)
 
-	table.insert(activeAlerts, alertFrame)
+	Instance.new("UICorner", Content).CornerRadius = UDim.new(0, 10)
 
-	local corner = Instance.new("UICorner", alertFrame)
-	corner.CornerRadius = UDim.new(0, 8)
+	local layout = Instance.new("UIListLayout", Content)
+	layout.Padding = UDim.new(0, 6)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
 
-	local label = Instance.new("TextLabel", alertFrame)
-	label.Size = UDim2.new(1, -20, 1, -10)
-	label.Position = UDim2.new(0, 10, 0, 5)
-	label.BackgroundTransparency = 1
-	label.Text = text
-	label.TextColor3 = Color3.fromRGB(255, 255, 255)
-	label.Font = Enum.Font.Gotham
-	label.TextSize = 17
-	label.TextWrapped = true
-	label.ZIndex = 1000
+	local Buttons = {}
+	local isMinimized = false
 
-	-- Fade e destruição depois de um tempo
-	task.delay(duration or 3, function()
-		for i = 1, 10 do
-			alertFrame.BackgroundTransparency += 0.05
-			label.TextTransparency += 0.05
-			task.wait(0.04)
+	local function updateCanvasSize()
+		local totalHeight = 0
+		for _, btn in ipairs(Buttons) do
+			totalHeight += btn.Size.Y.Offset + layout.Padding.Offset
 		end
-
-		alertFrame:Destroy()
-
-		-- Remove da lista e atualiza posições restantes
-		for i, alert in ipairs(activeAlerts) do
-			if alert == alertFrame then
-				table.remove(activeAlerts, i)
-				break
-			end
-		end
-
-		for i, alert in ipairs(activeAlerts) do
-			alert:TweenPosition(
-				UDim2.new(1, -300, 1, -60 - ((i - 1) * 60)),
-				Enum.EasingDirection.Out,
-				Enum.EasingStyle.Quad,
-				0.25,
-				true
-			)
-		end
-	end)
-end
-
-local player = game.Players.LocalPlayer
--- showAlertInMenu(ScreenGui, "Bem Vindo " ..player.Name  , 10)
-
-
--- Propriedades do GUI
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
--- Configuração do menu principal
-ScreenGui.Name = "ModMenuGui"
-ModMenu.Name = "ModMenu"
-ModMenu.Parent = ScreenGui
-ModMenu.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ModMenu.Size = UDim2.new(0, 200, 0, 300)
-ModMenu.Position = UDim2.new(0.1, 0, 0.1, 0)
-ModMenu.Active = true
-ModMenu.Draggable = true
-
--- Barra de título
-TitleBar.Name = "TitleBar"
-TitleBar.Parent = ModMenu
-TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-TitleBar.Size = UDim2.new(1, 0, 0, 30)
-
-local Title = Instance.new("TextLabel", TitleBar)
-Title.Text = "MASTERMODS"
-Title.Size = UDim2.new(1, -30, 1, 0)
-Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.TextScaled = true
-
--- Botão de minimizar
-MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Parent = TitleBar
-MinimizeButton.Text = "-"
-MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
-MinimizeButton.Position = UDim2.new(1, -30, 0, 0)
-MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-
--- Conteúdo do menu (ScrollingFrame)
-Content.Name = "Content"
-Content.Parent = ModMenu
-Content.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-Content.Size = UDim2.new(1, 0, 1, -30)
-Content.Position = UDim2.new(0, 0, 0, 30)
-Content.CanvasSize = UDim2.new(0, 0, 1, 0)
-Content.ScrollBarThickness = 8
-
--- Layout para organizar os botões em lista
-local ListLayout = Instance.new("UIListLayout", Content)
-ListLayout.Padding = UDim.new(0, 5)
-ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
--- Variável para saber o estado de minimização
-local isMinimized = false
-
--- Função para atualizar o CanvasSize do ScrollingFrame
-local function updateCanvasSize()
-	local totalHeight = 0
-	for _, button in pairs(Buttons) do
-		totalHeight = totalHeight + button.Size.Y.Offset + ListLayout.Padding.Offset
+		Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 	end
-	Content.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-end
 
--- Função para criar botões com ação
-local function createButton(text, callback)
-	local Button = Instance.new("TextButton")
-	Button.Parent = Content
-	Button.Size = UDim2.new(0.8, 0, 0, 40)
-	Button.Text = text
-	Button.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-	Button.TextColor3 = Color3.new(1, 1, 1)
-	Button.MouseButton1Click:Connect(callback)
-	table.insert(Buttons, Button)
+	local activeAlerts = {}
 
-	updateCanvasSize()
-	
-end
+	local function showAlertInMenu(menuGui, text, duration)
+		if not menuGui then return end
 
--- Função para minimizar/maximizar com animação
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		local alertFrame = Instance.new("Frame")
+		alertFrame.Size = UDim2.new(0, 280, 0, 50)
+		alertFrame.Position = UDim2.new(1, -300, 1, -60 - (#activeAlerts * 60))
+		alertFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+		alertFrame.BackgroundTransparency = 0
+		alertFrame.BorderSizePixel = 0
+		alertFrame.AnchorPoint = Vector2.new(0, 1)
+		alertFrame.Name = "LocalAlert"
+		alertFrame.ZIndex = 999
+		alertFrame.Parent = menuGui
 
-local minimizeImage = Instance.new("ImageLabel")
-minimizeImage.Parent = ModMenu
-minimizeImage.Size = UDim2.new(1, 0, 1, 0)
-minimizeImage.BackgroundTransparency = 1
-minimizeImage.Image = "rbxassetid://117585506735209" -- Substitua pelo ID da imagem desejada
-minimizeImage.Visible = false
+		Instance.new("UICorner", alertFrame).CornerRadius = UDim.new(0, 8)
 
-MinimizeButton.MouseButton1Click:Connect(function()
-	isMinimized = not isMinimized
-	local sizeTween, titleTween, imageTween
+		local label = Instance.new("TextLabel", alertFrame)
+		label.Size = UDim2.new(1, -20, 1, -10)
+		label.Position = UDim2.new(0, 10, 0, 5)
+		label.BackgroundTransparency = 1
+		label.Text = text
+		label.TextColor3 = Color3.new(1, 1, 1)
+		label.Font = Enum.Font.Gotham
+		label.TextSize = 16
+		label.TextWrapped = true
+		label.ZIndex = 1000
 
-	if isMinimized then
-		-- Minimizar o menu
-		sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)})
-		titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 1})
-		Content.Visible = false
+		table.insert(activeAlerts, alertFrame)
 
-		-- Exibir a imagem
-		imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 0})
-		minimizeImage.Visible = true
-		imageTween:Play()
-	else
-		-- Restaurar o menu
-		sizeTween = TweenService:Create(ModMenu, tweenInfo, {Size = UDim2.new(0, 200, 0, 300)})
-		titleTween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0})
-		Content.Visible = true
-
-		-- Ocultar a imagem
-		imageTween = TweenService:Create(minimizeImage, tweenInfo, {Transparency = 1})
-		imageTween:Play()
-		imageTween.Completed:Connect(function()
-			minimizeImage.Visible = false
+		task.delay(duration or 3, function()
+			for i = 1, 10 do
+				alertFrame.BackgroundTransparency += 0.05
+				label.TextTransparency += 0.05
+				task.wait(0.04)
+			end
+			alertFrame:Destroy()
+			table.remove(activeAlerts, table.find(activeAlerts, alertFrame))
+			for i, alert in ipairs(activeAlerts) do
+				alert:TweenPosition(UDim2.new(1, -300, 1, -60 - ((i - 1) * 60)), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+			end
 		end)
 	end
 
-	sizeTween:Play()
-	titleTween:Play()
-end)
+	local function alert(msg, dur)
+		showAlertInMenu(ScreenGui, msg, dur or 4)
+	end
 
--- Atualizar a posição do menu sempre que ele for movido
-ModMenu:GetPropertyChangedSignal("Position"):Connect(function()
-	-- Não armazenar mais a posição original, pois agora queremos que o menu continue onde ele está
-end)
+	local function createButton(text, callback)
+		local Button = Instance.new("TextButton")
+		Button.Parent = Content
+		Button.Size = UDim2.new(0.9, 0, 0, 40)
+		Button.Text = text
+		Button.BackgroundColor3 = Color3.fromRGB(60, 120, 255)
+		Button.TextColor3 = Color3.new(1, 1, 1)
+		Button.Font = Enum.Font.GothamBold
+		Button.TextSize = 16
+		Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
 
--- Criando alguns botões de exemplo
+		Button.MouseButton1Click:Connect(function()
+			alert("📦 Botão '" .. text .. "' executado", 3)
+			callback()
+		end)
 
-createButton("INVENTÁRIO", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
-end)
+		table.insert(Buttons, Button)
+		updateCanvasSize()
+	end
 
-createButton("Keyboard", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Keyboard"))()
-end)
+	-- Minimizar
+	local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
-createButton("HD ADMIM", function()
+	local minimizeImage = Instance.new("ImageLabel")
+	minimizeImage.Parent = ModMenu
+	minimizeImage.Size = UDim2.new(1, 0, 1, 0)
+	minimizeImage.BackgroundTransparency = 1
+	minimizeImage.Image = IMG_ICON  -- Substitua IMG_ICON pela URL ou caminho da imagem desejada
+	minimizeImage.Visible = false
 
-	game:GetService("StarterGui"):SetCore("SendNotification", { 
-		Title = "HD ADMIM";
-		Text = "YIELD";
-		Icon = "rbxthumb://type=Asset&id=93638563594123&w=150&h=150"})
-	Duration = 16;
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
-end)
+	-- Adicionando bordas arredondadas
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)  -- Aqui ajustamos o arredondamento, se preferir mais ou menos, altere o valor
+	corner.Parent = minimizeImage
 
-createButton("Aimbot all", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
-end)
+	MinimizeButton.MouseButton1Click:Connect(function()
+		isMinimized = not isMinimized
 
-createButton("AimbotV2", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
-end)
+		-- Transições para o tamanho do menu
+		local sizeTween = TweenService:Create(ModMenu, tweenInfo, {
+			Size = isMinimized and UDim2.new(0, 50, 0, 50) or UDim2.new(0, 240, 0, 320)
+		})
 
-createButton("Clone item", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/CloneItem"))()
-end)
+		-- Transições para a visibilidade do título
+		local titleTween = TweenService:Create(Title, tweenInfo, {
+			TextTransparency = isMinimized and 1 or 0
+		})
 
-createButton("DELETAR", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
-end)
+		-- Controle da visibilidade do conteúdo
+		Content.Visible = not isMinimized
 
-createButton("VOAR NO CÉU", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/FlyGui"))()
-end)
+		-- Transições para a imagem de minimizar
+		local imageTween = TweenService:Create(minimizeImage, tweenInfo, {
+			Transparency = isMinimized and 0 or 1
+		})
 
-createButton("Ativar guis", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Ativargui"))()
-end)
+		-- Torna a imagem visível durante a minimização
+		minimizeImage.Visible = true
+		imageTween:Play()
 
-createButton("AUTO FARME MOEDAS", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
-end)
+		-- Esconde a imagem de minimizar após a animação
+		if not isMinimized then
+			imageTween.Completed:Connect(function()
+				minimizeImage.Visible = false
+			end)
+		end
 
-createButton("AUTO FARME PRESENTES", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Farmegift"))()
-end)
-
-createButton("Lock Camera", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
-end)
-
-createButton("ESP", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ESPN"))()
-end)
-
-
-createButton("Lock Air", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar"))()
-end)
-
-createButton("Abrir Música", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
-end)
-
-createButton("Coordenadas", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
-end)
-
-createButton("Tp coordenadas", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpcordenadas"))()
-end)
-
-createButton("Hitboxtool", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool"))()
-end)
-
-createButton("Hitboxtoolv2", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitbooxv2"))()
-end)
-
-createButton("Block air tool", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
-end)
-
-createButton("Dash", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
-end)
-
-createButton("Dash V2", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/dash"))()
-end)
-
-createButton("Fly tool", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
-end)
-
-createButton("Jump tool", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
-end)
-
-createButton("Speed Boost tool", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua"))()
-end)
-createButton("Teleport tool", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
-end)
-
-createButton("Tp Players", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
-end)
-
-createButton("TpV2", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
-end)
-
-createButton("Tpv3", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpv3"))()
-end)
-
-createButton("Visor Objetos", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Visorname"))()
-end)
-
-createButton("Ultra Visor", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR"))()
-end)
-
-createButton("Linhas", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Linhas"))()
-end)
-
-createButton("Auto", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento"))()
-end)
+		-- Executa as transições
+		sizeTween:Play()
+		titleTween:Play()
+	end)
 
 
-createButton("Menu", function()
-	loadstring(game:HttpGet(""))
-end)
+
+
+
+	-- Criando alguns botões de exemplo
+
+	createButton("INVENTÁRIO", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/inventario.lua"))()
+	end)
+
+	-- Botão HD Admin
+	createButton("HD ADMIN", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source"))()
+	end)
+
+	createButton("Keyboard", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Keyboard"))()
+	end)
+
+	createButton("Aimbot all", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
+	end)
+
+	createButton("AimbotV2", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
+	end)
+
+	createButton("Clone item", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/CloneItem"))()
+	end)
+
+	createButton("DELETAR", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Deletar"))()
+	end)
+
+	createButton("VOAR NO CÉU", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/FlyGui"))()
+	end)
+
+	createButton("Ativar guis", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Ativargui"))()
+	end)
+
+	createButton("AUTO FARME MOEDAS", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
+	end)
+
+	createButton("AUTO FARME PRESENTES", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Farmegift"))()
+	end)
+
+	createButton("Lock Camera", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
+	end)
+
+	createButton("ESP", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ESPN"))()
+	end)
+
+
+	createButton("Lock Air", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar"))()
+	end)
+
+	createButton("Abrir Música", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
+	end)
+
+	createButton("Coordenadas", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
+	end)
+
+	createButton("Tp coordenadas", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpcordenadas"))()
+	end)
+
+	createButton("Hitboxtool", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitboxtool"))()
+	end)
+
+	createButton("Hitboxtoolv2", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Hitbooxv2"))()
+	end)
+
+	createButton("Block air tool", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Blockar"))()
+	end)
+
+	createButton("Dash", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytoov2"))()
+	end)
+
+	createButton("Dash V2", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/dash"))()
+	end)
+
+	createButton("Fly tool", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/flytool.lua"))()
+	end)
+
+	createButton("Jump tool", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
+	end)
+
+	createButton("Speed Boost tool", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua"))()
+	end)
+	createButton("Teleport tool", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
+	end)
+
+	createButton("Tp Players", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/TPPLAYERS"))()
+	end)
+
+	createButton("TpV2", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tptoolv2"))()
+	end)
+
+	createButton("Tpv3", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Tpv3"))()
+	end)
+
+	createButton("Visor Objetos", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Visorname"))()
+	end)
+
+	createButton("Ultra Visor", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/ULTRAVISOR"))()
+	end)
+
+	createButton("Linhas", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Linhas"))()
+	end)
+
+	createButton("Auto", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Automovimento"))()
+	end)
+
+
+	createButton("Menu", function()
+		loadstring(game:HttpGet(""))
+	end)
+
+
+	-- Carregar scripts do GitHub
+	local scripts = {
+		{name = "frame", path = "frame_visor.lua"},
+	}
+
+	for _, script in ipairs(scripts) do
+		createButton(script.name:upper(), function()
+			local success, response = pcall(function()
+				return game:HttpGet("https://raw.githubusercontent.com/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/main/script/" .. script.path)
+			end)
+			if success then
+				alert("🧠 Script '" .. script.name:upper() .. "' carregado!", 5)
+				loadstring(response)()
+			else
+				alert("❌ Falha ao carregar '" .. script.name:upper() .. "'", 5)
+			end
+		end)
+	end
+
+	-- Mensagem inicial
+	alert("👋 Bem-vindo, " .. player.Name .. "!", 6)
+	alert("✅ Menu " .. GITHUB_REPO .. " ativado!", 5)
+end
+
+
+
+
+
+
+-- Executa o menu
+criar_Gui_Frame()
