@@ -370,7 +370,7 @@ function criar_Gui_Frame()
 
 	-- Carregar scripts do GitHub
 	local scripts = {
-		{name = "frame", path = "frame_visor.lua"},
+		{name = "Tests_Mods_New", path = "Test_Scripts"},
 	}
 
 	for _, script in ipairs(scripts) do
