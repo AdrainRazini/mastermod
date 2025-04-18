@@ -1,1 +1,53 @@
 
+-- Acessa o jogador local
+local player = game.Players.LocalPlayer
+
+-- Cria uma nova ferramenta
+local tool = Instance.new("Tool")
+tool.Name = "Andarnoar"
+tool.RequiresHandle = true
+
+-- Cria o objeto Handle da ferramenta
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(1, 5, 1)  -- Tamanho da ferramenta
+handle.Anchored = false
+handle.CanCollide = false
+handle.BrickColor = BrickColor.new("Bright red")  -- Cor da ferramenta
+handle.Transparency = 1  -- Deixa a ferramenta invisível
+handle.Parent = tool
+
+-- Adiciona a ferramenta à mochila do jogador
+tool.Parent = player.Backpack
+
+-- Variável para controle do loop
+local isEquipped = false
+
+-- Função para criar blocos
+local function createBlock()
+    local block = Instance.new("Part")
+    block.Size = Vector3.new(5, 1, 5)  -- Tamanho do bloco
+    block.Anchored = true
+    block.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 4, 0)  -- Abaixo do jogador
+    block.BrickColor = BrickColor.new("Bright blue")  -- Cor do bloco
+    block.Transparency = 1  -- Deixa o bloco invisível
+    block.Parent = workspace
+    
+    game:GetService("Debris"):AddItem(block, 1)
+end
+
+-- Conectar eventos de Equipar e Desequipar
+tool.Equipped:Connect(function()
+    isEquipped = true
+    while isEquipped do
+        createBlock()
+        wait(0.1)  -- Intervalo entre a criação dos blocos
+    end
+end)
+
+tool.Unequipped:Connect(function()
+    isEquipped = false
+end)
+
+-- Mensagem de confirmação
+print("Ferramenta criada e adicionada à sua mochila!")
