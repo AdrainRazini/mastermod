@@ -1,8 +1,3 @@
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-	Title = "MASTERMOD";
-	Text = "Adrian75556435";
-	Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
-Duration = 16;
 
 -- Verificar se já existe um ScreenGui com o nome "ModMenu"
 local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("Mastermod")
@@ -11,6 +6,17 @@ local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):Fin
 if existingScreenGui then
 	return
 end
+
+function hello ()
+
+	game:GetService("StarterGui"):SetCore("SendNotification", { 
+		Title = "MASTERMOD";
+		Text = "Adrian75556435";
+		Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
+	Duration = 16;
+
+end
+
 
 -- URL da API do GitHub para listar os scripts
 local GITHUB_USER = "AdrainRazini"
@@ -399,3 +405,4 @@ end
 
 -- Executa o menu
 criar_Gui_Frame()
+hello()
