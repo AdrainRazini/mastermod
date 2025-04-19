@@ -396,6 +396,7 @@ function criar_Gui_Frame()
 	-- Mensagem inicial
 	alert("👋 Bem-vindo, " .. player.Name .. "!", 6)
 	alert("✅ Menu " .. GITHUB_REPO .. " ativado!", 5)
+	hello()
 end
 
 
@@ -405,4 +406,3 @@ end
 
 -- Executa o menu
 criar_Gui_Frame()
-hello()
