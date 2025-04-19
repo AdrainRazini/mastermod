@@ -376,6 +376,7 @@ function criar_Gui_Frame()
 
 	-- Carregar scripts do GitHub
 	local scripts = {
+		{name = "Supromo_Visor", path = "visor.lua"},
 		{name = "Tests_Mods_New", path = "Test_Scripts"},
 	}
 

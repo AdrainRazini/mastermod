@@ -1,0 +1,136 @@
+-- Evitar múltiplas instâncias
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+if playerGui:FindFirstChild("HighlightManager") then return end
+
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "HighlightManager"
+screenGui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 260, 0, 320)
+frame.Position = UDim2.new(0, 300, 0, 150)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+-- Título
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, -30, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.Text = "📂 Highlights"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Botão minimizar
+local minimizeBtn = Instance.new("TextButton", frame)
+minimizeBtn.Size = UDim2.new(0, 20, 0, 20)
+minimizeBtn.Position = UDim2.new(1, -25, 0, 5)
+minimizeBtn.Text = "-"
+minimizeBtn.TextColor3 = Color3.new(1, 1, 1)
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+minimizeBtn.Font = Enum.Font.SourceSansBold
+minimizeBtn.TextSize = 18
+
+-- Scroll
+local contentScroll = Instance.new("ScrollingFrame", frame)
+contentScroll.Position = UDim2.new(0, 0, 0, 40)
+contentScroll.Size = UDim2.new(1, 0, 1, -45)
+contentScroll.BackgroundTransparency = 1
+contentScroll.BorderSizePixel = 0
+contentScroll.ScrollBarThickness = 6
+contentScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+contentScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+contentScroll.ClipsDescendants = true
+
+local uiList = Instance.new("UIListLayout", contentScroll)
+uiList.Padding = UDim.new(0, 5)
+uiList.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Minimizar
+local minimized = false
+minimizeBtn.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	contentScroll.Visible = not minimized
+	frame.Size = minimized and UDim2.new(0, 260, 0, 35) or UDim2.new(0, 260, 0, 320)
+	minimizeBtn.Text = minimized and "+" or "-"
+end)
+
+-- Estados e controle
+local folderStates = {}
+
+local function updateLabel(btn, folder)
+	local state = folderStates[folder] and "Sim" or "Não"
+	btn.Text = "Highlight: " .. folder.Name .. " [" .. state .. "]"
+end
+
+local function applyHighlights(folder, state)
+	for _, model in ipairs(folder:GetDescendants()) do
+		if model:IsA("Model") then
+			local existing = model:FindFirstChild("AutoHighlight")
+			if state and not existing then
+				local h = Instance.new("Highlight")
+				h.Name = "AutoHighlight"
+				h.FillColor = Color3.fromRGB(255, 255, 0)
+				h.OutlineColor = Color3.fromRGB(255, 255, 255)
+				h.Parent = model
+			elseif not state and existing then
+				existing:Destroy()
+			end
+		end
+	end
+end
+
+-- Criar botão para pasta
+local function createFolderButton(folder)
+	if folderStates[folder] ~= nil then return end
+	folderStates[folder] = false
+
+	local btn = Instance.new("TextButton", contentScroll)
+	btn.Size = UDim2.new(1, -20, 0, 30)
+	btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.SourceSans
+	btn.TextSize = 16
+	btn.TextXAlignment = Enum.TextXAlignment.Left
+
+	updateLabel(btn, folder)
+
+	btn.MouseButton1Click:Connect(function()
+		folderStates[folder] = not folderStates[folder]
+		updateLabel(btn, folder)
+		applyHighlights(folder, folderStates[folder])
+	end)
+
+	-- Novo modelo dentro da pasta
+	folder.DescendantAdded:Connect(function(desc)
+		if desc:IsA("Model") and folderStates[folder] then
+			local h = Instance.new("Highlight")
+			h.Name = "AutoHighlight"
+			h.FillColor = Color3.fromRGB(255, 255, 0)
+			h.OutlineColor = Color3.fromRGB(255, 255, 255)
+			h.Parent = desc
+		end
+	end)
+end
+
+-- Adicionar pastas existentes
+for _, obj in pairs(workspace:GetChildren()) do
+	if obj:IsA("Folder") then
+		createFolderButton(obj)
+	end
+end
+
+-- Novas pastas
+workspace.ChildAdded:Connect(function(child)
+	if child:IsA("Folder") then
+		createFolderButton(child)
+	end
+end)
