@@ -1,19 +1,16 @@
--- Verificar se já existe um ScreenGui com o nome "AimbotV1"
-local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV1")
+-- Verificar se já existe um ScreenGui com o nome "AimbotV2"
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV2")
 
--- Se já existir, retorna para evitar a criação do GUI
 if existingScreenGui then
-    return
+	return
 end
 
-
-
 game:GetService("StarterGui"):SetCore("SendNotification", { 
-    Title = "Mastermod";
-    Text = "AimBot V1";
-    Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150"})
-Duration = 16;
-
+	Title = "Mastermod";
+	Text = "AimBot V2";
+	Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150",
+	Duration = 16;
+})
 
 local player = game.Players.LocalPlayer
 local players = game:GetService("Players")
@@ -23,90 +20,222 @@ local camera = game.Workspace.CurrentCamera
 local detectionRadius = 50
 local lerpSpeed = 0.1
 local aimEnabled = true
+local targetEnemiesOnly = false
+local includeNPCs = true
 
 local screenGui
+local dragging, dragInput, dragStart, startPos
+
+function makeDraggable(frame)
+	frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = frame.Position
+
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+
+	frame.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			dragInput = input
+		end
+	end)
+
+	game:GetService("UserInputService").InputChanged:Connect(function(input)
+		if input == dragInput and dragging then
+			local delta = input.Position - dragStart
+			frame.Position = UDim2.new(
+				startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+end
 
 function createUI()
-    if screenGui then screenGui:Destroy() end
-    
-    screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-    screenGui.Name = "AimbotV1"
-    local frame = Instance.new("Frame", screenGui)
-    frame.Size = UDim2.new(0, 200, 0, 100)
-    frame.Position = UDim2.new(0, 10, 0, 10)
-    frame.BackgroundColor3 = Color3.new(0, 0, 0)
-    frame.BackgroundTransparency = 0.5
-    
-    local toggleButton = Instance.new("TextButton", frame)
-    toggleButton.Size = UDim2.new(1, 0, 0.4, 0)
-    toggleButton.Position = UDim2.new(0, 0, 0, 0)
-    toggleButton.Text = "Desativar Mira"
-    toggleButton.MouseButton1Click:Connect(function()
-        aimEnabled = not aimEnabled
-        toggleButton.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
-    end)
-    
-    local distanceSlider = Instance.new("TextBox", frame)
-    distanceSlider.Size = UDim2.new(1, 0, 0.4, 0)
-    distanceSlider.Position = UDim2.new(0, 0, 0.5, 0)
-    distanceSlider.Text = tostring(detectionRadius)
-    distanceSlider.FocusLost:Connect(function()
-        local newDistance = tonumber(distanceSlider.Text)
-        if newDistance then
-            detectionRadius = math.clamp(newDistance, 10, 200)
-        end
-    end)
+	if screenGui then screenGui:Destroy() end
+
+	screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+	screenGui.Name = "AimbotV2"
+	screenGui.ResetOnSpawn = false
+
+	local frame = Instance.new("Frame", screenGui)
+	frame.Size = UDim2.new(0, 230, 0, 260)
+	frame.Position = UDim2.new(0, 20, 0, 20)
+	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	frame.BackgroundTransparency = 0
+	frame.BorderSizePixel = 0
+	frame.ClipsDescendants = true
+
+	local corner = Instance.new("UICorner", frame)
+	corner.CornerRadius = UDim.new(0, 10)
+
+	makeDraggable(frame)
+
+	-- Título
+	local title = Instance.new("TextLabel", frame)
+	title.Size = UDim2.new(1, -30, 0, 30)
+	title.Position = UDim2.new(0, 10, 0, 5)
+	title.Text = "🎯 Aimbot V2"
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.BackgroundTransparency = 1
+	title.Font = Enum.Font.SourceSansBold
+	title.TextSize = 20
+	title.TextXAlignment = Enum.TextXAlignment.Left
+
+	-- Botão Minimizar
+	local minimizeBtn = Instance.new("TextButton", frame)
+	minimizeBtn.Size = UDim2.new(0, 20, 0, 20)
+	minimizeBtn.Position = UDim2.new(1, -25, 0, 5)
+	minimizeBtn.Text = "-"
+	minimizeBtn.TextColor3 = Color3.new(1,1,1)
+	minimizeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	minimizeBtn.Font = Enum.Font.SourceSansBold
+	minimizeBtn.TextSize = 18
+
+	local contentVisible = true
+	local function toggleContent()
+		contentVisible = not contentVisible
+		for _, obj in pairs(frame:GetChildren()) do
+			if obj:IsA("GuiObject") and obj ~= title and obj ~= minimizeBtn and obj ~= corner then
+				obj.Visible = contentVisible
+			end
+		end
+		minimizeBtn.Text = contentVisible and "-" or "+"
+		frame.Size = contentVisible and UDim2.new(0, 230, 0, 260) or UDim2.new(0, 230, 0, 35)
+	end
+
+	minimizeBtn.MouseButton1Click:Connect(toggleContent)
+
+	-- Função para criar botões
+	local y = 40
+	local function createButton(text, callback)
+		local btn = Instance.new("TextButton", frame)
+		btn.Size = UDim2.new(1, -20, 0, 30)
+		btn.Position = UDim2.new(0, 10, 0, y)
+		btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+		btn.TextColor3 = Color3.new(1, 1, 1)
+		btn.Text = text
+		btn.Font = Enum.Font.SourceSans
+		btn.TextSize = 16
+		btn.MouseButton1Click:Connect(function()
+			callback(btn)
+		end)
+		y = y + 35
+		return btn
+	end
+
+	-- Botões para alternar configurações
+	createButton("Desativar Mira", function(btn)
+		aimEnabled = not aimEnabled
+		btn.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
+	end)
+
+	local distanceBox = Instance.new("TextBox", frame)
+	distanceBox.Size = UDim2.new(1, -20, 0, 30)
+	distanceBox.Position = UDim2.new(0, 10, 0, y)
+	distanceBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	distanceBox.TextColor3 = Color3.new(1, 1, 1)
+	distanceBox.Text = tostring(detectionRadius)
+	distanceBox.Font = Enum.Font.SourceSans
+	distanceBox.TextSize = 16
+	distanceBox.ClearTextOnFocus = false
+	distanceBox.FocusLost:Connect(function()
+		local newVal = tonumber(distanceBox.Text)
+		if newVal then
+			detectionRadius = math.clamp(newVal, 10, 200)
+		end
+	end)
+	y = y + 35
+
+	createButton("Mirar em Todos", function(btn)
+		targetEnemiesOnly = not targetEnemiesOnly
+		btn.Text = targetEnemiesOnly and "Mirar na Equipe Inimiga" or "Mirar em Todos"
+	end)
+
+	createButton("Mirar em NPCs: Sim", function(btn)
+		includeNPCs = not includeNPCs
+		btn.Text = "Mirar em NPCs: " .. (includeNPCs and "Sim" or "Não")
+	end)
 end
 
 function findClosestPlayer()
-    if not aimEnabled then return nil end
-    
-    local character = player.Character
-    if not character then return nil end
-    
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if not humanoidRootPart then return nil end
-    
-    local closestPlayer = nil
-    local closestDistance = detectionRadius
+	if not aimEnabled then return nil end
 
-    for _, p in ipairs(players:GetPlayers()) do
-        if p ~= player and p.Character then
-            local head = p.Character:FindFirstChild("Head")
-            if head then
-                local distance = (humanoidRootPart.Position - head.Position).magnitude
-                if distance < closestDistance then
-                    closestDistance = distance
-                    closestPlayer = p
-                end
-            end
-        end
-    end
-    
-    return closestPlayer
+	local character = player.Character
+	if not character then return nil end
+
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return nil end
+
+	local closestTarget = nil
+	local closestDistance = detectionRadius
+
+	-- Procurar jogadores no jogo
+	for _, p in ipairs(players:GetPlayers()) do
+		if p ~= player and p.Character then
+			if targetEnemiesOnly and p.Team == player.Team then continue end
+			local head = p.Character:FindFirstChild("Head")
+			local humanoid = p.Character:FindFirstChildOfClass("Humanoid")
+			if head and humanoid and humanoid.Health > 0 then
+				local distance = (hrp.Position - head.Position).Magnitude
+				if distance < closestDistance then
+					closestDistance = distance
+					closestTarget = p
+				end
+			end
+		end
+	end
+
+	-- Procurar NPCs no workspace e dentro de pastas
+	if includeNPCs then
+		for _, npc in ipairs(workspace:GetDescendants()) do
+			if npc:IsA("Model") and not players:GetPlayerFromCharacter(npc) then
+				local hum = npc:FindFirstChildOfClass("Humanoid")
+				local head = npc:FindFirstChild("Head")
+				if hum and head and hum.Health > 0 then  -- Verificação de saúde maior que 0
+					local distance = (hrp.Position - head.Position).Magnitude
+					if distance < closestDistance then
+						closestDistance = distance
+						closestTarget = { Character = npc }
+					end
+				end
+			end
+		end
+	end
+
+	return closestTarget
 end
+
 
 function aimAt(target)
-    if not aimEnabled or not target or not target.Character then return end
-    
-    local head = target.Character:FindFirstChild("Head")
-    if head then
-        local targetPosition = head.Position
-        local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
-        camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
-    end
+	if not aimEnabled or not target or not target.Character then return end
+	local head = target.Character:FindFirstChild("Head")
+	if head then
+		local targetPosition = head.Position
+		local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
+		camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
+	end
 end
 
-local function onCharacterAdded(character)
-    createUI()
+-- Criar UI e atualizar se o personagem morrer
+local function setupUI()
+	createUI()
 end
 
-player.CharacterAdded:Connect(onCharacterAdded)
+player.CharacterAdded:Connect(setupUI)
+
 if player.Character then
-    onCharacterAdded(player.Character)
+	setupUI()
 end
 
 runService.RenderStepped:Connect(function()
-    local targetPlayer = findClosestPlayer()
-    aimAt(targetPlayer)
+	local target = findClosestPlayer()
+	aimAt(target)
 end)
