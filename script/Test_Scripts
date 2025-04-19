@@ -182,7 +182,8 @@ function findClosestPlayer()
 		if p ~= player and p.Character then
 			if targetEnemiesOnly and p.Team == player.Team then continue end
 			local head = p.Character:FindFirstChild("Head")
-			if head then
+			local humanoid = p.Character:FindFirstChildOfClass("Humanoid")
+			if head and humanoid and humanoid.Health > 0 then
 				local distance = (hrp.Position - head.Position).Magnitude
 				if distance < closestDistance then
 					closestDistance = distance
@@ -198,7 +199,7 @@ function findClosestPlayer()
 			if npc:IsA("Model") and not players:GetPlayerFromCharacter(npc) then
 				local hum = npc:FindFirstChildOfClass("Humanoid")
 				local head = npc:FindFirstChild("Head")
-				if hum and head then
+				if hum and head and hum.Health > 0 then  -- Verificação de saúde maior que 0
 					local distance = (hrp.Position - head.Position).Magnitude
 					if distance < closestDistance then
 						closestDistance = distance
@@ -211,6 +212,7 @@ function findClosestPlayer()
 
 	return closestTarget
 end
+
 
 function aimAt(target)
 	if not aimEnabled or not target or not target.Character then return end
