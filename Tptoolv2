@@ -1,8 +1,16 @@
+
+
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
+
+-- Atualiza a variável character sempre que o personagem for recriado
+player.CharacterAdded:Connect(function(newCharacter)
+	character = newCharacter
+end)
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "TeleportGui"
@@ -98,7 +106,6 @@ dragFrame.InputBegan:Connect(iniciarArraste)
 UserInputService.InputChanged:Connect(atualizarArraste)
 UserInputService.InputEnded:Connect(finalizarArraste)
 
-
 -- Minimizar e restaurar
 minimizeButton.MouseButton1Click:Connect(function()
 	isMinimized = not isMinimized
@@ -116,7 +123,9 @@ end)
 local function teleportarPara(jogadorAlvo)
 	if jogadorAlvo and jogadorAlvo.Character and jogadorAlvo.Character.PrimaryPart then
 		local alvoPosicao = jogadorAlvo.Character.PrimaryPart.Position + Vector3.new(0, 3, 0)
-		character:SetPrimaryPartCFrame(CFrame.new(alvoPosicao))
+		if character and character.PrimaryPart then
+			character:SetPrimaryPartCFrame(CFrame.new(alvoPosicao))
+		end
 	end
 end
 
