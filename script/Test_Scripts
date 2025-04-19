@@ -177,6 +177,7 @@ function findClosestPlayer()
 	local closestTarget = nil
 	local closestDistance = detectionRadius
 
+	-- Procurar jogadores no jogo
 	for _, p in ipairs(players:GetPlayers()) do
 		if p ~= player and p.Character then
 			if targetEnemiesOnly and p.Team == player.Team then continue end
@@ -191,8 +192,9 @@ function findClosestPlayer()
 		end
 	end
 
+	-- Procurar NPCs no workspace e dentro de pastas
 	if includeNPCs then
-		for _, npc in ipairs(workspace:GetChildren()) do
+		for _, npc in ipairs(workspace:GetDescendants()) do
 			if npc:IsA("Model") and not players:GetPlayerFromCharacter(npc) then
 				local hum = npc:FindFirstChildOfClass("Humanoid")
 				local head = npc:FindFirstChild("Head")
