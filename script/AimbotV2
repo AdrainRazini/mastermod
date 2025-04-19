@@ -149,7 +149,7 @@ function createUI()
 	distanceBox.FocusLost:Connect(function()
 		local newVal = tonumber(distanceBox.Text)
 		if newVal then
-			detectionRadius = math.clamp(newVal, 10, 200)
+			detectionRadius = math.clamp(newVal, 10, 1000)
 		end
 	end)
 	y = y + 35
