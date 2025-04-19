@@ -29,47 +29,101 @@ local screenGui
 
 function createUI()
     if screenGui then screenGui:Destroy() end
-    
+
     screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
     screenGui.Name = "AimbotV2"
-    local frame = Instance.new("Frame", screenGui)
-    frame.Size = UDim2.new(0, 200, 0, 150)
-    frame.Position = UDim2.new(0, 10, 0, 10)
-    frame.BackgroundColor3 = Color3.new(0, 0, 0)
-    frame.BackgroundTransparency = 0.5
-    
-    -- Botão de ativar/desativar mira
-    local toggleButton = Instance.new("TextButton", frame)
-    toggleButton.Size = UDim2.new(1, 0, 0.3, 0)
-    toggleButton.Position = UDim2.new(0, 0, 0, 0)
+    screenGui.ResetOnSpawn = false
+
+    local mainFrame = Instance.new("Frame", screenGui)
+    mainFrame.Name = "MainFrame"
+    mainFrame.Size = UDim2.new(0, 220, 0, 180)
+    mainFrame.Position = UDim2.new(0, 100, 0, 100)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Active = true
+    mainFrame.Draggable = true
+
+    local titleBar = Instance.new("TextLabel", mainFrame)
+    titleBar.Size = UDim2.new(1, 0, 0, 25)
+    titleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    titleBar.Text = "Aimbot V2"
+    titleBar.TextColor3 = Color3.new(1, 1, 1)
+    titleBar.Font = Enum.Font.SourceSansBold
+    titleBar.TextSize = 18
+    titleBar.TextXAlignment = Enum.TextXAlignment.Left
+    titleBar.PaddingLeft = UDim.new(0, 8)
+
+    local minimizeButton = Instance.new("TextButton", mainFrame)
+    minimizeButton.Size = UDim2.new(0, 25, 0, 25)
+    minimizeButton.Position = UDim2.new(1, -25, 0, 0)
+    minimizeButton.Text = "-"
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+    minimizeButton.Font = Enum.Font.SourceSansBold
+    minimizeButton.TextSize = 18
+
+    local contentFrame = Instance.new("Frame", mainFrame)
+    contentFrame.Size = UDim2.new(1, 0, 1, -25)
+    contentFrame.Position = UDim2.new(0, 0, 0, 25)
+    contentFrame.BackgroundTransparency = 1
+
+    -- Toggle Mira
+    local toggleButton = Instance.new("TextButton", contentFrame)
+    toggleButton.Size = UDim2.new(1, -20, 0, 30)
+    toggleButton.Position = UDim2.new(0, 10, 0, 10)
     toggleButton.Text = "Desativar Mira"
+    toggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    toggleButton.TextColor3 = Color3.new(1, 1, 1)
+    toggleButton.Font = Enum.Font.SourceSans
+    toggleButton.TextSize = 16
     toggleButton.MouseButton1Click:Connect(function()
         aimEnabled = not aimEnabled
         toggleButton.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
     end)
-    
-    -- Caixa para definir distância
-    local distanceSlider = Instance.new("TextBox", frame)
-    distanceSlider.Size = UDim2.new(1, 0, 0.3, 0)
-    distanceSlider.Position = UDim2.new(0, 0, 0.35, 0)
+
+    -- Caixa de Distância
+    local distanceSlider = Instance.new("TextBox", contentFrame)
+    distanceSlider.Size = UDim2.new(1, -20, 0, 30)
+    distanceSlider.Position = UDim2.new(0, 10, 0, 50)
     distanceSlider.Text = tostring(detectionRadius)
+    distanceSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    distanceSlider.TextColor3 = Color3.new(1, 1, 1)
+    distanceSlider.Font = Enum.Font.SourceSans
+    distanceSlider.TextSize = 16
+    distanceSlider.ClearTextOnFocus = false
     distanceSlider.FocusLost:Connect(function()
         local newDistance = tonumber(distanceSlider.Text)
         if newDistance then
             detectionRadius = math.clamp(newDistance, 10, 200)
+        else
+            distanceSlider.Text = tostring(detectionRadius)
         end
     end)
 
-    -- Botão para alternar entre todos e inimigos
-    local targetModeButton = Instance.new("TextButton", frame)
-    targetModeButton.Size = UDim2.new(1, 0, 0.3, 0)
-    targetModeButton.Position = UDim2.new(0, 0, 0.7, 0)
+    -- Botão de Modo de Mira
+    local targetModeButton = Instance.new("TextButton", contentFrame)
+    targetModeButton.Size = UDim2.new(1, -20, 0, 30)
+    targetModeButton.Position = UDim2.new(0, 10, 0, 90)
     targetModeButton.Text = "Mirar em Todos"
+    targetModeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    targetModeButton.TextColor3 = Color3.new(1, 1, 1)
+    targetModeButton.Font = Enum.Font.SourceSans
+    targetModeButton.TextSize = 16
     targetModeButton.MouseButton1Click:Connect(function()
         targetEnemiesOnly = not targetEnemiesOnly
         targetModeButton.Text = targetEnemiesOnly and "Mirar na Equipe Inimiga" or "Mirar em Todos"
     end)
+
+    -- Minimizando conteúdo
+    local minimized = false
+    minimizeButton.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        contentFrame.Visible = not minimized
+        minimizeButton.Text = minimized and "+" or "-"
+        mainFrame.Size = minimized and UDim2.new(0, 220, 0, 25) or UDim2.new(0, 220, 0, 180)
+    end)
 end
+
 
 function findClosestPlayer()
     if not aimEnabled then return nil end
