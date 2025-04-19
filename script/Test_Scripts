@@ -1,24 +1,29 @@
 -- Verificar se já existe um ScreenGui com o nome "AimbotV2"
 local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV2")
-if existingScreenGui then return end
 
--- Notificação de carregamento
+-- Se já existir, retorna para evitar a criação do GUI
+if existingScreenGui then
+    return
+end
+
 game:GetService("StarterGui"):SetCore("SendNotification", { 
     Title = "Mastermod";
     Text = "AimBot V2";
     Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150",
-    Duration = 16
+    Duration = 16;
 })
 
 local player = game.Players.LocalPlayer
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
+local teams = game:GetService("Teams")
 local camera = game.Workspace.CurrentCamera
 
 local detectionRadius = 50
 local lerpSpeed = 0.1
 local aimEnabled = true
-local targetMode = "Todos" -- "Todos", "Inimigos", "NPCs"
+local targetEnemiesOnly = false
+local includeNPCs = true
 
 local screenGui
 
@@ -29,103 +34,62 @@ function createUI()
     screenGui.Name = "AimbotV2"
     screenGui.ResetOnSpawn = false
 
-    local mainFrame = Instance.new("Frame", screenGui)
-    mainFrame.Name = "MainFrame"
-    mainFrame.Size = UDim2.new(0, 220, 0, 180)
-    mainFrame.Position = UDim2.new(0, 100, 0, 100)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    mainFrame.BorderSizePixel = 0
-    mainFrame.Active = true
-    mainFrame.Draggable = true
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 200)
+    frame.Position = UDim2.new(0, 10, 0, 10)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BackgroundTransparency = 0.5
+    frame.BorderSizePixel = 0
 
-    local titleBar = Instance.new("TextLabel", mainFrame)
-    titleBar.Size = UDim2.new(1, 0, 0, 25)
-    titleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    titleBar.Text = "Aimbot V2"
-    titleBar.TextColor3 = Color3.new(1, 1, 1)
-    titleBar.Font = Enum.Font.SourceSansBold
-    titleBar.TextSize = 18
-    titleBar.TextXAlignment = Enum.TextXAlignment.Left
-    titleBar.PaddingLeft = UDim.new(0, 8)
-
-    local minimizeButton = Instance.new("TextButton", mainFrame)
-    minimizeButton.Size = UDim2.new(0, 25, 0, 25)
-    minimizeButton.Position = UDim2.new(1, -25, 0, 0)
-    minimizeButton.Text = "-"
-    minimizeButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    minimizeButton.TextColor3 = Color3.new(1, 1, 1)
-    minimizeButton.Font = Enum.Font.SourceSansBold
-    minimizeButton.TextSize = 18
-
-    local contentFrame = Instance.new("Frame", mainFrame)
-    contentFrame.Size = UDim2.new(1, 0, 1, -25)
-    contentFrame.Position = UDim2.new(0, 0, 0, 25)
-    contentFrame.BackgroundTransparency = 1
-
-    -- Botão: Ativar/desativar mira
-    local toggleButton = Instance.new("TextButton", contentFrame)
-    toggleButton.Size = UDim2.new(1, -20, 0, 30)
-    toggleButton.Position = UDim2.new(0, 10, 0, 10)
+    -- Botão de ativar/desativar mira
+    local toggleButton = Instance.new("TextButton", frame)
+    toggleButton.Size = UDim2.new(1, 0, 0.25, 0)
+    toggleButton.Position = UDim2.new(0, 0, 0, 0)
     toggleButton.Text = "Desativar Mira"
-    toggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    toggleButton.TextColor3 = Color3.new(1, 1, 1)
-    toggleButton.Font = Enum.Font.SourceSans
-    toggleButton.TextSize = 16
+    toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    toggleButton.TextColor3 = Color3.new(1,1,1)
     toggleButton.MouseButton1Click:Connect(function()
         aimEnabled = not aimEnabled
         toggleButton.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
     end)
 
-    -- Caixa: Distância da mira
-    local distanceSlider = Instance.new("TextBox", contentFrame)
-    distanceSlider.Size = UDim2.new(1, -20, 0, 30)
-    distanceSlider.Position = UDim2.new(0, 10, 0, 50)
+    -- Caixa para definir distância
+    local distanceSlider = Instance.new("TextBox", frame)
+    distanceSlider.Size = UDim2.new(1, 0, 0.25, 0)
+    distanceSlider.Position = UDim2.new(0, 0, 0.27, 0)
     distanceSlider.Text = tostring(detectionRadius)
-    distanceSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    distanceSlider.TextColor3 = Color3.new(1, 1, 1)
-    distanceSlider.Font = Enum.Font.SourceSans
-    distanceSlider.TextSize = 16
+    distanceSlider.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    distanceSlider.TextColor3 = Color3.new(1,1,1)
     distanceSlider.ClearTextOnFocus = false
     distanceSlider.FocusLost:Connect(function()
         local newDistance = tonumber(distanceSlider.Text)
         if newDistance then
             detectionRadius = math.clamp(newDistance, 10, 200)
-        else
-            distanceSlider.Text = tostring(detectionRadius)
         end
     end)
 
-    -- Botão: Alternar modo de mira
-    local targetModeButton = Instance.new("TextButton", contentFrame)
-    targetModeButton.Size = UDim2.new(1, -20, 0, 30)
-    targetModeButton.Position = UDim2.new(0, 10, 0, 90)
+    -- Botão para alternar entre mirar em todos ou só inimigos
+    local targetModeButton = Instance.new("TextButton", frame)
+    targetModeButton.Size = UDim2.new(1, 0, 0.25, 0)
+    targetModeButton.Position = UDim2.new(0, 0, 0.54, 0)
     targetModeButton.Text = "Mirar em Todos"
-    targetModeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    targetModeButton.TextColor3 = Color3.new(1, 1, 1)
-    targetModeButton.Font = Enum.Font.SourceSans
-    targetModeButton.TextSize = 16
+    targetModeButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    targetModeButton.TextColor3 = Color3.new(1,1,1)
     targetModeButton.MouseButton1Click:Connect(function()
-        if targetMode == "Todos" then
-            targetMode = "Inimigos"
-        elseif targetMode == "Inimigos" then
-            targetMode = "NPCs"
-        else
-            targetMode = "Todos"
-        end
-
-        targetModeButton.Text =
-            targetMode == "Todos" and "Mirar em Todos" or
-            targetMode == "Inimigos" and "Mirar na Equipe Inimiga" or
-            "Mirar em NPCs"
+        targetEnemiesOnly = not targetEnemiesOnly
+        targetModeButton.Text = targetEnemiesOnly and "Mirar na Equipe Inimiga" or "Mirar em Todos"
     end)
 
-    -- Minimizar
-    local minimized = false
-    minimizeButton.MouseButton1Click:Connect(function()
-        minimized = not minimized
-        contentFrame.Visible = not minimized
-        minimizeButton.Text = minimized and "+" or "-"
-        mainFrame.Size = minimized and UDim2.new(0, 220, 0, 25) or UDim2.new(0, 220, 0, 180)
+    -- Botão para ativar/desativar mira em NPCs
+    local npcButton = Instance.new("TextButton", frame)
+    npcButton.Size = UDim2.new(1, 0, 0.25, 0)
+    npcButton.Position = UDim2.new(0, 0, 0.81, 0)
+    npcButton.Text = "Mirar em NPCs: Sim"
+    npcButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    npcButton.TextColor3 = Color3.new(1,1,1)
+    npcButton.MouseButton1Click:Connect(function()
+        includeNPCs = not includeNPCs
+        npcButton.Text = "Mirar em NPCs: " .. (includeNPCs and "Sim" or "Não")
     end)
 end
 
@@ -138,19 +102,13 @@ function findClosestPlayer()
     local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
     if not humanoidRootPart then return nil end
 
-    local closestPlayer = nil
+    local closestTarget = nil
     local closestDistance = detectionRadius
 
+    -- Verifica jogadores
     for _, p in ipairs(players:GetPlayers()) do
         if p ~= player and p.Character then
-            local isEnemy = p.Team ~= player.Team
-            local isNPC = p.Team == nil
-
-            if targetMode == "Inimigos" and not isEnemy then
-                continue
-            elseif targetMode == "NPCs" and not isNPC then
-                continue
-            elseif targetMode == "Todos" and p.Team == player.Team then
+            if targetEnemiesOnly and p.Team == player.Team then
                 continue
             end
 
@@ -159,13 +117,30 @@ function findClosestPlayer()
                 local distance = (humanoidRootPart.Position - head.Position).magnitude
                 if distance < closestDistance then
                     closestDistance = distance
-                    closestPlayer = p
+                    closestTarget = p
                 end
             end
         end
     end
 
-    return closestPlayer
+    -- Verifica NPCs se ativado
+    if includeNPCs then
+        for _, npc in ipairs(workspace:GetChildren()) do
+            if npc:IsA("Model") and not players:GetPlayerFromCharacter(npc) then
+                local humanoid = npc:FindFirstChildOfClass("Humanoid")
+                local head = npc:FindFirstChild("Head")
+                if humanoid and head then
+                    local distance = (humanoidRootPart.Position - head.Position).magnitude
+                    if distance < closestDistance then
+                        closestDistance = distance
+                        closestTarget = { Character = npc } -- simula estrutura de player
+                    end
+                end
+            end
+        end
+    end
+
+    return closestTarget
 end
 
 function aimAt(target)
@@ -179,7 +154,6 @@ function aimAt(target)
     end
 end
 
--- Inicialização
 local function onCharacterAdded(character)
     createUI()
 end
@@ -189,7 +163,6 @@ if player.Character then
     onCharacterAdded(player.Character)
 end
 
--- Mira contínua
 runService.RenderStepped:Connect(function()
     local targetPlayer = findClosestPlayer()
     aimAt(targetPlayer)
