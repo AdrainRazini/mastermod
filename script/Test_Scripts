@@ -1,241 +1,165 @@
--- Verificar se já existe um ScreenGui com o nome "AimbotV2"
-local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV2")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 
-if existingScreenGui then
-	return
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TeleportGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
+mainFrame.Position = UDim2.new(0.7, 0, 0.1, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = screenGui
+
+local uiCorner = Instance.new("UICorner", mainFrame)
+uiCorner.CornerRadius = UDim.new(0, 8)
+
+local dragFrame = Instance.new("Frame")
+dragFrame.Size = UDim2.new(1, 0, 0, 30)
+dragFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+dragFrame.BorderSizePixel = 0
+dragFrame.Parent = mainFrame
+
+local dragCorner = Instance.new("UICorner", dragFrame)
+dragCorner.CornerRadius = UDim.new(0, 8)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.Text = "Teleportar para jogador"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.Gotham
+title.TextSize = 14
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = dragFrame
+
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 30, 0, 24)
+minimizeButton.Position = UDim2.new(1, -35, 0.1, 0)
+minimizeButton.Text = "−"
+minimizeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.Font = Enum.Font.GothamBold
+minimizeButton.TextSize = 18
+minimizeButton.BorderSizePixel = 0
+minimizeButton.AutoButtonColor = false
+minimizeButton.Parent = dragFrame
+
+local minimizeCorner = Instance.new("UICorner", minimizeButton)
+minimizeCorner.CornerRadius = UDim.new(0, 6)
+
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, -30)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+scrollingFrame.ScrollBarThickness = 6
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollingFrame.Parent = mainFrame
+
+local uiListLayout = Instance.new("UIListLayout", scrollingFrame)
+uiListLayout.Padding = UDim.new(0, 4)
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Variáveis de controle
+local isActive = true
+local isMinimized = false
+local dragging = false
+local dragStart, startPos
+
+-- Arrasto
+dragFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+-- Minimizar e restaurar
+minimizeButton.MouseButton1Click:Connect(function()
+	isMinimized = not isMinimized
+	scrollingFrame.Visible = not isMinimized
+	minimizeButton.Text = isMinimized and "+" or "−"
+
+	if isMinimized then
+		mainFrame.Size = UDim2.new(0.15, 0, 0, 30)
+	else
+		mainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
+	end
+end)
+
+-- Teleporte
+local function teleportarPara(jogadorAlvo)
+	if jogadorAlvo and jogadorAlvo.Character and jogadorAlvo.Character.PrimaryPart then
+		local alvoPosicao = jogadorAlvo.Character.PrimaryPart.Position + Vector3.new(0, 3, 0)
+		character:SetPrimaryPartCFrame(CFrame.new(alvoPosicao))
+	end
 end
 
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-	Title = "Mastermod";
-	Text = "AimBot V2";
-	Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150",
-	Duration = 16;
-})
+-- Lista de jogadores
+local function atualizarListaDeJogadores()
+	for _, v in ipairs(scrollingFrame:GetChildren()) do
+		if v:IsA("TextButton") then v:Destroy() end
+	end
 
-local player = game.Players.LocalPlayer
-local players = game:GetService("Players")
-local runService = game:GetService("RunService")
-local camera = game.Workspace.CurrentCamera
+	for _, jogador in ipairs(Players:GetPlayers()) do
+		if jogador ~= player then
+			local button = Instance.new("TextButton")
+			button.Size = UDim2.new(1, -10, 0, 40)
+			button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			button.Text = jogador.Name
+			button.Font = Enum.Font.Gotham
+			button.TextSize = 14
+			button.TextColor3 = Color3.new(1, 1, 1)
+			button.BorderSizePixel = 0
+			button.AutoButtonColor = false
 
-local detectionRadius = 50
-local lerpSpeed = 0.1
-local aimEnabled = true
-local targetEnemiesOnly = false
-local includeNPCs = true
+			local buttonCorner = Instance.new("UICorner", button)
+			buttonCorner.CornerRadius = UDim.new(0, 6)
 
-local screenGui
-local dragging, dragInput, dragStart, startPos
+			button.MouseEnter:Connect(function()
+				button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+			end)
+			button.MouseLeave:Connect(function()
+				button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			end)
 
-function makeDraggable(frame)
-	frame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = frame.Position
+			button.Parent = scrollingFrame
 
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
+			button.MouseButton1Click:Connect(function()
+				teleportarPara(jogador)
 			end)
 		end
-	end)
-
-	frame.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			dragInput = input
-		end
-	end)
-
-	game:GetService("UserInputService").InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			local delta = input.Position - dragStart
-			frame.Position = UDim2.new(
-				startPos.X.Scale, startPos.X.Offset + delta.X,
-				startPos.Y.Scale, startPos.Y.Offset + delta.Y
-			)
-		end
-	end)
-end
-
-function createUI()
-	if screenGui then screenGui:Destroy() end
-
-	screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-	screenGui.Name = "AimbotV2"
-	screenGui.ResetOnSpawn = false
-
-	local frame = Instance.new("Frame", screenGui)
-	frame.Size = UDim2.new(0, 230, 0, 260)
-	frame.Position = UDim2.new(0, 20, 0, 20)
-	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-	frame.BackgroundTransparency = 0
-	frame.BorderSizePixel = 0
-	frame.ClipsDescendants = true
-
-	local corner = Instance.new("UICorner", frame)
-	corner.CornerRadius = UDim.new(0, 10)
-
-	makeDraggable(frame)
-
-	-- Título
-	local title = Instance.new("TextLabel", frame)
-	title.Size = UDim2.new(1, -30, 0, 30)
-	title.Position = UDim2.new(0, 10, 0, 5)
-	title.Text = "🎯 Aimbot V2"
-	title.TextColor3 = Color3.new(1, 1, 1)
-	title.BackgroundTransparency = 1
-	title.Font = Enum.Font.SourceSansBold
-	title.TextSize = 20
-	title.TextXAlignment = Enum.TextXAlignment.Left
-
-	-- Botão Minimizar
-	local minimizeBtn = Instance.new("TextButton", frame)
-	minimizeBtn.Size = UDim2.new(0, 20, 0, 20)
-	minimizeBtn.Position = UDim2.new(1, -25, 0, 5)
-	minimizeBtn.Text = "-"
-	minimizeBtn.TextColor3 = Color3.new(1,1,1)
-	minimizeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	minimizeBtn.Font = Enum.Font.SourceSansBold
-	minimizeBtn.TextSize = 18
-
-	local contentVisible = true
-	local function toggleContent()
-		contentVisible = not contentVisible
-		for _, obj in pairs(frame:GetChildren()) do
-			if obj:IsA("GuiObject") and obj ~= title and obj ~= minimizeBtn and obj ~= corner then
-				obj.Visible = contentVisible
-			end
-		end
-		minimizeBtn.Text = contentVisible and "-" or "+"
-		frame.Size = contentVisible and UDim2.new(0, 230, 0, 260) or UDim2.new(0, 230, 0, 35)
 	end
 
-	minimizeBtn.MouseButton1Click:Connect(toggleContent)
+	task.wait()
+	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
+end
 
-	-- Função para criar botões
-	local y = 40
-	local function createButton(text, callback)
-		local btn = Instance.new("TextButton", frame)
-		btn.Size = UDim2.new(1, -20, 0, 30)
-		btn.Position = UDim2.new(0, 10, 0, y)
-		btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-		btn.TextColor3 = Color3.new(1, 1, 1)
-		btn.Text = text
-		btn.Font = Enum.Font.SourceSans
-		btn.TextSize = 16
-		btn.MouseButton1Click:Connect(function()
-			callback(btn)
-		end)
-		y = y + 35
-		return btn
+-- Atualizar lista constantemente
+task.spawn(function()
+	while isActive do
+		atualizarListaDeJogadores()
+		task.wait(1)
 	end
-
-	-- Botões para alternar configurações
-	createButton("Desativar Mira", function(btn)
-		aimEnabled = not aimEnabled
-		btn.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
-	end)
-
-	local distanceBox = Instance.new("TextBox", frame)
-	distanceBox.Size = UDim2.new(1, -20, 0, 30)
-	distanceBox.Position = UDim2.new(0, 10, 0, y)
-	distanceBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-	distanceBox.TextColor3 = Color3.new(1, 1, 1)
-	distanceBox.Text = tostring(detectionRadius)
-	distanceBox.Font = Enum.Font.SourceSans
-	distanceBox.TextSize = 16
-	distanceBox.ClearTextOnFocus = false
-	distanceBox.FocusLost:Connect(function()
-		local newVal = tonumber(distanceBox.Text)
-		if newVal then
-			detectionRadius = math.clamp(newVal, 10, 1000)
-		end
-	end)
-	y = y + 35
-
-	createButton("Mirar em Todos", function(btn)
-		targetEnemiesOnly = not targetEnemiesOnly
-		btn.Text = targetEnemiesOnly and "Mirar na Equipe Inimiga" or "Mirar em Todos"
-	end)
-
-	createButton("Mirar em NPCs: Sim", function(btn)
-		includeNPCs = not includeNPCs
-		btn.Text = "Mirar em NPCs: " .. (includeNPCs and "Sim" or "Não")
-	end)
-end
-
-function findClosestPlayer()
-	if not aimEnabled then return nil end
-
-	local character = player.Character
-	if not character then return nil end
-
-	local hrp = character:FindFirstChild("HumanoidRootPart")
-	if not hrp then return nil end
-
-	local closestTarget = nil
-	local closestDistance = detectionRadius
-
-	-- Procurar jogadores no jogo
-	for _, p in ipairs(players:GetPlayers()) do
-		if p ~= player and p.Character then
-			if targetEnemiesOnly and p.Team == player.Team then continue end
-			local head = p.Character:FindFirstChild("Head")
-			local humanoid = p.Character:FindFirstChildOfClass("Humanoid")
-			if head and humanoid and humanoid.Health > 0 then
-				local distance = (hrp.Position - head.Position).Magnitude
-				if distance < closestDistance then
-					closestDistance = distance
-					closestTarget = p
-				end
-			end
-		end
-	end
-
-	-- Procurar NPCs no workspace e dentro de pastas
-	if includeNPCs then
-		for _, npc in ipairs(workspace:GetDescendants()) do
-			if npc:IsA("Model") and not players:GetPlayerFromCharacter(npc) then
-				local hum = npc:FindFirstChildOfClass("Humanoid")
-				local head = npc:FindFirstChild("Head")
-				if hum and head and hum.Health > 0 then  -- Verificação de saúde maior que 0
-					local distance = (hrp.Position - head.Position).Magnitude
-					if distance < closestDistance then
-						closestDistance = distance
-						closestTarget = { Character = npc }
-					end
-				end
-			end
-		end
-	end
-
-	return closestTarget
-end
-
-
-function aimAt(target)
-	if not aimEnabled or not target or not target.Character then return end
-	local head = target.Character:FindFirstChild("Head")
-	if head then
-		local targetPosition = head.Position
-		local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
-		camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
-	end
-end
-
--- Criar UI e atualizar se o personagem morrer
-local function setupUI()
-	createUI()
-end
-
-player.CharacterAdded:Connect(setupUI)
-
-if player.Character then
-	setupUI()
-end
-
-runService.RenderStepped:Connect(function()
-	local target = findClosestPlayer()
-	aimAt(target)
 end)
