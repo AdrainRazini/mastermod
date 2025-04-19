@@ -1,53 +1,130 @@
 
--- Acessa o jogador local
-local player = game.Players.LocalPlayer
+-- Verificar se já existe um ScreenGui com o nome "AimbotV2"
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV2")
 
--- Cria uma nova ferramenta
-local tool = Instance.new("Tool")
-tool.Name = "Andarnoar"
-tool.RequiresHandle = true
-
--- Cria o objeto Handle da ferramenta
-local handle = Instance.new("Part")
-handle.Name = "Handle"
-handle.Size = Vector3.new(1, 5, 1)  -- Tamanho da ferramenta
-handle.Anchored = false
-handle.CanCollide = false
-handle.BrickColor = BrickColor.new("Bright red")  -- Cor da ferramenta
-handle.Transparency = 1  -- Deixa a ferramenta invisível
-handle.Parent = tool
-
--- Adiciona a ferramenta à mochila do jogador
-tool.Parent = player.Backpack
-
--- Variável para controle do loop
-local isEquipped = false
-
--- Função para criar blocos
-local function createBlock()
-    local block = Instance.new("Part")
-    block.Size = Vector3.new(5, 1, 5)  -- Tamanho do bloco
-    block.Anchored = true
-    block.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 4, 0)  -- Abaixo do jogador
-    block.BrickColor = BrickColor.new("Bright blue")  -- Cor do bloco
-    block.Transparency = 1  -- Deixa o bloco invisível
-    block.Parent = workspace
-    
-    game:GetService("Debris"):AddItem(block, 1)
+-- Se já existir, retorna para evitar a criação do GUI
+if existingScreenGui then
+    return
 end
 
--- Conectar eventos de Equipar e Desequipar
-tool.Equipped:Connect(function()
-    isEquipped = true
-    while isEquipped do
-        createBlock()
-        wait(0.1)  -- Intervalo entre a criação dos blocos
+
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+    Title = "Mastermod";
+    Text = "AimBot V2";
+    Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150"})
+Duration = 16;
+
+local player = game.Players.LocalPlayer
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local teams = game:GetService("Teams")
+local camera = game.Workspace.CurrentCamera
+
+local detectionRadius = 50
+local lerpSpeed = 0.1
+local aimEnabled = true
+local targetEnemiesOnly = false -- Define se deve mirar apenas na equipe inimiga
+
+local screenGui
+
+function createUI()
+    if screenGui then screenGui:Destroy() end
+    
+    screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    screenGui.Name = "AimbotV2"
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 150)
+    frame.Position = UDim2.new(0, 10, 0, 10)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BackgroundTransparency = 0.5
+    
+    -- Botão de ativar/desativar mira
+    local toggleButton = Instance.new("TextButton", frame)
+    toggleButton.Size = UDim2.new(1, 0, 0.3, 0)
+    toggleButton.Position = UDim2.new(0, 0, 0, 0)
+    toggleButton.Text = "Desativar Mira"
+    toggleButton.MouseButton1Click:Connect(function()
+        aimEnabled = not aimEnabled
+        toggleButton.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
+    end)
+    
+    -- Caixa para definir distância
+    local distanceSlider = Instance.new("TextBox", frame)
+    distanceSlider.Size = UDim2.new(1, 0, 0.3, 0)
+    distanceSlider.Position = UDim2.new(0, 0, 0.35, 0)
+    distanceSlider.Text = tostring(detectionRadius)
+    distanceSlider.FocusLost:Connect(function()
+        local newDistance = tonumber(distanceSlider.Text)
+        if newDistance then
+            detectionRadius = math.clamp(newDistance, 10, 200)
+        end
+    end)
+
+    -- Botão para alternar entre todos e inimigos
+    local targetModeButton = Instance.new("TextButton", frame)
+    targetModeButton.Size = UDim2.new(1, 0, 0.3, 0)
+    targetModeButton.Position = UDim2.new(0, 0, 0.7, 0)
+    targetModeButton.Text = "Mirar em Todos"
+    targetModeButton.MouseButton1Click:Connect(function()
+        targetEnemiesOnly = not targetEnemiesOnly
+        targetModeButton.Text = targetEnemiesOnly and "Mirar na Equipe Inimiga" or "Mirar em Todos"
+    end)
+end
+
+function findClosestPlayer()
+    if not aimEnabled then return nil end
+    
+    local character = player.Character
+    if not character then return nil end
+    
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return nil end
+    
+    local closestPlayer = nil
+    local closestDistance = detectionRadius
+
+    for _, p in ipairs(players:GetPlayers()) do
+        if p ~= player and p.Character then
+            -- Se a opção de mirar apenas na equipe inimiga estiver ativada
+            if targetEnemiesOnly and p.Team == player.Team then
+                continue
+            end
+            
+            local head = p.Character:FindFirstChild("Head")
+            if head then
+                local distance = (humanoidRootPart.Position - head.Position).magnitude
+                if distance < closestDistance then
+                    closestDistance = distance
+                    closestPlayer = p
+                end
+            end
+        end
     end
-end)
+    
+    return closestPlayer
+end
 
-tool.Unequipped:Connect(function()
-    isEquipped = false
-end)
+function aimAt(target)
+    if not aimEnabled or not target or not target.Character then return end
+    
+    local head = target.Character:FindFirstChild("Head")
+    if head then
+        local targetPosition = head.Position
+        local cameraLookAt = CFrame.new(camera.CFrame.Position, targetPosition)
+        camera.CFrame = cameraLookAt:Lerp(camera.CFrame, lerpSpeed)
+    end
+end
 
--- Mensagem de confirmação
-print("Ferramenta criada e adicionada à sua mochila!")
+local function onCharacterAdded(character)
+    createUI()
+end
+
+player.CharacterAdded:Connect(onCharacterAdded)
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+
+runService.RenderStepped:Connect(function()
+    local targetPlayer = findClosestPlayer()
+    aimAt(targetPlayer)
+end)
