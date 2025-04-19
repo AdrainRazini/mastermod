@@ -1,29 +1,24 @@
-
 -- Verificar se já existe um ScreenGui com o nome "AimbotV2"
 local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV2")
+if existingScreenGui then return end
 
--- Se já existir, retorna para evitar a criação do GUI
-if existingScreenGui then
-    return
-end
-
-
+-- Notificação de carregamento
 game:GetService("StarterGui"):SetCore("SendNotification", { 
     Title = "Mastermod";
     Text = "AimBot V2";
-    Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150"})
-Duration = 16;
+    Icon = "rbxthumb://type=Asset&id=72684486485553&w=150&h=150",
+    Duration = 16
+})
 
 local player = game.Players.LocalPlayer
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
-local teams = game:GetService("Teams")
 local camera = game.Workspace.CurrentCamera
 
 local detectionRadius = 50
 local lerpSpeed = 0.1
 local aimEnabled = true
-local targetEnemiesOnly = false -- Define se deve mirar apenas na equipe inimiga
+local targetMode = "Todos" -- "Todos", "Inimigos", "NPCs"
 
 local screenGui
 
@@ -67,7 +62,7 @@ function createUI()
     contentFrame.Position = UDim2.new(0, 0, 0, 25)
     contentFrame.BackgroundTransparency = 1
 
-    -- Toggle Mira
+    -- Botão: Ativar/desativar mira
     local toggleButton = Instance.new("TextButton", contentFrame)
     toggleButton.Size = UDim2.new(1, -20, 0, 30)
     toggleButton.Position = UDim2.new(0, 10, 0, 10)
@@ -81,7 +76,7 @@ function createUI()
         toggleButton.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
     end)
 
-    -- Caixa de Distância
+    -- Caixa: Distância da mira
     local distanceSlider = Instance.new("TextBox", contentFrame)
     distanceSlider.Size = UDim2.new(1, -20, 0, 30)
     distanceSlider.Position = UDim2.new(0, 10, 0, 50)
@@ -100,7 +95,7 @@ function createUI()
         end
     end)
 
-    -- Botão de Modo de Mira
+    -- Botão: Alternar modo de mira
     local targetModeButton = Instance.new("TextButton", contentFrame)
     targetModeButton.Size = UDim2.new(1, -20, 0, 30)
     targetModeButton.Position = UDim2.new(0, 10, 0, 90)
@@ -110,11 +105,21 @@ function createUI()
     targetModeButton.Font = Enum.Font.SourceSans
     targetModeButton.TextSize = 16
     targetModeButton.MouseButton1Click:Connect(function()
-        targetEnemiesOnly = not targetEnemiesOnly
-        targetModeButton.Text = targetEnemiesOnly and "Mirar na Equipe Inimiga" or "Mirar em Todos"
+        if targetMode == "Todos" then
+            targetMode = "Inimigos"
+        elseif targetMode == "Inimigos" then
+            targetMode = "NPCs"
+        else
+            targetMode = "Todos"
+        end
+
+        targetModeButton.Text =
+            targetMode == "Todos" and "Mirar em Todos" or
+            targetMode == "Inimigos" and "Mirar na Equipe Inimiga" or
+            "Mirar em NPCs"
     end)
 
-    -- Minimizando conteúdo
+    -- Minimizar
     local minimized = false
     minimizeButton.MouseButton1Click:Connect(function()
         minimized = not minimized
@@ -124,26 +129,31 @@ function createUI()
     end)
 end
 
-
 function findClosestPlayer()
     if not aimEnabled then return nil end
-    
+
     local character = player.Character
     if not character then return nil end
-    
+
     local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
     if not humanoidRootPart then return nil end
-    
+
     local closestPlayer = nil
     local closestDistance = detectionRadius
 
     for _, p in ipairs(players:GetPlayers()) do
         if p ~= player and p.Character then
-            -- Se a opção de mirar apenas na equipe inimiga estiver ativada
-            if targetEnemiesOnly and p.Team == player.Team then
+            local isEnemy = p.Team ~= player.Team
+            local isNPC = p.Team == nil
+
+            if targetMode == "Inimigos" and not isEnemy then
+                continue
+            elseif targetMode == "NPCs" and not isNPC then
+                continue
+            elseif targetMode == "Todos" and p.Team == player.Team then
                 continue
             end
-            
+
             local head = p.Character:FindFirstChild("Head")
             if head then
                 local distance = (humanoidRootPart.Position - head.Position).magnitude
@@ -154,13 +164,13 @@ function findClosestPlayer()
             end
         end
     end
-    
+
     return closestPlayer
 end
 
 function aimAt(target)
     if not aimEnabled or not target or not target.Character then return end
-    
+
     local head = target.Character:FindFirstChild("Head")
     if head then
         local targetPosition = head.Position
@@ -169,6 +179,7 @@ function aimAt(target)
     end
 end
 
+-- Inicialização
 local function onCharacterAdded(character)
     createUI()
 end
@@ -178,6 +189,7 @@ if player.Character then
     onCharacterAdded(player.Character)
 end
 
+-- Mira contínua
 runService.RenderStepped:Connect(function()
     local targetPlayer = findClosestPlayer()
     aimAt(targetPlayer)
