@@ -27,8 +27,10 @@ local screenGui
 local dragging, dragInput, dragStart, startPos
 
 function makeDraggable(frame)
+	local userInputService = game:GetService("UserInputService")
+
 	frame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = frame.Position
@@ -42,12 +44,12 @@ function makeDraggable(frame)
 	end)
 
 	frame.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
 			dragInput = input
 		end
 	end)
 
-	game:GetService("UserInputService").InputChanged:Connect(function(input)
+	userInputService.InputChanged:Connect(function(input)
 		if input == dragInput and dragging then
 			local delta = input.Position - dragStart
 			frame.Position = UDim2.new(
