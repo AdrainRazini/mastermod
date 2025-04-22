@@ -26,6 +26,8 @@ local includeNPCs = true
 local screenGui
 local dragging, dragInput, dragStart, startPos
 
+
+
 function makeDraggable(frame)
 	local userInputService = game:GetService("UserInputService")
 
@@ -90,6 +92,30 @@ function createUI()
 	title.Font = Enum.Font.SourceSansBold
 	title.TextSize = 20
 	title.TextXAlignment = Enum.TextXAlignment.Left
+	
+	-- Bolinha de status
+	local statusDot = Instance.new("Frame", title)
+	statusDot.Size = UDim2.new(0, 10, 0, 10)
+	statusDot.Position = UDim2.new(0, 0, 0.5, -5)
+	title.TextXAlignment = Enum.TextXAlignment.Center
+
+	statusDot.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- vermelho inicial
+	statusDot.BorderSizePixel = 0
+
+	local statusCorner = Instance.new("UICorner", statusDot)
+	statusCorner.CornerRadius = UDim.new(1, 0)
+
+	function updateStatusDotColor(target)
+		if not aimEnabled then
+			statusDot.BackgroundColor3 = Color3.fromRGB(255, 255, 0) -- Amarelo (Desativado)
+		elseif target then
+			statusDot.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Verde (Mirando)
+		else
+			statusDot.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho (Sem alvo)
+		end
+	end
+
+
 
 	-- Botão Minimizar
 	local minimizeBtn = Instance.new("TextButton", frame)
@@ -114,6 +140,8 @@ function createUI()
 	end
 
 	minimizeBtn.MouseButton1Click:Connect(toggleContent)
+
+
 
 	-- Função para criar botões
 	local y = 40
@@ -166,6 +194,8 @@ function createUI()
 		btn.Text = "Mirar em NPCs: " .. (includeNPCs and "Sim" or "Não")
 	end)
 end
+
+
 
 function findClosestPlayer()
 	if not aimEnabled then return nil end
@@ -240,4 +270,5 @@ end
 runService.RenderStepped:Connect(function()
 	local target = findClosestPlayer()
 	aimAt(target)
+	updateStatusDotColor(target)
 end)
