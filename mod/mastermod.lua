@@ -166,13 +166,14 @@ createButton("Jump tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/jumptool.lua"))()
 end)
 
-createButton("Aimbot all", function()
+createButton("Aimbot (BR)", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
 end)
 
-createButton("Aimbot team", function()
+createButton("Aimbot (US)", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotteam"))()
 end)
+
 
 createButton("Speed Boost tool", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/speedtool.lua"))()
