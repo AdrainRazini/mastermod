@@ -1,4 +1,4 @@
--- Verificar se já existe um ScreenGui com o nome "AimbotV2"
+-- Check if a ScreenGui named "AimbotV2" already exists
 local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("AimbotV2")
 
 if existingScreenGui then
@@ -25,8 +25,6 @@ local includeNPCs = true
 
 local screenGui
 local dragging, dragInput, dragStart, startPos
-
-
 
 function makeDraggable(frame)
 	local userInputService = game:GetService("UserInputService")
@@ -82,7 +80,7 @@ function createUI()
 
 	makeDraggable(frame)
 
-	-- Título
+	-- Title
 	local title = Instance.new("TextLabel", frame)
 	title.Size = UDim2.new(1, -30, 0, 30)
 	title.Position = UDim2.new(0, 10, 0, 5)
@@ -93,13 +91,13 @@ function createUI()
 	title.TextSize = 20
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	
-	-- Bolinha de status
+	-- Status dot
 	local statusDot = Instance.new("Frame", title)
 	statusDot.Size = UDim2.new(0, 10, 0, 10)
 	statusDot.Position = UDim2.new(0, 0, 0.5, -5)
 	title.TextXAlignment = Enum.TextXAlignment.Center
 
-	statusDot.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- vermelho inicial
+	statusDot.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- initial red
 	statusDot.BorderSizePixel = 0
 
 	local statusCorner = Instance.new("UICorner", statusDot)
@@ -107,17 +105,15 @@ function createUI()
 
 	function updateStatusDotColor(target)
 		if not aimEnabled then
-			statusDot.BackgroundColor3 = Color3.fromRGB(255, 255, 0) -- Amarelo (Desativado)
+			statusDot.BackgroundColor3 = Color3.fromRGB(255, 255, 0) -- Yellow (Disabled)
 		elseif target then
-			statusDot.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Verde (Mirando)
+			statusDot.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Green (Targeting)
 		else
-			statusDot.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho (Sem alvo)
+			statusDot.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red (No target)
 		end
 	end
 
-
-
-	-- Botão Minimizar
+	-- Minimize button
 	local minimizeBtn = Instance.new("TextButton", frame)
 	minimizeBtn.Size = UDim2.new(0, 20, 0, 20)
 	minimizeBtn.Position = UDim2.new(1, -25, 0, 5)
@@ -141,9 +137,7 @@ function createUI()
 
 	minimizeBtn.MouseButton1Click:Connect(toggleContent)
 
-
-
-	-- Função para criar botões
+	-- Button creation function
 	local y = 40
 	local function createButton(text, callback)
 		local btn = Instance.new("TextButton", frame)
@@ -161,12 +155,13 @@ function createUI()
 		return btn
 	end
 
-	-- Botões para alternar configurações
-	createButton("Desativar Mira", function(btn)
+	-- Toggle aim
+	createButton("Disable Aim", function(btn)
 		aimEnabled = not aimEnabled
-		btn.Text = aimEnabled and "Desativar Mira" or "Ativar Mira"
+		btn.Text = aimEnabled and "Disable Aim" or "Enable Aim"
 	end)
 
+	-- Detection radius input
 	local distanceBox = Instance.new("TextBox", frame)
 	distanceBox.Size = UDim2.new(1, -20, 0, 30)
 	distanceBox.Position = UDim2.new(0, 10, 0, y)
@@ -184,18 +179,18 @@ function createUI()
 	end)
 	y = y + 35
 
-	createButton("Mirar em Todos", function(btn)
+	-- Toggle team targeting
+	createButton("Target Everyone", function(btn)
 		targetEnemiesOnly = not targetEnemiesOnly
-		btn.Text = targetEnemiesOnly and "Mirar na Equipe Inimiga" or "Mirar em Todos"
+		btn.Text = targetEnemiesOnly and "Target Enemies Only" or "Target Everyone"
 	end)
 
-	createButton("Mirar em NPCs: Sim", function(btn)
+	-- Toggle NPCs
+	createButton("Target NPCs: Yes", function(btn)
 		includeNPCs = not includeNPCs
-		btn.Text = "Mirar em NPCs: " .. (includeNPCs and "Sim" or "Não")
+		btn.Text = "Target NPCs: " .. (includeNPCs and "Yes" or "No")
 	end)
 end
-
-
 
 function findClosestPlayer()
 	if not aimEnabled then return nil end
@@ -209,7 +204,7 @@ function findClosestPlayer()
 	local closestTarget = nil
 	local closestDistance = detectionRadius
 
-	-- Procurar jogadores no jogo
+	-- Search players
 	for _, p in ipairs(players:GetPlayers()) do
 		if p ~= player and p.Character then
 			if targetEnemiesOnly and p.Team == player.Team then continue end
@@ -225,13 +220,13 @@ function findClosestPlayer()
 		end
 	end
 
-	-- Procurar NPCs no workspace e dentro de pastas
+	-- Search NPCs
 	if includeNPCs then
 		for _, npc in ipairs(workspace:GetDescendants()) do
 			if npc:IsA("Model") and not players:GetPlayerFromCharacter(npc) then
 				local hum = npc:FindFirstChildOfClass("Humanoid")
 				local head = npc:FindFirstChild("Head")
-				if hum and head and hum.Health > 0 then  -- Verificação de saúde maior que 0
+				if hum and head and hum.Health > 0 then
 					local distance = (hrp.Position - head.Position).Magnitude
 					if distance < closestDistance then
 						closestDistance = distance
@@ -245,7 +240,6 @@ function findClosestPlayer()
 	return closestTarget
 end
 
-
 function aimAt(target)
 	if not aimEnabled or not target or not target.Character then return end
 	local head = target.Character:FindFirstChild("Head")
@@ -256,7 +250,7 @@ function aimAt(target)
 	end
 end
 
--- Criar UI e atualizar se o personagem morrer
+-- Create UI and update when character respawns
 local function setupUI()
 	createUI()
 end

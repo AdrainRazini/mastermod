@@ -231,7 +231,7 @@ function findClosestPlayer()
 			if npc:IsA("Model") and not players:GetPlayerFromCharacter(npc) then
 				local hum = npc:FindFirstChildOfClass("Humanoid")
 				local head = npc:FindFirstChild("Head")
-				if hum and head and hum.Health > 0 then  -- Verificação de saúde maior que 0
+				if hum and head and hum.Health > 0 then  -- Verificação de saúde maior que 0 
 					local distance = (hrp.Position - head.Position).Magnitude
 					if distance < closestDistance then
 						closestDistance = distance
