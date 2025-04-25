@@ -280,6 +280,11 @@ end)
 	createButton("AUTO FARME PRESENTES", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Farmegift"))()
 	end)
+
+		createButton("Abrir Música", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
+	end)
+	
 ]]
 	createButton("Lock Camera", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
@@ -294,9 +299,6 @@ end)
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Parar"))()
 	end)
 
-	createButton("Abrir Música", function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
-	end)
 
 	createButton("Coordenadas", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Local"))()
