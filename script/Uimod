@@ -1,52 +1,92 @@
--- Supondo que você já tenha um ScreenGui criado
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+-- Serviços
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
 
--- Criar a bolinha no centro (mas invisível no começo)
-local centerDot = Instance.new("Frame")
-centerDot.Size = UDim2.new(0, 10, 0, 10) -- Tamanho da bolinha
-centerDot.Position = UDim2.new(0.5, -5, 0.5, -5) -- Centralizado
-centerDot.BackgroundColor3 = Color3.new(1, 0, 0) -- Vermelha
-centerDot.BorderSizePixel = 0
-centerDot.Visible = false
-centerDot.Parent = playerGui:WaitForChild("ScreenGui") -- Muda para seu ScreenGui
+-- Função para criar a interface
+local function createGui()
+	-- Remover antigo se existir
+	if player.PlayerGui:FindFirstChild("CenterAimGui") then
+		player.PlayerGui.CenterAimGui:Destroy()
+	end
 
--- Criar o botão para ativar/desativar
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 150, 0, 50)
-toggleButton.Position = UDim2.new(0, 20, 0, 20)
-toggleButton.Text = "Ativar Mira Central"
-toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleButton.TextColor3 = Color3.new(1,1,1)
-toggleButton.Parent = playerGui:WaitForChild("ScreenGui") -- Muda para seu ScreenGui
+	-- Criar o ScreenGui
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "CenterAimGui"
+	screenGui.ResetOnSpawn = false -- Importante para não sumir se morrer
+	screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Variável de controle
+	-- Criar a bolinha central
+	local centerDot = Instance.new("Frame")
+	centerDot.Name = "CenterDot"
+	centerDot.Size = UDim2.new(0, 8, 0, 8) -- Tamanho bom e par
+	centerDot.AnchorPoint = Vector2.new(0.5, 0.5)
+	centerDot.Position = UDim2.new(0.5, 0, 0.450, 0) -- 100% centralizado
+	centerDot.BackgroundColor3 = Color3.new(1, 0, 0)
+	centerDot.BorderSizePixel = 0
+	centerDot.Visible = false
+	centerDot.Parent = screenGui
+
+	local centerDotCorner = Instance.new("UICorner")
+	centerDotCorner.CornerRadius = UDim.new(1, 0) -- Bolinha perfeita
+	centerDotCorner.Parent = centerDot
+
+	-- Criar o botão de ativar/desativar
+	local toggleButton = Instance.new("TextButton")
+	toggleButton.Name = "ToggleButton"
+	toggleButton.Size = UDim2.new(0, 160, 0, 50)
+	toggleButton.Position = UDim2.new(0, 20, 0, 20)
+	toggleButton.Text = "Ativar Mira Central"
+	toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	toggleButton.TextColor3 = Color3.new(1, 1, 1)
+	toggleButton.Font = Enum.Font.SourceSansBold
+	toggleButton.TextSize = 20
+	toggleButton.Parent = screenGui
+
+	local buttonCorner = Instance.new("UICorner")
+	buttonCorner.CornerRadius = UDim.new(0, 8)
+	buttonCorner.Parent = toggleButton
+
+	return screenGui, centerDot, toggleButton
+end
+
+-- Controle de estado
 local aimingActive = false
 
--- Quando clicar no botão
-toggleButton.MouseButton1Click:Connect(function()
-    aimingActive = not aimingActive
-    centerDot.Visible = aimingActive
-    if aimingActive then
-        toggleButton.Text = "Desativar Mira Central"
-    else
-        toggleButton.Text = "Ativar Mira Central"
-    end
+-- Criar a GUI
+local screenGui, centerDot, toggleButton = createGui()
+
+-- Função para conectar eventos
+local function connectEvents()
+	-- Botão de ativar/desativar
+	toggleButton.MouseButton1Click:Connect(function()
+		aimingActive = not aimingActive
+		centerDot.Visible = aimingActive
+		if aimingActive then
+			toggleButton.Text = "Desativar Mira Central"
+		else
+			toggleButton.Text = "Ativar Mira Central"
+		end
+	end)
+end
+
+connectEvents()
+
+-- Capturar cliques ou toques
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if aimingActive and not gameProcessed then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			-- Ações de clique ou toque no centro
+			print("Clique ou toque redirecionado para o centro!")
+			-- Aqui você pode chamar uma função que atire, interaja, etc.
+		end
+	end
 end)
 
--- Capturar cliques e redirecionar para o centro
-local UserInputService = game:GetService("UserInputService")
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if aimingActive and input.UserInputType == Enum.UserInputType.MouseButton1 then
-        -- Simular um toque/click no centro
-        local mouse = player:GetMouse()
-        
-        -- Mover o mouse para o centro (visual), mas em Roblox não dá para mexer no mouse nativo,
-        -- então o que podemos fazer é mandar eventos ou criar ações no centro
-        
-        -- Exemplo: chamar alguma função simulando que clicou no centro
-        print("Clique redirecionado para o centro!")
-        
-        -- Aqui você pode chamar sua função de disparo, aim ou outra coisa usando a posição do centro
-    end
+-- Se o jogador morrer, recriar a interface
+player.CharacterAdded:Connect(function()
+	task.wait(1) -- Espera PlayerGui carregar
+	screenGui, centerDot, toggleButton = createGui()
+	connectEvents()
+	aimingActive = false
 end)
