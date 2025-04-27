@@ -52,11 +52,34 @@ end
 local aimingActive = false
 local screenGui, centerDot, toggleButton = createGui()
 
--- Função que "simula" o clique no centro
+local camera = workspace.CurrentCamera
+
+-- Função que "simula" o clique no centro DE VERDADE
 local function fireCenterClick()
-    print("🔴 Simulando clique no centro!")
-    -- AQUI você chama qualquer função que precise ser executada
+    -- Pega o centro da tela
+    local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+
+    -- Cria um Raycast do centro da câmera
+    local rayOrigin = camera.CFrame.Position
+    local rayDirection = (camera:ScreenPointToRay(screenCenter.X, screenCenter.Y)).Direction * 500 -- distância do raio
+
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterDescendantsInstances = {player.Character} -- ignora o próprio jogador
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+    local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+
+    if result then
+        print("🎯 Acertou:", result.Instance:GetFullName())
+
+        -- Se quiser, pode fazer algo no objeto:
+        -- Exemplo: destruir o objeto atingido
+        -- result.Instance:Destroy()
+    else
+        print("💨 Não acertou nada!")
+    end
 end
+
 
 -- Conectar eventos
 local function connectEvents()
