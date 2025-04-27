@@ -381,6 +381,7 @@ end)
 	local scripts = {
 		{name = "Supremo_Visor", path = "visor.lua"},
 		{name = "Tests_Mods_New", path = "Test_Scripts"},
+		{name= "Test_ui", path = "Uimod"}
 	}
 
 	for _, script in ipairs(scripts) do

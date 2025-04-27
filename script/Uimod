@@ -1,0 +1,52 @@
+-- Supondo que você já tenha um ScreenGui criado
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Criar a bolinha no centro (mas invisível no começo)
+local centerDot = Instance.new("Frame")
+centerDot.Size = UDim2.new(0, 10, 0, 10) -- Tamanho da bolinha
+centerDot.Position = UDim2.new(0.5, -5, 0.5, -5) -- Centralizado
+centerDot.BackgroundColor3 = Color3.new(1, 0, 0) -- Vermelha
+centerDot.BorderSizePixel = 0
+centerDot.Visible = false
+centerDot.Parent = playerGui:WaitForChild("ScreenGui") -- Muda para seu ScreenGui
+
+-- Criar o botão para ativar/desativar
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 150, 0, 50)
+toggleButton.Position = UDim2.new(0, 20, 0, 20)
+toggleButton.Text = "Ativar Mira Central"
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleButton.TextColor3 = Color3.new(1,1,1)
+toggleButton.Parent = playerGui:WaitForChild("ScreenGui") -- Muda para seu ScreenGui
+
+-- Variável de controle
+local aimingActive = false
+
+-- Quando clicar no botão
+toggleButton.MouseButton1Click:Connect(function()
+    aimingActive = not aimingActive
+    centerDot.Visible = aimingActive
+    if aimingActive then
+        toggleButton.Text = "Desativar Mira Central"
+    else
+        toggleButton.Text = "Ativar Mira Central"
+    end
+end)
+
+-- Capturar cliques e redirecionar para o centro
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if aimingActive and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        -- Simular um toque/click no centro
+        local mouse = player:GetMouse()
+        
+        -- Mover o mouse para o centro (visual), mas em Roblox não dá para mexer no mouse nativo,
+        -- então o que podemos fazer é mandar eventos ou criar ações no centro
+        
+        -- Exemplo: chamar alguma função simulando que clicou no centro
+        print("Clique redirecionado para o centro!")
+        
+        -- Aqui você pode chamar sua função de disparo, aim ou outra coisa usando a posição do centro
+    end
+end)
