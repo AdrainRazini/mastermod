@@ -5,88 +5,87 @@ local player = Players.LocalPlayer
 
 -- Função para criar a interface
 local function createGui()
-	-- Remover antigo se existir
-	if player.PlayerGui:FindFirstChild("CenterAimGui") then
-		player.PlayerGui.CenterAimGui:Destroy()
-	end
+    if player.PlayerGui:FindFirstChild("CenterAimGui") then
+        player.PlayerGui.CenterAimGui:Destroy()
+    end
 
-	-- Criar o ScreenGui
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "CenterAimGui"
-	screenGui.ResetOnSpawn = false -- Importante para não sumir se morrer
-	screenGui.Parent = player:WaitForChild("PlayerGui")
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "CenterAimGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = player:WaitForChild("PlayerGui")
 
-	-- Criar a bolinha central
-	local centerDot = Instance.new("Frame")
-	centerDot.Name = "CenterDot"
-	centerDot.Size = UDim2.new(0, 8, 0, 8) -- Tamanho bom e par
-	centerDot.AnchorPoint = Vector2.new(0.5, 0.5)
-	centerDot.Position = UDim2.new(0.5, 0, 0.450, 0) -- 100% centralizado
-	centerDot.BackgroundColor3 = Color3.new(1, 0, 0)
-	centerDot.BorderSizePixel = 0
-	centerDot.Visible = false
-	centerDot.Parent = screenGui
+    -- Bolinha central
+    local centerDot = Instance.new("Frame")
+    centerDot.Name = "CenterDot"
+    centerDot.Size = UDim2.new(0, 5, 0, 5)
+    centerDot.AnchorPoint = Vector2.new(0.5, 0.5)
+    centerDot.Position = UDim2.new(0.5, 0, 0.450, 0)
+    centerDot.BackgroundColor3 = Color3.new(1, 0, 0)
+    centerDot.BorderSizePixel = 0
+    centerDot.Visible = false
+    centerDot.Parent = screenGui
 
-	local centerDotCorner = Instance.new("UICorner")
-	centerDotCorner.CornerRadius = UDim.new(1, 0) -- Bolinha perfeita
-	centerDotCorner.Parent = centerDot
+    local centerDotCorner = Instance.new("UICorner")
+    centerDotCorner.CornerRadius = UDim.new(1, 0)
+    centerDotCorner.Parent = centerDot
 
-	-- Criar o botão de ativar/desativar
-	local toggleButton = Instance.new("TextButton")
-	toggleButton.Name = "ToggleButton"
-	toggleButton.Size = UDim2.new(0, 160, 0, 50)
-	toggleButton.Position = UDim2.new(0, 20, 0, 20)
-	toggleButton.Text = "Ativar Mira Central"
-	toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	toggleButton.TextColor3 = Color3.new(1, 1, 1)
-	toggleButton.Font = Enum.Font.SourceSansBold
-	toggleButton.TextSize = 20
-	toggleButton.Parent = screenGui
+    -- Botão
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Name = "ToggleButton"
+    toggleButton.Size = UDim2.new(0, 160, 0, 50)
+    toggleButton.Position = UDim2.new(0, 20, 0, 20)
+    toggleButton.Text = "Ativar Mira Central"
+    toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    toggleButton.TextColor3 = Color3.new(1, 1, 1)
+    toggleButton.Font = Enum.Font.SourceSansBold
+    toggleButton.TextSize = 20
+    toggleButton.Parent = screenGui
 
-	local buttonCorner = Instance.new("UICorner")
-	buttonCorner.CornerRadius = UDim.new(0, 8)
-	buttonCorner.Parent = toggleButton
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 8)
+    buttonCorner.Parent = toggleButton
 
-	return screenGui, centerDot, toggleButton
+    return screenGui, centerDot, toggleButton
 end
 
--- Controle de estado
+-- Controle
 local aimingActive = false
-
--- Criar a GUI
 local screenGui, centerDot, toggleButton = createGui()
 
--- Função para conectar eventos
+-- Função que "simula" o clique no centro
+local function fireCenterClick()
+    print("🔴 Simulando clique no centro!")
+    -- AQUI você chama qualquer função que precise ser executada
+end
+
+-- Conectar eventos
 local function connectEvents()
-	-- Botão de ativar/desativar
-	toggleButton.MouseButton1Click:Connect(function()
-		aimingActive = not aimingActive
-		centerDot.Visible = aimingActive
-		if aimingActive then
-			toggleButton.Text = "Desativar Mira Central"
-		else
-			toggleButton.Text = "Ativar Mira Central"
-		end
-	end)
+    toggleButton.MouseButton1Click:Connect(function()
+        aimingActive = not aimingActive
+        centerDot.Visible = aimingActive
+        if aimingActive then
+            toggleButton.Text = "Desativar Mira Central"
+        else
+            toggleButton.Text = "Ativar Mira Central"
+        end
+    end)
 end
 
 connectEvents()
 
--- Capturar cliques ou toques
+-- Capturar toques ou cliques
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if aimingActive and not gameProcessed then
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			-- Ações de clique ou toque no centro
-			print("Clique ou toque redirecionado para o centro!")
-			-- Aqui você pode chamar uma função que atire, interaja, etc.
-		end
-	end
+    if aimingActive and not gameProcessed then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            fireCenterClick()
+        end
+    end
 end)
 
--- Se o jogador morrer, recriar a interface
+-- Se morrer recria
 player.CharacterAdded:Connect(function()
-	task.wait(1) -- Espera PlayerGui carregar
-	screenGui, centerDot, toggleButton = createGui()
-	connectEvents()
-	aimingActive = false
+    task.wait(1)
+    screenGui, centerDot, toggleButton = createGui()
+    connectEvents()
+    aimingActive = false
 end)
