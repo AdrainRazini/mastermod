@@ -1,6 +1,7 @@
 -- Ferramenta de Aumento de Salto
 local tool = Instance.new("Tool")
 tool.Name = "JumpBoostTool"
+tool.TextureId = "rbxassetid://88717978810010"
 tool.RequiresHandle = true
 
 local handle = Instance.new("Part")
