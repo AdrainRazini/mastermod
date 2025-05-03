@@ -5,6 +5,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 -- Cria uma nova ferramenta
 local tool = Instance.new("Tool")
 tool.Name = "velocidade"
+tool.TextureId = "rbxassetid://110030373197906"
 tool.RequiresHandle = true
 
 -- Cria o objeto Handle da ferramenta
