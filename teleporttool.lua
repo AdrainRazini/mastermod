@@ -2,6 +2,7 @@ local player = game.Players.LocalPlayer
 
 local tool = Instance.new("Tool")
 tool.Name = "Teleport"
+tool.TextureId = "rbxassetid://106846423450104"
 tool.RequiresHandle = true
 
 local handle = Instance.new("Part")
