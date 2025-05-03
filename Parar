@@ -4,6 +4,7 @@ local player = game.Players.LocalPlayer
 -- Cria uma nova ferramenta
 local tool = Instance.new("Tool")
 tool.Name = "Ferramenta de Flutuação"
+tool.TextureId = "rbxassetid://102475995935421"
 tool.RequiresHandle = true
 
 -- Cria o objeto Handle da ferramenta

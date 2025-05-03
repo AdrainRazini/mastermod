@@ -4,6 +4,7 @@ local player = game.Players.LocalPlayer
 -- Cria uma nova ferramenta
 local tool = Instance.new("Tool")
 tool.Name = "Andarnoar"
+tool.TextureId = "rbxassetid://96114814290981"
 tool.RequiresHandle = true
 
 -- Cria o objeto Handle da ferramenta
