@@ -3,11 +3,9 @@ local Player = game.Players.LocalPlayer
 local idioma = Player.LocaleId
 local plr_gui = script.Parent
 
-
-local Traductor = require(game.ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Traductor"))
 -- local translations = Traductor.translations
 
-local buttonTranslations = {
+local translations = {
 	["INVENTÁRIO"] = {
 		["pt-br"] = "INVENTÁRIO",
 		["en-us"] = "INVENTORY",
