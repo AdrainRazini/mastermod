@@ -1,0 +1,258 @@
+-- Tradutor manual
+local Player = game.Players.LocalPlayer
+local idioma = Player.LocaleId
+local plr_gui = script.Parent
+
+
+local Traductor = require(game.ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Traductor"))
+-- local translations = Traductor.translations
+
+local buttonTranslations = {
+	["INVENTÁRIO"] = {
+		["pt-br"] = "INVENTÁRIO",
+		["en-us"] = "INVENTORY",
+		["es-es"] = "INVENTARIO"
+	},
+	["HD ADMIN"] = {
+		["pt-br"] = "HD ADMIN",
+		["en-us"] = "HD ADMIN",
+		["es-es"] = "HD ADMIN"
+	},
+	["Keyboard"] = {
+		["pt-br"] = "Teclado",
+		["en-us"] = "Keyboard",
+		["es-es"] = "Teclado"
+	},
+	["Aimbot (BR)"] = {
+		["pt-br"] = "Aimbot (BR)",
+		["en-us"] = "Aimbot (BR)",
+		["es-es"] = "Aimbot (BR)"
+	},
+	["Aimbot (US)"] = {
+		["pt-br"] = "Aimbot (US)",
+		["en-us"] = "Aimbot (US)",
+		["es-es"] = "Aimbot (US)"
+	},
+	["Clone item"] = {
+		["pt-br"] = "Clonar item",
+		["en-us"] = "Clone item",
+		["es-es"] = "Clonar objeto"
+	},
+	["DELETAR"] = {
+		["pt-br"] = "DELETAR",
+		["en-us"] = "DELETE",
+		["es-es"] = "ELIMINAR"
+	},
+	["VOAR NO CÉU"] = {
+		["pt-br"] = "VOAR NO CÉU",
+		["en-us"] = "FLY IN SKY",
+		["es-es"] = "VOLAR EN EL CIELO"
+	},
+	["Ativar guis"] = {
+		["pt-br"] = "Ativar guis",
+		["en-us"] = "Activate GUIs",
+		["es-es"] = "Activar GUIs"
+	},
+	["Lock Camera"] = {
+		["pt-br"] = "Travar Câmera",
+		["en-us"] = "Lock Camera",
+		["es-es"] = "Bloquear Cámara"
+	},
+	["ESP"] = {
+		["pt-br"] = "ESP",
+		["en-us"] = "ESP",
+		["es-es"] = "ESP"
+	},
+	["Lock Air"] = {
+		["pt-br"] = "Travar no Ar",
+		["en-us"] = "Lock Air",
+		["es-es"] = "Bloquear Aire"
+	},
+	["Coordenadas"] = {
+		["pt-br"] = "Coordenadas",
+		["en-us"] = "Coordinates",
+		["es-es"] = "Coordenadas"
+	},
+	["Tp coordenadas"] = {
+		["pt-br"] = "Tp coordenadas",
+		["en-us"] = "Tp coordinates",
+		["es-es"] = "Tp coordenadas"
+	},
+	["Hitboxtool"] = {
+		["pt-br"] = "Ferramenta Hitbox",
+		["en-us"] = "Hitbox Tool",
+		["es-es"] = "Herramienta Hitbox"
+	},
+	["Hitboxtoolv2"] = {
+		["pt-br"] = "Hitbox Ferramenta V2",
+		["en-us"] = "Hitbox Tool V2",
+		["es-es"] = "Herramienta Hitbox V2"
+	},
+	["Block air tool"] = {
+		["pt-br"] = "Ferramenta Bloquear Ar",
+		["en-us"] = "Block Air Tool",
+		["es-es"] = "Herramienta Bloquear Aire"
+	},
+	["Dash"] = {
+		["pt-br"] = "Dash",
+		["en-us"] = "Dash",
+		["es-es"] = "Impulso"
+	},
+	["Dash V2"] = {
+		["pt-br"] = "Dash V2",
+		["en-us"] = "Dash V2",
+		["es-es"] = "Impulso V2"
+	},
+	["Fly tool"] = {
+		["pt-br"] = "Ferramenta de Voo",
+		["en-us"] = "Fly Tool",
+		["es-es"] = "Herramienta de Vuelo"
+	},
+	["Jump tool"] = {
+		["pt-br"] = "Ferramenta de Pulo",
+		["en-us"] = "Jump Tool",
+		["es-es"] = "Herramienta de Salto"
+	},
+	["Speed Boost tool"] = {
+		["pt-br"] = "Aumento de Velocidade",
+		["en-us"] = "Speed Boost Tool",
+		["es-es"] = "Aumento de Velocidad"
+	},
+	["Teleport tool"] = {
+		["pt-br"] = "Ferramenta de Teleporte",
+		["en-us"] = "Teleport Tool",
+		["es-es"] = "Herramienta de Teletransporte"
+	},
+	["Tp Players"] = {
+		["pt-br"] = "Tp Jogadores",
+		["en-us"] = "Tp Players",
+		["es-es"] = "Tp Jugadores"
+	},
+	["TpV2"] = {
+		["pt-br"] = "Tp V2",
+		["en-us"] = "Tp V2",
+		["es-es"] = "Tp V2"
+	},
+	["Tpv3"] = {
+		["pt-br"] = "Tp V3",
+		["en-us"] = "Tp V3",
+		["es-es"] = "Tp V3"
+	},
+	["Visor Objetos"] = {
+		["pt-br"] = "Visor de Objetos",
+		["en-us"] = "Object Viewer",
+		["es-es"] = "Visor de Objetos"
+	},
+	["Ultra Visor"] = {
+		["pt-br"] = "Visor Ultra",
+		["en-us"] = "Ultra Viewer",
+		["es-es"] = "Visor Ultra"
+	},
+	["Linhas"] = {
+		["pt-br"] = "Linhas",
+		["en-us"] = "Lines",
+		["es-es"] = "Líneas"
+	},
+	["Auto"] = {
+		["pt-br"] = "Automático",
+		["en-us"] = "Auto",
+		["es-es"] = "Auto"
+	},
+	["Menu"] = {
+		["pt-br"] = "Menu",
+		["en-us"] = "Menu",
+		["es-es"] = "Menú"
+	},
+	["Supremo_Visor"] = {
+		["pt-br"] = "Visor Supremo",
+		["en-us"] = "Supreme Viewer",
+		["es-es"] = "Visor Supremo"
+	},
+	["Tests_Mods_New"] = {
+		["pt-br"] = "Testes de Novos Mods",
+		["en-us"] = "New Mods Tests",
+		["es-es"] = "Nuevas Pruebas de Mods"
+	},
+	["Test_ui"] = {
+		["pt-br"] = "Teste UI",
+		["en-us"] = "UI Test",
+		["es-es"] = "Prueba UI"
+	}
+}
+
+
+
+-- Função de tradução
+local function translateElement(element, key)
+	local translationData = translations[key]
+	if not translationData then return end
+
+	local translatedText = translationData[idioma]
+	if not translatedText then
+		local langCode = string.split(idioma, "-")[1]
+		translatedText = translationData[langCode] or translationData["en-us"]
+	end
+
+	if element:IsA("TextLabel") or element:IsA("TextButton") or element:IsA("TextBox") then
+		element.Text = translatedText
+	end
+end
+
+-- Traduz um único elemento, usando seu nome como chave se possível
+local function translateIfPossible(element)
+	if element:IsA("TextLabel") or element:IsA("TextButton") or element:IsA("TextBox") then
+		local key = element.Name
+		if translations[key] then
+			translateElement(element, key)
+		elseif translations[element.Text] then
+			translateElement(element, element.Text)
+		end
+	end
+end
+
+-- Traduz toda a GUI recursivamente
+local function translateAll(gui)
+	for _, child in pairs(gui:GetDescendants()) do
+		translateIfPossible(child)
+	end
+end
+
+-- Observa elementos adicionados dinamicamente e traduz se necessário
+local function monitorDynamicElements(gui)
+	gui.DescendantAdded:Connect(function(descendant)
+		task.wait() -- esperar um frame, caso a propriedade Text seja aplicada depois
+		translateIfPossible(descendant)
+	end)
+end
+
+-- Reaplicar tudo se idioma mudar
+Player:GetPropertyChangedSignal("LocaleId"):Connect(function()
+	idioma = Player.LocaleId
+	translateAll(plr_gui)
+end)
+
+-- Execução inicial
+translateAll(plr_gui)
+monitorDynamicElements(plr_gui)
+
+print("[Tradutor] Idioma atual:", idioma)
+
+-- Reaplicar tudo se idioma mudar
+Player:GetPropertyChangedSignal("LocaleId"):Connect(function()
+	idioma = Player.LocaleId
+	translateAll(plr_gui)
+end)
+
+-- Execução inicial
+translateAll(plr_gui)
+monitorDynamicElements(plr_gui)
+
+print("[Tradutor] Idioma atual:", idioma)
+
+-- Atualização periódica a cada 1 segundo
+task.spawn(function()
+	while true do
+		task.wait(1)
+		translateAll(plr_gui)
+	end
+end)
