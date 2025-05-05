@@ -198,14 +198,16 @@ end
 -- Traduz um único elemento, usando seu nome como chave se possível
 local function translateIfPossible(element)
 	if element:IsA("TextLabel") or element:IsA("TextButton") or element:IsA("TextBox") then
-		local key = element.Name
-		if translations[key] then
-			translateElement(element, key)
-		elseif translations[element.Text] then
+		-- Primeiro tenta usar o texto atual, que pode conter espaços
+		if translations[element.Text] then
 			translateElement(element, element.Text)
+		-- Se não encontrar, tenta pelo nome do elemento (caso tenha sido nomeado com a chave correta)
+		elseif translations[element.Name] then
+			translateElement(element, element.Name)
 		end
 	end
 end
+
 
 -- Traduz toda a GUI recursivamente
 local function translateAll(gui)
