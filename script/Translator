@@ -3,7 +3,6 @@ local Player = game.Players.LocalPlayer
 local idioma = Player.LocaleId
 local plr_gui = script.Parent
 
--- local translations = Traductor.translations
 
 local translations = {
 	["INVENTÁRIO"] = {
