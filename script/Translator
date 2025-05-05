@@ -249,7 +249,7 @@ print("[Tradutor] Idioma atual:", idioma)
 -- Atualização periódica a cada 1 segundo
 task.spawn(function()
 	while true do
-		task.wait(1)
+		task.wait(0.5)
 		translateAll(plr_gui)
 	end
 end)
