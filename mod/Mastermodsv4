@@ -254,13 +254,7 @@ function criar_Gui_Frame()
 		loadstring(game:HttpGet(url))()
 	end
 
-	-- Exemplo de uso:
-	createButton("INVENTÁRIO", function()
-		carregarScript("inventario.lua")
-	end)
-
-
-	-- Exemplo de uso:
+	-- Exemplo de uso:  Nova função do Carregamento de urls
 	createButton("INVENTÁRIO_Test", function()
 		carregarScript("inventario.lua")
 	end)
@@ -415,7 +409,6 @@ function criar_Gui_Frame()
 		{name = "Supremo_Visor", path = "visor.lua"},
 		{name = "Tests_Mods_New", path = "Test_Scripts"},
 		{name= "Test_ui", path = "Uimod"}, 
-		{name= "Translator", path = "Translator"},
 	}
 
 	for _, script in ipairs(scripts) do
