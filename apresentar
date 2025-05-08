@@ -81,16 +81,13 @@ local function createGUI()
 
 	-- Função para executar o script remoto
 	-- Função para executar o script remoto com segurança
-	local function executarScript()
-		local success, err = pcall(function()
-			local scriptUrl = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/mod/Mastermods"
-			loadstring(game:HttpGet(scriptUrl))()
-		end)
-
-		if not success then
-			warn("Erro ao executar script remoto:", err)
-		end
-	end
+	  -- Função para executar o script remoto
+    local function executarScript()
+        -- Substitua a URL pelo script que você quer carregar
+        local scriptUrl = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/mod/Mastermods"
+        -- Executa o script remoto
+        loadstring(game:HttpGet(scriptUrl))()
+    end
 
 	-- Animação da barra de loading
 	local function animateLoading()
