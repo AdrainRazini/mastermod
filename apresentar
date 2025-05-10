@@ -166,7 +166,9 @@ local function createGUI()
         -- Substitua a URL pelo script que você quer carregar
         local scriptUrl = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/mod/Mastermods"
         -- Executa o script remoto
-        loadstring(game:HttpGet(scriptUrl))()
+       -- loadstring(game:HttpGet(scriptUrl))()
+
+	   loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/mod/Mastermods"))()
     end
 
     -- Função de animação de loading
