@@ -1,3 +1,4 @@
+--[[
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
@@ -116,10 +117,9 @@ player.CharacterAdded:Connect(function()
 end)
 
 createGUI()
+]]
 
 
-
---[[
 --Codigo Antigo
 
 local player = game.Players.LocalPlayer
@@ -203,4 +203,3 @@ end)
 
 -- Cria a GUI inicialmente
 createGUI()
-]]
