@@ -379,6 +379,7 @@ end)
 
 	-- Carregar scripts do GitHub
 	local scripts = {
+                {name = "Farme_Chest", path = "Farme_Chest"},
 		{name = "Supremo_Visor", path = "visor.lua"},
 		{name = "Tests_Mods_New", path = "Test_Scripts"},
 		{name= "Test_ui", path = "Uimod"}, 
