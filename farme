@@ -1,0 +1,224 @@
+local player = game.Players.LocalPlayer
+if not player or not player.UserId then
+	warn("Usuário inválido ou UserId ausente.")
+	return
+end
+
+local chestFolder = workspace:FindFirstChild("ChestFolder") or workspace:FindFirstChild("chestfolder")
+if not chestFolder then
+	warn("Pasta ChestFolder ou chestfolder não encontrada!")
+	return
+end
+
+-- GUI
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "ChestTeleportGui"
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 320, 0, 380)
+frame.Position = UDim2.new(0, 100, 0, 100)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+-- Título
+local titleBar = Instance.new("Frame", frame)
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 8)
+
+local title = Instance.new("TextLabel", titleBar)
+title.Size = UDim2.new(1, -90, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Teleporte para Baús"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextColor3 = Color3.new(1,1,1)
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+local minimizeBtn = Instance.new("TextButton", titleBar)
+minimizeBtn.Size = UDim2.new(0, 40, 1, 0)
+minimizeBtn.Position = UDim2.new(1, -45, 0, 0)
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+minimizeBtn.Text = "-"
+minimizeBtn.Font = Enum.Font.GothamBold
+minimizeBtn.TextSize = 24
+minimizeBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(0, 6)
+
+-- Log visual de erro
+local logMsg = Instance.new("TextLabel", frame)
+logMsg.Size = UDim2.new(1, -20, 0, 18)
+logMsg.Position = UDim2.new(0, 10, 1, -20)
+logMsg.BackgroundTransparency = 1
+logMsg.TextColor3 = Color3.fromRGB(255, 100, 100)
+logMsg.Font = Enum.Font.Gotham
+logMsg.TextSize = 14
+logMsg.Text = ""
+logMsg.TextXAlignment = Enum.TextXAlignment.Left
+
+local function mostrarErro(msg)
+	logMsg.Text = msg
+	delay(5, function() logMsg.Text = "" end)
+end
+
+-- Minimizar
+local minimized = false
+minimizeBtn.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	for _, child in ipairs(frame:GetChildren()) do
+		if child ~= titleBar and child:IsA("GuiObject") and child ~= logMsg then
+			child.Visible = not minimized
+		end
+	end
+	frame.Size = minimized and UDim2.new(0, 320, 0, 30) or UDim2.new(0, 320, 0, 380)
+	minimizeBtn.Text = minimized and "+" or "-"
+end)
+
+-- Tempo
+local timeLabel = Instance.new("TextLabel", frame)
+timeLabel.Size = UDim2.new(0, 150, 0, 25)
+timeLabel.Position = UDim2.new(0, 10, 0, 30)
+timeLabel.BackgroundTransparency = 1
+timeLabel.TextColor3 = Color3.new(1,1,1)
+timeLabel.Text = "Intervalo (segundos):"
+timeLabel.Font = Enum.Font.Gotham
+timeLabel.TextSize = 14
+timeLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local timeBox = Instance.new("TextBox", frame)
+timeBox.Size = UDim2.new(0, 80, 0, 25)
+timeBox.Position = UDim2.new(0, 170, 0, 30)
+timeBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+timeBox.TextColor3 = Color3.new(1,1,1)
+timeBox.Text = "10"
+timeBox.Font = Enum.Font.Gotham
+timeBox.TextSize = 14
+timeBox.ClearTextOnFocus = false
+Instance.new("UICorner", timeBox).CornerRadius = UDim.new(0, 6)
+
+-- Lista
+local scrollFrame = Instance.new("ScrollingFrame", frame)
+scrollFrame.Size = UDim2.new(1, -20, 0, 280)
+scrollFrame.Position = UDim2.new(0, 10, 0, 60)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+scrollFrame.ScrollBarThickness = 6
+Instance.new("UICorner", scrollFrame).CornerRadius = UDim.new(0, 6)
+
+local listLayout = Instance.new("UIListLayout", scrollFrame)
+listLayout.Padding = UDim.new(0, 6)
+listLayout.SortOrder = Enum.SortOrder.Name
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
+end)
+
+-- Lógica dos baús
+local chestModels = {}
+local selectedModel
+local function limparLista()
+	for _, child in ipairs(scrollFrame:GetChildren()) do
+		if child:IsA("TextButton") then child:Destroy() end
+	end
+end
+
+local function atualizarListaModelos()
+	if not chestFolder or not chestFolder:IsA("Folder") then
+		mostrarErro("ChestFolder foi removido.")
+		return
+	end
+
+	limparLista()
+	chestModels = {}
+	for _, modelo in pairs(chestFolder:GetChildren()) do
+		if modelo:IsA("Model") then
+			if not modelo.PrimaryPart then
+				modelo.PrimaryPart = modelo:FindFirstChildWhichIsA("BasePart")
+			end
+			if modelo.PrimaryPart then
+				table.insert(chestModels, modelo)
+
+				local btn = Instance.new("TextButton")
+				btn.Size = UDim2.new(1, 0, 0, 40)
+				btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+				btn.TextColor3 = Color3.new(1,1,1)
+				btn.Font = Enum.Font.Gotham
+				btn.TextSize = 16
+				btn.Text = modelo.Name
+				btn.Parent = scrollFrame
+				Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
+				btn.MouseButton1Click:Connect(function()
+					local char = player.Character
+					if char and char:FindFirstChild("HumanoidRootPart") then
+						char:SetPrimaryPartCFrame(modelo.PrimaryPart.CFrame + Vector3.new(0, 5, 0))
+						selectedModel = modelo
+					else
+						mostrarErro("HumanoidRootPart não disponível.")
+					end
+				end)
+			end
+		end
+	end
+end
+
+chestFolder.ChildAdded:Connect(atualizarListaModelos)
+chestFolder.ChildRemoved:Connect(atualizarListaModelos)
+atualizarListaModelos()
+
+-- Auto Teleporte
+local autoTeleportActive = false
+local autoTeleportBtn = Instance.new("TextButton", frame)
+autoTeleportBtn.Size = UDim2.new(0, 150, 0, 40)
+autoTeleportBtn.Position = UDim2.new(0.5, -75, 1, -50)
+autoTeleportBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+autoTeleportBtn.TextColor3 = Color3.new(1,1,1)
+autoTeleportBtn.Font = Enum.Font.GothamBold
+autoTeleportBtn.TextSize = 18
+autoTeleportBtn.Text = "Auto Teleport OFF"
+autoTeleportBtn.Parent = frame
+
+local currentIndex = 1
+local timer = 0
+local TELEPORT_INTERVAL = tonumber(timeBox.Text) or 10
+
+autoTeleportBtn.MouseButton1Click:Connect(function()
+	autoTeleportActive = not autoTeleportActive
+	autoTeleportBtn.Text = autoTeleportActive and "Auto Teleport ON" or "Auto Teleport OFF"
+	timer = 0
+end)
+
+timeBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		local val = tonumber(timeBox.Text)
+		if val and val >= 1 then
+			TELEPORT_INTERVAL = val
+			timeBox.Text = tostring(val)
+			timer = 0
+		else
+			timeBox.Text = tostring(TELEPORT_INTERVAL)
+			mostrarErro("Intervalo inválido.")
+		end
+	end
+end)
+
+local RunService = game:GetService("RunService")
+RunService.Heartbeat:Connect(function(dt)
+	local char = player.Character
+	if autoTeleportActive and #chestModels > 0 and char and char:FindFirstChild("HumanoidRootPart") then
+		timer += dt
+		if timer >= TELEPORT_INTERVAL then
+			if currentIndex > #chestModels then currentIndex = 1 end
+			local model = chestModels[currentIndex]
+			if model and model.PrimaryPart then
+				char:SetPrimaryPartCFrame(model.PrimaryPart.CFrame + Vector3.new(0, 5, 0))
+				selectedModel = model
+			end
+			currentIndex += 1
+			timer = 0
+		end
+	end
+end)
