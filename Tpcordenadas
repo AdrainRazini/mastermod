@@ -233,19 +233,12 @@ end)
 local minimized = false
 minimize.MouseButton1Click:Connect(function()
 	minimized = not minimized
-
-	-- Itens para esconder/mostrar quando minimizar
-	local toToggle = {}
+	--print("Minimizar clicado, estado:", minimized)
 
 	for _, obj in ipairs(frame:GetChildren()) do
-		-- Não ocultar titleBar e seu botão minimizar
-		if obj ~= titleBar then
-			table.insert(toToggle, obj)
+		if obj ~= titleBar and obj:IsA("GuiObject") then
+			obj.Visible = not minimized
 		end
-	end
-
-	for _, obj in ipairs(toToggle) do
-		obj.Visible = not minimized
 	end
 
 	if minimized then
@@ -254,4 +247,5 @@ minimize.MouseButton1Click:Connect(function()
 		frame.Size = UDim2.new(0, 300, 0, 320)
 	end
 end)
+
 
