@@ -1,142 +1,257 @@
 local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "TeleportGui"
+gui.ResetOnSpawn = false
 
--- Criar GUI principal
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
-
--- Criar frame principal
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 200)
-frame.Position = UDim2.new(0, 50, 0, 50)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+-- Frame principal
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 300, 0, 320)
+frame.Position = UDim2.new(0, 100, 0, 100)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 frame.BorderSizePixel = 0
-frame.Draggable = true
 frame.Active = true
-frame.Parent = screenGui
+frame.Draggable = true
 
--- Criar barra de título
-local dragBar = Instance.new("Frame")
-dragBar.Size = UDim2.new(1, 0, 0, 30)
-dragBar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-dragBar.Parent = frame
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
--- Criar botão de minimizar
-local minimizeButton = Instance.new("TextButton")
-minimizeButton.Size = UDim2.new(0, 50, 0, 30)
-minimizeButton.Position = UDim2.new(0.8, 0, 0, 0)
-minimizeButton.Text = "Min"
-minimizeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-minimizeButton.Parent = frame
+-- Barra de título
+local titleBar = Instance.new("Frame", frame)
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+titleBar.BorderSizePixel = 0
 
--- Caixa de texto para coordenadas
-local textBox = Instance.new("TextBox")
-textBox.Size = UDim2.new(0, 160, 0, 30)
-textBox.Position = UDim2.new(0.1, 0, 0.2, 0)
-textBox.PlaceholderText = "Digite X, Y, Z"
-textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-textBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-textBox.Parent = frame
+Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 8)
 
--- Botão para salvar posição
-local saveButton = Instance.new("TextButton")
-saveButton.Size = UDim2.new(0, 80, 0, 30)
-saveButton.Position = UDim2.new(0.1, 0, 0.4, 0)
-saveButton.Text = "Salvar"
-saveButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-saveButton.Parent = frame
+-- Título
+local title = Instance.new("TextLabel", titleBar)
+title.Size = UDim2.new(1, -60, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Teleporte Personalizado"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 14
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Botão para deletar última posição
-local deleteButton = Instance.new("TextButton")
-deleteButton.Size = UDim2.new(0, 80, 0, 30)
-deleteButton.Position = UDim2.new(0.5, 0, 0.4, 0)
-deleteButton.Text = "Deletar"
-deleteButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-deleteButton.Parent = frame
+-- Botão minimizar
+local minimize = Instance.new("TextButton", titleBar)
+minimize.Size = UDim2.new(0, 40, 1, 0)
+minimize.Position = UDim2.new(1, -45, 0, 0)
+minimize.Text = "-"
+minimize.Font = Enum.Font.GothamBold
+minimize.TextSize = 18
+minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimize.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 
--- Criar ScrollingFrame para armazenar os botões salvos
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(0, 100, 0, 180)
-scrollFrame.Position = UDim2.new(1, 5, 0, 30)
-scrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-scrollFrame.ScrollBarThickness = 5
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Ajusta dinamicamente
-scrollFrame.Parent = frame
+Instance.new("UICorner", minimize).CornerRadius = UDim.new(0, 6)
 
--- Criar Layout para organizar os botões em coluna
-local layout = Instance.new("UIListLayout")
-layout.Parent = scrollFrame
+-- Elementos principais
+local nameBox = Instance.new("TextBox", frame)
+nameBox.PlaceholderText = "Nome do Teleporte"
+nameBox.Size = UDim2.new(0.9, 0, 0, 30)
+nameBox.Position = UDim2.new(0.05, 0, 0, 40)
+nameBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+nameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+nameBox.Font = Enum.Font.Gotham
+nameBox.TextSize = 14
+Instance.new("UICorner", nameBox).CornerRadius = UDim.new(0, 6)
+
+local coordBox = Instance.new("TextBox", frame)
+coordBox.PlaceholderText = "Digite X, Y, Z"
+coordBox.Size = UDim2.new(0.9, 0, 0, 30)
+coordBox.Position = UDim2.new(0.05, 0, 0, 80)
+coordBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+coordBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+coordBox.Font = Enum.Font.Gotham
+coordBox.TextSize = 14
+Instance.new("UICorner", coordBox).CornerRadius = UDim.new(0, 6)
+
+local currentPosBtn = Instance.new("TextButton", frame)
+currentPosBtn.Text = "Usar Local Atual"
+currentPosBtn.Size = UDim2.new(0.9, 0, 0, 30)
+currentPosBtn.Position = UDim2.new(0.05, 0, 0, 120)
+currentPosBtn.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
+currentPosBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+currentPosBtn.Font = Enum.Font.Gotham
+currentPosBtn.TextSize = 14
+Instance.new("UICorner", currentPosBtn).CornerRadius = UDim.new(0, 6)
+
+local saveBtn = Instance.new("TextButton", frame)
+saveBtn.Text = "Salvar"
+saveBtn.Size = UDim2.new(0.42, 0, 0, 30)
+saveBtn.Position = UDim2.new(0.05, 0, 0, 160)
+saveBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+saveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+saveBtn.Font = Enum.Font.Gotham
+saveBtn.TextSize = 14
+Instance.new("UICorner", saveBtn).CornerRadius = UDim.new(0, 6)
+
+local deleteBtn = Instance.new("TextButton", frame)
+deleteBtn.Text = "Deletar"
+deleteBtn.Size = UDim2.new(0.42, 0, 0, 30)
+deleteBtn.Position = UDim2.new(0.53, 0, 0, 160)
+deleteBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+deleteBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+deleteBtn.Font = Enum.Font.Gotham
+deleteBtn.TextSize = 14
+Instance.new("UICorner", deleteBtn).CornerRadius = UDim.new(0, 6)
+
+-- Scroll de teleporte
+local scrollFrame = Instance.new("ScrollingFrame", frame)
+scrollFrame.Size = UDim2.new(0.9, 0, 0, 100)
+scrollFrame.Position = UDim2.new(0.05, 0, 0, 200)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 4
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+Instance.new("UICorner", scrollFrame).CornerRadius = UDim.new(0, 6)
+
+local layout = Instance.new("UIListLayout", scrollFrame)
+layout.Padding = UDim.new(0, 5)
 layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.Padding = UDim.new(0, 5) -- Espaço entre os botões
 
--- Lista de coordenadas salvas
+-- Lógica
 local savedCoords = {}
 
--- Função para criar um botão de teleporte
-local function createTeleportButton(coords)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 30)
-    btn.Text = coords
-    btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Parent = scrollFrame
-    btn.LayoutOrder = #savedCoords -- Organiza em ordem de adição
 
-    -- Ajusta a rolagem para sempre mostrar o último botão
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+local function createTeleportButton(data)
+	local nome = data.nome
+	local coords = data.coords
 
-    btn.MouseButton1Click:Connect(function()
-        local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
-        if x and y and z then
-            local position = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
-            if position then
-                player.Character:SetPrimaryPartCFrame(CFrame.new(position))
-            end
-        else
-            warn("Coordenadas inválidas")
-        end
-    end)
+	local btn = Instance.new("TextButton", scrollFrame)
+	btn.Size = UDim2.new(1, 0, 0, 30)
+	btn.Text = nome .. " (" .. coords .. ")"
+	btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 13
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+
+	-- Teleportar ao clicar
+	btn.MouseButton1Click:Connect(function()
+		local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
+		if x and y and z then
+			local pos = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
+			player.Character:SetPrimaryPartCFrame(CFrame.new(pos))
+		end
+	end)
+
+	-- Criar marcador
+	local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
+	if x and y and z then
+		local position = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
+		local part = Instance.new("Part")
+		part.Anchored = true
+		part.CanCollide = false
+		part.Size = Vector3.new(1, 1, 1)
+		part.Position = position + Vector3.new(0, 2, 0)
+		part.Name = "TeleportMarker_" .. nome
+		part.BrickColor = BrickColor.new("Bright blue")
+		part.Material = Enum.Material.Neon
+		part.Transparency = 0.3
+		part.Parent = workspace
+
+		-- Salvar referência do marcador para deletar depois
+		data.part = part
+
+		local billboard = Instance.new("BillboardGui", part)
+		billboard.Size = UDim2.new(0, 200, 0, 50)
+		billboard.Adornee = part
+		billboard.AlwaysOnTop = true
+
+		local textLabel = Instance.new("TextLabel", billboard)
+		textLabel.Size = UDim2.new(1, 0, 1, 0)
+		textLabel.BackgroundTransparency = 1
+		textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		textLabel.TextStrokeTransparency = 0.6
+		textLabel.TextScaled = true
+		textLabel.Font = Enum.Font.GothamBold
+		textLabel.Text = nome .. " - 0m"
+
+		-- Atualizar distância
+		game:GetService("RunService").RenderStepped:Connect(function()
+			if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and part and part.Parent then
+				local dist = (player.Character.HumanoidRootPart.Position - part.Position).Magnitude
+				textLabel.Text = nome .. string.format(" - %.1fm", dist)
+			end
+		end)
+	end
 end
 
--- Função para salvar coordenadas
-saveButton.MouseButton1Click:Connect(function()
-    local coords = textBox.Text
-    if coords ~= "" then
-        table.insert(savedCoords, coords)
-        createTeleportButton(coords)
-        textBox.Text = ""
-    end
+
+saveBtn.MouseButton1Click:Connect(function()
+	local nome = nameBox.Text ~= "" and nameBox.Text or "Sem Nome"
+	local coords = coordBox.Text
+	if coords ~= "" then
+		local data = {nome = nome, coords = coords}
+		table.insert(savedCoords, data)
+		createTeleportButton(data)
+		nameBox.Text = ""
+		coordBox.Text = ""
+	end
 end)
 
--- Função para deletar última posição salva
-deleteButton.MouseButton1Click:Connect(function()
-    if #savedCoords > 0 then
-        table.remove(savedCoords, #savedCoords)
 
-        -- Remove o último botão salvo
-        local buttons = scrollFrame:GetChildren()
-        for i = #buttons, 1, -1 do
-            if buttons[i]:IsA("TextButton") then
-                buttons[i]:Destroy()
-                break
-            end
-        end
+-- Botão deletar
+deleteBtn.MouseButton1Click:Connect(function()
+	if #savedCoords > 0 then
+		-- Remover dados
+		local data = table.remove(savedCoords)
 
-        -- Atualiza a altura da rolagem
-        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-    end
+		-- Remover botão
+		for i = #scrollFrame:GetChildren(), 1, -1 do
+			local child = scrollFrame:GetChildren()[i]
+			if child:IsA("TextButton") then
+				child:Destroy()
+				break
+			end
+		end
+
+		-- Remover marcador do mundo
+		if data.part and data.part.Parent then
+			data.part:Destroy()
+		end
+
+		scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+	end
 end)
 
--- Função para minimizar a GUI
-minimizeButton.MouseButton1Click:Connect(function()
-    local isMinimized = frame.Size == UDim2.new(0, 250, 0, 200)
 
-    frame.Size = isMinimized and UDim2.new(0, 250, 0, 30) or UDim2.new(0, 250, 0, 200)
-
-    textBox.Visible = not isMinimized
-    saveButton.Visible = not isMinimized
-    deleteButton.Visible = not isMinimized
-    scrollFrame.Visible = not isMinimized
+-- Botão usar local atual
+currentPosBtn.MouseButton1Click:Connect(function()
+	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if hrp then
+		local pos = hrp.Position
+		coordBox.Text = string.format("%.1f, %.1f, %.1f", pos.X, pos.Y, pos.Z)
+	end
 end)
+
+-- Minimizar
+
+local minimized = false
+minimize.MouseButton1Click:Connect(function()
+	minimized = not minimized
+
+	-- Itens para esconder/mostrar quando minimizar
+	local toToggle = {}
+
+	for _, obj in ipairs(frame:GetChildren()) do
+		-- Não ocultar titleBar e seu botão minimizar
+		if obj ~= titleBar then
+			table.insert(toToggle, obj)
+		end
+	end
+
+	for _, obj in ipairs(toToggle) do
+		obj.Visible = not minimized
+	end
+
+	if minimized then
+		frame.Size = UDim2.new(0, 300, 0, 30)
+	else
+		frame.Size = UDim2.new(0, 300, 0, 320)
+	end
+end)
+
