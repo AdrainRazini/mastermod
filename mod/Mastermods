@@ -372,8 +372,8 @@ end)
 	end)
 
 
-	createButton("Menu", function()
-		loadstring(game:HttpGet(""))
+	createButton("Menu_Chest", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/farmchest.lua"))
 	end)
 
 
