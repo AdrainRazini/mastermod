@@ -1,193 +1,463 @@
--- // GhostControl.lua | Clone controlável (Ghost Mode)
+-- 📌 LocalScript (StarterPlayerScripts)
+local player = game.Players.LocalPlayer
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "SurvivalModGui"
+gui.ResetOnSpawn = false
 
--- UI Setup
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
-screenGui.Name = "GhostUI"
-
-local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 200, 0, 180)
-frame.Position = UDim2.new(0.05, 0, 0.3, 0)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+-- 🎯 Frame principal
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 620, 0, 420)
+frame.Position = UDim2.new(0.5, -310, 0.5, -210)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
 
+local uicorner = Instance.new("UICorner", frame)
+uicorner.CornerRadius = UDim.new(0, 8)
+
+-- 🏷️ Título
 local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "Ghost Control"
-title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "🔥 Fallen Survival - Script Menu"
 title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 18
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.BackgroundTransparency = 1
 
-local activateBtn = Instance.new("TextButton", frame)
-activateBtn.Size = UDim2.new(0.9, 0, 0, 30)
-activateBtn.Position = UDim2.new(0.05, 0, 0.4, 0)
-activateBtn.Text = "Ativar Clone"
-activateBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-activateBtn.TextColor3 = Color3.new(1, 1, 1)
-activateBtn.Font = Enum.Font.SourceSans
-activateBtn.TextSize = 16
+-- 🧭 Abas
+local abaNames = {"Assist", "Visual", "Misc", "Skins", "Settings"}
+local abaFrames = {}
 
-local deactivateBtn = Instance.new("TextButton", frame)
-deactivateBtn.Size = UDim2.new(0.9, 0, 0, 30)
-deactivateBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
-deactivateBtn.Text = "Desativar Clone"
-deactivateBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-deactivateBtn.TextColor3 = Color3.new(1, 1, 1)
-deactivateBtn.Font = Enum.Font.SourceSans
-deactivateBtn.TextSize = 16
+for i, name in ipairs(abaNames) do
+	local btn = Instance.new("TextButton", frame)
+	btn.Size = UDim2.new(0, 110, 0, 30)
+	btn.Position = UDim2.new(0, 10 + (i - 1) * 115, 0, 50)
+	btn.Text = name
+	btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 14
 
--- Mobile Controls Setup
-local mobileControlsFrame = Instance.new("Frame", screenGui)
-mobileControlsFrame.Size = UDim2.new(1, 0, 1, 0)
-mobileControlsFrame.Position = UDim2.new(0, 0, 0, 0)
-mobileControlsFrame.BackgroundTransparency = 1
+	local abaFrame = Instance.new("Frame", frame)
+	abaFrame.Size = UDim2.new(1, -20, 1, -90)
+	abaFrame.Position = UDim2.new(0, 10, 0, 90)
+	abaFrame.BackgroundTransparency = 1
+	abaFrame.Visible = (i == 1)
 
-local upButton = Instance.new("TextButton", mobileControlsFrame)
-upButton.Size = UDim2.new(0, 100, 0, 100)
-upButton.Position = UDim2.new(0.5, -50, 0.5, -50)
-upButton.Text = "↑"
-upButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-upButton.Font = Enum.Font.SourceSansBold
-upButton.TextSize = 24
-upButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+	abaFrames[name] = abaFrame
 
-local downButton = Instance.new("TextButton", mobileControlsFrame)
-downButton.Size = UDim2.new(0, 100, 0, 100)
-downButton.Position = UDim2.new(0.5, -50, 0.5, 50)
-downButton.Text = "↓"
-downButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-downButton.Font = Enum.Font.SourceSansBold
-downButton.TextSize = 24
-downButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-
-local leftButton = Instance.new("TextButton", mobileControlsFrame)
-leftButton.Size = UDim2.new(0, 100, 0, 100)
-leftButton.Position = UDim2.new(0.5, -150, 0.5, 0)
-leftButton.Text = "←"
-leftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-leftButton.Font = Enum.Font.SourceSansBold
-leftButton.TextSize = 24
-leftButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-
-local rightButton = Instance.new("TextButton", mobileControlsFrame)
-rightButton.Size = UDim2.new(0, 100, 0, 100)
-rightButton.Position = UDim2.new(0.5, 50, 0.5, 0)
-rightButton.Text = "→"
-rightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-rightButton.Font = Enum.Font.SourceSansBold
-rightButton.TextSize = 24
-rightButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-
--- Ghost Logic
-local ghosting = false
-local cloneChar = nil
-local netBypass = nil
-local renderMove = nil
-local originalChar = nil
-local moveDir = Vector3.zero
-
-local function startGhost()
-    if ghosting then return end
-    ghosting = true
-
-    originalChar = player.Character
-    local frozenPos = hrp.Position
-
-    -- Congela personagem original
-    netBypass = RunService.Stepped:Connect(function()
-        if hrp and hrp.Parent then
-            hrp.Velocity = Vector3.zero
-            hrp.CFrame = CFrame.new(frozenPos)
-        end
-    end)
-
-    -- Clonar personagem
-    cloneChar = originalChar:Clone()
-    cloneChar.Name = "ControlledClone"
-    for _, part in ipairs(cloneChar:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.Anchored = false
-            part.CanCollide = true
-        end
-    end
-    cloneChar.Parent = workspace
-
-    local cloneHum = cloneChar:FindFirstChildOfClass("Humanoid")
-    local cloneHRP = cloneChar:FindFirstChild("HumanoidRootPart")
-
-    -- Câmera para o clone
-    workspace.CurrentCamera.CameraSubject = cloneHum
-
-    -- Controle básico WASD (Desktop)
-    UserInputService.InputBegan:Connect(function(input, gpe)
-        if gpe then return end
-        if input.KeyCode == Enum.KeyCode.W then moveDir = Vector3.new(0, 0, -1)
-        elseif input.KeyCode == Enum.KeyCode.S then moveDir = Vector3.new(0, 0, 1)
-        elseif input.KeyCode == Enum.KeyCode.A then moveDir = Vector3.new(-1, 0, 0)
-        elseif input.KeyCode == Enum.KeyCode.D then moveDir = Vector3.new(1, 0, 0)
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(input)
-        if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.S or input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.D then
-            moveDir = Vector3.zero
-        end
-    end)
-
-    -- Controle mobile (Botões de movimento)
-    upButton.MouseButton1Click:Connect(function() moveDir = Vector3.new(0, 0, -1) end)
-    downButton.MouseButton1Click:Connect(function() moveDir = Vector3.new(0, 0, 1) end)
-    leftButton.MouseButton1Click:Connect(function() moveDir = Vector3.new(-1, 0, 0) end)
-    rightButton.MouseButton1Click:Connect(function() moveDir = Vector3.new(1, 0, 0) end)
-
-    -- Parar movimento ao soltar o botão
-    upButton.MouseButton1Up:Connect(function() moveDir = Vector3.zero end)
-    downButton.MouseButton1Up:Connect(function() moveDir = Vector3.zero end)
-    leftButton.MouseButton1Up:Connect(function() moveDir = Vector3.zero end)
-    rightButton.MouseButton1Up:Connect(function() moveDir = Vector3.zero end)
-
-    -- Renderiza o movimento
-    renderMove = RunService.RenderStepped:Connect(function()
-        if ghosting and cloneHRP then
-            local camCF = workspace.CurrentCamera.CFrame
-            local dir = camCF:VectorToWorldSpace(moveDir) * 0.5
-            cloneHRP.CFrame = cloneHRP.CFrame + dir
-        end
-    end)
+	btn.MouseButton1Click:Connect(function()
+		for _, f in pairs(abaFrames) do
+			f.Visible = false
+		end
+		abaFrame.Visible = true
+	end)
 end
 
-local function stopGhost()
-    ghosting = false
+-- FUNÇÃO: Cria um toggle dentro de um frame pai
+local function createToggle(parent, labelText, defaultState, onToggleCallback)
+	local toggleFrame = Instance.new("Frame", parent)
+	toggleFrame.Size = UDim2.new(1, -20, 0, 40)
+	toggleFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	toggleFrame.BorderSizePixel = 0
+	toggleFrame.AutomaticSize = Enum.AutomaticSize.Y
 
-    if netBypass then
-        netBypass:Disconnect()
-        netBypass = nil
-    end
+	local label = Instance.new("TextLabel", toggleFrame)
+	label.Text = labelText
+	label.Size = UDim2.new(0.7, 0, 1, 0)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 14
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Position = UDim2.new(0, 10, 0, 0)
 
-    if renderMove then
-        renderMove:Disconnect()
-        renderMove = nil
-    end
+	local toggle = Instance.new("TextButton", toggleFrame)
+	toggle.Size = UDim2.new(0.25, 0, 0.6, 0)
+	toggle.Position = UDim2.new(0.73, 0, 0.2, 0)
+	toggle.BackgroundColor3 = defaultState and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(100, 100, 100)
+	toggle.Text = defaultState and "ON" or "OFF"
+	toggle.TextColor3 = Color3.new(1, 1, 1)
+	toggle.Font = Enum.Font.Gotham
+	toggle.TextSize = 14
 
-    if cloneChar then
-        cloneChar:Destroy()
-        cloneChar = nil
-    end
+	local state = defaultState
 
-    if originalChar then
-        workspace.CurrentCamera.CameraSubject = originalChar:FindFirstChildOfClass("Humanoid")
-    end
+	toggle.MouseButton1Click:Connect(function()
+		state = not state
+		toggle.Text = state and "ON" or "OFF"
+		toggle.BackgroundColor3 = state and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(100, 100, 100)
+		print(labelText .. " → " .. (state and "Ativado" or "Desativado"))
+
+		if onToggleCallback then
+			onToggleCallback(state)
+		end
+	end)
+
+	return toggleFrame
 end
 
--- Conectar botões
-activateBtn.MouseButton1Click:Connect(startGhost)
-deactivateBtn.MouseButton1Click:Connect(stopGhost)
+
+-- FUNÇÃO: Cria um ScrollingFrame padrão para cada aba que usará toggles
+local function createScrollFrame(parent)
+	local scroll = Instance.new("ScrollingFrame", parent)
+	scroll.Size = UDim2.new(1, 0, 1, 0)
+	scroll.CanvasSize = UDim2.new(0, 0, 0, 500)
+	scroll.BackgroundTransparency = 1
+	scroll.ScrollBarThickness = 6
+
+	local layout = Instance.new("UIListLayout", scroll)
+	layout.Padding = UDim.new(0, 8)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+	return scroll
+end
+
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+-- Estados (iniciam conforme toggles)
+local aimAssistEnabled = false
+local autoShootEnabled = false
+local wallCheckEnabled = true
+local npcCheckEnabled = false
+local maxDistanceLockEnabled = false
+local maxLockDistance = 100
+
+local currentTarget = nil
+
+-- Função para checar se tem parede entre câmera e target
+local function canSeeTarget(targetPart)
+	if not wallCheckEnabled then return true end
+
+	local origin = Camera.CFrame.Position
+	local direction = (targetPart.Position - origin)
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+	raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+	local raycastResult = workspace:Raycast(origin, direction, raycastParams)
+	if raycastResult then
+		return raycastResult.Instance:IsDescendantOf(targetPart.Parent)
+	else
+		return true
+	end
+end
+
+-- Função para encontrar o alvo mais próximo do mouse dentro das regras
+local function findTarget()
+	local closestTarget = nil
+	local closestDistance = math.huge
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid and humanoid.Health > 0 then
+				-- Só mira NPC se toggle ligado
+				if not npcCheckEnabled then
+					-- Apenas players
+					-- (aqui pode adicionar checagem de time se quiser)
+				end
+
+				local rootPart = player.Character.HumanoidRootPart
+				if canSeeTarget(rootPart) then
+					local screenPos, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
+					if onScreen then
+						local mousePos = UserInputService:GetMouseLocation()
+						local distToCursor = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+						local distanceFromPlayer = (LocalPlayer.Character.HumanoidRootPart.Position - rootPart.Position).Magnitude
+						if (not maxDistanceLockEnabled or distanceFromPlayer <= maxLockDistance) and distToCursor < closestDistance then
+							closestDistance = distToCursor
+							closestTarget = player.Character
+						end
+					end
+				end
+			end
+		end
+	end
+	return closestTarget
+end
+
+-- Mira no alvo (apenas rotaciona a câmera)
+local function aimAt(target)
+	if not target or not target:FindFirstChild("HumanoidRootPart") then
+		currentTarget = nil
+		return
+	end
+	currentTarget = target
+	local targetPos = target.HumanoidRootPart.Position
+	local camPos = Camera.CFrame.Position
+	Camera.CFrame = CFrame.new(camPos, targetPos)
+end
+
+-- Disparo simulado
+local function autoShoot()
+	if currentTarget then
+		-- Coloque aqui o evento remoto ou função para disparar no alvo
+		print("Disparando no alvo: ", currentTarget.Name)
+	end
+end
+
+-- Atualização constante
+RunService.RenderStepped:Connect(function()
+	if aimAssistEnabled then
+		local target = findTarget()
+		if target then
+			aimAt(target)
+			if autoShootEnabled then
+				autoShoot()
+			end
+		else
+			currentTarget = nil
+		end
+	else
+		currentTarget = nil
+	end
+end)
+
+
+
+------------------------------
+-- ABA: ASSIST (usando scroll e toggles)
+------------------------------
+local assist = abaFrames["Assist"]
+
+local assistScroll = createScrollFrame(assist)
+
+-- As funções atreladas aos toggles, já integradas com variáveis:
+function toggleAimAssist(state)
+	aimAssistEnabled = state
+	print("🔫 Aim Assist:", state and "Ativado" or "Desativado")
+end
+
+function toggleAutoShoot(state)
+	autoShootEnabled = state
+	print("🎯 Auto Shoot:", state and "Ligado" or "Desligado")
+end
+
+function toggleWallCheck(state)
+	wallCheckEnabled = state
+	print("🧱 Wall Check:", state and "Habilitado" or "Desabilitado")
+end
+
+function toggleNpcCheck(state)
+	npcCheckEnabled = state
+	print("🤖 NPC Check:", state and "Inclui NPCs" or "Apenas players")
+end
+
+function toggleMaxDistance(state)
+	maxDistanceLockEnabled = state
+	print("📏 Distância Máxima Lock:", state and "Usando Limite" or "Sem Limite")
+end
+
+local function toggleFovCircle(state)
+	print("🌀 FOV Circle:", state and "Visível" or "Oculto")
+	-- Mostrar círculo visual na tela
+end
+
+local function toggleHighlightTarget(state)
+	print("🎯 Highlight:", state and "Ativado" or "Desativado")
+	-- Ativar efeito Highlight no alvo
+end
+
+-- Criação dos toggles com função atrelada
+createToggle(assistScroll, "✅ Aim Assist", false, toggleAimAssist)
+createToggle(assistScroll, "🎯 Auto Shoot", false, toggleAutoShoot)
+createToggle(assistScroll, "🧱 Wall Check", true, toggleWallCheck)
+createToggle(assistScroll, "🎯 NPC Check", false, toggleNpcCheck)
+createToggle(assistScroll, "🎯 Max Distance Lock", false, toggleMaxDistance)
+
+createToggle(assistScroll, "🌀 FOV Circle", true, toggleFovCircle)
+createToggle(assistScroll, "🎯 Highlight Target", true, toggleHighlightTarget)
+
+
+------------------------------
+-- ABA: VISUAL (usando scroll e toggles)
+------------------------------
+local visual = abaFrames["Visual"]
+local visualScroll = createScrollFrame(visual)
+
+-- 🌐 Funções para ações visuais
+local function toggleESP(state)
+	print("👁️ ESP:", state and "Ativado" or "Desativado")
+	if state then
+		-- Exemplo básico: Adiciona highlight em todos os players
+		for _, player in pairs(game.Players:GetPlayers()) do
+			if player ~= game.Players.LocalPlayer and player.Character then
+				local highlight = Instance.new("Highlight")
+				highlight.Name = "ESP_Highlight"
+				highlight.FillColor = Color3.fromRGB(255, 0, 0)
+				highlight.OutlineColor = Color3.new(1, 1, 1)
+				highlight.OutlineTransparency = 0
+				highlight.Parent = player.Character
+			end
+		end
+	else
+		-- Remove os highlights
+		for _, player in pairs(game.Players:GetPlayers()) do
+			if player.Character then
+				local existing = player.Character:FindFirstChild("ESP_Highlight")
+				if existing then
+					existing:Destroy()
+				end
+			end
+		end
+	end
+end
+
+local function toggleXRay(state)
+	print("🔍 X-Ray Vision:", state and "Ativado" or "Desativado")
+	-- Exemplo: Torna todas as paredes transparentes
+	for _, part in pairs(workspace:GetDescendants()) do
+		if part:IsA("BasePart") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+			if state then
+				part.LocalTransparencyModifier = 0.7
+			else
+				part.LocalTransparencyModifier = 0
+			end
+		end
+	end
+end
+
+local function toggleEnemyColor(state)
+	print("🌈 Mudar cor dos inimigos:", state and "Colorido" or "Normal")
+	-- Exemplo de mudança de cor
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if player ~= game.Players.LocalPlayer and player.Character then
+			local highlight = player.Character:FindFirstChild("ESP_Highlight")
+			if highlight then
+				highlight.FillColor = state and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
+			end
+		end
+	end
+end
+
+-- 📌 Criação dos toggles com funções ligadas
+createToggle(visualScroll, "👁️ ESP", false, toggleESP)
+createToggle(visualScroll, "🔍 X-Ray Vision", false, toggleXRay)
+createToggle(visualScroll, "🌈 Change Enemy Color", true, toggleEnemyColor)
+
+------------------------------
+-- ABA: MISC (usando scroll e toggles)
+------------------------------
+local misc = abaFrames["Misc"]
+local miscScroll = createScrollFrame(misc)
+
+createToggle(miscScroll, "🧱 Shoot Through Walls", false)
+createToggle(miscScroll, "💨 Speed Hack", false)
+createToggle(miscScroll, "🔄 Auto Reload", false)
+
+------------------------------
+-- ABA: SKINS (mantido simples, mas você pode personalizar)
+------------------------------
+local skins = abaFrames["Skins"]
+local skinLabel = Instance.new("TextLabel", skins)
+skinLabel.Position = UDim2.new(0, 10, 0, 10)
+skinLabel.Size = UDim2.new(0, 300, 0, 30)
+skinLabel.Text = "🎭 Current Skin: Default Soldier"
+skinLabel.TextColor3 = Color3.new(1, 1, 1)
+skinLabel.BackgroundTransparency = 1
+skinLabel.Font = Enum.Font.Gotham
+skinLabel.TextSize = 14
+
+------------------------------
+-- ABA: SETTINGS (mantido com botão para reset, mas pode ser adaptado)
+------------------------------
+local settings = abaFrames["Settings"]
+local resetButton = Instance.new("TextButton", settings)
+resetButton.Position = UDim2.new(0, 10, 0, 10)
+resetButton.Size = UDim2.new(0, 250, 0, 30)
+resetButton.Text = "♻️ Reset All Settings"
+resetButton.BackgroundColor3 = Color3.fromRGB(80, 20, 20)
+resetButton.TextColor3 = Color3.new(1, 1, 1)
+resetButton.Font = Enum.Font.Gotham
+resetButton.TextSize = 14
+
+resetButton.MouseButton1Click:Connect(function()
+	-- aqui você pode resetar todas as variáveis e configurações
+	print("⚠️ Resetando...")
+end)
+
+
+-- ⏬ Minimizar como ícone flutuante e arrastável
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local isMinimized = false
+
+-- Botão para minimizar
+local minimizeButton = Instance.new("TextButton", frame)
+minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+minimizeButton.Position = UDim2.new(1, -35, 0, 5)
+minimizeButton.Text = "-"
+minimizeButton.Font = Enum.Font.GothamBold
+minimizeButton.TextSize = 18
+minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimizeButton.ZIndex = 3
+Instance.new("UICorner", minimizeButton).CornerRadius = UDim.new(1, 0)
+
+-- Ícone flutuante minimizado
+local iconImage = Instance.new("ImageButton")
+iconImage.Size = UDim2.new(0, 60, 0, 60)
+iconImage.Position = UDim2.new(0, 30, 1, -100)
+iconImage.Image = "rbxassetid://117585506735209"
+iconImage.BackgroundTransparency = 1
+iconImage.Visible = false
+iconImage.Parent = gui
+iconImage.ZIndex = 5
+
+Instance.new("UICorner", iconImage).CornerRadius = UDim.new(1, 0)
+
+-- Minimiza
+minimizeButton.MouseButton1Click:Connect(function()
+	if isMinimized then return end
+	isMinimized = true
+	frame.Visible = false
+	iconImage.Visible = true
+end)
+
+-- Restaura
+iconImage.MouseButton1Click:Connect(function()
+	if not isMinimized then return end
+	isMinimized = false
+	frame.Visible = true
+	iconImage.Visible = false
+end)
+
+-- 🖱️ Drag do ícone minimizado
+local dragging = false
+local dragStart
+local startPos
+
+iconImage.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = iconImage.Position
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		iconImage.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
