@@ -248,6 +248,9 @@ function criar_Gui_Frame()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Keyboard"))()
 	end)
 
+        createButton("AUTO_FARME", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
+	end)
 	
 createButton("Aimbot (BR)", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Aimbotall"))()
