@@ -1,0 +1,455 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local hrp = character:WaitForChild("HumanoidRootPart")
+local pathService = game:GetService("PathfindingService")
+
+local savedPoints = {}
+local modoAtual = "Teleport"
+local farmando = false
+local index = 1
+
+-- GUI
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.Name = "FarmSystemGui"
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 320, 0, 480)
+frame.Position = UDim2.new(0, 100, 0, 100)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.Draggable = true
+frame.Active = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "🌍 Sistema de Ponto Farm"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.BackgroundTransparency = 1
+
+-- TextBox Nome
+local nameBox = Instance.new("TextBox", frame)
+nameBox.PlaceholderText = "Nome do Ponto"
+nameBox.Size = UDim2.new(0.9, 0, 0, 30)
+nameBox.Position = UDim2.new(0.05, 0, 0, 40)
+nameBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+nameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+nameBox.Font = Enum.Font.Gotham
+nameBox.TextSize = 14
+Instance.new("UICorner", nameBox).CornerRadius = UDim.new(0, 6)
+
+-- TextBox Coordenadas
+local coordBox = Instance.new("TextBox", frame)
+coordBox.PlaceholderText = "Digite X, Y, Z"
+coordBox.Size = UDim2.new(0.9, 0, 0, 30)
+coordBox.Position = UDim2.new(0.05, 0, 0, 80)
+coordBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+coordBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+coordBox.Font = Enum.Font.Gotham
+coordBox.TextSize = 14
+Instance.new("UICorner", coordBox).CornerRadius = UDim.new(0, 6)
+
+-- Botão Usar Local
+local usarLocalBtn = Instance.new("TextButton", frame)
+usarLocalBtn.Text = "📍 Usar Local Atual"
+usarLocalBtn.Size = UDim2.new(0.9, 0, 0, 30)
+usarLocalBtn.Position = UDim2.new(0.05, 0, 0, 120)
+usarLocalBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+usarLocalBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+usarLocalBtn.Font = Enum.Font.Gotham
+usarLocalBtn.TextSize = 14
+Instance.new("UICorner", usarLocalBtn).CornerRadius = UDim.new(0, 6)
+
+usarLocalBtn.MouseButton1Click:Connect(function()
+	local pos = hrp.Position
+	coordBox.Text = string.format("%.1f, %.1f, %.1f", pos.X, pos.Y, pos.Z)
+end)
+
+-- Botão Salvar
+local salvarBtn = Instance.new("TextButton", frame)
+salvarBtn.Text = "💾 Salvar Ponto"
+salvarBtn.Size = UDim2.new(0.9, 0, 0, 30)
+salvarBtn.Position = UDim2.new(0.05, 0, 0, 160)
+salvarBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+salvarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+salvarBtn.Font = Enum.Font.GothamBold
+salvarBtn.TextSize = 14
+Instance.new("UICorner", salvarBtn).CornerRadius = UDim.new(0, 6)
+
+-- Botões de Modo
+local modos = {"Teleport", "Andar", "IA"}
+for i, modo in ipairs(modos) do
+	local btn = Instance.new("TextButton", frame)
+	btn.Size = UDim2.new(0.27, 0, 0, 25)
+	btn.Position = UDim2.new(0.05 + (i - 1) * 0.31, 0, 0, 200)
+	btn.Text = modo
+	btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 12
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
+
+	btn.MouseButton1Click:Connect(function()
+		modoAtual = modo
+		for _, child in ipairs(frame:GetChildren()) do
+			if child:IsA("TextButton") and table.find(modos, child.Text) then
+				child.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			end
+		end
+		btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+	end)
+end
+
+-- Scroll de pontos
+local scroll = Instance.new("ScrollingFrame", frame)
+scroll.Position = UDim2.new(0.05, 0, 0, 235)
+scroll.Size = UDim2.new(0.9, 0, 0, 165)
+scroll.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+scroll.ScrollBarThickness = 4
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+Instance.new("UICorner", scroll).CornerRadius = UDim.new(0, 6)
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0, 4)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Botão para minimizar/expandir o scroll
+local toggleScrollBtn = Instance.new("TextButton", frame)
+toggleScrollBtn.Text = "🔽"
+toggleScrollBtn.Size = UDim2.new(0, 30, 0, 30)
+toggleScrollBtn.Position = UDim2.new(1, -35, 0, 200)
+toggleScrollBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+toggleScrollBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleScrollBtn.Font = Enum.Font.GothamBold
+toggleScrollBtn.TextSize = 18
+Instance.new("UICorner", toggleScrollBtn).CornerRadius = UDim.new(0, 5)
+
+
+-- Botão iniciar farm
+local iniciarBtn = Instance.new("TextButton", frame)
+iniciarBtn.Text = "▶ Iniciar Farm"
+iniciarBtn.Size = UDim2.new(0.9, 0, 0, 30)
+iniciarBtn.Position = UDim2.new(0.05, 0, 0, 410)
+iniciarBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+iniciarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+iniciarBtn.Font = Enum.Font.GothamBold
+iniciarBtn.TextSize = 14
+Instance.new("UICorner", iniciarBtn).CornerRadius = UDim.new(0, 6)
+
+-- Botão parar farm
+local pararBtn = Instance.new("TextButton", frame)
+pararBtn.Text = "⏹ Parar Farm"
+pararBtn.Size = UDim2.new(0.9, 0, 0, 30)
+pararBtn.Position = UDim2.new(0.05, 0, 0, 445)
+pararBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+pararBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+pararBtn.Font = Enum.Font.GothamBold
+pararBtn.TextSize = 14
+Instance.new("UICorner", pararBtn).CornerRadius = UDim.new(0, 6)
+
+--fechamento da GUI
+-- Botão minimizar
+local minimizarBtn = Instance.new("TextButton", frame)
+minimizarBtn.Text = "-"
+minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
+minimizarBtn.Position = UDim2.new(1, -35, 0, 0)
+minimizarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimizarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizarBtn.Font = Enum.Font.GothamBold
+minimizarBtn.TextSize = 18
+Instance.new("UICorner", minimizarBtn).CornerRadius = UDim.new(0, 5)
+
+-- Botão fechar
+local fecharBtn = Instance.new("TextButton", frame)
+fecharBtn.Text = "✖"
+fecharBtn.Size = UDim2.new(0, 30, 0, 30)
+fecharBtn.Position = UDim2.new(1, -70, 0, 0)
+fecharBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+fecharBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+fecharBtn.Font = Enum.Font.GothamBold
+fecharBtn.TextSize = 18
+Instance.new("UICorner", fecharBtn).CornerRadius = UDim.new(0, 5)
+
+-- Função para fechar (destruir) a GUI
+fecharBtn.MouseButton1Click:Connect(function()
+	if gui then
+		gui:Destroy()
+	end
+end)
+
+-- Função de minimizar
+local minimizado = false
+
+local scrollMinimizado = false
+
+
+minimizarBtn.MouseButton1Click:Connect(function()
+	minimizado = not minimizado
+
+	-- Alternar visibilidade dos elementos
+	for _, child in ipairs(frame:GetChildren()) do
+		if child:IsA("GuiObject") and child ~= title and child ~= minimizarBtn and child ~= fecharBtn then
+			-- Controle especial do scroll ao restaurar
+			if child == scroll then
+				child.Visible = not minimizado and not scrollMinimizado
+			else
+				child.Visible = not minimizado
+			end
+		end
+	end
+
+	-- Controlar tamanho do frame conforme o estado
+	if minimizado then
+		frame.Size = UDim2.new(0, 320, 0, 30)
+	else
+		if scrollMinimizado then
+			frame.Size = UDim2.new(0, 320, 0, 320)
+			iniciarBtn.Position = UDim2.new(0.05, 0, 0, 250)
+			pararBtn.Position = UDim2.new(0.05, 0, 0, 285)
+		else
+			frame.Size = UDim2.new(0, 320, 0, 480)
+			iniciarBtn.Position = UDim2.new(0.05, 0, 0, 410)
+			pararBtn.Position = UDim2.new(0.05, 0, 0, 445)
+		end
+	end
+end)
+
+
+--iniciarBtn 
+toggleScrollBtn.MouseButton1Click:Connect(function()
+	-- Impedir ação se estiver totalmente minimizado
+	if minimizado then return end
+
+	scrollMinimizado = not scrollMinimizado
+	scroll.Visible = not scrollMinimizado
+
+	toggleScrollBtn.Text = scrollMinimizado and "🔼" or "🔽"
+
+	if scrollMinimizado then
+		frame.Size = UDim2.new(0, 320, 0, 320)
+		iniciarBtn.Position = UDim2.new(0.05, 0, 0, 250)
+		pararBtn.Position = UDim2.new(0.05, 0, 0, 285)
+	else
+		frame.Size = UDim2.new(0, 320, 0, 480)
+		iniciarBtn.Position = UDim2.new(0.05, 0, 0, 410)
+		pararBtn.Position = UDim2.new(0.05, 0, 0, 445)
+	end
+end)
+
+
+-- Função de aviso (mensagem flutuante discreta e profissional)
+local function mostrarAviso(texto, cor, duracao)
+	duracao = duracao or 3
+
+	local aviso = Instance.new("TextLabel")
+	aviso.Size = UDim2.new(0.4, 0, 0, 28)
+	aviso.Position = UDim2.new(0.5, 0, 0, -30)
+	aviso.AnchorPoint = Vector2.new(0.5, 0)
+	aviso.BackgroundColor3 = cor or Color3.fromRGB(45, 45, 45)
+	aviso.BackgroundTransparency = 0.2
+	aviso.TextColor3 = Color3.fromRGB(240, 240, 240)
+	aviso.TextStrokeTransparency = 1
+	aviso.Font = Enum.Font.Gotham
+	aviso.TextSize = 13
+	aviso.Text = texto
+	aviso.TextWrapped = true
+	aviso.ZIndex = 1000
+	aviso.ClipsDescendants = true
+	aviso.Parent = gui
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = aviso
+
+	-- Animação de entrada
+	aviso:TweenPosition(UDim2.new(0.5, 0, 0.04, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)
+
+	-- Espera e animação de saída
+	task.delay(duracao, function()
+		if aviso and aviso.Parent then
+			aviso:TweenPosition(UDim2.new(0.5, 0, 0, -40), Enum.EasingDirection.In, Enum.EasingStyle.Quad, 0.3, true)
+			task.wait(0.3)
+			aviso:Destroy()
+		end
+	end)
+end
+
+
+
+
+
+
+
+
+
+-- Função mover simples
+local function moverPara(pos)
+	if modoAtual == "Teleport" then
+		hrp.CFrame = CFrame.new(pos)
+	elseif modoAtual == "Andar" then
+		humanoid:MoveTo(pos)
+	elseif modoAtual == "IA" then
+		moverComPathfinding(pos)
+	end
+end
+
+-- Função externa para mover com IA (pathfinding)
+function moverComPathfinding(destino)
+	local path = pathService:CreatePath()
+	path:ComputeAsync(hrp.Position, destino)
+
+	if path.Status == Enum.PathStatus.Success then
+		local waypoints = path:GetWaypoints()
+		for _, waypoint in ipairs(waypoints) do
+			humanoid:MoveTo(waypoint.Position)
+			local reached = humanoid.MoveToFinished:Wait()
+			if not reached then
+				print("Falhou ao chegar no waypoint, cancelando caminho")
+				return false
+			end
+		end
+		return true
+	else
+		print("Não foi possível criar caminho para o destino")
+		return false
+	end
+end
+
+-- Criar marcador no mundo
+local function criarMarcador(nome, pos)
+	local part = Instance.new("Part")
+	part.Anchored = true
+	part.CanCollide = false
+	part.Size = Vector3.new(1, 1, 1)
+	part.Position = pos + Vector3.new(0, 2, 0)
+	part.Name = "Ponto_" .. nome
+	part.BrickColor = BrickColor.new("Bright green")
+	part.Material = Enum.Material.Neon
+	part.Transparency = 0.3
+	part.Parent = workspace
+	return part
+end
+
+-- Criar botão na lista
+local function criarBotaoPonto(data)
+	local btn = Instance.new("TextButton", scroll)
+	btn.Size = UDim2.new(1, 0, 0, 30)
+	btn.Text = "📍 " .. data.nome
+	btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 13
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+	scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+
+	-- Mover ao clicar
+	btn.MouseButton1Click:Connect(function()
+		moverPara(data.pos)
+	end)
+
+	-- Botão deletar
+	local del = Instance.new("TextButton", btn)
+	del.Size = UDim2.new(0, 25, 1, 0)
+	del.Position = UDim2.new(1, -30, 0, 0)
+	del.Text = "🗑"
+	del.TextColor3 = Color3.fromRGB(255, 255, 255)
+	del.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+	del.Font = Enum.Font.Gotham
+	del.TextSize = 14
+	Instance.new("UICorner", del).CornerRadius = UDim.new(0, 4)
+
+	del.MouseButton1Click:Connect(function()
+		btn:Destroy()
+		if data.part and data.part.Parent then
+			data.part:Destroy()
+		end
+
+		-- Remove do array savedPoints
+		for i, ponto in ipairs(savedPoints) do
+			if ponto == data then
+				table.remove(savedPoints, i)
+				break
+			end
+		end
+
+		-- Ajustar índice para evitar problemas
+		if index > #savedPoints then
+			index = 1
+		end
+	end)
+end
+
+-- Salvar ponto no array e criar botão + marcador
+salvarBtn.MouseButton1Click:Connect(function()
+	local nome = nameBox.Text ~= "" and nameBox.Text or "Sem Nome"
+	local coords = coordBox.Text
+	local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
+	if x and y and z then
+		local pos = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
+		local marker = criarMarcador(nome, pos)
+		local data = {nome = nome, pos = pos, part = marker}
+		table.insert(savedPoints, data)
+		criarBotaoPonto(data)
+		nameBox.Text = ""
+		coordBox.Text = ""
+		-- (verificações e salvamento aqui)
+		mostrarAviso("✅ Ponto salvo com sucesso!", Color3.fromRGB(0, 200, 0))
+	end
+end)
+
+-- Loop do farm automático para modo IA
+local function resetarFarm()
+	index = 1
+end
+
+local function farmLoop()
+	if not farmando or modoAtual ~= "IA" then return end
+	if #savedPoints == 0 then
+		warn("Nenhum ponto salvo para farmar!")
+		farmando = false
+		return
+	end
+
+	if index > #savedPoints then
+		print("Finalizou todos os pontos, reiniciando...")
+		resetarFarm()
+	end
+
+	local destino = savedPoints[index].pos
+	local sucesso = moverComPathfinding(destino)
+	if sucesso then
+		print("Chegou no ponto " .. index)
+		index = index + 1
+	else
+		print("Falha no ponto " .. index .. ", tentando próximo")
+		index = index + 1
+	end
+	task.wait(0.5)
+	farmLoop()
+end
+
+
+
+
+iniciarBtn.MouseButton1Click:Connect(function()
+	if #savedPoints == 0 then
+		warn("Nenhum ponto salvo para farmar!")
+		return
+	end
+	farmando = true
+	farmLoop()
+end)
+
+
+
+pararBtn.MouseButton1Click:Connect(function()
+	farmando = false
+	print("Farm parado.")
+end)
+
+
+
