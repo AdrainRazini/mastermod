@@ -1,0 +1,70 @@
+-- 🔒 Requer executor externo (Synapse, KRNL, Hydrogen, etc.)
+
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local uis = game:GetService("UserInputService")
+local run = game:GetService("RunService")
+local player = game.Players.LocalPlayer
+
+-- GUI Setup
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "AutoClickerExecutorGUI"
+
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 200, 0, 150)
+main.Position = UDim2.new(0, 10, 0, 10)
+main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+
+local toggleBtn = Instance.new("TextButton", main)
+toggleBtn.Size = UDim2.new(1, -20, 0, 30)
+toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+toggleBtn.Text = "Ativar Click"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+
+local selectBtn = Instance.new("TextButton", main)
+selectBtn.Size = UDim2.new(1, -20, 0, 30)
+selectBtn.Position = UDim2.new(0, 10, 0, 50)
+selectBtn.Text = "Selecionar Posição"
+selectBtn.BackgroundColor3 = Color3.fromRGB(0, 90, 170)
+
+local posLabel = Instance.new("TextLabel", main)
+posLabel.Size = UDim2.new(1, -20, 0, 30)
+posLabel.Position = UDim2.new(0, 10, 0, 90)
+posLabel.Text = "Posição: -"
+posLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+posLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- Variáveis
+local clickPos = nil
+local active = false
+local selecting = false
+
+-- Loop de clique
+run.RenderStepped:Connect(function()
+	if active and clickPos then
+		VirtualInputManager:SendMouseButtonEvent(clickPos.X, clickPos.Y, 0, true, game, 1)
+		wait(0.05)
+		VirtualInputManager:SendMouseButtonEvent(clickPos.X, clickPos.Y, 0, false, game, 1)
+	end
+end)
+
+-- Ativar / Desativar
+toggleBtn.MouseButton1Click:Connect(function()
+	active = not active
+	toggleBtn.Text = active and "Desativar Click" or "Ativar Click"
+	toggleBtn.BackgroundColor3 = active and Color3.fromRGB(170, 0, 0) or Color3.fromRGB(0, 170, 0)
+end)
+
+-- Selecionar posição com clique
+selectBtn.MouseButton1Click:Connect(function()
+	selecting = true
+	selectBtn.Text = "Clique na tela..."
+end)
+
+uis.InputBegan:Connect(function(input)
+	if selecting and input.UserInputType == Enum.UserInputType.MouseButton1 then
+		clickPos = uis:GetMouseLocation()
+		posLabel.Text = "Posição: " .. clickPos.X .. ", " .. clickPos.Y
+		selectBtn.Text = "Selecionar Posição"
+		selecting = false
+	end
+end)
