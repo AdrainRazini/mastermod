@@ -1,108 +1,79 @@
--- 🔒 Requer executor externo (Synapse, KRNL, Hydrogen)
+-- Requer executor externo (Synapse, KRNL, Hydrogen)
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 
--- Interface principal
+-- GUI base
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "AutoClickerMobileGUI"
-gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Janela
-local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 240, 0, 150)
-frame.Position = UDim2.new(0, 10, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-
--- Label tipo de dispositivo
-local tipoLabel = Instance.new("TextLabel", frame)
-tipoLabel.Size = UDim2.new(1, -20, 0, 30)
-tipoLabel.Position = UDim2.new(0, 10, 0, 10)
-tipoLabel.TextColor3 = Color3.new(1, 1, 1)
-tipoLabel.BackgroundTransparency = 1
-tipoLabel.Font = Enum.Font.GothamBold
-tipoLabel.TextSize = 16
-
--- Botão de ativar
-local toggleBtn = Instance.new("TextButton", frame)
-toggleBtn.Size = UDim2.new(1, -20, 0, 40)
-toggleBtn.Position = UDim2.new(0, 10, 0, 50)
-toggleBtn.Text = "Ativar Click"
-toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-toggleBtn.TextColor3 = Color3.new(1, 1, 1)
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.TextSize = 18
-
--- PosLabel
-local posLabel = Instance.new("TextLabel", frame)
-posLabel.Size = UDim2.new(1, -20, 0, 30)
-posLabel.Position = UDim2.new(0, 10, 0, 100)
-posLabel.Text = "Posição: -"
-posLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-posLabel.TextColor3 = Color3.new(1, 1, 1)
-posLabel.Font = Enum.Font.GothamBold
-posLabel.TextSize = 14
-
--- 🔍 Detecta dispositivo
+-- Dispositivo
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-tipoLabel.Text = isMobile and "📱 Dispositivo: CELULAR" or "💻 Dispositivo: PC"
 
--- 🔘 Variáveis
-local clickPos = nil
+-- Variáveis
 local active = false
+local clickPos = nil
 
--- ✅ Bolinha para Mobile
-local bola = nil
-if isMobile then
-	bola = Instance.new("Frame", gui)
-	bola.Size = UDim2.new(0, 40, 0, 40)
-	bola.Position = UDim2.new(0.5, -20, 0.5, -20)
-	bola.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-	bola.BackgroundTransparency = 0.2
-	bola.BorderSizePixel = 0
-	bola.ZIndex = 10
+-- Botão ativar
+local toggle = Instance.new("TextButton", gui)
+toggle.Size = UDim2.new(0, 160, 0, 50)
+toggle.Position = UDim2.new(0, 20, 0, 20)
+toggle.Text = "Ativar Click"
+toggle.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.Font = Enum.Font.GothamBold
+toggle.TextSize = 18
 
-	local corner = Instance.new("UICorner", bola)
-	corner.CornerRadius = UDim.new(1, 0)
+-- Bolinha arrastável
+local bola = Instance.new("Frame", gui)
+bola.Size = UDim2.new(0, 50, 0, 50)
+bola.Position = UDim2.new(0.5, -25, 0.5, -25)
+bola.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+bola.BackgroundTransparency = 0.2
+bola.BorderSizePixel = 0
+bola.Visible = isMobile
 
-	local dragging = false
-	local offset = Vector2.new()
+local corner = Instance.new("UICorner", bola)
+corner.CornerRadius = UDim.new(1, 0)
 
-	bola.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			offset = input.Position - bola.Position
-		end
-	end)
+-- Drag com Touch (sem usar offset quebrado)
+local dragging = false
 
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.Touch then
-			local pos = input.Position - offset
-			bola.Position = UDim2.new(0, pos.X, 0, pos.Y)
-			clickPos = Vector2.new(pos.X + bola.AbsoluteSize.X/2, pos.Y + bola.AbsoluteSize.Y/2)
-			posLabel.Text = "Toque: " .. math.floor(clickPos.X) .. ", " .. math.floor(clickPos.Y)
-		end
-	end)
+bola.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+	end
+end)
 
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.Touch then
-			dragging = false
-		end
-	end)
-else
-	-- PC: clique na tela para selecionar posição
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.Touch then
+		local screenPos = input.Position
+		-- Centraliza a bolinha no dedo
+		bola.Position = UDim2.new(0, screenPos.X - bola.Size.X.Offset / 2, 0, screenPos.Y - bola.Size.Y.Offset / 2)
+		clickPos = Vector2.new(screenPos.X, screenPos.Y)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch then
+		dragging = false
+	end
+end)
+
+-- Para PC: clique seleciona posição
+if not isMobile then
 	UserInputService.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			clickPos = UserInputService:GetMouseLocation()
-			posLabel.Text = "Clique: " .. clickPos.X .. ", " .. clickPos.Y
 		end
 	end)
 end
 
--- 🔁 Clique Automático
+-- Loop do click real
 RunService.RenderStepped:Connect(function()
 	if active and clickPos then
 		if isMobile then
@@ -117,9 +88,9 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- 🟢 Ativar/Desativar
-toggleBtn.MouseButton1Click:Connect(function()
+-- Toggle de clique
+toggle.MouseButton1Click:Connect(function()
 	active = not active
-	toggleBtn.Text = active and "Desativar Click" or "Ativar Click"
-	toggleBtn.BackgroundColor3 = active and Color3.fromRGB(170, 0, 0) or Color3.fromRGB(0, 170, 0)
+	toggle.Text = active and "Desativar Click" or "Ativar Click"
+	toggle.BackgroundColor3 = active and Color3.fromRGB(170, 0, 0) or Color3.fromRGB(0, 170, 0)
 end)
