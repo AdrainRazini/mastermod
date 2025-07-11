@@ -19,7 +19,8 @@ local distanciaMaxima = 50
 local autoFarmAtivo = false
 local aguardandoInicio = true
 local partidaAtiva = false
-local rodadaAtiva = false -- controla se a rodada está em andamento
+local rodadaAtiva = false
+local cicloRodando = false -- Flag para evitar múltiplos ciclos simultâneos
 
 -- 🎨 Interface UI Melhorada
 local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
@@ -27,7 +28,6 @@ gui.Name = "AutoFarmGui"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 
--- Frame principal
 local frame = Instance.new("Frame")
 frame.Name = "MainFrame"
 frame.Size = UDim2.new(0, 200, 0, 60)
@@ -39,11 +39,9 @@ frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
 
--- UI corner (bordas arredondadas)
 local corner = Instance.new("UICorner", frame)
 corner.CornerRadius = UDim.new(0, 8)
 
--- Sombra (opcional)
 local shadow = Instance.new("ImageLabel")
 shadow.Name = "Shadow"
 shadow.Size = UDim2.new(1, 12, 1, 12)
@@ -56,7 +54,6 @@ shadow.SliceCenter = Rect.new(10, 10, 118, 118)
 shadow.ZIndex = 0
 shadow.Parent = frame
 
--- Botão principal (Ativar/Desativar)
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(1, -30, 1, 0)
 button.Position = UDim2.new(0, 0, 0, 0)
@@ -70,7 +67,6 @@ button.Parent = frame
 local buttonCorner = Instance.new("UICorner", button)
 buttonCorner.CornerRadius = UDim.new(0, 6)
 
--- Botão de minimizar [-]
 local minimizarBtn = Instance.new("TextButton")
 minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
 minimizarBtn.Position = UDim2.new(1, -30, 0, 0)
@@ -84,7 +80,6 @@ minimizarBtn.Parent = frame
 local minCorner = Instance.new("UICorner", minimizarBtn)
 minCorner.CornerRadius = UDim.new(0, 6)
 
--- Botão para restaurar [+] (minimizado)
 local restaurarBtn = Instance.new("TextButton")
 restaurarBtn.Size = UDim2.new(0, 40, 0, 40)
 restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
@@ -99,19 +94,17 @@ restaurarBtn.Parent = gui
 local restCorner = Instance.new("UICorner", restaurarBtn)
 restCorner.CornerRadius = UDim.new(0, 8)
 
--- Função de minimizar
 minimizarBtn.MouseButton1Click:Connect(function()
 	frame.Visible = false
 	restaurarBtn.Visible = true
 end)
 
--- Função de restaurar
 restaurarBtn.MouseButton1Click:Connect(function()
 	frame.Visible = true
 	restaurarBtn.Visible = false
 end)
 
--- 🧭 Caminho com teleport após 5s
+-- Função para mover com timeout e teleport
 local function moverAtePontoComTimeout(destino, timeout)
 	local path = PathfindingService:CreatePath()
 	path:ComputeAsync(hrp.Position, destino)
@@ -135,7 +128,7 @@ local function moverAtePontoComTimeout(destino, timeout)
 	end
 end
 
--- 🔍 Busca NPC mais próximo válido
+-- Busca NPC mais próximo válido
 local function getNpcMaisProximo()
 	local menorDist = math.huge
 	local alvo = nil
@@ -153,7 +146,7 @@ local function getNpcMaisProximo()
 	return alvo
 end
 
--- 🚶 Mover direto com MoveTo
+-- Move até NPC usando MoveTo simples
 local function moverAteNpcSimples(npc)
 	if npc and npc:FindFirstChild("HumanoidRootPart") then
 		humanoid:MoveTo(npc.HumanoidRootPart.Position)
@@ -161,16 +154,17 @@ local function moverAteNpcSimples(npc)
 	end
 end
 
--- Ciclo que busca NPCs e refaz a busca enquanto ativo
+-- Ciclo de busca/refaz busca
 local function cicloDeBuscaNpcs()
+	if cicloRodando then return end
+	cicloRodando = true
+
 	while autoFarmAtivo do
 		local npc = getNpcMaisProximo()
 		if npc then
-			-- Move até o NPC
 			moverAteNpcSimples(npc)
-			wait(0.5) -- pequeno delay pra evitar flood
+			wait(0.5)
 		else
-			-- Se não achar NPC, aguarda 10s para voltar ao ponto
 			local tempoSemNpc = 0
 			while tempoSemNpc < 10 and autoFarmAtivo do
 				npc = getNpcMaisProximo()
@@ -185,9 +179,11 @@ local function cicloDeBuscaNpcs()
 			end
 		end
 	end
+
+	cicloRodando = false
 end
 
--- 🎮 Lógica principal da partida
+-- Lógica principal da partida
 local function iniciarPartida()
 	if aguardandoInicio or partidaAtiva or not autoFarmAtivo then return end
 	partidaAtiva = true
@@ -204,15 +200,18 @@ local function iniciarPartida()
 		rodadaAtiva = false
 	end)
 
-	-- Chamando o ciclo que busca/refaz busca enquanto estiver ativo
-	cicloDeBuscaNpcs()
+	task.spawn(cicloDeBuscaNpcs)
+
+	while rodadaAtiva and autoFarmAtivo do
+		wait(1)
+	end
 
 	print("⏹️ Rodada encerrada, voltando ao ponto...")
 	moverAtePontoComTimeout(pontoEspera, 5)
 	partidaAtiva = false
 end
 
--- ▶️ Início geral
+-- Início do sistema
 local function iniciarSistema()
 	task.spawn(function()
 		print("🧭 Indo para o ponto de espera...")
@@ -228,17 +227,23 @@ local function iniciarSistema()
 	end)
 end
 
--- 🔘 Botão de ativação/desativação
+-- Botão ativar/desativar
 button.MouseButton1Click:Connect(function()
 	autoFarmAtivo = not autoFarmAtivo
 
 	if autoFarmAtivo then
 		button.Text = "Desativar AutoFarm"
+		-- Reset flags para evitar travamento
+		partidaAtiva = false
+		rodadaAtiva = false
+		cicloRodando = false
 		iniciarSistema()
 	else
 		button.Text = "Ativar AutoFarm"
-		humanoid:MoveTo(hrp.Position)
+		autoFarmAtivo = false
 		partidaAtiva = false
 		rodadaAtiva = false
+		cicloRodando = false
+		humanoid:MoveTo(hrp.Position)
 	end
 end)
