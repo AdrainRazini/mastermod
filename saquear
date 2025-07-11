@@ -1,0 +1,243 @@
+-- 🔧 Serviços
+local Players = game:GetService("Players")
+local PathfindingService = game:GetService("PathfindingService")
+
+-- 🔄 Variáveis
+local plr = Players.LocalPlayer
+local character = plr.Character or plr.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+-- 🎯 Configurações
+local pontoEspera = Vector3.new(-394.9, 54.0, -741.6)
+local tempoEstimado = 60 * 2
+local pastaNpcs = workspace:WaitForChild("EnemyFolder")
+local distanciaMinima = 10
+local distanciaMaxima = 50
+
+-- 🧠 Estado
+local autoFarmAtivo = false
+local aguardandoInicio = true
+local partidaAtiva = false
+
+-- 🎨 Interface UI
+-- 🎨 Interface UI Melhorada
+local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+gui.Name = "AutoFarmGui"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+
+-- Frame principal
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 200, 0, 60)
+frame.Position = UDim2.new(0, 20, 0, 80)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.BorderSizePixel = 0
+frame.AnchorPoint = Vector2.new(0, 0)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+-- UI corner (bordas arredondadas)
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 8)
+
+-- Sombra (opcional)
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Size = UDim2.new(1, 12, 1, 12)
+shadow.Position = UDim2.new(0, -6, 0, -6)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageTransparency = 0.5
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.ZIndex = 0
+shadow.Parent = frame
+
+-- Botão principal (Ativar/Desativar)
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, -30, 1, 0)
+button.Position = UDim2.new(0, 0, 0, 0)
+button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.TextSize = 18
+button.Font = Enum.Font.GothamBold
+button.Text = "Ativar AutoFarm"
+button.Parent = frame
+
+local buttonCorner = Instance.new("UICorner", button)
+buttonCorner.CornerRadius = UDim.new(0, 6)
+
+-- Botão de minimizar [-]
+local minimizarBtn = Instance.new("TextButton")
+minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
+minimizarBtn.Position = UDim2.new(1, -30, 0, 0)
+minimizarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimizarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizarBtn.TextSize = 22
+minimizarBtn.Font = Enum.Font.GothamBold
+minimizarBtn.Text = "-"
+minimizarBtn.Parent = frame
+
+local minCorner = Instance.new("UICorner", minimizarBtn)
+minCorner.CornerRadius = UDim.new(0, 6)
+
+-- Botão para restaurar [+] (minimizado)
+local restaurarBtn = Instance.new("TextButton")
+restaurarBtn.Size = UDim2.new(0, 40, 0, 40)
+restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
+restaurarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+restaurarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+restaurarBtn.TextSize = 22
+restaurarBtn.Font = Enum.Font.GothamBold
+restaurarBtn.Text = "+"
+restaurarBtn.Visible = false
+restaurarBtn.Parent = gui
+
+local restCorner = Instance.new("UICorner", restaurarBtn)
+restCorner.CornerRadius = UDim.new(0, 8)
+
+-- Função de minimizar
+minimizarBtn.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	restaurarBtn.Visible = true
+end)
+
+-- Função de restaurar
+restaurarBtn.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	restaurarBtn.Visible = false
+end)
+
+
+-- 🧭 Caminho com teleport após 5s
+local function moverAtePontoComTimeout(destino, timeout)
+	local path = PathfindingService:CreatePath()
+	path:ComputeAsync(hrp.Position, destino)
+
+	if path.Status == Enum.PathStatus.Success then
+		local startTime = tick()
+		for _, waypoint in ipairs(path:GetWaypoints()) do
+			humanoid:MoveTo(waypoint.Position)
+			humanoid.MoveToFinished:Wait()
+			if tick() - startTime > timeout then
+				print("⏱️ Demorou, teleportando.")
+				hrp.CFrame = CFrame.new(destino)
+				return true
+			end
+		end
+		return true
+	else
+		print("❌ Caminho falhou, teleportando.")
+		hrp.CFrame = CFrame.new(destino)
+		return true
+	end
+end
+
+-- 🔍 Busca NPC mais próximo válido
+local function getNpcMaisProximo()
+	local menorDist = math.huge
+	local alvo = nil
+
+	for _, npc in pairs(pastaNpcs:GetChildren()) do
+		if npc:IsA("Model") and npc:FindFirstChild("HumanoidRootPart") then
+			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+			if dist >= distanciaMinima and dist <= distanciaMaxima and dist < menorDist then
+				menorDist = dist
+				alvo = npc
+			end
+		end
+	end
+
+	return alvo
+end
+
+-- 🚶 Mover direto com MoveTo
+local function moverAteNpcSimples(npc)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		humanoid:MoveTo(npc.HumanoidRootPart.Position)
+		humanoid.MoveToFinished:Wait()
+	end
+end
+
+-- 🕒 Espera por NPC ou volta ao ponto
+local function aguardarNpcOuVoltar()
+	local tempoSemNpc = 0
+	while autoFarmAtivo do
+		local npc = getNpcMaisProximo()
+		if npc then return true end
+		tempoSemNpc += 1
+		if tempoSemNpc >= 10 then
+			print("🔄 Nenhum NPC por 10s — voltando ao ponto.")
+			moverAtePontoComTimeout(pontoEspera, 5)
+			wait(3)
+			return false
+		end
+		wait(1)
+	end
+	return false
+end
+
+-- 🎮 Lógica principal da partida
+local function iniciarPartida()
+	if aguardandoInicio or partidaAtiva or not autoFarmAtivo then return end
+	partidaAtiva = true
+	print("🚀 Partida iniciada!")
+
+	local tempoRestante = tempoEstimado
+	task.spawn(function()
+		while tempoRestante > 0 and autoFarmAtivo do
+			wait(1)
+			tempoRestante -= 1
+		end
+		print("⏰ Tempo acabou, ainda procurando NPCs...")
+	end)
+
+	while autoFarmAtivo do
+		local npc = getNpcMaisProximo()
+		if npc then
+			moverAteNpcSimples(npc)
+			wait(0.5)
+		else
+			local encontrou = aguardarNpcOuVoltar()
+			if not encontrou then
+				continue
+			end
+		end
+	end
+
+	print("🏁 Partida encerrada.")
+	partidaAtiva = false
+end
+
+-- ▶️ Início geral
+local function iniciarSistema()
+	task.spawn(function()
+		print("🧭 Indo para o ponto de espera...")
+		local chegou = moverAtePontoComTimeout(pontoEspera, 5)
+
+		if chegou and autoFarmAtivo then
+			print("✅ Chegou ao ponto. Aguardando rodada...")
+			aguardandoInicio = true
+			wait(3)
+			aguardandoInicio = false
+			iniciarPartida()
+		end
+	end)
+end
+
+-- 🔘 Botão de ativação/desativação
+button.MouseButton1Click:Connect(function()
+	autoFarmAtivo = not autoFarmAtivo
+
+	if autoFarmAtivo then
+		button.Text = "Desativar AutoFarm"
+		iniciarSistema()
+	else
+		button.Text = "Ativar AutoFarm"
+		humanoid:MoveTo(hrp.Position)
+		partidaAtiva = false
+	end
+end)
