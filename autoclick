@@ -1,70 +1,107 @@
--- 🔒 Requer executor externo com suporte a VirtualInputManager
-
+-- 🔒 Requer executor externo (Synapse, KRNL, etc.)
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local uis = game:GetService("UserInputService")
-local run = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 
 -- GUI Setup
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "AutoTouchClickerGUI"
+gui.Name = "AutoClickerGUI"
+gui.ResetOnSpawn = false
 
+-- Janela principal
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 200, 0, 150)
+main.Size = UDim2.new(0, 240, 0, 180)
 main.Position = UDim2.new(0, 10, 0, 10)
 main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+main.Parent = gui
 
+-- Label do tipo de dispositivo
+local tipoLabel = Instance.new("TextLabel", main)
+tipoLabel.Size = UDim2.new(1, -20, 0, 30)
+tipoLabel.Position = UDim2.new(0, 10, 0, 10)
+tipoLabel.TextColor3 = Color3.new(1, 1, 1)
+tipoLabel.BackgroundTransparency = 1
+tipoLabel.Font = Enum.Font.GothamBold
+tipoLabel.TextSize = 16
+
+-- Botão de ativar
 local toggleBtn = Instance.new("TextButton", main)
-toggleBtn.Size = UDim2.new(1, -20, 0, 30)
-toggleBtn.Position = UDim2.new(0, 10, 0, 10)
-toggleBtn.Text = "Ativar Touch"
+toggleBtn.Size = UDim2.new(1, -20, 0, 40)
+toggleBtn.Position = UDim2.new(0, 10, 0, 50)
+toggleBtn.Text = "Ativar Click"
 toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+toggleBtn.TextColor3 = Color3.new(1, 1, 1)
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.TextSize = 18
 
+-- Botão de selecionar posição
 local selectBtn = Instance.new("TextButton", main)
-selectBtn.Size = UDim2.new(1, -20, 0, 30)
-selectBtn.Position = UDim2.new(0, 10, 0, 50)
+selectBtn.Size = UDim2.new(1, -20, 0, 40)
+selectBtn.Position = UDim2.new(0, 10, 0, 100)
 selectBtn.Text = "Selecionar Posição"
 selectBtn.BackgroundColor3 = Color3.fromRGB(0, 90, 170)
+selectBtn.TextColor3 = Color3.new(1, 1, 1)
+selectBtn.Font = Enum.Font.GothamBold
+selectBtn.TextSize = 18
 
+-- Label da posição
 local posLabel = Instance.new("TextLabel", main)
 posLabel.Size = UDim2.new(1, -20, 0, 30)
-posLabel.Position = UDim2.new(0, 10, 0, 90)
+posLabel.Position = UDim2.new(0, 10, 0, 150)
 posLabel.Text = "Posição: -"
 posLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-posLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+posLabel.TextColor3 = Color3.new(1, 1, 1)
+posLabel.Font = Enum.Font.GothamBold
+posLabel.TextSize = 14
 
--- Variáveis
+-- 📱 Detectar se é PC ou Mobile
+local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+if isMobile then
+	tipoLabel.Text = "📱 Dispositivo: CELULAR"
+else
+	tipoLabel.Text = "💻 Dispositivo: PC"
+end
+
+-- 🔁 Variáveis
 local clickPos = nil
 local active = false
 local selecting = false
 
--- Loop de toque
-run.RenderStepped:Connect(function()
+-- ♻️ Loop de clique automático
+RunService.RenderStepped:Connect(function()
 	if active and clickPos then
-		local x = clickPos.X
-		local y = clickPos.Y
-		VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, x, y, true, game)
-		wait(0.05)
-		VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, x, y, false, game)
+		if isMobile then
+			-- Simula toque
+			VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, clickPos.X, clickPos.Y, true, game)
+			wait(0.05)
+			VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, clickPos.X, clickPos.Y, false, game)
+		else
+			-- Simula clique de mouse
+			VirtualInputManager:SendMouseButtonEvent(clickPos.X, clickPos.Y, 0, true, game, 1)
+			wait(0.05)
+			VirtualInputManager:SendMouseButtonEvent(clickPos.X, clickPos.Y, 0, false, game, 1)
+		end
 	end
 end)
 
--- Alternar
+-- 🟢 Ativar/Desativar click
 toggleBtn.MouseButton1Click:Connect(function()
 	active = not active
-	toggleBtn.Text = active and "Desativar Touch" or "Ativar Touch"
+	toggleBtn.Text = active and "Desativar Click" or "Ativar Click"
 	toggleBtn.BackgroundColor3 = active and Color3.fromRGB(170, 0, 0) or Color3.fromRGB(0, 170, 0)
 end)
 
--- Selecionar posição com clique
+-- 🧲 Selecionar posição do clique
 selectBtn.MouseButton1Click:Connect(function()
 	selecting = true
-	selectBtn.Text = "Toque na tela..."
+	selectBtn.Text = "Clique na tela..."
 end)
 
-uis.InputBegan:Connect(function(input)
+-- 📍 Captura do clique
+UserInputService.InputBegan:Connect(function(input)
 	if selecting and input.UserInputType == Enum.UserInputType.MouseButton1 then
-		clickPos = uis:GetMouseLocation()
+		clickPos = UserInputService:GetMouseLocation()
 		posLabel.Text = "Posição: " .. clickPos.X .. ", " .. clickPos.Y
 		selectBtn.Text = "Selecionar Posição"
 		selecting = false
