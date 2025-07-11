@@ -380,9 +380,12 @@ end)
 	end)
 
        createButton("saquear", function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/saquear"))()
-	end)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/saquear"))() --saquear
+	end) 
 
+       createButton("autoclick", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/autoclick"))() --autoclick
+	end)
 	-- Carregar scripts do GitHub
 	local scripts = {
         	{name = "Supremo_Visor", path = "visor.lua"},
