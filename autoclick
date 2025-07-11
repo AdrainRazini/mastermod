@@ -1,4 +1,4 @@
--- 🔒 Requer executor externo (Synapse, KRNL, Hydrogen, etc.)
+-- 🔒 Requer executor externo com suporte a VirtualInputManager
 
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local uis = game:GetService("UserInputService")
@@ -7,7 +7,7 @@ local player = game.Players.LocalPlayer
 
 -- GUI Setup
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "AutoClickerExecutorGUI"
+gui.Name = "AutoTouchClickerGUI"
 
 local main = Instance.new("Frame", gui)
 main.Size = UDim2.new(0, 200, 0, 150)
@@ -17,7 +17,7 @@ main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 local toggleBtn = Instance.new("TextButton", main)
 toggleBtn.Size = UDim2.new(1, -20, 0, 30)
 toggleBtn.Position = UDim2.new(0, 10, 0, 10)
-toggleBtn.Text = "Ativar Click"
+toggleBtn.Text = "Ativar Touch"
 toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
 
 local selectBtn = Instance.new("TextButton", main)
@@ -38,26 +38,28 @@ local clickPos = nil
 local active = false
 local selecting = false
 
--- Loop de clique
+-- Loop de toque
 run.RenderStepped:Connect(function()
 	if active and clickPos then
-		VirtualInputManager:SendMouseButtonEvent(clickPos.X, clickPos.Y, 0, true, game, 1)
+		local x = clickPos.X
+		local y = clickPos.Y
+		VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, x, y, true, game)
 		wait(0.05)
-		VirtualInputManager:SendMouseButtonEvent(clickPos.X, clickPos.Y, 0, false, game, 1)
+		VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, x, y, false, game)
 	end
 end)
 
--- Ativar / Desativar
+-- Alternar
 toggleBtn.MouseButton1Click:Connect(function()
 	active = not active
-	toggleBtn.Text = active and "Desativar Click" or "Ativar Click"
+	toggleBtn.Text = active and "Desativar Touch" or "Ativar Touch"
 	toggleBtn.BackgroundColor3 = active and Color3.fromRGB(170, 0, 0) or Color3.fromRGB(0, 170, 0)
 end)
 
 -- Selecionar posição com clique
 selectBtn.MouseButton1Click:Connect(function()
 	selecting = true
-	selectBtn.Text = "Clique na tela..."
+	selectBtn.Text = "Toque na tela..."
 end)
 
 uis.InputBegan:Connect(function(input)
