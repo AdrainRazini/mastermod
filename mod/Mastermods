@@ -379,6 +379,9 @@ end)
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/farme"))()
 	end)
 
+       createButton("saquear", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/saquear"))()
+	end)
 
 	-- Carregar scripts do GitHub
 	local scripts = {
