@@ -161,22 +161,30 @@ local function moverAteNpcSimples(npc)
 	end
 end
 
--- 🕒 Espera por NPC ou volta ao ponto
-local function aguardarNpcOuVoltar()
-	local tempoSemNpc = 0
+-- Ciclo que busca NPCs e refaz a busca enquanto ativo
+local function cicloDeBuscaNpcs()
 	while autoFarmAtivo do
 		local npc = getNpcMaisProximo()
-		if npc then return true end
-		tempoSemNpc += 1
-		if tempoSemNpc >= 10 then
-			print("🔄 Nenhum NPC por 10s — voltando ao ponto.")
-			moverAtePontoComTimeout(pontoEspera, 5)
-			wait(3)
-			return false
+		if npc then
+			-- Move até o NPC
+			moverAteNpcSimples(npc)
+			wait(0.5) -- pequeno delay pra evitar flood
+		else
+			-- Se não achar NPC, aguarda 10s para voltar ao ponto
+			local tempoSemNpc = 0
+			while tempoSemNpc < 10 and autoFarmAtivo do
+				npc = getNpcMaisProximo()
+				if npc then break end
+				tempoSemNpc += 1
+				wait(1)
+			end
+			if not npc then
+				print("🔄 Nenhum NPC por 10s — voltando ao ponto.")
+				moverAtePontoComTimeout(pontoEspera, 5)
+				wait(3)
+			end
 		end
-		wait(1)
 	end
-	return false
 end
 
 -- 🎮 Lógica principal da partida
@@ -196,18 +204,8 @@ local function iniciarPartida()
 		rodadaAtiva = false
 	end)
 
-	while autoFarmAtivo and rodadaAtiva do
-		local npc = getNpcMaisProximo()
-		if npc then
-			moverAteNpcSimples(npc)
-			wait(0.5)
-		else
-			local encontrou = aguardarNpcOuVoltar()
-			if not encontrou then
-				continue
-			end
-		end
-	end
+	-- Chamando o ciclo que busca/refaz busca enquanto estiver ativo
+	cicloDeBuscaNpcs()
 
 	print("⏹️ Rodada encerrada, voltando ao ponto...")
 	moverAtePontoComTimeout(pontoEspera, 5)
