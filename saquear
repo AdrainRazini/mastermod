@@ -1,145 +1,172 @@
 -- 🔧 Serviços
 local Players = game:GetService("Players")
-local PathfindingService = game:GetService("PathfindingService")
-
--- 🔄 Variáveis
-local plr = Players.LocalPlayer
-local character = plr.Character or plr.CharacterAdded:Wait()
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local hrp = character:WaitForChild("HumanoidRootPart")
 
--- 🎯 Configurações
-local pontoEspera = Vector3.new(-394.9, 54.0, -741.6)
-local pastaNpcs = workspace:WaitForChild("EnemyFolder")
-local distanciaMinima = 10
-local distanciaMaxima = 50
-
 -- 🧠 Estado
 local autoFarmAtivo = false
-local aguardandoInicio = true
 local partidaAtiva = false
+local pontosDeFarm = {}
+local pastaNpcs = workspace:WaitForChild("EnemyFolder")
 
--- 🎨 Interface UI
-local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
-gui.Name = "AutoFarmGui"
+-- 🎨 GUI
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "FarmGui"
 gui.ResetOnSpawn = false
-gui.IgnoreGuiInset = true
 
-local frame = Instance.new("Frame")
-frame.Name = "MainFrame"
-frame.Size = UDim2.new(0, 200, 0, 60)
-frame.Position = UDim2.new(0, 20, 0, 80)
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 320, 0, 380)
+frame.Position = UDim2.new(0, 50, 0, 100)
 frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 frame.BorderSizePixel = 0
-frame.AnchorPoint = Vector2.new(0, 0)
 frame.Active = true
 frame.Draggable = true
-frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
-local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 8)
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, -40, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.Text = "AutoFarm - Pontos"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundTransparency = 1
+title.TextXAlignment = Enum.TextXAlignment.Left
 
-local shadow = Instance.new("ImageLabel")
-shadow.Name = "Shadow"
-shadow.Size = UDim2.new(1, 12, 1, 12)
-shadow.Position = UDim2.new(0, -6, 0, -6)
-shadow.BackgroundTransparency = 1
-shadow.Image = "rbxassetid://1316045217"
-shadow.ImageTransparency = 0.5
-shadow.ScaleType = Enum.ScaleType.Slice
-shadow.SliceCenter = Rect.new(10, 10, 118, 118)
-shadow.ZIndex = 0
-shadow.Parent = frame
+local minimize = Instance.new("TextButton", frame)
+minimize.Size = UDim2.new(0, 30, 0, 30)
+minimize.Position = UDim2.new(1, -35, 0, 0)
+minimize.Text = "-"
+minimize.Font = Enum.Font.GothamBold
+minimize.TextSize = 20
+minimize.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", minimize).CornerRadius = UDim.new(0, 6)
 
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(1, -30, 1, 0)
-button.Position = UDim2.new(0, 0, 0, 0)
-button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.TextSize = 18
-button.Font = Enum.Font.GothamBold
-button.Text = "Ativar AutoFarm"
-button.Parent = frame
+local nameBox = Instance.new("TextBox", frame)
+nameBox.PlaceholderText = "Nome do ponto"
+nameBox.Size = UDim2.new(0.9, 0, 0, 30)
+nameBox.Position = UDim2.new(0.05, 0, 0, 40)
+nameBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+nameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+nameBox.Font = Enum.Font.Gotham
+nameBox.TextSize = 14
+Instance.new("UICorner", nameBox).CornerRadius = UDim.new(0, 6)
 
-local buttonCorner = Instance.new("UICorner", button)
-buttonCorner.CornerRadius = UDim.new(0, 6)
+local coordBox = Instance.new("TextBox", frame)
+coordBox.PlaceholderText = "Digite X, Y, Z"
+coordBox.Size = UDim2.new(0.9, 0, 0, 30)
+coordBox.Position = UDim2.new(0.05, 0, 0, 80)
+coordBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+coordBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+coordBox.Font = Enum.Font.Gotham
+coordBox.TextSize = 14
+Instance.new("UICorner", coordBox).CornerRadius = UDim.new(0, 6)
 
-local minimizarBtn = Instance.new("TextButton")
-minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
-minimizarBtn.Position = UDim2.new(1, -30, 0, 0)
-minimizarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-minimizarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-minimizarBtn.TextSize = 22
-minimizarBtn.Font = Enum.Font.GothamBold
-minimizarBtn.Text = "-"
-minimizarBtn.Parent = frame
+local usarAtualBtn = Instance.new("TextButton", frame)
+usarAtualBtn.Text = "Usar Local Atual"
+usarAtualBtn.Size = UDim2.new(0.9, 0, 0, 30)
+usarAtualBtn.Position = UDim2.new(0.05, 0, 0, 120)
+usarAtualBtn.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
+usarAtualBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+usarAtualBtn.Font = Enum.Font.Gotham
+usarAtualBtn.TextSize = 14
+Instance.new("UICorner", usarAtualBtn).CornerRadius = UDim.new(0, 6)
 
-local minCorner = Instance.new("UICorner", minimizarBtn)
-minCorner.CornerRadius = UDim.new(0, 6)
+local delayBox = Instance.new("TextBox", frame)
+delayBox.PlaceholderText = "Delay para iniciar (s)"
+delayBox.Size = UDim2.new(0.9, 0, 0, 30)
+delayBox.Position = UDim2.new(0.05, 0, 0, 160)
+delayBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+delayBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+delayBox.Font = Enum.Font.Gotham
+delayBox.TextSize = 14
+Instance.new("UICorner", delayBox).CornerRadius = UDim.new(0, 6)
 
-local restaurarBtn = Instance.new("TextButton")
-restaurarBtn.Size = UDim2.new(0, 40, 0, 40)
-restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
-restaurarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-restaurarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-restaurarBtn.TextSize = 22
-restaurarBtn.Font = Enum.Font.GothamBold
-restaurarBtn.Text = "+"
-restaurarBtn.Visible = false
-restaurarBtn.Parent = gui
+local minBox = Instance.new("TextBox", frame)
+minBox.PlaceholderText = "Distância Mínima"
+minBox.Size = UDim2.new(0.42, 0, 0, 30)
+minBox.Position = UDim2.new(0.05, 0, 0, 200)
+minBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+minBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+minBox.Font = Enum.Font.Gotham
+minBox.TextSize = 14
+Instance.new("UICorner", minBox).CornerRadius = UDim.new(0, 6)
 
-local restCorner = Instance.new("UICorner", restaurarBtn)
-restCorner.CornerRadius = UDim.new(0, 8)
+local maxBox = Instance.new("TextBox", frame)
+maxBox.PlaceholderText = "Distância Máxima"
+maxBox.Size = UDim2.new(0.42, 0, 0, 30)
+maxBox.Position = UDim2.new(0.53, 0, 0, 200)
+maxBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+maxBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+maxBox.Font = Enum.Font.Gotham
+maxBox.TextSize = 14
+Instance.new("UICorner", maxBox).CornerRadius = UDim.new(0, 6)
 
--- Minimizar/Restaurar UI
-minimizarBtn.MouseButton1Click:Connect(function()
-	frame.Visible = false
-	restaurarBtn.Visible = true
-end)
+local scrollFrame = Instance.new("ScrollingFrame", frame)
+scrollFrame.Size = UDim2.new(0.9, 0, 0, 100)
+scrollFrame.Position = UDim2.new(0.05, 0, 0, 240)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 4
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+Instance.new("UICorner", scrollFrame).CornerRadius = UDim.new(0, 6)
 
-restaurarBtn.MouseButton1Click:Connect(function()
-	frame.Visible = true
-	restaurarBtn.Visible = false
-end)
+local layout = Instance.new("UIListLayout", scrollFrame)
+layout.Padding = UDim.new(0, 5)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Função mover com pathfinding e timeout
-local function moverAtePontoComTimeout(destino, timeout)
-	local path = PathfindingService:CreatePath()
-	path:ComputeAsync(hrp.Position, destino)
+local toggleBtn = Instance.new("TextButton", frame)
+toggleBtn.Text = "Iniciar AutoFarm"
+toggleBtn.Size = UDim2.new(0.9, 0, 0, 35)
+toggleBtn.Position = UDim2.new(0.05, 0, 0, 345)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.TextSize = 16
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 6)
 
-	if path.Status == Enum.PathStatus.Success then
-		local startTime = tick()
-		for _, waypoint in ipairs(path:GetWaypoints()) do
-			humanoid:MoveTo(waypoint.Position)
-			local sucesso = humanoid.MoveToFinished:Wait(timeout)
-			if not sucesso or (tick() - startTime) > timeout then
-				print("⏱️ Demorou, teleportando.")
-				hrp.CFrame = CFrame.new(destino)
-				return true
-			end
-		end
-		return true
-	else
-		print("❌ Caminho falhou, teleportando.")
-		hrp.CFrame = CFrame.new(destino)
-		return true
-	end
+local statusBall = Instance.new("Frame", frame)
+statusBall.Size = UDim2.new(0, 14, 0, 14)
+statusBall.Position = UDim2.new(1, -24, 1, -24)
+statusBall.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+statusBall.BorderSizePixel = 0
+Instance.new("UICorner", statusBall).CornerRadius = UDim.new(1, 0)
+
+local function atualizarStatus(cor)
+	statusBall.BackgroundColor3 = cor
 end
 
--- Busca NPC mais próximo válido dentro do range
-local function getNpcMaisProximo()
-	local menorDist = math.huge
+usarAtualBtn.MouseButton1Click:Connect(function()
+	local pos = hrp.Position
+	coordBox.Text = string.format("%.1f, %.1f, %.1f", pos.X, pos.Y, pos.Z)
+end)
+
+local function criarBotaoPonto(nome, posStr)
+	local btn = Instance.new("TextButton", scrollFrame)
+	btn.Size = UDim2.new(1, 0, 0, 30)
+	btn.Text = nome .. " (" .. posStr .. ")"
+	btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 13
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+end
+
+local function getNpcMaisProximo(minDist, maxDist)
+	local menor = math.huge
 	local alvo = nil
 
 	for _, npc in pairs(pastaNpcs:GetChildren()) do
-		if npc:IsA("Model")
-			and npc:FindFirstChild("HumanoidRootPart")
-			and npc:FindFirstChild("Humanoid")
-			and npc.Humanoid.Health > 0 then
-
+		if npc:IsA("Model") and npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") and npc.Humanoid.Health > 0 then
 			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
-			if dist >= distanciaMinima and dist <= distanciaMaxima and dist < menorDist then
-				menorDist = dist
+			if dist >= minDist and dist <= maxDist and dist < menor then
+				menor = dist
 				alvo = npc
 			end
 		end
@@ -148,87 +175,73 @@ local function getNpcMaisProximo()
 	return alvo
 end
 
--- Mover simples com MoveTo e timeout
-local function moverAteNpcSimples(npc)
+local function moverAteNpc(npc)
 	if npc and npc:FindFirstChild("HumanoidRootPart") then
 		humanoid:MoveTo(npc.HumanoidRootPart.Position)
 		local sucesso = humanoid.MoveToFinished:Wait(5)
-		if not sucesso then
-			print("⚠️ Movimento para NPC falhou ou timeout.")
-		end
+		if not sucesso then warn("❌ Falha ao mover") end
 	end
 end
 
--- Espera NPC ou volta para ponto de espera
-local function aguardarNpcOuVoltar()
-	local tempoSemNpc = 0
-	while autoFarmAtivo do
-		local npc = getNpcMaisProximo()
-		if npc then return true end
-		tempoSemNpc += 1
-		if tempoSemNpc >= 10 then
-			print("🔄 Nenhum NPC por 10s — voltando ao ponto.")
-			moverAtePontoComTimeout(pontoEspera, 5)
-			task.wait(3)
-			return false
-		end
-		task.wait(1)
-	end
-	return false
-end
-
--- Função principal de auto farm
-local function iniciarPartida()
-	if aguardandoInicio or partidaAtiva or not autoFarmAtivo then return end
+local function iniciarArenaLoop()
 	partidaAtiva = true
-	print("🚀 Partida iniciada!")
+	local delay = tonumber(delayBox.Text) or 3
+	local minD = tonumber(minBox.Text) or 10
+	local maxD = tonumber(maxBox.Text) or 50
 
-	while autoFarmAtivo do
-		local npc = getNpcMaisProximo()
-		if npc then
-			moverAteNpcSimples(npc)
-			task.wait(0.5)
-		else
-			local encontrou = aguardarNpcOuVoltar()
-			if not encontrou then
-				continue
+	for _, ponto in ipairs(pontosDeFarm) do
+		print("🔁 Indo até:", ponto.nome)
+		hrp.CFrame = CFrame.new(ponto.pos + Vector3.new(0, 3, 0))
+		atualizarStatus(Color3.fromRGB(255, 255, 0))
+		task.wait(delay)
+
+		local tempoSemNpc = 0
+		while autoFarmAtivo do
+			local npc = getNpcMaisProximo(minD, maxD)
+			if npc then
+				atualizarStatus(Color3.fromRGB(0, 255, 0))
+				moverAteNpc(npc)
+				tempoSemNpc = 0
+			else
+				atualizarStatus(Color3.fromRGB(255, 255, 0))
+				tempoSemNpc += 1
+				if tempoSemNpc >= 10 then break end
 			end
+			task.wait(1)
 		end
 	end
 
-	print("🏁 Partida encerrada.")
+	atualizarStatus(Color3.fromRGB(255, 0, 0))
 	partidaAtiva = false
 end
 
--- Inicia o sistema: vai pro ponto e aguarda para iniciar partida
-local function iniciarSistema()
-	task.spawn(function()
-		print("🧭 Indo para o ponto de espera...")
-		local chegou = moverAtePontoComTimeout(pontoEspera, 5)
-
-		if chegou and autoFarmAtivo then
-			print("✅ Chegou ao ponto. Aguardando rodada...")
-			aguardandoInicio = true
-			task.wait(3)
-			aguardandoInicio = false
-			iniciarPartida()
-		end
-	end)
-end
-
--- Botão ativar/desativar
-button.MouseButton1Click:Connect(function()
+toggleBtn.MouseButton1Click:Connect(function()
 	autoFarmAtivo = not autoFarmAtivo
 
 	if autoFarmAtivo then
-		button.Text = "Desativar AutoFarm"
-		iniciarSistema()
+		toggleBtn.Text = "Parar AutoFarm"
+		atualizarStatus(Color3.fromRGB(255, 255, 0))
+		task.spawn(iniciarArenaLoop)
 	else
-		button.Text = "Ativar AutoFarm"
+		toggleBtn.Text = "Iniciar AutoFarm"
+		atualizarStatus(Color3.fromRGB(255, 0, 0))
 		humanoid:MoveTo(hrp.Position)
-		partidaAtiva = false
 	end
 end)
 
+minimize.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
 
-
+-- Salvar ponto
+nameBox.FocusLost:Connect(function()
+	local nome = nameBox.Text ~= "" and nameBox.Text or "Sem Nome"
+	local coords = coordBox.Text
+	local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
+	if x and y and z then
+		local vec = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
+		table.insert(pontosDeFarm, {nome = nome, pos = vec})
+		criarBotaoPonto(nome, coords)
+		nameBox.Text, coordBox.Text = "", ""
+	end
+end)
