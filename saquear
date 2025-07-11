@@ -10,7 +10,6 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 
 -- 🎯 Configurações
 local pontoEspera = Vector3.new(-394.9, 54.0, -741.6)
-local tempoEstimado = 60 * 2
 local pastaNpcs = workspace:WaitForChild("EnemyFolder")
 local distanciaMinima = 10
 local distanciaMaxima = 50
@@ -19,10 +18,8 @@ local distanciaMaxima = 50
 local autoFarmAtivo = false
 local aguardandoInicio = true
 local partidaAtiva = false
-local rodadaAtiva = false
-local cicloRodando = false -- Flag para evitar múltiplos ciclos simultâneos
 
--- 🎨 Interface UI Melhorada
+-- 🎨 Interface UI
 local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
 gui.Name = "AutoFarmGui"
 gui.ResetOnSpawn = false
@@ -94,6 +91,7 @@ restaurarBtn.Parent = gui
 local restCorner = Instance.new("UICorner", restaurarBtn)
 restCorner.CornerRadius = UDim.new(0, 8)
 
+-- Minimizar/Restaurar UI
 minimizarBtn.MouseButton1Click:Connect(function()
 	frame.Visible = false
 	restaurarBtn.Visible = true
@@ -104,7 +102,7 @@ restaurarBtn.MouseButton1Click:Connect(function()
 	restaurarBtn.Visible = false
 end)
 
--- Função para mover com timeout e teleport
+-- Função mover com pathfinding e timeout
 local function moverAtePontoComTimeout(destino, timeout)
 	local path = PathfindingService:CreatePath()
 	path:ComputeAsync(hrp.Position, destino)
@@ -113,8 +111,8 @@ local function moverAtePontoComTimeout(destino, timeout)
 		local startTime = tick()
 		for _, waypoint in ipairs(path:GetWaypoints()) do
 			humanoid:MoveTo(waypoint.Position)
-			humanoid.MoveToFinished:Wait()
-			if tick() - startTime > timeout then
+			local sucesso = humanoid.MoveToFinished:Wait(timeout)
+			if not sucesso or (tick() - startTime) > timeout then
 				print("⏱️ Demorou, teleportando.")
 				hrp.CFrame = CFrame.new(destino)
 				return true
@@ -128,13 +126,17 @@ local function moverAtePontoComTimeout(destino, timeout)
 	end
 end
 
--- Busca NPC mais próximo válido
+-- Busca NPC mais próximo válido dentro do range
 local function getNpcMaisProximo()
 	local menorDist = math.huge
 	local alvo = nil
 
 	for _, npc in pairs(pastaNpcs:GetChildren()) do
-		if npc:IsA("Model") and npc:FindFirstChild("HumanoidRootPart") then
+		if npc:IsA("Model")
+			and npc:FindFirstChild("HumanoidRootPart")
+			and npc:FindFirstChild("Humanoid")
+			and npc.Humanoid.Health > 0 then
+
 			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
 			if dist >= distanciaMinima and dist <= distanciaMaxima and dist < menorDist then
 				menorDist = dist
@@ -146,72 +148,59 @@ local function getNpcMaisProximo()
 	return alvo
 end
 
--- Move até NPC usando MoveTo simples
+-- Mover simples com MoveTo e timeout
 local function moverAteNpcSimples(npc)
 	if npc and npc:FindFirstChild("HumanoidRootPart") then
 		humanoid:MoveTo(npc.HumanoidRootPart.Position)
-		humanoid.MoveToFinished:Wait()
+		local sucesso = humanoid.MoveToFinished:Wait(5)
+		if not sucesso then
+			print("⚠️ Movimento para NPC falhou ou timeout.")
+		end
 	end
 end
 
--- Ciclo de busca/refaz busca
-local function cicloDeBuscaNpcs()
-	if cicloRodando then return end
-	cicloRodando = true
+-- Espera NPC ou volta para ponto de espera
+local function aguardarNpcOuVoltar()
+	local tempoSemNpc = 0
+	while autoFarmAtivo do
+		local npc = getNpcMaisProximo()
+		if npc then return true end
+		tempoSemNpc += 1
+		if tempoSemNpc >= 10 then
+			print("🔄 Nenhum NPC por 10s — voltando ao ponto.")
+			moverAtePontoComTimeout(pontoEspera, 5)
+			task.wait(3)
+			return false
+		end
+		task.wait(1)
+	end
+	return false
+end
+
+-- Função principal de auto farm
+local function iniciarPartida()
+	if aguardandoInicio or partidaAtiva or not autoFarmAtivo then return end
+	partidaAtiva = true
+	print("🚀 Partida iniciada!")
 
 	while autoFarmAtivo do
 		local npc = getNpcMaisProximo()
 		if npc then
 			moverAteNpcSimples(npc)
-			wait(0.5)
+			task.wait(0.5)
 		else
-			local tempoSemNpc = 0
-			while tempoSemNpc < 10 and autoFarmAtivo do
-				npc = getNpcMaisProximo()
-				if npc then break end
-				tempoSemNpc += 1
-				wait(1)
-			end
-			if not npc then
-				print("🔄 Nenhum NPC por 10s — voltando ao ponto.")
-				moverAtePontoComTimeout(pontoEspera, 5)
-				wait(3)
+			local encontrou = aguardarNpcOuVoltar()
+			if not encontrou then
+				continue
 			end
 		end
 	end
 
-	cicloRodando = false
-end
-
--- Lógica principal da partida
-local function iniciarPartida()
-	if aguardandoInicio or partidaAtiva or not autoFarmAtivo then return end
-	partidaAtiva = true
-	rodadaAtiva = true
-	print("🚀 Partida iniciada!")
-
-	local tempoRestante = tempoEstimado
-	task.spawn(function()
-		while tempoRestante > 0 and autoFarmAtivo do
-			wait(1)
-			tempoRestante -= 1
-		end
-		print("⏰ Tempo acabou.")
-		rodadaAtiva = false
-	end)
-
-	task.spawn(cicloDeBuscaNpcs)
-
-	while rodadaAtiva and autoFarmAtivo do
-		wait(1)
-	end
-
-	print("⏹️ Rodada encerrada, voltando ao ponto...")
-	moverAtePontoComTimeout(pontoEspera, 5)
+	print("🏁 Partida encerrada.")
 	partidaAtiva = false
 end
 
--- Início do sistema
+-- Inicia o sistema: vai pro ponto e aguarda para iniciar partida
 local function iniciarSistema()
 	task.spawn(function()
 		print("🧭 Indo para o ponto de espera...")
@@ -220,7 +209,7 @@ local function iniciarSistema()
 		if chegou and autoFarmAtivo then
 			print("✅ Chegou ao ponto. Aguardando rodada...")
 			aguardandoInicio = true
-			wait(3)
+			task.wait(3)
 			aguardandoInicio = false
 			iniciarPartida()
 		end
@@ -233,17 +222,13 @@ button.MouseButton1Click:Connect(function()
 
 	if autoFarmAtivo then
 		button.Text = "Desativar AutoFarm"
-		-- Reset flags para evitar travamento
-		partidaAtiva = false
-		rodadaAtiva = false
-		cicloRodando = false
 		iniciarSistema()
 	else
 		button.Text = "Ativar AutoFarm"
-		autoFarmAtivo = false
-		partidaAtiva = false
-		rodadaAtiva = false
-		cicloRodando = false
 		humanoid:MoveTo(hrp.Position)
+		partidaAtiva = false
 	end
 end)
+
+
+
