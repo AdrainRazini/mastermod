@@ -19,8 +19,8 @@ local distanciaMaxima = 50
 local autoFarmAtivo = false
 local aguardandoInicio = true
 local partidaAtiva = false
+local rodadaAtiva = false -- controla se a rodada está em andamento
 
--- 🎨 Interface UI
 -- 🎨 Interface UI Melhorada
 local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
 gui.Name = "AutoFarmGui"
@@ -111,7 +111,6 @@ restaurarBtn.MouseButton1Click:Connect(function()
 	restaurarBtn.Visible = false
 end)
 
-
 -- 🧭 Caminho com teleport após 5s
 local function moverAtePontoComTimeout(destino, timeout)
 	local path = PathfindingService:CreatePath()
@@ -184,6 +183,7 @@ end
 local function iniciarPartida()
 	if aguardandoInicio or partidaAtiva or not autoFarmAtivo then return end
 	partidaAtiva = true
+	rodadaAtiva = true
 	print("🚀 Partida iniciada!")
 
 	local tempoRestante = tempoEstimado
@@ -192,10 +192,11 @@ local function iniciarPartida()
 			wait(1)
 			tempoRestante -= 1
 		end
-		print("⏰ Tempo acabou, ainda procurando NPCs...")
+		print("⏰ Tempo acabou.")
+		rodadaAtiva = false
 	end)
 
-	while autoFarmAtivo do
+	while autoFarmAtivo and rodadaAtiva do
 		local npc = getNpcMaisProximo()
 		if npc then
 			moverAteNpcSimples(npc)
@@ -208,7 +209,8 @@ local function iniciarPartida()
 		end
 	end
 
-	print("🏁 Partida encerrada.")
+	print("⏹️ Rodada encerrada, voltando ao ponto...")
+	moverAtePontoComTimeout(pontoEspera, 5)
 	partidaAtiva = false
 end
 
@@ -239,5 +241,6 @@ button.MouseButton1Click:Connect(function()
 		button.Text = "Ativar AutoFarm"
 		humanoid:MoveTo(hrp.Position)
 		partidaAtiva = false
+		rodadaAtiva = false
 	end
 end)
