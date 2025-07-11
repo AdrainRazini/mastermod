@@ -1,202 +1,279 @@
 -- 🔧 Serviços
 local Players = game:GetService("Players")
-local PathfindingService = game:GetService("PathfindingService")
-local RunService = game:GetService("RunService")
 
--- 🔄 Variáveis principais
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
+-- 🔄 Variáveis
+local plr = Players.LocalPlayer
+local character = plr.Character or plr.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local hrp = character:WaitForChild("HumanoidRootPart")
 
--- 🧠 Estados e dados
-local savedPoints = {}
-local farmando = false
-local index = 1
-local modoAtual = "Teleport"
+-- 🎯 Configurações
+local pontoArena = Vector3.new(-394.9, 54.0, -741.6) -- Ponto fixo inicial arena
+local pastaNpcs = workspace:WaitForChild("EnemyFolder")
+local distanciaMinima = 10
+local distanciaMaxima = 50
 
--- GUI
-local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "FarmSystemGui"
+-- 🧠 Estado
+local autoFarmAtivo = false
+local partidaAtiva = false
+
+-- 🌐 Pontos salvos pelo usuário (tabela)
+local pontosSalvos = {}
+
+-- 🎨 Interface UI
+local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+gui.Name = "AutoFarmGui"
 gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
 
-local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 340, 0, 560)
-frame.Position = UDim2.new(0, 100, 0, 100)
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 300, 0, 300)
+frame.Position = UDim2.new(0, 20, 0, 80)
 frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-frame.Draggable = true
+frame.BorderSizePixel = 0
+frame.AnchorPoint = Vector2.new(0, 0)
 frame.Active = true
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+frame.Draggable = true
+frame.Parent = gui
 
-local statusBall = Instance.new("Frame", frame)
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 8)
+
+-- Botão Ativar AutoFarm
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, -20, 0, 40)
+button.Position = UDim2.new(0, 10, 0, 10)
+button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.TextSize = 18
+button.Font = Enum.Font.GothamBold
+button.Text = "Ativar AutoFarm"
+button.Parent = frame
+
+local buttonCorner = Instance.new("UICorner", button)
+buttonCorner.CornerRadius = UDim.new(0, 6)
+
+-- Botão para salvar ponto atual
+local salvarPontoBtn = Instance.new("TextButton")
+salvarPontoBtn.Size = UDim2.new(1, -20, 0, 30)
+salvarPontoBtn.Position = UDim2.new(0, 10, 0, 60)
+salvarPontoBtn.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+salvarPontoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+salvarPontoBtn.TextSize = 16
+salvarPontoBtn.Font = Enum.Font.GothamBold
+salvarPontoBtn.Text = "Salvar Ponto Atual"
+salvarPontoBtn.Parent = frame
+
+local salvarPontoCorner = Instance.new("UICorner", salvarPontoBtn)
+salvarPontoCorner.CornerRadius = UDim.new(0, 6)
+
+-- ScrollingFrame para listar pontos
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, -20, 1, -110)
+scrollFrame.Position = UDim2.new(0, 10, 0, 100)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.ScrollBarThickness = 6
+scrollFrame.Parent = frame
+
+local scrollCorner = Instance.new("UICorner", scrollFrame)
+scrollCorner.CornerRadius = UDim.new(0, 6)
+
+-- Layout para botões dos pontos
+local layout = Instance.new("UIListLayout", scrollFrame)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 5)
+
+-- Atualizar CanvasSize do scroll automaticamente
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+end)
+
+-- Função para atualizar lista de pontos na UI
+local function atualizarListaPontos()
+	-- Limpar antigos filhos exceto layout
+	for _, child in pairs(scrollFrame:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+
+	for i, ponto in ipairs(pontosSalvos) do
+		local btnPonto = Instance.new("TextButton")
+		btnPonto.Size = UDim2.new(1, -40, 0, 30)
+		btnPonto.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
+		btnPonto.TextColor3 = Color3.fromRGB(255, 255, 255)
+		btnPonto.TextSize = 14
+		btnPonto.Font = Enum.Font.Gotham
+		btnPonto.Text = ("Ponto %d: (%.1f, %.1f, %.1f)"):format(i, ponto.Position.X, ponto.Position.Y, ponto.Position.Z)
+		btnPonto.LayoutOrder = i
+		btnPonto.Parent = scrollFrame
+
+		-- Botão para ir para o ponto
+		btnPonto.MouseButton1Click:Connect(function()
+			hrp.CFrame = CFrame.new(ponto.Position + Vector3.new(0, 3, 0))
+		end)
+
+		-- Botão remover (x)
+		local removeBtn = Instance.new("TextButton")
+		removeBtn.Size = UDim2.new(0, 30, 1, 0)
+		removeBtn.Position = UDim2.new(1, -30, 0, 0)
+		removeBtn.BackgroundColor3 = Color3.fromRGB(170, 40, 40)
+		removeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		removeBtn.TextSize = 18
+		removeBtn.Font = Enum.Font.GothamBold
+		removeBtn.Text = "X"
+		removeBtn.Parent = btnPonto
+
+		removeBtn.MouseButton1Click:Connect(function()
+			table.remove(pontosSalvos, i)
+			atualizarListaPontos()
+		end)
+	end
+end
+
+-- Ao clicar salvar ponto atual
+salvarPontoBtn.MouseButton1Click:Connect(function()
+	local posAtual = hrp.Position
+	table.insert(pontosSalvos, {Position = posAtual})
+	atualizarListaPontos()
+end)
+
+-- 🔘 Bolinha de status
+local statusBall = Instance.new("Frame")
+statusBall.Name = "StatusIndicator"
 statusBall.Size = UDim2.new(0, 16, 0, 16)
 statusBall.Position = UDim2.new(0, -8, 0, -8)
-statusBall.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+statusBall.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Começa vermelho
 statusBall.BorderSizePixel = 0
-Instance.new("UICorner", statusBall).CornerRadius = UDim.new(1, 0)
+statusBall.Parent = frame
 
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(1, 0)
+statusCorner.Parent = statusBall
+
+-- 🔁 Atualizar cor da bolinha
 local function atualizarStatus(cor)
-	statusBall.BackgroundColor3 = cor
-end
-
--- Inputs e GUI (mantido como antes...)
-
--- Completa função botão
-local function criarBotaoPonto(data)
-	local btn = Instance.new("TextButton", scroll)
-	btn.Size = UDim2.new(1, 0, 0, 30)
-	btn.Text = "📍 " .. data.nome
-	btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	btn.Font = Enum.Font.Gotham
-	btn.TextSize = 13
-	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-
-	btn.MouseButton1Click:Connect(function()
-		moverPara(data.pos)
-	end)
-end
-
-salvarBtn.MouseButton1Click:Connect(function()
-	local nome = nameBox.Text ~= "" and nameBox.Text or "Sem Nome"
-	local coords = coordBox.Text
-	local x, y, z = coords:match("([^,]+),([^,]+),([^,]+)")
-	if x and y and z then
-		local pos = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
-		local part = criarMarcador(nome, pos)
-		table.insert(savedPoints, {nome = nome, pos = pos, part = part})
-		criarBotaoPonto({nome = nome, pos = pos})
-		nameBox.Text, coordBox.Text = "", ""
-	end
-end)
-
-usarLocalBtn.MouseButton1Click:Connect(function()
-	local pos = hrp.Position
-	coordBox.Text = string.format("%.1f, %.1f, %.1f", pos.X, pos.Y, pos.Z)
-end)
-
--- Modos
-local modos = {"Teleport", "Andar", "IA"}
-for i, modo in ipairs(modos) do
-	local btn = Instance.new("TextButton", frame)
-	btn.Size = UDim2.new(0.28, 0, 0, 25)
-	btn.Position = UDim2.new(0.05 + (i-1)*0.31, 0, 0, 470)
-	btn.Text = modo
-	btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	btn.Font = Enum.Font.Gotham
-	btn.TextSize = 12
-	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
-	btn.MouseButton1Click:Connect(function()
-		modoAtual = modo
-		for _, child in pairs(frame:GetChildren()) do
-			if child:IsA("TextButton") and table.find(modos, child.Text) then
-				child.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-			end
-		end
-		btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
-	end)
-end
-
--- Movimento
-local function moverPara(pos)
-	if modoAtual == "Teleport" then
-		hrp.CFrame = CFrame.new(pos)
-	elseif modoAtual == "Andar" then
-		humanoid:MoveTo(pos)
-	elseif modoAtual == "IA" then
-		local path = PathfindingService:CreatePath()
-		path:ComputeAsync(hrp.Position, pos)
-		if path.Status == Enum.PathStatus.Success then
-			for _, waypoint in pairs(path:GetWaypoints()) do
-				humanoid:MoveTo(waypoint.Position)
-				humanoid.MoveToFinished:Wait()
-			end
-		end
+	if statusBall then
+		statusBall.BackgroundColor3 = cor
 	end
 end
 
--- Buscar NPC
-local function getNpcMaisProximo(minDist, maxDist)
-	local pastaNpcs = workspace:FindFirstChild("EnemyFolder")
-	if not pastaNpcs then return end
-	local menor = math.huge
+-- 🧭 Teleportes
+local function teleportarParaArena()
+	hrp.CFrame = CFrame.new(pontoArena + Vector3.new(0, 3, 0))
+end
+
+local function teleportarParaSpawn()
+	local spawnLocation = plr.RespawnLocation or workspace:FindFirstChild("SpawnLocation")
+	if spawnLocation then
+		hrp.CFrame = spawnLocation.CFrame + Vector3.new(0, 3, 0)
+	else
+		print("⚠️ Spawn não encontrado")
+	end
+end
+
+-- 🎯 Busca NPC
+local function getNpcMaisProximo()
+	local menorDist = math.huge
 	local alvo = nil
-	for _, npc in ipairs(pastaNpcs:GetChildren()) do
-		local hrpNpc = npc:FindFirstChild("HumanoidRootPart")
-		local hum = npc:FindFirstChild("Humanoid")
-		if npc:IsA("Model") and hrpNpc and hum and hum.Health > 0 then
-			local dist = (hrp.Position - hrpNpc.Position).Magnitude
-			if dist >= minDist and dist <= maxDist and dist < menor then
-				menor = dist
+
+	for _, npc in pairs(pastaNpcs:GetChildren()) do
+		if npc:IsA("Model")
+			and npc:FindFirstChild("HumanoidRootPart")
+			and npc:FindFirstChild("Humanoid")
+			and npc.Humanoid.Health > 0 then
+
+			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+			if dist >= distanciaMinima and dist <= distanciaMaxima and dist < menorDist then
+				menorDist = dist
 				alvo = npc
 			end
 		end
 	end
+
 	return alvo
 end
 
--- Loop do farm
-local function iniciarFarm()
-	farmando = true
-	index = 1
-	while farmando and #savedPoints > 0 do
-		local ponto = savedPoints[index]
-		if not ponto then break end
-		atualizarStatus(Color3.fromRGB(255, 255, 0))
-		moverPara(ponto.pos)
-		task.wait(tonumber(delayBox.Text) or 2)
-		local min = tonumber(minDistBox.Text) or 10
-		local max = tonumber(maxDistBox.Text) or 50
-
-		local tempoSemNpc = 0
-		while farmando do
-			local alvo = getNpcMaisProximo(min, max)
-			if alvo then
-				atualizarStatus(Color3.fromRGB(0, 255, 0))
-				humanoid:MoveTo(alvo.HumanoidRootPart.Position)
-				humanoid.MoveToFinished:Wait(5)
-				tempoSemNpc = 0
-			else
-				atualizarStatus(Color3.fromRGB(255, 255, 0))
-				tempoSemNpc += 1
-				if tempoSemNpc >= 10 then break end
-				task.wait(1)
-			end
+-- 🚶 Move até NPC
+local function moverAteNpc(npc)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		humanoid:MoveTo(npc.HumanoidRootPart.Position)
+		local sucesso = humanoid.MoveToFinished:Wait(5)
+		if not sucesso then
+			print("⚠️ Falha ao mover até NPC")
 		end
-		index += 1
-		if index > #savedPoints then index = 1 end
 	end
-	atualizarStatus(Color3.fromRGB(255, 0, 0))
 end
 
--- Botões iniciar/parar
-local iniciarBtn = Instance.new("TextButton", frame)
-iniciarBtn.Text = "▶ Iniciar Farm"
-iniciarBtn.Size = UDim2.new(0.42, 0, 0, 30)
-iniciarBtn.Position = UDim2.new(0.05, 0, 0, 510)
-iniciarBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-iniciarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-iniciarBtn.Font = Enum.Font.GothamBold
-iniciarBtn.TextSize = 14
-Instance.new("UICorner", iniciarBtn).CornerRadius = UDim.new(0, 6)
+-- 🧠 Lógica principal da arena (com opção de usar ponto selecionado ou fixo)
+local function iniciarArena()
+	partidaAtiva = true
 
-local pararBtn = Instance.new("TextButton", frame)
-pararBtn.Text = "⏹ Parar"
-pararBtn.Size = UDim2.new(0.42, 0, 0, 30)
-pararBtn.Position = UDim2.new(0.53, 0, 0, 510)
-pararBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
-pararBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-pararBtn.Font = Enum.Font.GothamBold
-pararBtn.TextSize = 14
-Instance.new("UICorner", pararBtn).CornerRadius = UDim.new(0, 6)
+	print("🎯 Indo para a arena...")
+	teleportarParaArena()
 
-iniciarBtn.MouseButton1Click:Connect(function()
-	if not farmando then
-		iniciarFarm()
+	atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡 Esperando
+	print("⌛ Esperando 3s para iniciar...")
+	task.wait(3)
+
+	local tempoSemNpc = 0
+
+	while autoFarmAtivo do
+		local npc = getNpcMaisProximo()
+
+		if npc then
+			tempoSemNpc = 0
+			atualizarStatus(Color3.fromRGB(0, 255, 0)) -- 🟢 Seguindo
+			moverAteNpc(npc)
+			task.wait(0.5)
+		else
+			atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡 Esperando NPC
+			tempoSemNpc += 1
+			if tempoSemNpc >= 10 then
+				print("⌛ Nenhum NPC em 10s. Encerrando arena.")
+				break
+			end
+			task.wait(1)
+		end
 	end
-end)
 
-pararBtn.MouseButton1Click:Connect(function()
-	farmando = false
+	print("🏁 Arena finalizada, voltando ao spawn.")
+	teleportarParaSpawn()
+	atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡 Esperando
+
+	print("⏳ Aguardando 10s...")
+	task.wait(10)
+
+	partidaAtiva = false
+
+	if autoFarmAtivo then
+		iniciarArena()
+	end
+end
+
+-- ▶️ Início do sistema
+local function iniciarSistema()
+	task.spawn(function()
+		if not autoFarmAtivo then return end
+		iniciarArena()
+	end)
+end
+
+-- ⬅️ Botão ativar/desativar
+button.MouseButton1Click:Connect(function()
+	autoFarmAtivo = not autoFarmAtivo
+
+	if autoFarmAtivo then
+		button.Text = "Desativar AutoFarm"
+		atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡 Esperando
+		iniciarSistema()
+	else
+		button.Text = "Ativar AutoFarm"
+		atualizarStatus(Color3.fromRGB(255, 0, 0)) -- 🔴 Off
+		partidaAtiva = false
+		humanoid:MoveTo(hrp.Position)
+	end
 end)
