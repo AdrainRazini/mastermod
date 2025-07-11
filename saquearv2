@@ -1,0 +1,216 @@
+-- 🔧 Serviços
+local Players = game:GetService("Players")
+
+-- 🔄 Variáveis
+local plr = Players.LocalPlayer
+local character = plr.Character or plr.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+-- 🎯 Configurações
+local pontoEspera = Vector3.new(-394.9, 54.0, -741.6)
+local pastaNpcs = workspace:WaitForChild("EnemyFolder")
+local distanciaMinima = 10
+local distanciaMaxima = 50
+
+-- 🧠 Estado
+local autoFarmAtivo = false
+local aguardandoInicio = true
+local partidaAtiva = false
+
+-- 🎨 Interface UI
+local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+gui.Name = "AutoFarmGui"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 200, 0, 60)
+frame.Position = UDim2.new(0, 20, 0, 80)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.BorderSizePixel = 0
+frame.AnchorPoint = Vector2.new(0, 0)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 8)
+
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Size = UDim2.new(1, 12, 1, 12)
+shadow.Position = UDim2.new(0, -6, 0, -6)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageTransparency = 0.5
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.ZIndex = 0
+shadow.Parent = frame
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, -30, 1, 0)
+button.Position = UDim2.new(0, 0, 0, 0)
+button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.TextSize = 18
+button.Font = Enum.Font.GothamBold
+button.Text = "Ativar AutoFarm"
+button.Parent = frame
+
+local buttonCorner = Instance.new("UICorner", button)
+buttonCorner.CornerRadius = UDim.new(0, 6)
+
+local minimizarBtn = Instance.new("TextButton")
+minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
+minimizarBtn.Position = UDim2.new(1, -30, 0, 0)
+minimizarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimizarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizarBtn.TextSize = 22
+minimizarBtn.Font = Enum.Font.GothamBold
+minimizarBtn.Text = "-"
+minimizarBtn.Parent = frame
+
+local minCorner = Instance.new("UICorner", minimizarBtn)
+minCorner.CornerRadius = UDim.new(0, 6)
+
+local restaurarBtn = Instance.new("TextButton")
+restaurarBtn.Size = UDim2.new(0, 40, 0, 40)
+restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
+restaurarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+restaurarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+restaurarBtn.TextSize = 22
+restaurarBtn.Font = Enum.Font.GothamBold
+restaurarBtn.Text = "+"
+restaurarBtn.Visible = false
+restaurarBtn.Parent = gui
+
+local restCorner = Instance.new("UICorner", restaurarBtn)
+restCorner.CornerRadius = UDim.new(0, 8)
+
+-- Minimizar/Restaurar
+minimizarBtn.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	restaurarBtn.Visible = true
+end)
+
+restaurarBtn.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	restaurarBtn.Visible = false
+end)
+
+-- Teleporte para ponto de espera
+local function moverAtePontoDeEspera()
+	hrp.CFrame = CFrame.new(pontoEspera + Vector3.new(0, 3, 0))
+end
+
+-- Move até NPC com MoveTo e timeout
+local function moverAteNpc(npc)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		humanoid:MoveTo(npc.HumanoidRootPart.Position)
+		local sucesso = humanoid.MoveToFinished:Wait(5)
+		if not sucesso then
+			print("⚠️ Falha ao mover até o NPC.")
+		end
+	end
+end
+
+-- Busca o NPC mais próximo dentro do range
+local function getNpcMaisProximo()
+	local menorDist = math.huge
+	local alvo = nil
+
+	for _, npc in pairs(pastaNpcs:GetChildren()) do
+		if npc:IsA("Model")
+			and npc:FindFirstChild("HumanoidRootPart")
+			and npc:FindFirstChild("Humanoid")
+			and npc.Humanoid.Health > 0 then
+
+			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+			if dist >= distanciaMinima and dist <= distanciaMaxima and dist < menorDist then
+				menorDist = dist
+				alvo = npc
+			end
+		end
+	end
+
+	return alvo
+end
+
+-- Esperar NPC ou voltar para ponto
+local function aguardarNpcOuVoltar()
+	local tempoSemNpc = 0
+	while autoFarmAtivo do
+		local npc = getNpcMaisProximo()
+		if npc then return true end
+		tempoSemNpc += 1
+		if tempoSemNpc >= 10 then
+			print("🔄 Nenhum NPC por 10s — voltando ao ponto.")
+			moverAtePontoDeEspera()
+			task.wait(3)
+			return false
+		end
+		task.wait(1)
+	end
+	return false
+end
+
+-- Função principal da partida
+local function iniciarPartida()
+	if aguardandoInicio or partidaAtiva or not autoFarmAtivo then return end
+	partidaAtiva = true
+	print("🚀 Partida iniciada!")
+
+	while autoFarmAtivo do
+		local npc = getNpcMaisProximo()
+
+		if npc then
+			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+			if dist > distanciaMaxima then
+				print("📍 NPC muito longe. Voltando ao ponto de espera.")
+				moverAtePontoDeEspera()
+				task.wait(3)
+			else
+				moverAteNpc(npc)
+				task.wait(0.5)
+			end
+		else
+			local encontrou = aguardarNpcOuVoltar()
+			if not encontrou then continue end
+		end
+	end
+
+	print("🏁 Partida encerrada.")
+	partidaAtiva = false
+end
+
+-- Início do sistema
+local function iniciarSistema()
+	task.spawn(function()
+		print("🧭 Indo para o ponto de espera...")
+		moverAtePontoDeEspera()
+		if autoFarmAtivo then
+			print("✅ Chegou ao ponto. Aguardando rodada...")
+			aguardandoInicio = true
+			task.wait(3)
+			aguardandoInicio = false
+			iniciarPartida()
+		end
+	end)
+end
+
+-- Ativar/desativar AutoFarm
+button.MouseButton1Click:Connect(function()
+	autoFarmAtivo = not autoFarmAtivo
+
+	if autoFarmAtivo then
+		button.Text = "Desativar AutoFarm"
+		iniciarSistema()
+	else
+		button.Text = "Ativar AutoFarm"
+		humanoid:MoveTo(hrp.Position)
+		partidaAtiva = false
+	end
+end)
