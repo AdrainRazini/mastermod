@@ -274,35 +274,38 @@ end
 -- Reforço para busca de npcs mais longes
 
 local function reforco()
-	local alcanceExtra = config.distanciaMaxima * 2
-	local alvoMaisLonge = nil
+	local rangeExtra = config.distanciaMaxima * 2
 	local menorDist = math.huge
+	local alvo = nil
 
 	for _, npc in pairs(pastaNpcs:GetChildren()) do
 		if npc:IsA("Model")
-			and npc:FindFirstChild("HumanoidRootPart")
 			and npc:FindFirstChild("Humanoid")
+			and npc:FindFirstChild("HumanoidRootPart")
 			and npc.Humanoid.Health > 0 then
 
 			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
-			if dist > config.distanciaMaxima and dist <= alcanceExtra then
+			if dist > config.distanciaMaxima and dist <= rangeExtra then
 				if dist < menorDist then
 					menorDist = dist
-					alvoMaisLonge = npc
+					alvo = npc
 				end
 			end
 		end
 	end
 
-	if alvoMaisLonge then
-		print("🆘 Reforço ativado: NPC mais distante encontrado:", alvoMaisLonge.Name)
-		atualizarStatusComTexto(Color3.fromRGB(0, 255, 255), "Reforço: Indo até " .. alvoMaisLonge.Name)
-		moverAteNpc(alvoMaisLonge)
-		return true
+	if alvo then
+		print("🆘 Reforço: NPC distante encontrado:", alvo.Name)
+		atualizarStatusComTexto(Color3.fromRGB(0, 200, 255), "Reforço: " .. alvo.Name)
+		moverAteNpc(alvo)
+		return alvo
+	else
+		print("❌ Reforço falhou: nenhum NPC distante.")
+		return nil
 	end
-
-	return false -- Nada encontrado
 end
+
+
 
 -- 🎯 Busca NPC melhorada
 local function getNpcMaisProximo()
@@ -389,6 +392,8 @@ end
 -- Lógica principal da arena melhorada
 local function iniciarArena()
 	partidaAtiva = true
+	local alvoAtual = nil
+	local tempoSemNpc = 0
 
 	print("🎯 Indo para a arena...")
 	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Indo para a arena...")
@@ -398,44 +403,56 @@ local function iniciarArena()
 	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando 3 segundos para iniciar...")
 	task.wait(3)
 
-	local tempoSemNpc = 0
-
 	while autoFarmAtivo do
-		local npc = getNpcMaisProximo()
+		-- Verifica se o alvo atual ainda é válido
+		local valido = alvoAtual
+			and alvoAtual:FindFirstChild("Humanoid")
+			and alvoAtual:FindFirstChild("HumanoidRootPart")
+			and alvoAtual.Humanoid.Health > 0
 
-		if npc then
+		if not valido then
+			alvoAtual = getNpcMaisProximo()
+		end
+
+		if alvoAtual then
 			tempoSemNpc = 0
-			atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "Seguindo NPC: " .. npc.Name)
-			moverAteNpc(npc)
-			task.wait(0.5)
+			atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "Seguindo: " .. alvoAtual.Name)
+			moverAteNpc(alvoAtual)
 		else
-			atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando NPC...")
 			tempoSemNpc += 1
+			atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando NPC...")
 
+			-- Reforço após 10 tentativas
 			if tempoSemNpc >= 10 then
-				if reforco() then
-					tempoSemNpc = 0
-				else
-					if modoInteligente then
-						print("🤖 Inteligente: Nenhum NPC em 10s. Retornando e tentando de novo.")
-						atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Nenhum NPC em 10s, teleportando para spawn...")
-						teleportarParaSpawn()
-						task.wait(2)
-
-						atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Voltando para arena...")
-						teleportarParaArena()
-						task.wait(2)
-
+				if reforco then
+					local npcRef = reforco()
+					if npcRef then
+						alvoAtual = npcRef
 						tempoSemNpc = 0
 					else
-						print("⌛ Nenhum NPC em 10s. Encerrando arena.")
-						break
+						if modoInteligente then
+							print("🤖 Nenhum NPC, ativando modo inteligente.")
+							atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Sem NPCs. Teleportando para spawn...")
+							teleportarParaSpawn()
+							task.wait(2)
+
+							atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Voltando para arena...")
+							teleportarParaArena()
+							task.wait(2)
+
+							tempoSemNpc = 0
+						else
+							print("❌ Sem NPCs, encerrando arena.")
+							break
+						end
 					end
 				end
 			end
 
 			task.wait(1)
 		end
+
+		task.wait(0.5)
 	end
 
 	print("🏁 Arena finalizada, voltando ao spawn.")
@@ -452,6 +469,7 @@ local function iniciarArena()
 		iniciarArena()
 	end
 end
+
 
 
 
@@ -521,4 +539,3 @@ end
 
 -- 🔄 Chamar logo após inicializar humanoid na primeira vez
 monitorarMorte()
-
