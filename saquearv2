@@ -8,14 +8,13 @@ local humanoid = character:WaitForChild("Humanoid")
 local hrp = character:WaitForChild("HumanoidRootPart")
 
 -- 🎯 Configurações
-local pontoEspera = Vector3.new(-394.9, 54.0, -741.6)
+local pontoArena = Vector3.new(-394.9, 54.0, -741.6)
 local pastaNpcs = workspace:WaitForChild("EnemyFolder")
 local distanciaMinima = 10
 local distanciaMaxima = 50
 
 -- 🧠 Estado
 local autoFarmAtivo = false
-local aguardandoInicio = true
 local partidaAtiva = false
 
 -- 🎨 Interface UI
@@ -90,7 +89,27 @@ restaurarBtn.Parent = gui
 local restCorner = Instance.new("UICorner", restaurarBtn)
 restCorner.CornerRadius = UDim.new(0, 8)
 
--- Minimizar/Restaurar
+-- 🔘 Bolinha de status
+local statusBall = Instance.new("Frame")
+statusBall.Name = "StatusIndicator"
+statusBall.Size = UDim2.new(0, 16, 0, 16)
+statusBall.Position = UDim2.new(0, -8, 0, -8)
+statusBall.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Começa vermelho
+statusBall.BorderSizePixel = 0
+statusBall.Parent = frame
+
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(1, 0)
+statusCorner.Parent = statusBall
+
+-- 🔁 Atualizar cor da bolinha
+local function atualizarStatus(cor)
+	if statusBall then
+		statusBall.BackgroundColor3 = cor
+	end
+end
+
+-- Minimizar/Restaurar UI
 minimizarBtn.MouseButton1Click:Connect(function()
 	frame.Visible = false
 	restaurarBtn.Visible = true
@@ -101,23 +120,21 @@ restaurarBtn.MouseButton1Click:Connect(function()
 	restaurarBtn.Visible = false
 end)
 
--- Teleporte para ponto de espera
-local function moverAtePontoDeEspera()
-	hrp.CFrame = CFrame.new(pontoEspera + Vector3.new(0, 3, 0))
+-- 🧭 Teleportes
+local function teleportarParaArena()
+	hrp.CFrame = CFrame.new(pontoArena + Vector3.new(0, 3, 0))
 end
 
--- Move até NPC com MoveTo e timeout
-local function moverAteNpc(npc)
-	if npc and npc:FindFirstChild("HumanoidRootPart") then
-		humanoid:MoveTo(npc.HumanoidRootPart.Position)
-		local sucesso = humanoid.MoveToFinished:Wait(5)
-		if not sucesso then
-			print("⚠️ Falha ao mover até o NPC.")
-		end
+local function teleportarParaSpawn()
+	local spawnLocation = plr.RespawnLocation or workspace:FindFirstChild("SpawnLocation")
+	if spawnLocation then
+		hrp.CFrame = spawnLocation.CFrame + Vector3.new(0, 3, 0)
+	else
+		print("⚠️ Spawn não encontrado")
 	end
 end
 
--- Busca o NPC mais próximo dentro do range
+-- 🎯 Busca NPC
 local function getNpcMaisProximo()
 	local menorDist = math.huge
 	local alvo = nil
@@ -139,78 +156,83 @@ local function getNpcMaisProximo()
 	return alvo
 end
 
--- Esperar NPC ou voltar para ponto
-local function aguardarNpcOuVoltar()
-	local tempoSemNpc = 0
-	while autoFarmAtivo do
-		local npc = getNpcMaisProximo()
-		if npc then return true end
-		tempoSemNpc += 1
-		if tempoSemNpc >= 10 then
-			print("🔄 Nenhum NPC por 10s — voltando ao ponto.")
-			moverAtePontoDeEspera()
-			task.wait(3)
-			return false
+-- 🚶 Move até NPC
+local function moverAteNpc(npc)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		humanoid:MoveTo(npc.HumanoidRootPart.Position)
+		local sucesso = humanoid.MoveToFinished:Wait(5)
+		if not sucesso then
+			print("⚠️ Falha ao mover até NPC")
 		end
-		task.wait(1)
 	end
-	return false
 end
 
--- Função principal da partida
-local function iniciarPartida()
-	if aguardandoInicio or partidaAtiva or not autoFarmAtivo then return end
+-- 🧠 Lógica principal da arena
+local function iniciarArena()
 	partidaAtiva = true
-	print("🚀 Partida iniciada!")
+
+	print("🎯 Indo para a arena...")
+	teleportarParaArena()
+
+	atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡 Esperando
+	print("⌛ Esperando 3s para iniciar...")
+	task.wait(3)
+
+	local tempoSemNpc = 0
 
 	while autoFarmAtivo do
 		local npc = getNpcMaisProximo()
 
 		if npc then
-			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
-			if dist > distanciaMaxima then
-				print("📍 NPC muito longe. Voltando ao ponto de espera.")
-				moverAtePontoDeEspera()
-				task.wait(3)
-			else
-				moverAteNpc(npc)
-				task.wait(0.5)
-			end
+			tempoSemNpc = 0
+			atualizarStatus(Color3.fromRGB(0, 255, 0)) -- 🟢 Seguindo
+			moverAteNpc(npc)
+			task.wait(0.5)
 		else
-			local encontrou = aguardarNpcOuVoltar()
-			if not encontrou then continue end
+			atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡 Esperando NPC
+			tempoSemNpc += 1
+			if tempoSemNpc >= 10 then
+				print("⌛ Nenhum NPC em 10s. Encerrando arena.")
+				break
+			end
+			task.wait(1)
 		end
 	end
 
-	print("🏁 Partida encerrada.")
+	print("🏁 Arena finalizada, voltando ao spawn.")
+	teleportarParaSpawn()
+	atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡 Esperando
+
+	print("⏳ Aguardando 10s...")
+	task.wait(10)
+
 	partidaAtiva = false
+
+	if autoFarmAtivo then
+		iniciarArena()
+	end
 end
 
--- Início do sistema
+-- ▶️ Início do sistema
 local function iniciarSistema()
 	task.spawn(function()
-		print("🧭 Indo para o ponto de espera...")
-		moverAtePontoDeEspera()
-		if autoFarmAtivo then
-			print("✅ Chegou ao ponto. Aguardando rodada...")
-			aguardandoInicio = true
-			task.wait(3)
-			aguardandoInicio = false
-			iniciarPartida()
-		end
+		if not autoFarmAtivo then return end
+		iniciarArena()
 	end)
 end
 
--- Ativar/desativar AutoFarm
+-- ⬅️ Botão ativar/desativar
 button.MouseButton1Click:Connect(function()
 	autoFarmAtivo = not autoFarmAtivo
 
 	if autoFarmAtivo then
 		button.Text = "Desativar AutoFarm"
+		atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡 Esperando
 		iniciarSistema()
 	else
 		button.Text = "Ativar AutoFarm"
-		humanoid:MoveTo(hrp.Position)
+		atualizarStatus(Color3.fromRGB(255, 0, 0)) -- 🔴 Off
 		partidaAtiva = false
+		humanoid:MoveTo(hrp.Position)
 	end
 end)
