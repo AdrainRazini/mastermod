@@ -8,7 +8,7 @@ local humanoid = character:WaitForChild("Humanoid")
 local hrp = character:WaitForChild("HumanoidRootPart")
 
 -- 🎯 Configurações
-local pontoArena = Vector3.new(-394.9, 54.0, -741.6) -- Ponto fixo inicial arena
+local pontoArena = Vector3.new(-394.9, 54.0, -741.6)
 local pastaNpcs = workspace:WaitForChild("EnemyFolder")
 local distanciaMinima = 10
 local distanciaMaxima = 50
@@ -16,9 +16,6 @@ local distanciaMaxima = 50
 -- 🧠 Estado
 local autoFarmAtivo = false
 local partidaAtiva = false
-
--- 🌐 Pontos salvos pelo usuário (tabela)
-local pontosSalvos = {}
 
 -- 🎨 Interface UI
 local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
@@ -28,7 +25,7 @@ gui.IgnoreGuiInset = true
 
 local frame = Instance.new("Frame")
 frame.Name = "MainFrame"
-frame.Size = UDim2.new(0, 300, 0, 300)
+frame.Size = UDim2.new(0, 200, 0, 60)
 frame.Position = UDim2.new(0, 20, 0, 80)
 frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 frame.BorderSizePixel = 0
@@ -40,10 +37,21 @@ frame.Parent = gui
 local corner = Instance.new("UICorner", frame)
 corner.CornerRadius = UDim.new(0, 8)
 
--- Botão Ativar AutoFarm
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Size = UDim2.new(1, 12, 1, 12)
+shadow.Position = UDim2.new(0, -6, 0, -6)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageTransparency = 0.5
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.ZIndex = 0
+shadow.Parent = frame
+
 local button = Instance.new("TextButton")
-button.Size = UDim2.new(1, -20, 0, 40)
-button.Position = UDim2.new(0, 10, 0, 10)
+button.Size = UDim2.new(1, -30, 1, 0)
+button.Position = UDim2.new(0, 0, 0, 0)
 button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.TextSize = 18
@@ -54,92 +62,32 @@ button.Parent = frame
 local buttonCorner = Instance.new("UICorner", button)
 buttonCorner.CornerRadius = UDim.new(0, 6)
 
--- Botão para salvar ponto atual
-local salvarPontoBtn = Instance.new("TextButton")
-salvarPontoBtn.Size = UDim2.new(1, -20, 0, 30)
-salvarPontoBtn.Position = UDim2.new(0, 10, 0, 60)
-salvarPontoBtn.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
-salvarPontoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-salvarPontoBtn.TextSize = 16
-salvarPontoBtn.Font = Enum.Font.GothamBold
-salvarPontoBtn.Text = "Salvar Ponto Atual"
-salvarPontoBtn.Parent = frame
+local minimizarBtn = Instance.new("TextButton")
+minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
+minimizarBtn.Position = UDim2.new(1, -30, 0, 0)
+minimizarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimizarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizarBtn.TextSize = 22
+minimizarBtn.Font = Enum.Font.GothamBold
+minimizarBtn.Text = "-"
+minimizarBtn.Parent = frame
 
-local salvarPontoCorner = Instance.new("UICorner", salvarPontoBtn)
-salvarPontoCorner.CornerRadius = UDim.new(0, 6)
+local minCorner = Instance.new("UICorner", minimizarBtn)
+minCorner.CornerRadius = UDim.new(0, 6)
 
--- ScrollingFrame para listar pontos
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, -20, 1, -110)
-scrollFrame.Position = UDim2.new(0, 10, 0, 100)
-scrollFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.Parent = frame
+local restaurarBtn = Instance.new("TextButton")
+restaurarBtn.Size = UDim2.new(0, 40, 0, 40)
+restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
+restaurarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+restaurarBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+restaurarBtn.TextSize = 22
+restaurarBtn.Font = Enum.Font.GothamBold
+restaurarBtn.Text = "+"
+restaurarBtn.Visible = false
+restaurarBtn.Parent = gui
 
-local scrollCorner = Instance.new("UICorner", scrollFrame)
-scrollCorner.CornerRadius = UDim.new(0, 6)
-
--- Layout para botões dos pontos
-local layout = Instance.new("UIListLayout", scrollFrame)
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.Padding = UDim.new(0, 5)
-
--- Atualizar CanvasSize do scroll automaticamente
-layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-end)
-
--- Função para atualizar lista de pontos na UI
-local function atualizarListaPontos()
-	-- Limpar antigos filhos exceto layout
-	for _, child in pairs(scrollFrame:GetChildren()) do
-		if child:IsA("TextButton") then
-			child:Destroy()
-		end
-	end
-
-	for i, ponto in ipairs(pontosSalvos) do
-		local btnPonto = Instance.new("TextButton")
-		btnPonto.Size = UDim2.new(1, -40, 0, 30)
-		btnPonto.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
-		btnPonto.TextColor3 = Color3.fromRGB(255, 255, 255)
-		btnPonto.TextSize = 14
-		btnPonto.Font = Enum.Font.Gotham
-		btnPonto.Text = ("Ponto %d: (%.1f, %.1f, %.1f)"):format(i, ponto.Position.X, ponto.Position.Y, ponto.Position.Z)
-		btnPonto.LayoutOrder = i
-		btnPonto.Parent = scrollFrame
-
-		-- Botão para ir para o ponto
-		btnPonto.MouseButton1Click:Connect(function()
-			hrp.CFrame = CFrame.new(ponto.Position + Vector3.new(0, 3, 0))
-		end)
-
-		-- Botão remover (x)
-		local removeBtn = Instance.new("TextButton")
-		removeBtn.Size = UDim2.new(0, 30, 1, 0)
-		removeBtn.Position = UDim2.new(1, -30, 0, 0)
-		removeBtn.BackgroundColor3 = Color3.fromRGB(170, 40, 40)
-		removeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		removeBtn.TextSize = 18
-		removeBtn.Font = Enum.Font.GothamBold
-		removeBtn.Text = "X"
-		removeBtn.Parent = btnPonto
-
-		removeBtn.MouseButton1Click:Connect(function()
-			table.remove(pontosSalvos, i)
-			atualizarListaPontos()
-		end)
-	end
-end
-
--- Ao clicar salvar ponto atual
-salvarPontoBtn.MouseButton1Click:Connect(function()
-	local posAtual = hrp.Position
-	table.insert(pontosSalvos, {Position = posAtual})
-	atualizarListaPontos()
-end)
+local restCorner = Instance.new("UICorner", restaurarBtn)
+restCorner.CornerRadius = UDim.new(0, 8)
 
 -- 🔘 Bolinha de status
 local statusBall = Instance.new("Frame")
@@ -160,6 +108,17 @@ local function atualizarStatus(cor)
 		statusBall.BackgroundColor3 = cor
 	end
 end
+
+-- Minimizar/Restaurar UI
+minimizarBtn.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	restaurarBtn.Visible = true
+end)
+
+restaurarBtn.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	restaurarBtn.Visible = false
+end)
 
 -- 🧭 Teleportes
 local function teleportarParaArena()
@@ -208,7 +167,7 @@ local function moverAteNpc(npc)
 	end
 end
 
--- 🧠 Lógica principal da arena (com opção de usar ponto selecionado ou fixo)
+-- 🧠 Lógica principal da arena
 local function iniciarArena()
 	partidaAtiva = true
 
