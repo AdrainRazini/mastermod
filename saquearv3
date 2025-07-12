@@ -271,6 +271,38 @@ local function teleportarParaSpawn()
 	end
 end
 
+-- Reforço para busca de npcs mais longes
+
+local function reforco()
+	local alcanceExtra = config.distanciaMaxima * 2
+	local alvoMaisLonge = nil
+	local menorDist = math.huge
+
+	for _, npc in pairs(pastaNpcs:GetChildren()) do
+		if npc:IsA("Model")
+			and npc:FindFirstChild("HumanoidRootPart")
+			and npc:FindFirstChild("Humanoid")
+			and npc.Humanoid.Health > 0 then
+
+			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+			if dist > config.distanciaMaxima and dist <= alcanceExtra then
+				if dist < menorDist then
+					menorDist = dist
+					alvoMaisLonge = npc
+				end
+			end
+		end
+	end
+
+	if alvoMaisLonge then
+		print("🆘 Reforço ativado: NPC mais distante encontrado:", alvoMaisLonge.Name)
+		atualizarStatusComTexto(Color3.fromRGB(0, 255, 255), "Reforço: Indo até " .. alvoMaisLonge.Name)
+		moverAteNpc(alvoMaisLonge)
+		return true
+	end
+
+	return false -- Nada encontrado
+end
 
 -- 🎯 Busca NPC melhorada
 local function getNpcMaisProximo()
@@ -361,6 +393,9 @@ local function iniciarArena()
 	print("🎯 Indo para a arena...")
 	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Indo para a arena...")
 	teleportarParaArena()
+
+	print("⌛ Esperando 3s para iniciar...")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando 3 segundos para iniciar...")
 	task.wait(3)
 
 	local tempoSemNpc = 0
@@ -378,17 +413,24 @@ local function iniciarArena()
 			tempoSemNpc += 1
 
 			if tempoSemNpc >= 10 then
-				if config.modoInteligente then
-					print("🤖 Modo inteligente: reiniciando arena.")
-					atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Sem NPCs. Resetando arena...")
-					teleportarParaSpawn()
-					task.wait(2)
-					teleportarParaArena()
-					task.wait(2)
+				if reforco() then
 					tempoSemNpc = 0
 				else
-					print("⌛ Sem NPCs. Encerrando arena.")
-					break
+					if modoInteligente then
+						print("🤖 Inteligente: Nenhum NPC em 10s. Retornando e tentando de novo.")
+						atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Nenhum NPC em 10s, teleportando para spawn...")
+						teleportarParaSpawn()
+						task.wait(2)
+
+						atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Voltando para arena...")
+						teleportarParaArena()
+						task.wait(2)
+
+						tempoSemNpc = 0
+					else
+						print("⌛ Nenhum NPC em 10s. Encerrando arena.")
+						break
+					end
 				end
 			end
 
@@ -396,15 +438,21 @@ local function iniciarArena()
 		end
 	end
 
-	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Finalizando arena...")
+	print("🏁 Arena finalizada, voltando ao spawn.")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Arena finalizada, voltando ao spawn...")
 	teleportarParaSpawn()
+
+	print("⏳ Aguardando 10s...")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Aguardando 10 segundos...")
 	task.wait(10)
+
 	partidaAtiva = false
 
 	if autoFarmAtivo then
 		iniciarArena()
 	end
 end
+
 
 
 
@@ -473,3 +521,4 @@ end
 
 -- 🔄 Chamar logo após inicializar humanoid na primeira vez
 monitorarMorte()
+
