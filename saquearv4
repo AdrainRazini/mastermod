@@ -1,0 +1,858 @@
+-- 🔧 Serviços
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+local character = plr.Character or plr.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+-- 🎯 Configurações Iniciais
+local pontoArena = Vector3.new(-394.9, 54.0, -741.6)
+local pastaNpcs = workspace:WaitForChild("EnemyFolder")
+
+local config = {
+	distanciaMinima = 10,
+	distanciaMaxima = 50,
+	contador = false,
+	highlightNPC = false,
+	modoInteligente = false,
+	pontoArena = pontoArena
+}
+
+-- 🧠 Estados
+local autoFarmAtivo = false
+local partidaAtiva = false
+
+-- 🖼️ Função utilitária para criar UI Corner
+local function applyCorner(instance, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = radius or UDim.new(0, 6)
+	corner.Parent = instance
+end
+
+--[[
+local gui = Instance.new("ScreenGui")
+gui.Name = "AutoFarmGui"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = plr:WaitForChild("PlayerGui")
+]]
+
+-- 🧼 Remover GUI anterior se já existir
+local playerGui = plr:WaitForChild("PlayerGui")
+local guiExistente = playerGui:FindFirstChild("AutoFarmGui")
+if guiExistente then
+	guiExistente:Destroy()
+end
+
+-- 🧱 Criar nova GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "AutoFarmGui"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = playerGui
+
+
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 200, 0, 70)
+frame.Position = UDim2.new(0, 20, 0, 80)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+applyCorner(frame, UDim.new(0, 8))
+
+-- 🌫️ Sombra
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Size = UDim2.new(1, 12, 1, 12)
+shadow.Position = UDim2.new(0, -6, 0, -6)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageTransparency = 0.5
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.ZIndex = 0
+shadow.Parent = frame
+
+-- 🟢 Botão principal (Ativar)
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, -30, 1, 0)
+button.Position = UDim2.new(0, 0, 0, 0)
+button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.TextSize = 18
+button.Font = Enum.Font.GothamBold
+button.Text = "Ativar AutoFarm"
+button.Parent = frame
+applyCorner(button)
+
+-- 🔘 Minimizar / Restaurar
+local minimizarBtn = Instance.new("TextButton")
+minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
+minimizarBtn.Position = UDim2.new(1, -30, 0, 0)
+minimizarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimizarBtn.Text = "-"
+minimizarBtn.TextColor3 = Color3.new(1,1,1)
+minimizarBtn.TextSize = 22
+minimizarBtn.Font = Enum.Font.GothamBold
+minimizarBtn.Parent = frame
+applyCorner(minimizarBtn)
+
+local restaurarBtn = minimizarBtn:Clone()
+restaurarBtn.Text = "+"
+restaurarBtn.Size = UDim2.new(0, 40, 0, 40)
+restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
+restaurarBtn.Visible = false
+restaurarBtn.Parent = gui
+
+-- 🔴 Bolinha de status
+local statusBall = Instance.new("Frame")
+statusBall.Name = "StatusIndicator"
+statusBall.Size = UDim2.new(0, 16, 0, 16)
+statusBall.Position = UDim2.new(0, -8, 0, -8)
+statusBall.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+statusBall.BorderSizePixel = 0
+statusBall.Parent = frame
+applyCorner(statusBall, UDim.new(1, 0))
+
+-- 🏷️ Status textual
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Size = UDim2.new(1, 0, 0, 25)
+statusLabel.Position = UDim2.new(0, 0, 0, frame.Size.Y.Offset)
+statusLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+statusLabel.TextColor3 = Color3.new(1, 1, 1)
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.TextSize = 14
+statusLabel.Text = "Status: Aguardando ação..."
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+statusLabel.Parent = gui
+applyCorner(statusLabel)
+
+-- 🔁 Atualizador de status visual/textual
+local function atualizarStatus(cor)
+	statusBall.BackgroundColor3 = cor
+end
+local function atualizarStatusComTexto(cor, texto)
+	atualizarStatus(cor)
+	statusLabel.Text = "Status: " .. texto
+end
+
+
+
+
+-- 📦 Configurações
+local configBtn = Instance.new("TextButton")
+configBtn.Size = UDim2.new(0, 30, 0, 30)
+configBtn.Position = UDim2.new(1, -30, 1, -30)
+configBtn.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+configBtn.Text = "⚙️"
+configBtn.TextColor3 = Color3.new(1,1,1)
+configBtn.Font = Enum.Font.GothamBold
+configBtn.TextSize = 20
+configBtn.Parent = frame
+applyCorner(configBtn)
+
+-- ⚙️ Painel de Config
+local configFrame = Instance.new("Frame")
+configFrame.Size = UDim2.new(0, 300, 0, 400)
+configFrame.Position = UDim2.new(0, frame.Position.X.Offset + 220, 0, frame.Position.Y.Offset)
+configFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+configFrame.Visible = false
+configFrame.Active = true
+configFrame.Draggable = true
+configFrame.Parent = gui
+applyCorner(configFrame, UDim.new(0, 8))
+
+local configTitle = Instance.new("TextLabel")
+configTitle.Size = UDim2.new(1, 0, 0, 30)
+configTitle.BackgroundTransparency = 1
+configTitle.Text = "🔧 Configurações"
+configTitle.TextColor3 = Color3.new(1, 1, 1)
+configTitle.Font = Enum.Font.GothamBold
+configTitle.TextSize = 18
+configTitle.Parent = configFrame
+
+
+
+
+
+-- 🌐 Seções
+local secoes = {
+	["Player"] = {},
+	["Jogo"] = {},
+	["Farm"] = {},
+	["Teleportes"] = {}
+}
+
+-- 🧭 Menu de Abas
+local abasFrame = Instance.new("Frame")
+abasFrame.Size = UDim2.new(1, 0, 0, 30)
+abasFrame.BackgroundTransparency = 1
+abasFrame.Position = UDim2.new(0, 0, 0, 30)
+abasFrame.Parent = configFrame
+
+-- 🔁 Função para criar abas
+local abaSelecionada = "Player"
+
+local function atualizarVisibilidade()
+	for nomeSecao, elementos in pairs(secoes) do
+		for _, ui in pairs(elementos) do
+			ui.Visible = (nomeSecao == abaSelecionada)
+		end
+	end
+end
+
+local function criarAba(nome, posX)
+	local botao = Instance.new("TextButton")
+	botao.Size = UDim2.new(0, 60, 0, 25)
+	botao.Position = UDim2.new(0, posX, 0, 0)
+	botao.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	botao.Text = nome
+	botao.TextColor3 = Color3.new(1, 1, 1)
+	botao.Font = Enum.Font.GothamBold
+	botao.TextSize = 13
+	botao.Parent = abasFrame
+	applyCorner(botao, UDim.new(0, 4))
+
+	botao.MouseButton1Click:Connect(function()
+		abaSelecionada = nome
+		atualizarVisibilidade()
+	end)
+end
+
+criarAba("Player", 10)
+criarAba("Jogo", 80)
+criarAba("Farm", 150)
+criarAba("Teleportes", 220)
+
+
+
+
+
+local function criarEntrada(titulo, posY, valorAtual, onChange, secao)
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(0, 120, 0, 20)
+	label.Position = UDim2.new(0, 10, 0, posY)
+	label.Text = titulo
+	label.TextColor3 = Color3.new(1,1,1)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 14
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Parent = configFrame
+
+	local box = Instance.new("TextBox")
+	box.Size = UDim2.new(0, 70, 0, 20)
+	box.Position = UDim2.new(1, -80, 0, posY)
+	box.Text = tostring(valorAtual)
+	box.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+	box.TextColor3 = Color3.new(1, 1, 1)
+	box.Font = Enum.Font.Gotham
+	box.TextSize = 14
+	box.ClearTextOnFocus = false
+	box.Parent = configFrame
+	applyCorner(box)
+
+	box.FocusLost:Connect(function()
+		local value = tonumber(box.Text)
+		if value then onChange(value) end
+	end)
+
+	label.Visible = false
+	box.Visible = false
+	table.insert(secoes[secao], label)
+	table.insert(secoes[secao], box)
+end
+
+local function criarCheckbox(titulo, posY, valorInicial, callback, secao)
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(0, 140, 0, 20)
+	label.Position = UDim2.new(0, 10, 0, posY)
+	label.Text = titulo
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 14
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Parent = configFrame
+
+	local box = Instance.new("TextButton")
+	box.Size = UDim2.new(0, 20, 0, 20)
+	box.Position = UDim2.new(1, -30, 0, posY)
+	box.BackgroundColor3 = valorInicial and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(70, 70, 70)
+	box.Text = valorInicial and "✔" or ""
+	box.TextColor3 = Color3.new(1, 1, 1)
+	box.Font = Enum.Font.GothamBold
+	box.TextSize = 16
+	box.Parent = configFrame
+	applyCorner(box, UDim.new(0, 4))
+
+	box.MouseButton1Click:Connect(function()
+		valorInicial = not valorInicial
+		box.BackgroundColor3 = valorInicial and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(70, 70, 70)
+		box.Text = valorInicial and "✔" or ""
+		callback(valorInicial)
+	end)
+
+	label.Visible = false
+	box.Visible = false
+	table.insert(secoes[secao], label)
+	table.insert(secoes[secao], box)
+end
+
+
+-- 🎯 Farm
+criarEntrada("Distância Mínima:", 70, config.distanciaMinima, function(v) config.distanciaMinima = v end, "Farm")
+criarEntrada("Distância Máxima:", 100, config.distanciaMaxima, function(v) config.distanciaMaxima = v end, "Farm")
+criarCheckbox("Contador", 130, config.contador, function(v) config.contador = v end, "Farm")
+criarCheckbox("Highlight NPC", 160, config.highlightNPC, function(v) config.highlightNPC = v end, "Farm")
+criarCheckbox("Modo Inteligente", 190, config.modoInteligente, function(v) config.modoInteligente = v end, "Farm")
+
+-- 🧍 Player
+local ultimoWalkSpeed = 16
+local ultimoJumpPower = 50
+local ultimaColisao = true
+local ultimoESP = false
+-- 1. Velocidade de caminhada
+
+local function setWalkSpeed(valor)
+	ultimoWalkSpeed = valor
+	local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.WalkSpeed = valor
+	end
+end
+
+local function setJumpPower(valor)
+	ultimoJumpPower = valor
+	local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.JumpPower = valor
+	end
+end
+
+local function setCollision(ativo)
+	ultimaColisao = ativo
+	local character = game.Players.LocalPlayer.Character
+	if character then
+		for _, part in pairs(character:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.CanCollide = ativo
+			end
+		end
+	end
+end
+
+local function toggleESP(ativo)
+	ultimoESP = ativo
+	local char = game.Players.LocalPlayer.Character
+	if not char then return end
+
+	local highlight = char:FindFirstChild("PlayerHighlight")
+	if ativo then
+		if not highlight then
+			highlight = Instance.new("Highlight")
+			highlight.Name = "PlayerHighlight"
+			highlight.FillTransparency = 1
+			highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+			highlight.OutlineTransparency = 0
+			highlight.Parent = char
+		end
+	else
+		if highlight then
+			highlight:Destroy()
+		end
+	end
+end
+
+local player = game.Players.LocalPlayer
+player.CharacterAdded:Connect(function(char)
+	char:WaitForChild("Humanoid")
+
+	task.wait(0.2) -- pequeno delay para garantir que as partes existam
+
+	setWalkSpeed(ultimoWalkSpeed)
+	setJumpPower(ultimoJumpPower)
+	setCollision(ultimaColisao)
+	toggleESP(ultimoESP)
+end)
+
+
+
+criarEntrada("Velocidade:", 70, 16, setWalkSpeed, "Player")
+criarEntrada("Pulo:", 100, 50, setJumpPower, "Player")
+criarCheckbox("Colisão", 130, true, setCollision, "Player")
+criarCheckbox("ESP (Highlight)", 160, false, toggleESP, "Player")
+--====================================================================--
+-- ⚙️ Jogo
+criarCheckbox("Música ligada", 70, false, function(v) print("Música:", v) end, "Jogo")
+
+
+--===============--
+-- 🚀 TELEPORTES
+local autoTeleporteAtivo = false
+
+-- Atualiza o pontoArena na config
+local function atualizarPontoArena(v3)
+	config.pontoArena = v3
+	print("📍 Novo pontoArena:", v3)
+end
+
+-- Entrada para coordenadas do pontoArena
+local function criarEntradaCoordenadas(baseY, secao)
+	local campos, labelsUI = {}, {}
+
+	local labels = {"X", "Y", "Z"}
+	local valores = {config.pontoArena.X, config.pontoArena.Y, config.pontoArena.Z}
+
+	for i = 1, 3 do
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(0, 20, 0, 20)
+		label.Position = UDim2.new(0, 10 + (i-1)*90, 0, baseY)
+		label.Text = labels[i]
+		label.TextColor3 = Color3.new(1,1,1)
+		label.BackgroundTransparency = 1
+		label.Font = Enum.Font.Gotham
+		label.TextSize = 14
+		label.Parent = configFrame
+		label.Visible = false
+		table.insert(secoes[secao], label)
+		table.insert(labelsUI, label)
+
+		local box = Instance.new("TextBox")
+		box.Size = UDim2.new(0, 70, 0, 20)
+		box.Position = UDim2.new(0, 30 + (i-1)*90, 0, baseY)
+		box.Text = tostring(math.floor(valores[i]*100)/100)
+		box.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		box.TextColor3 = Color3.new(1, 1, 1)
+		box.Font = Enum.Font.Gotham
+		box.TextSize = 14
+		box.ClearTextOnFocus = false
+		box.Parent = configFrame
+		box.Visible = false
+		applyCorner(box)
+
+		table.insert(campos, box)
+		table.insert(secoes[secao], box)
+	end
+
+	local botao = Instance.new("TextButton")
+	botao.Size = UDim2.new(0, 120, 0, 20)
+	botao.Position = UDim2.new(1, -130, 0, baseY + 25)
+	botao.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+	botao.Text = "📍 Usar Local Atual"
+	botao.TextColor3 = Color3.new(1,1,1)
+	botao.Font = Enum.Font.GothamBold
+	botao.TextSize = 13
+	botao.Parent = configFrame
+	botao.Visible = false
+	applyCorner(botao)
+	table.insert(secoes[secao], botao)
+
+	-- Atualiza campos com a posição atual do jogador
+	botao.MouseButton1Click:Connect(function()
+		local pos = hrp.Position
+		campos[1].Text = tostring(math.floor(pos.X * 100)/100)
+		campos[2].Text = tostring(math.floor(pos.Y * 100)/100)
+		campos[3].Text = tostring(math.floor(pos.Z * 100)/100)
+		atualizarPontoArena(pos)
+	end)
+
+	-- Atualiza o config com novos valores inseridos manualmente
+	for i, box in pairs(campos) do
+		box.FocusLost:Connect(function()
+			local x = tonumber(campos[1].Text) or config.pontoArena.X
+			local y = tonumber(campos[2].Text) or config.pontoArena.Y
+			local z = tonumber(campos[3].Text) or config.pontoArena.Z
+			atualizarPontoArena(Vector3.new(x, y, z))
+		end)
+	end
+end
+
+-- Trocar pasta de NPCs
+local function setPastaNpc(nome)
+	local nova = workspace:FindFirstChild(nome)
+	if nova and nova:IsA("Folder") then
+		pastaNpcs = nova
+		print("✅ Nova pasta de NPCs:", nome)
+	else
+		warn("❌ Pasta não encontrada ou inválida:", nome)
+	end
+end
+
+-- Entrada de texto para nome da pasta de NPCs
+local function criarEntradaPastaNpc(y, secao)
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(0, 140, 0, 20)
+	label.Position = UDim2.new(0, 10, 0, y)
+	label.Text = "Pasta de NPCs:"
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 14
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Parent = configFrame
+	label.Visible = false
+	table.insert(secoes[secao], label)
+
+	local box = Instance.new("TextBox")
+	box.Size = UDim2.new(0, 120, 0, 20)
+	box.Position = UDim2.new(1, -130, 0, y)
+	box.Text = pastaNpcs and pastaNpcs.Name or "EnemyFolder"
+	box.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+	box.TextColor3 = Color3.new(1, 1, 1)
+	box.Font = Enum.Font.Gotham
+	box.TextSize = 14
+	box.ClearTextOnFocus = false
+	box.Parent = configFrame
+	box.Visible = false
+	applyCorner(box)
+	table.insert(secoes[secao], box)
+
+	box.FocusLost:Connect(function()
+		setPastaNpc(box.Text)
+	end)
+end
+
+-- 🎯 ADICIONAR ELEMENTOS À SEÇÃO TELEPORTES
+criarCheckbox("AutoTeleporte", 70, false, function(v)
+	autoTeleporteAtivo = v
+	print("AutoTP:", v)
+end, "Teleportes")
+
+
+criarEntradaPastaNpc(100, "Teleportes")
+criarEntradaCoordenadas(130, "Teleportes")
+
+-- ✅ Forçar atualização de visibilidade para esconder os elementos de outras abas
+atualizarVisibilidade()
+
+
+--=======================================================--
+
+-- Botão de fechar configurações
+local fecharConfigBtn = Instance.new("TextButton")
+fecharConfigBtn.Size = UDim2.new(0, 60, 0, 25)
+fecharConfigBtn.Position = UDim2.new(1, -70, 1, -35)
+fecharConfigBtn.BackgroundColor3 = Color3.fromRGB(100, 30, 30)
+fecharConfigBtn.Text = "Fechar"
+fecharConfigBtn.TextColor3 = Color3.new(1, 1, 1)
+fecharConfigBtn.Font = Enum.Font.GothamBold
+fecharConfigBtn.TextSize = 14
+fecharConfigBtn.Parent = configFrame
+applyCorner(fecharConfigBtn)
+
+-- 📌 Eventos dos botões
+minimizarBtn.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	restaurarBtn.Visible = true
+end)
+
+restaurarBtn.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	restaurarBtn.Visible = false
+end)
+
+configBtn.MouseButton1Click:Connect(function()
+	configFrame.Visible = true
+end)
+
+fecharConfigBtn.MouseButton1Click:Connect(function()
+	configFrame.Visible = false
+end)
+
+
+
+-- Parte de Teleportação e sistemas
+--[[
+local function teleportarParaArena()
+	hrp.CFrame = CFrame.new(pontoArena + Vector3.new(0, 3, 0))
+end
+]]
+
+local function teleportarParaArena()
+	local destino = autoTeleporteAtivo and config.pontoArena or pontoArena
+	hrp.CFrame = CFrame.new(destino + Vector3.new(0, 3, 0))
+end
+
+
+local function teleportarParaSpawn()
+	local spawnLocation = plr.RespawnLocation or workspace:FindFirstChild("SpawnLocation")
+	if spawnLocation then
+		hrp.CFrame = spawnLocation.CFrame + Vector3.new(0, 3, 0)
+	else
+		warn("⚠️ Spawn não encontrado")
+	end
+end
+
+-- Reforço para busca de npcs mais longes
+
+local function reforco()
+	local rangeExtra = config.distanciaMaxima * 2
+	local menorDist = math.huge
+	local alvo = nil
+
+	for _, npc in pairs(pastaNpcs:GetChildren()) do
+		if npc:IsA("Model")
+			and npc:FindFirstChild("Humanoid")
+			and npc:FindFirstChild("HumanoidRootPart")
+			and npc.Humanoid.Health > 0 then
+
+			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+			if dist > config.distanciaMaxima and dist <= rangeExtra then
+				if dist < menorDist then
+					menorDist = dist
+					alvo = npc
+				end
+			end
+		end
+	end
+
+	if alvo then
+		print("🆘 Reforço: NPC distante encontrado:", alvo.Name)
+		atualizarStatusComTexto(Color3.fromRGB(0, 200, 255), "Reforço: " .. alvo.Name)
+		moverAteNpc(alvo)
+		return alvo
+	else
+		print("❌ Reforço falhou: nenhum NPC distante.")
+		return nil
+	end
+end
+
+
+
+-- 🎯 Busca NPC melhorada
+local function getNpcMaisProximo()
+	local menorDist = math.huge
+	local alvo, total = nil, 0
+
+	-- Limpar highlights antigos
+	for _, npc in pairs(pastaNpcs:GetChildren()) do
+		local highlight = npc:FindFirstChild("AutoFarmHighlight")
+		if highlight then highlight:Destroy() end
+	end
+
+	for _, npc in pairs(pastaNpcs:GetChildren()) do
+		if npc:IsA("Model")
+			and npc:FindFirstChild("HumanoidRootPart")
+			and npc:FindFirstChild("Humanoid")
+			and npc.Humanoid.Health > 0 then
+
+			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+			if dist >= config.distanciaMinima and dist <= config.distanciaMaxima then
+				total += 1
+				if dist < menorDist then
+					menorDist = dist
+					alvo = npc
+				end
+			end
+		end
+	end
+
+	if config.contador then
+		print("👥 NPCs encontrados:", total)
+	end
+
+	-- Highlight se ativado
+	if config.highlightNPC and alvo then
+		local hl = Instance.new("Highlight")
+		hl.Name = "AutoFarmHighlight"
+		hl.Adornee = alvo
+		hl.FillColor = Color3.fromRGB(0, 255, 0)
+		hl.OutlineColor = Color3.new(1, 1, 1)
+		hl.Parent = alvo
+	end
+
+	return alvo
+end
+
+
+-- 🚶 Mover até NPC com retry e timeout
+local function moverAteNpc(npc)
+	if not (npc and npc:FindFirstChild("HumanoidRootPart")) then return end
+
+	local alvoPos = npc.HumanoidRootPart.Position
+	local tempoMaximo, tempoAtual = 10, 0
+	local distanciaChegada, dt = 3, 0.1
+
+	humanoid:MoveTo(alvoPos)
+
+	while tempoAtual < tempoMaximo do
+		task.wait(dt)
+		tempoAtual += dt
+
+		if not npc or not npc:FindFirstChild("HumanoidRootPart") or npc.Humanoid.Health <= 0 then
+			print("⚠️ NPC sumiu ou morreu durante movimentação.")
+			break
+		end
+
+		local novaPos = npc.HumanoidRootPart.Position
+		local distanciaAtual = (hrp.Position - novaPos).Magnitude
+
+		if distanciaAtual <= distanciaChegada then
+			break
+		elseif (novaPos - alvoPos).Magnitude > 1 then
+			alvoPos = novaPos
+			humanoid:MoveTo(alvoPos)
+		end
+	end
+
+	humanoid:MoveTo(hrp.Position) -- Para o movimento
+end
+
+
+-- 🧠 Lógica principal da arena
+
+-- Lógica principal da arena melhorada
+local function iniciarArena()
+	partidaAtiva = true
+	local alvoAtual = nil
+	local tempoSemNpc = 0
+
+	print("🎯 Indo para a arena...")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Indo para a arena...")
+	teleportarParaArena()
+
+	print("⌛ Esperando 3s para iniciar...")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando 3 segundos para iniciar...")
+	task.wait(3)
+
+	while autoFarmAtivo do
+		-- Verifica se o alvo atual ainda é válido
+		local valido = alvoAtual
+			and alvoAtual:FindFirstChild("Humanoid")
+			and alvoAtual:FindFirstChild("HumanoidRootPart")
+			and alvoAtual.Humanoid.Health > 0
+
+		if not valido then
+			alvoAtual = getNpcMaisProximo()
+		end
+
+		if alvoAtual then
+			tempoSemNpc = 0
+			atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "Seguindo: " .. alvoAtual.Name)
+			moverAteNpc(alvoAtual)
+		else
+			tempoSemNpc += 1
+			atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando NPC...")
+
+			-- Reforço após 10 tentativas
+			if tempoSemNpc >= 10 then
+				if reforco then
+					local npcRef = reforco()
+					if npcRef then
+						alvoAtual = npcRef
+						tempoSemNpc = 0
+					else
+						if modoInteligente then
+							print("🤖 Nenhum NPC, ativando modo inteligente.")
+							atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Sem NPCs. Teleportando para spawn...")
+							teleportarParaSpawn()
+							task.wait(2)
+
+							atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Voltando para arena...")
+							teleportarParaArena()
+							task.wait(2)
+
+							tempoSemNpc = 0
+						else
+							print("❌ Sem NPCs, encerrando arena.")
+							break
+						end
+					end
+				end
+			end
+
+			task.wait(1)
+		end
+
+		task.wait(0.5)
+	end
+
+	print("🏁 Arena finalizada, voltando ao spawn.")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Arena finalizada, voltando ao spawn...")
+	teleportarParaSpawn()
+
+	print("⏳ Aguardando 10s...")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Aguardando 10 segundos...")
+	task.wait(10)
+
+	partidaAtiva = false
+
+	if autoFarmAtivo then
+		iniciarArena()
+	end
+end
+
+
+
+
+
+-- ▶️ Início do sistema
+local function iniciarSistema()
+	task.spawn(function()
+		if not autoFarmAtivo then return end
+		iniciarArena()
+	end)
+end
+
+
+-- ⬅️ Botão ativar/desativar
+button.MouseButton1Click:Connect(function()
+	autoFarmAtivo = not autoFarmAtivo
+
+	if autoFarmAtivo then
+		button.Text = "Desativar AutoFarm"
+		atualizarStatus(Color3.fromRGB(255, 255, 0)) -- 🟡
+		iniciarSistema()
+	else
+		button.Text = "Ativar AutoFarm"
+		atualizarStatus(Color3.fromRGB(255, 0, 0)) -- 🔴
+		partidaAtiva = false
+		humanoid:MoveTo(hrp.Position)
+	end
+end)
+
+-- 🔁 Função para monitorar morte e reinicializar variáveis após respawn
+local function monitorarMorte()
+	-- Conexão segura
+	if humanoid and humanoid:IsA("Humanoid") then
+		humanoid.Died:Connect(function()
+			print("💀 Jogador morreu.")
+			atualizarStatusComTexto(Color3.fromRGB(255, 0, 0), "Morto. Aguardando respawn...")
+			atualizarStatus(Color3.fromRGB(0, 242, 255)) 
+
+			-- Pausar farm e lógica
+			partidaAtiva = false
+
+			-- Espera personagem novo e reinicializa variáveis essenciais
+			plr.CharacterAdded:Wait()
+			character = plr.Character or plr.CharacterAdded:Wait()
+			humanoid = character:WaitForChild("Humanoid")
+			hrp = character:WaitForChild("HumanoidRootPart")
+
+			-- Garantir que outras variáveis continuam corretas
+			-- Config já é tabela compartilhada, permanece intacta
+			-- Reconectar monitor da morte
+			monitorarMorte()
+
+			-- Se autofarm ainda está ativo, continua
+			if autoFarmAtivo then
+				print("⚡ AutoFarm reiniciando após morte.")
+				atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Respawn detectado. Retornando à arena...")
+				task.wait(2)
+
+				if not partidaAtiva then
+					iniciarArena()
+				end
+			else
+				atualizarStatusComTexto(Color3.fromRGB(255, 0, 0), "AutoFarm desativado. Aguardando ação.")
+			end
+		end)
+	end
+end
+
+-- 🔄 Chamar logo após inicializar humanoid na primeira vez
+monitorarMorte()
