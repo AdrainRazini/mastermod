@@ -390,6 +390,11 @@ end)
        createButton("saquearv3", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/saquearv3"))() --saquearv3
 	end)
+
+       createButton("saquearv4", function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/saquearv3"))() --saquearv4
+	end)
+
        createButton("autoclick", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/autoclick"))() --autoclick
 	end)
