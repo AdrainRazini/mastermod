@@ -5,11 +5,12 @@ local character = plr.Character or plr.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local hrp = character:WaitForChild("HumanoidRootPart")
 
--- 🎯 Configurações Iniciais
+-- 🎯 Configurações Iniciais Obs: Pode ser alterado
 local pontoArena = Vector3.new(-394.9, 54.0, -741.6)
 local pastaNpcs = workspace:WaitForChild("EnemyFolder")
 local Esperar_Npc = 10
 
+-- 🧠 Variáveis de Controle Obs: Um extra para controles devido ao respawn do personagem
 local config = {
 	distanciaMinima = 10,
 	distanciaMaxima = 50,
@@ -19,13 +20,15 @@ local config = {
 	pontoArena = pontoArena
 }
 
--- 🧠 Estados
+-- 🧠 Estados do Sistema
 local autoFarmAtivo = false
 local partidaAtiva = false
 local notificacoesAtivas = true
 local som = false
+local autoTeleporteAtivo = false
 
--- 🖼️ Função utilitária para criar UI Corner
+
+-- 🖼️ Função utilitária para criar UI Corner Obs: Aplicar Ui nas frames
 local function applyCorner(instance, radius)
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = radius or UDim.new(0, 6)
@@ -135,18 +138,32 @@ applyCorner(statusBall, UDim.new(1, 0))
 -- 🏷️ Status textual
 -- 🔔 Criação de notificação flutuante
 -- 🔔 Notificação flutuante com verificação de ativação
-local function criarNotificacao(texto)
+-- 🔔 Notificação com ícone baseado na cor do status
+local function criarNotificacao(texto, cor)
 	if not notificacoesAtivas then return end
+
+	local emoji = "💬" -- padrão
+	if cor == Color3.fromRGB(0, 255, 0) then
+		emoji = "✅"
+	elseif cor == Color3.fromRGB(255, 255, 0) then
+		emoji = "⏳"
+	elseif cor == Color3.fromRGB(255, 0, 0) then
+		emoji = "🛑"
+	elseif cor == Color3.fromRGB(255, 165, 0) then
+		emoji = "🤖"
+	elseif cor == Color3.fromRGB(0, 200, 255) then
+		emoji = "📡"
+	end
 
 	local notificacao = Instance.new("TextLabel")
 	notificacao.AnchorPoint = Vector2.new(1, 1)
 	notificacao.Position = UDim2.new(1, -20, 1, -20)
-	notificacao.Size = UDim2.new(0, 240, 0, 30)
+	notificacao.Size = UDim2.new(0, 260, 0, 30)
 	notificacao.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	notificacao.TextColor3 = Color3.new(1, 1, 1)
 	notificacao.Font = Enum.Font.Gotham
 	notificacao.TextSize = 13
-	notificacao.Text = texto
+	notificacao.Text = emoji .. "  " .. texto
 	notificacao.TextXAlignment = Enum.TextXAlignment.Left
 	notificacao.TextTransparency = 1
 	notificacao.BackgroundTransparency = 1
@@ -174,6 +191,7 @@ end
 
 
 
+
 -- 🔁 Atualizador de status visual/textual
 local function atualizarStatus(cor)
 	statusBall.BackgroundColor3 = cor
@@ -181,8 +199,9 @@ end
 
 local function atualizarStatusComTexto(cor, texto)
 	atualizarStatus(cor)
-	criarNotificacao("Status: " .. texto)
+	criarNotificacao("Status: " .. texto, cor)
 end
+
 
 
 
@@ -450,7 +469,6 @@ criarCheckbox("Notificações de Status", 120, notificacoesAtivas, function(v) n
 
 --====================================================================--
 -- 🚀 TELEPORTES
-local autoTeleporteAtivo = false
 
 -- Atualiza o pontoArena na config
 local function atualizarPontoArena(v3)
