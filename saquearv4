@@ -162,6 +162,8 @@ local function criarNotificacao(texto, cor)
 		emoji = "🤖"
 	elseif cor == Color3.fromRGB(0, 200, 255) then
 		emoji = "📡"
+	elseif cor == Color3.fromRGB(170, 0, 255) then
+		emoji = "💀"
 	end
 
 	local notificacao = Instance.new("TextLabel")
@@ -966,7 +968,7 @@ local function monitorarMorte()
 	if humanoid and humanoid:IsA("Humanoid") then
 		humanoid.Died:Connect(function()
 			print("💀 Jogador morreu.")
-			atualizarStatusComTexto(Color3.fromRGB(255, 0, 0), "Morto. Aguardando respawn...")
+			atualizarStatusComTexto(Color3.fromRGB(170, 0, 255), "Morto. Aguardando respawn...")
 
 			-- Pausar farm e lógica
 			partidaAtiva = false
