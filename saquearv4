@@ -22,6 +22,8 @@ local config = {
 -- 🧠 Estados
 local autoFarmAtivo = false
 local partidaAtiva = false
+local notificacoesAtivas = true
+local som = false
 
 -- 🖼️ Função utilitária para criar UI Corner
 local function applyCorner(instance, radius)
@@ -131,27 +133,58 @@ statusBall.Parent = frame
 applyCorner(statusBall, UDim.new(1, 0))
 
 -- 🏷️ Status textual
-local statusLabel = Instance.new("TextLabel")
-statusLabel.Size = UDim2.new(1, 0, 0, 25)
-statusLabel.Position = UDim2.new(0, 0, 0, frame.Size.Y.Offset)
-statusLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-statusLabel.TextColor3 = Color3.new(1, 1, 1)
-statusLabel.Font = Enum.Font.Gotham
-statusLabel.TextSize = 14
-statusLabel.Text = "Status: Aguardando ação..."
-statusLabel.TextXAlignment = Enum.TextXAlignment.Left
-statusLabel.Parent = gui
-applyCorner(statusLabel)
+-- 🔔 Criação de notificação flutuante
+-- 🔔 Notificação flutuante com verificação de ativação
+local function criarNotificacao(texto)
+	if not notificacoesAtivas then return end
+
+	local notificacao = Instance.new("TextLabel")
+	notificacao.AnchorPoint = Vector2.new(1, 1)
+	notificacao.Position = UDim2.new(1, -20, 1, -20)
+	notificacao.Size = UDim2.new(0, 240, 0, 30)
+	notificacao.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	notificacao.TextColor3 = Color3.new(1, 1, 1)
+	notificacao.Font = Enum.Font.Gotham
+	notificacao.TextSize = 13
+	notificacao.Text = texto
+	notificacao.TextXAlignment = Enum.TextXAlignment.Left
+	notificacao.TextTransparency = 1
+	notificacao.BackgroundTransparency = 1
+	notificacao.Parent = gui
+	notificacao.ZIndex = 10
+	applyCorner(notificacao)
+
+	local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	game:GetService("TweenService"):Create(notificacao, tweenInfo, {
+		TextTransparency = 0,
+		BackgroundTransparency = 0.1
+	}):Play()
+
+	task.delay(3, function()
+		local fadeOut = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		local tween = game:GetService("TweenService"):Create(notificacao, fadeOut, {
+			TextTransparency = 1,
+			BackgroundTransparency = 1
+		})
+		tween:Play()
+		tween.Completed:Wait()
+		notificacao:Destroy()
+	end)
+end
+
 
 
 -- 🔁 Atualizador de status visual/textual
 local function atualizarStatus(cor)
 	statusBall.BackgroundColor3 = cor
 end
+
 local function atualizarStatusComTexto(cor, texto)
 	atualizarStatus(cor)
-	statusLabel.Text = "Status: " .. texto
+	criarNotificacao("Status: " .. texto)
 end
+
+
 
 --=========================================================--
 
@@ -410,7 +443,9 @@ criarCheckbox("Colisão", 130, true, setCollision, "Player")
 criarCheckbox("ESP (Highlight)", 160, false, toggleESP, "Player")
 --====================================================================--
 -- ⚙️ Jogo
-criarCheckbox("Música ligada", 70, false, function(v) print("Música:", v) end, "Jogo")
+criarCheckbox("Som ligado", 70, som, function(v) som = v end, "Jogo")
+criarCheckbox("Notificações de Status", 120, notificacoesAtivas, function(v) notificacoesAtivas = v end, "Jogo")
+
 
 
 --====================================================================--
