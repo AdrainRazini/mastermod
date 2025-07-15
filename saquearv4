@@ -389,7 +389,7 @@ criarCheckbox("Contador", 130, config.contador, function(v) config.contador = v 
 criarCheckbox("Highlight NPC", 160, config.highlightNPC, function(v) config.highlightNPC = v end, "Farm")
 criarCheckbox("Modo Inteligente", 190, config.modoInteligente, function(v) config.modoInteligente = v end, "Farm")
 criarEntrada("Tempo p/ Reforço:", 220, Esperar_Npc, function(v)Esperar_Npc = math.clamp(v, 1, 60)end, "Farm")
-criarEntrada("Tempo de esperar:", 220, Esperar_Arena, function(v)Esperar_Arena = math.clamp(v, 1, 60)end, "Farm")
+criarEntrada("Tempo de esperar:", 250, Esperar_Arena, function(v)Esperar_Arena = math.clamp(v, 1, 60)end, "Farm")
 
 --=====================================================================================================================--
 
@@ -657,6 +657,7 @@ local function criarDropdownPastaNpc(y, secao)
 				end)
 			end
 		end
+
 
 		lista.CanvasSize = UDim2.new(0, 0, 0, count * 22)
 	end
