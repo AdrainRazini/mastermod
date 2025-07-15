@@ -8,6 +8,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 -- 🎯 Configurações Iniciais
 local pontoArena = Vector3.new(-394.9, 54.0, -741.6)
 local pastaNpcs = workspace:WaitForChild("EnemyFolder")
+local Esperar_Npc = 10
 
 local config = {
 	distanciaMinima = 10,
@@ -326,6 +327,7 @@ criarEntrada("Distância Máxima:", 100, config.distanciaMaxima, function(v) con
 criarCheckbox("Contador", 130, config.contador, function(v) config.contador = v end, "Farm")
 criarCheckbox("Highlight NPC", 160, config.highlightNPC, function(v) config.highlightNPC = v end, "Farm")
 criarCheckbox("Modo Inteligente", 190, config.modoInteligente, function(v) config.modoInteligente = v end, "Farm")
+criarEntrada("Tempo p/ Reforço:", 220, Esperar_Npc, function(v)Esperar_Npc = math.clamp(v, 1, 60)end, "Farm")
 
 --=====================================================================================================================--
 
@@ -615,6 +617,8 @@ end, "Teleportes")
 
 criarEntradaCoordenadas(100, "Teleportes")
 criarDropdownPastaNpc(150, "Teleportes")
+
+
 -- ✅ Forçar atualização de visibilidade para esconder os elementos de outras abas
 atualizarVisibilidade()
 
@@ -723,20 +727,6 @@ local function getNpcMaisProximo()
 	return alvo
 end
 
--- 🆘 Reforço: busca NPC mais distante em dobro do alcance máximo
-local function reforco()
-	local alvo = encontrarNpc(config.distanciaMaxima + 1, config.distanciaMaxima * 2)
-
-	if alvo then
-		print("🆘 Reforço: NPC distante encontrado:", alvo.Name)
-		atualizarStatusComTexto(Color3.fromRGB(0, 200, 255), "Reforço: " .. alvo.Name)
-		moverAteNpc(alvo)
-		return alvo
-	else
-		print("❌ Reforço falhou: nenhum NPC distante.")
-		return nil
-	end
-end
 
 
 -- 🚶 Movimentar até o NPC com segurança e timeout
@@ -779,6 +769,21 @@ local function moverAteNpc(npc)
 	humanoid:MoveTo(hrp.Position) -- Parar movimento
 end
 
+-- 🆘 Reforço: busca NPC mais distante em dobro do alcance máximo
+local function reforco()
+	local alvo = encontrarNpc(config.distanciaMaxima + 1, config.distanciaMaxima * 2)
+
+	if alvo then
+		print("🆘 Reforço: NPC distante encontrado:", alvo.Name)
+		atualizarStatusComTexto(Color3.fromRGB(0, 200, 255), "Reforço: " .. alvo.Name)
+		moverAteNpc(alvo)
+		return alvo
+	else
+		print("❌ Reforço falhou: nenhum NPC distante.")
+		return nil
+	end
+end
+
 --===========================================================--
 
 -- Lógica principal da arena melhorada
@@ -817,7 +822,7 @@ local function iniciarArena()
 			tempoSemNpc += 1
 			atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando NPC...")
 
-			if tempoSemNpc >= 10 then
+			if tempoSemNpc >= Esperar_Npc then
 				local npcRef = reforco()
 				if npcRef then
 					alvoAtual = npcRef
