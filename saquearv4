@@ -29,14 +29,12 @@ local function applyCorner(instance, radius)
 	corner.Parent = instance
 end
 
---[[
-local gui = Instance.new("ScreenGui")
-gui.Name = "AutoFarmGui"
-gui.ResetOnSpawn = false
-gui.IgnoreGuiInset = true
-gui.Parent = plr:WaitForChild("PlayerGui")
-]]
 
+--=========================================================--
+
+
+-- Criação da gui + frames verificações de existência Obs: Acaba resetando o anterior no executor e studios
+--[[
 -- 🧼 Remover GUI anterior se já existir
 local playerGui = plr:WaitForChild("PlayerGui")
 local guiExistente = playerGui:FindFirstChild("AutoFarmGui")
@@ -50,6 +48,16 @@ gui.Name = "AutoFarmGui"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = playerGui
+]]
+
+
+-- Criação da gui + frames Obs: Funciona bem no executor, mas duplica no studios
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "AutoFarmGui"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = plr:WaitForChild("PlayerGui")
 
 
 local frame = Instance.new("Frame")
@@ -107,6 +115,10 @@ restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
 restaurarBtn.Visible = false
 restaurarBtn.Parent = gui
 
+--=========================================================--
+
+-- Criação das informações de estados Obs: Muito bom para demostração
+
 -- 🔴 Bolinha de status
 local statusBall = Instance.new("Frame")
 statusBall.Name = "StatusIndicator"
@@ -130,6 +142,7 @@ statusLabel.TextXAlignment = Enum.TextXAlignment.Left
 statusLabel.Parent = gui
 applyCorner(statusLabel)
 
+
 -- 🔁 Atualizador de status visual/textual
 local function atualizarStatus(cor)
 	statusBall.BackgroundColor3 = cor
@@ -139,8 +152,9 @@ local function atualizarStatusComTexto(cor, texto)
 	statusLabel.Text = "Status: " .. texto
 end
 
+--=========================================================--
 
-
+-- Criação da Frame de configuração
 
 -- 📦 Configurações
 local configBtn = Instance.new("TextButton")
@@ -174,9 +188,10 @@ configTitle.Font = Enum.Font.GothamBold
 configTitle.TextSize = 18
 configTitle.Parent = configFrame
 
+--=========================================================--
 
 
-
+-- Criação de seções Obs: Melhoria do antigo Frame Config
 
 -- 🌐 Seções
 local secoes = {
@@ -222,6 +237,7 @@ local function criarAba(nome, posX)
 	end)
 end
 
+-- abas Obs: Criação das abas
 criarAba("Player", 10)
 criarAba("Jogo", 80)
 criarAba("Farm", 150)
@@ -229,7 +245,7 @@ criarAba("Teleportes", 220)
 
 
 
-
+-- Criação de entradas e checkboxes Obs: Melhoria do antigo Frame Config
 
 local function criarEntrada(titulo, posY, valorAtual, onChange, secao)
 	local label = Instance.new("TextLabel")
@@ -302,7 +318,8 @@ local function criarCheckbox(titulo, posY, valorInicial, callback, secao)
 	table.insert(secoes[secao], box)
 end
 
-
+--====================================================================================================================--
+-- Configurações da farme Obs: Pode mudar as variaveis iniciais se quiser, só não apague.
 -- 🎯 Farm
 criarEntrada("Distância Mínima:", 70, config.distanciaMinima, function(v) config.distanciaMinima = v end, "Farm")
 criarEntrada("Distância Máxima:", 100, config.distanciaMaxima, function(v) config.distanciaMaxima = v end, "Farm")
@@ -310,13 +327,17 @@ criarCheckbox("Contador", 130, config.contador, function(v) config.contador = v 
 criarCheckbox("Highlight NPC", 160, config.highlightNPC, function(v) config.highlightNPC = v end, "Farm")
 criarCheckbox("Modo Inteligente", 190, config.modoInteligente, function(v) config.modoInteligente = v end, "Farm")
 
--- 🧍 Player
+--=====================================================================================================================--
+
+-- Controle do proprio personagem Obs: Bom para mods locais.
+
+-- 🧍 Player Control
 local ultimoWalkSpeed = 16
 local ultimoJumpPower = 50
 local ultimaColisao = true
 local ultimoESP = false
--- 1. Velocidade de caminhada
 
+-- 1. Velocidade de caminhada
 local function setWalkSpeed(valor)
 	ultimoWalkSpeed = valor
 	local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -390,7 +411,7 @@ criarCheckbox("ESP (Highlight)", 160, false, toggleESP, "Player")
 criarCheckbox("Música ligada", 70, false, function(v) print("Música:", v) end, "Jogo")
 
 
---===============--
+--====================================================================--
 -- 🚀 TELEPORTES
 local autoTeleporteAtivo = false
 
@@ -471,19 +492,29 @@ local function criarEntradaCoordenadas(baseY, secao)
 	end
 end
 
--- Trocar pasta de NPCs
+-- 🔁 Trocar pasta de NPCs com validação segura
 local function setPastaNpc(nome)
 	local nova = workspace:FindFirstChild(nome)
-	if nova and nova:IsA("Folder") then
-		pastaNpcs = nova
-		print("✅ Nova pasta de NPCs:", nome)
-	else
-		warn("❌ Pasta não encontrada ou inválida:", nome)
+
+	if not nova then
+		warn("❌ Pasta '" .. nome .. "' não encontrada no Workspace. Mantendo a anterior.")
+		return
 	end
+
+	if not nova:IsA("Folder") then
+		warn("⚠️ O objeto '" .. nome .. "' existe, mas não é uma Folder. Ignorando troca.")
+		return
+	end
+
+	-- Sucesso
+	pastaNpcs = nova
+	print("✅ Nova pasta de NPCs definida:", nome)
 end
 
 -- Entrada de texto para nome da pasta de NPCs
-local function criarEntradaPastaNpc(y, secao)
+-- 📂 Dropdown para escolher pasta de NPCs
+-- 📂 Dropdown com scroll para escolher pasta de NPCs
+local function criarDropdownPastaNpc(y, secao)
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.new(0, 140, 0, 20)
 	label.Position = UDim2.new(0, 10, 0, y)
@@ -497,24 +528,84 @@ local function criarEntradaPastaNpc(y, secao)
 	label.Visible = false
 	table.insert(secoes[secao], label)
 
-	local box = Instance.new("TextBox")
-	box.Size = UDim2.new(0, 120, 0, 20)
-	box.Position = UDim2.new(1, -130, 0, y)
-	box.Text = pastaNpcs and pastaNpcs.Name or "EnemyFolder"
-	box.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-	box.TextColor3 = Color3.new(1, 1, 1)
-	box.Font = Enum.Font.Gotham
-	box.TextSize = 14
-	box.ClearTextOnFocus = false
-	box.Parent = configFrame
-	box.Visible = false
-	applyCorner(box)
-	table.insert(secoes[secao], box)
+	-- Botão principal do dropdown
+	local dropdown = Instance.new("TextButton")
+	dropdown.Size = UDim2.new(0, 120, 0, 20)
+	dropdown.Position = UDim2.new(1, -130, 0, y)
+	dropdown.Text = pastaNpcs and pastaNpcs.Name or "Selecione"
+	dropdown.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+	dropdown.TextColor3 = Color3.new(1, 1, 1)
+	dropdown.Font = Enum.Font.Gotham
+	dropdown.TextSize = 14
+	dropdown.Parent = configFrame
+	dropdown.Visible = false
+	applyCorner(dropdown)
+	table.insert(secoes[secao], dropdown)
 
-	box.FocusLost:Connect(function()
-		setPastaNpc(box.Text)
+	-- Scroll de opções
+	local lista = Instance.new("ScrollingFrame")
+	lista.Size = UDim2.new(0, 120, 0, 100)
+	lista.Position = dropdown.Position + UDim2.new(0, 0, 0, 25)
+	lista.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	lista.BorderSizePixel = 0
+	lista.Visible = false
+	lista.ZIndex = 5
+	lista.ClipsDescendants = true
+	lista.CanvasSize = UDim2.new(0, 0, 0, 0)
+	lista.ScrollBarThickness = 6
+	lista.Parent = configFrame
+	applyCorner(lista)
+
+	local uilist = Instance.new("UIListLayout")
+	uilist.Parent = lista
+	uilist.SortOrder = Enum.SortOrder.LayoutOrder
+
+	table.insert(secoes[secao], lista)
+
+	-- Carregar todas as folders do Workspace
+	local function atualizarLista()
+		for _, child in ipairs(lista:GetChildren()) do
+			if child:IsA("TextButton") then
+				child:Destroy()
+			end
+		end
+
+		local count = 0
+		for _, obj in pairs(workspace:GetChildren()) do
+			if obj:IsA("Folder") then
+				count += 1
+				local opt = Instance.new("TextButton")
+				opt.Size = UDim2.new(1, 0, 0, 20)
+				opt.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+				opt.Text = obj.Name
+				opt.TextColor3 = Color3.new(1, 1, 1)
+				opt.Font = Enum.Font.Gotham
+				opt.TextSize = 13
+				opt.ZIndex = 5
+				opt.Parent = lista
+
+				opt.MouseButton1Click:Connect(function()
+					pastaNpcs = obj
+					dropdown.Text = obj.Name
+					lista.Visible = false
+					print("✅ Nova pasta selecionada:", obj.Name)
+				end)
+			end
+		end
+
+		lista.CanvasSize = UDim2.new(0, 0, 0, count * 22)
+	end
+
+	-- Mostrar/esconder a lista ao clicar
+	dropdown.MouseButton1Click:Connect(function()
+		lista.Visible = not lista.Visible
+		if lista.Visible then
+			atualizarLista()
+		end
 	end)
 end
+
+
 
 -- 🎯 ADICIONAR ELEMENTOS À SEÇÃO TELEPORTES
 criarCheckbox("AutoTeleporte", 70, false, function(v)
@@ -522,10 +613,8 @@ criarCheckbox("AutoTeleporte", 70, false, function(v)
 	print("AutoTP:", v)
 end, "Teleportes")
 
-
-criarEntradaPastaNpc(100, "Teleportes")
-criarEntradaCoordenadas(130, "Teleportes")
-
+criarEntradaCoordenadas(100, "Teleportes")
+criarDropdownPastaNpc(150, "Teleportes")
 -- ✅ Forçar atualização de visibilidade para esconder os elementos de outras abas
 atualizarVisibilidade()
 
@@ -563,14 +652,9 @@ fecharConfigBtn.MouseButton1Click:Connect(function()
 	configFrame.Visible = false
 end)
 
-
+--=====================================================================--
 
 -- Parte de Teleportação e sistemas
---[[
-local function teleportarParaArena()
-	hrp.CFrame = CFrame.new(pontoArena + Vector3.new(0, 3, 0))
-end
-]]
 
 local function teleportarParaArena()
 	local destino = autoTeleporteAtivo and config.pontoArena or pontoArena
@@ -587,28 +671,61 @@ local function teleportarParaSpawn()
 	end
 end
 
--- Reforço para busca de npcs mais longes
+--===========================================================--
 
-local function reforco()
-	local rangeExtra = config.distanciaMaxima * 2
+-- Busca e Movimento
+
+-- 🔍 Função genérica para encontrar NPCs dentro de um intervalo de distância
+local function encontrarNpc(distMin, distMax)
 	local menorDist = math.huge
-	local alvo = nil
+	local alvo, total = nil, 0
 
 	for _, npc in pairs(pastaNpcs:GetChildren()) do
-		if npc:IsA("Model")
-			and npc:FindFirstChild("Humanoid")
-			and npc:FindFirstChild("HumanoidRootPart")
-			and npc.Humanoid.Health > 0 then
-
-			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
-			if dist > config.distanciaMaxima and dist <= rangeExtra then
-				if dist < menorDist then
-					menorDist = dist
-					alvo = npc
+		if npc:IsA("Model") and npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") then
+			if npc.Humanoid.Health > 0 then
+				local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+				if dist >= distMin and dist <= distMax then
+					total += 1
+					if dist < menorDist then
+						menorDist = dist
+						alvo = npc
+					end
 				end
 			end
 		end
 	end
+
+	if config.contador then
+		print("👥 NPCs encontrados:", total)
+	end
+
+	return alvo
+end
+-- 🎯 Busca NPC mais próximo dentro do intervalo principal
+local function getNpcMaisProximo()
+	local alvo = encontrarNpc(config.distanciaMinima, config.distanciaMaxima)
+	
+	for _, npc in pairs(pastaNpcs:GetChildren()) do
+		local oldHL = npc:FindFirstChild("AutoFarmHighlight")
+		if oldHL then oldHL:Destroy() end
+	end
+
+ 
+	if config.highlightNPC and alvo then
+		local hl = Instance.new("Highlight")
+		hl.Name = "AutoFarmHighlight"
+		hl.Adornee = alvo
+		hl.FillColor = Color3.fromRGB(0, 255, 0)
+		hl.OutlineColor = Color3.new(1, 1, 1)
+		hl.Parent = alvo
+	end
+
+	return alvo
+end
+
+-- 🆘 Reforço: busca NPC mais distante em dobro do alcance máximo
+local function reforco()
+	local alvo = encontrarNpc(config.distanciaMaxima + 1, config.distanciaMaxima * 2)
 
 	if alvo then
 		print("🆘 Reforço: NPC distante encontrado:", alvo.Name)
@@ -622,60 +739,15 @@ local function reforco()
 end
 
 
-
--- 🎯 Busca NPC melhorada
-local function getNpcMaisProximo()
-	local menorDist = math.huge
-	local alvo, total = nil, 0
-
-	-- Limpar highlights antigos
-	for _, npc in pairs(pastaNpcs:GetChildren()) do
-		local highlight = npc:FindFirstChild("AutoFarmHighlight")
-		if highlight then highlight:Destroy() end
-	end
-
-	for _, npc in pairs(pastaNpcs:GetChildren()) do
-		if npc:IsA("Model")
-			and npc:FindFirstChild("HumanoidRootPart")
-			and npc:FindFirstChild("Humanoid")
-			and npc.Humanoid.Health > 0 then
-
-			local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
-			if dist >= config.distanciaMinima and dist <= config.distanciaMaxima then
-				total += 1
-				if dist < menorDist then
-					menorDist = dist
-					alvo = npc
-				end
-			end
-		end
-	end
-
-	if config.contador then
-		print("👥 NPCs encontrados:", total)
-	end
-
-	-- Highlight se ativado
-	if config.highlightNPC and alvo then
-		local hl = Instance.new("Highlight")
-		hl.Name = "AutoFarmHighlight"
-		hl.Adornee = alvo
-		hl.FillColor = Color3.fromRGB(0, 255, 0)
-		hl.OutlineColor = Color3.new(1, 1, 1)
-		hl.Parent = alvo
-	end
-
-	return alvo
-end
-
-
--- 🚶 Mover até NPC com retry e timeout
+-- 🚶 Movimentar até o NPC com segurança e timeout
 local function moverAteNpc(npc)
-	if not (npc and npc:FindFirstChild("HumanoidRootPart")) then return end
+	if not (npc and npc:FindFirstChild("HumanoidRootPart") and npc:FindFirstChild("Humanoid")) then return end
+	if npc.Humanoid.Health <= 0 then return end
 
 	local alvoPos = npc.HumanoidRootPart.Position
 	local tempoMaximo, tempoAtual = 10, 0
 	local distanciaChegada, dt = 3, 0.1
+
 
 	humanoid:MoveTo(alvoPos)
 
@@ -683,8 +755,13 @@ local function moverAteNpc(npc)
 		task.wait(dt)
 		tempoAtual += dt
 
-		if not npc or not npc:FindFirstChild("HumanoidRootPart") or npc.Humanoid.Health <= 0 then
-			print("⚠️ NPC sumiu ou morreu durante movimentação.")
+		if not npc.Parent or not npc:FindFirstChild("Humanoid") or not npc:FindFirstChild("HumanoidRootPart") then
+			print("⚠️ NPC desapareceu.")
+			break
+		end
+
+		if npc.Humanoid.Health <= 0 then
+			print("☠️ NPC morreu durante movimentação.")
 			break
 		end
 
@@ -693,19 +770,19 @@ local function moverAteNpc(npc)
 
 		if distanciaAtual <= distanciaChegada then
 			break
-		elseif (novaPos - alvoPos).Magnitude > 1 then
+		elseif (novaPos - alvoPos).Magnitude > 2 then
 			alvoPos = novaPos
 			humanoid:MoveTo(alvoPos)
 		end
 	end
 
-	humanoid:MoveTo(hrp.Position) -- Para o movimento
+	humanoid:MoveTo(hrp.Position) -- Parar movimento
 end
 
-
--- 🧠 Lógica principal da arena
+--===========================================================--
 
 -- Lógica principal da arena melhorada
+-- 🧠 Lógica principal da arena melhorada
 local function iniciarArena()
 	partidaAtiva = true
 	local alvoAtual = nil
@@ -720,48 +797,45 @@ local function iniciarArena()
 	task.wait(3)
 
 	while autoFarmAtivo do
-		-- Verifica se o alvo atual ainda é válido
 		local valido = alvoAtual
 			and alvoAtual:FindFirstChild("Humanoid")
 			and alvoAtual:FindFirstChild("HumanoidRootPart")
 			and alvoAtual.Humanoid.Health > 0
 
+		-- Se alvo inválido, procurar novo
 		if not valido then
 			alvoAtual = getNpcMaisProximo()
 		end
 
+		-- Se encontrou alvo, seguir
 		if alvoAtual then
 			tempoSemNpc = 0
 			atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "Seguindo: " .. alvoAtual.Name)
 			moverAteNpc(alvoAtual)
 		else
+			-- Aguardar e tentar reforço
 			tempoSemNpc += 1
 			atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando NPC...")
 
-			-- Reforço após 10 tentativas
 			if tempoSemNpc >= 10 then
-				if reforco then
-					local npcRef = reforco()
-					if npcRef then
-						alvoAtual = npcRef
-						tempoSemNpc = 0
-					else
-						if modoInteligente then
-							print("🤖 Nenhum NPC, ativando modo inteligente.")
-							atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Sem NPCs. Teleportando para spawn...")
-							teleportarParaSpawn()
-							task.wait(2)
+				local npcRef = reforco()
+				if npcRef then
+					alvoAtual = npcRef
+					tempoSemNpc = 0
+				elseif config.modoInteligente then
+					print("🤖 Nenhum NPC, ativando modo inteligente.")
+					atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Sem NPCs. Teleportando para spawn...")
+					teleportarParaSpawn()
+					task.wait(2)
 
-							atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Voltando para arena...")
-							teleportarParaArena()
-							task.wait(2)
+					atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Voltando para arena...")
+					teleportarParaArena()
+					task.wait(2)
 
-							tempoSemNpc = 0
-						else
-							print("❌ Sem NPCs, encerrando arena.")
-							break
-						end
-					end
+					tempoSemNpc = 0
+				else
+					print("❌ Sem NPCs, encerrando arena.")
+					break
 				end
 			end
 
@@ -781,8 +855,9 @@ local function iniciarArena()
 
 	partidaAtiva = false
 
+	-- Reentrar automaticamente se ainda ativo
 	if autoFarmAtivo then
-		iniciarArena()
+		task.defer(iniciarArena)
 	end
 end
 
@@ -822,7 +897,6 @@ local function monitorarMorte()
 		humanoid.Died:Connect(function()
 			print("💀 Jogador morreu.")
 			atualizarStatusComTexto(Color3.fromRGB(255, 0, 0), "Morto. Aguardando respawn...")
-			atualizarStatus(Color3.fromRGB(0, 242, 255)) 
 
 			-- Pausar farm e lógica
 			partidaAtiva = false
