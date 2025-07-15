@@ -7,7 +7,15 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 
 -- 🎯 Configurações Iniciais Obs: Pode ser alterado
 local pontoArena = Vector3.new(-394.9, 54.0, -741.6)
-local pastaNpcs = workspace:WaitForChild("EnemyFolder")
+local pastaNpcs = workspace:FindFirstChild("EnemyFolder")
+
+if not pastaNpcs then
+	warn("⚠️ Pasta 'EnemyFolder' não encontrada. Criando pasta provisória.")
+	pastaNpcs = Instance.new("Folder")
+	pastaNpcs.Name = "EnemyFolder_Provisoria"
+	pastaNpcs.Parent = workspace
+end
+
 local Esperar_Npc = 10
 local Esperar_Arena = 3
 
