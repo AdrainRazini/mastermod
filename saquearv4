@@ -9,6 +9,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 local pontoArena = Vector3.new(-394.9, 54.0, -741.6)
 local pastaNpcs = workspace:WaitForChild("EnemyFolder")
 local Esperar_Npc = 10
+local Esperar_Arena = 3
 
 -- 🧠 Variáveis de Controle Obs: Um extra para controles devido ao respawn do personagem
 local config = {
@@ -380,6 +381,7 @@ criarCheckbox("Contador", 130, config.contador, function(v) config.contador = v 
 criarCheckbox("Highlight NPC", 160, config.highlightNPC, function(v) config.highlightNPC = v end, "Farm")
 criarCheckbox("Modo Inteligente", 190, config.modoInteligente, function(v) config.modoInteligente = v end, "Farm")
 criarEntrada("Tempo p/ Reforço:", 220, Esperar_Npc, function(v)Esperar_Npc = math.clamp(v, 1, 60)end, "Farm")
+criarEntrada("Tempo de esperar:", 220, Esperar_Arena, function(v)Esperar_Arena = math.clamp(v, 1, 60)end, "Farm")
 
 --=====================================================================================================================--
 
@@ -850,9 +852,10 @@ local function iniciarArena()
 	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Indo para a arena...")
 	teleportarParaArena()
 
-	print("⌛ Esperando 3s para iniciar...")
-	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando 3 segundos para iniciar...")
-	task.wait(3)
+	print("⌛ Esperando " .. Esperar_Arena .. "s para iniciar...")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando " .. Esperar_Arena .. "s para iniciar...")
+
+	task.wait(Esperar_Arena)
 
 	while autoFarmAtivo do
 		local valido = alvoAtual
