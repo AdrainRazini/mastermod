@@ -275,7 +275,7 @@ end)
 	createButton("Ativar guis", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Ativargui"))()
 	end)
---[[
+
 	createButton("AUTO FARME MOEDAS", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
 	end)
@@ -288,7 +288,7 @@ end)
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
 	end)
 	
-]]
+
 	createButton("Lock Camera", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Lockcamera"))()
 	end)
