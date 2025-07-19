@@ -789,42 +789,52 @@ fecharConfigBtn.MouseButton1Click:Connect(function()
 end)
 
 --=====================================================================--
+-- 🔁 Função utilitária para teleporte com espera e ancoragem
+local function teleporteComEspera(destino, localNome)
+	if not destino then
+		warn("⚠️ Destino para " .. localNome .. " é inválido!")
+		return nil
+	end
 
--- Parte de Teleportação e sistemas
-
-local function teleportarParaArena()
-	local destino = autoTeleporteAtivo and config.pontoArena or pontoArena
 	hrp.CFrame = CFrame.new(destino + Vector3.new(0, 3, 0))
 
 	local tempo = tonumber(Esperar_Arena) or 1
 	local tempoQueda = config.tempoQueda or 1
+
 	task.wait(tempoQueda)
+
 	if config.ancoragem then
 		hrp.Anchored = true
 	end
 
-	atualizarStatusComTexto(Color3.fromRGB(255, 200, 0), "⌛ Esperando " .. tempo .. "s na arena...")
+	atualizarStatusComTexto(Color3.fromRGB(255, 200, 0), "⌛ Esperando " .. tempo .. "s em " .. localNome .. "...")
 	task.wait(tempo)
 
 	if config.ancoragem then
 		hrp.Anchored = false
 	end
 
-	atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "✅ Espera finalizada!")
+	atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "✅ Espera finalizada em " .. localNome .. "!")
 
 	return hrp
 end
 
+-- 🎯 Teleporta para a arena
+local function teleportarParaArena()
+	local destino = autoTeleporteAtivo and config.pontoArena or pontoArena
+	return teleporteComEspera(destino, "Arena")
+end
 
-
+-- 🏠 Teleporta para o spawn
 local function teleportarParaSpawn()
 	local spawnLocation = plr.RespawnLocation or workspace:FindFirstChild("SpawnLocation")
 	if spawnLocation then
-		hrp.CFrame = spawnLocation.CFrame + Vector3.new(0, 3, 0)
+		return teleporteComEspera(spawnLocation.Position, "Spawn")
 	else
 		warn("⚠️ Spawn não encontrado")
 	end
 end
+
 
 --===========================================================--
 local npcIgnorados = {} -- ou em espera
