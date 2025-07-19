@@ -1151,28 +1151,27 @@ button.MouseButton1Click:Connect(function()
 end)
 
 -- 🔁 Função para monitorar morte e reinicializar variáveis após respawn
+local deathConnection
+
 local function monitorarMorte()
-	-- Conexão segura
 	if humanoid and humanoid:IsA("Humanoid") then
-		humanoid.Died:Connect(function()
+		if deathConnection then
+			deathConnection:Disconnect()
+		end
+
+		deathConnection = humanoid.Died:Connect(function()
 			print("💀 Jogador morreu.")
 			atualizarStatusComTexto(Color3.fromRGB(170, 0, 255), "Morto. Aguardando respawn...")
 
-			-- Pausar farm e lógica
 			partidaAtiva = false
 
-			-- Espera personagem novo e reinicializa variáveis essenciais
 			plr.CharacterAdded:Wait()
 			character = plr.Character or plr.CharacterAdded:Wait()
 			humanoid = character:WaitForChild("Humanoid")
 			hrp = character:WaitForChild("HumanoidRootPart")
 
-			-- Garantir que outras variáveis continuam corretas
-			-- Config já é tabela compartilhada, permanece intacta
-			-- Reconectar monitor da morte
 			monitorarMorte()
 
-			-- Se autofarm ainda está ativo, continua
 			if autoFarmAtivo then
 				print("⚡ AutoFarm reiniciando após morte.")
 				atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Respawn detectado. Retornando à arena...")
@@ -1187,6 +1186,3 @@ local function monitorarMorte()
 		end)
 	end
 end
-
--- 🔄 Chamar logo após inicializar humanoid na primeira vez
-monitorarMorte()
