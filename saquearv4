@@ -793,7 +793,7 @@ end)
 
 local function teleportarParaArena()
 	local destino = autoTeleporteAtivo and config.pontoArena or pontoArena
-	hrp.CFrame = CFrame.new(destino + Vector3.new(0, 3, 0))
+	hrp.CFrame = CFrame.new(destino + Vector3.new(0, 0.5, 0))
 
 	local tempo = tonumber(Esperar_Arena) or 1
 
