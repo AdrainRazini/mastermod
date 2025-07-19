@@ -27,6 +27,7 @@ local config = {
 	highlightNPC = false,
 	modoInteligente = false,
 	ancoragem = false,
+	voltar_origem = false,
 	pontoArena = pontoArena
 }
  
@@ -454,6 +455,9 @@ criarCheckbox("Ancorar durante espera", 250, config.ancoragem, function(v)
 	config.ancoragem = v
 end, "Farm")
 
+criarCheckbox("Voltar Origem", 280, config.voltar_origem, function(v)
+	config.voltar_origem = v
+end, "Farm")
 
 --=====================================================================================================================--
  
@@ -1110,14 +1114,16 @@ local function iniciarArena()
 	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Arena finalizada, voltando ao spawn...")
 
 	controleMove = false
-	teleportarParaSpawn()
+	
+	if config.voltar_origem then
+		teleportarParaSpawn()
+		print("⏳ Aguardando 10s...")
+		atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Aguardando 10 segundos...")
+		task.wait(10)
+	end
 
-	print("⏳ Aguardando 10s...")
-	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Aguardando 10 segundos...")
-	task.wait(10)
-
+	
 	partidaAtiva = false
-
 	if autoFarmAtivo then
 		task.defer(iniciarArena)
 	end
