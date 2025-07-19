@@ -793,10 +793,11 @@ end)
 
 local function teleportarParaArena()
 	local destino = autoTeleporteAtivo and config.pontoArena or pontoArena
-	hrp.CFrame = CFrame.new(destino + Vector3.new(0, 0, 0))
+	hrp.CFrame = CFrame.new(destino + Vector3.new(0, 3, 0))
 
 	local tempo = tonumber(Esperar_Arena) or 1
-
+	local tempoQueda = config.tempoQueda or 1
+	task.wait(tempoQueda)
 	if config.ancoragem then
 		hrp.Anchored = true
 	end
