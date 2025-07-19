@@ -1042,13 +1042,20 @@ local function iniciarArena()
 	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Indo para a arena...")
 	teleportarParaArena()
 
-	print("⌛ Esperando " .. Esperar_Arena .. "s para iniciar...")
-	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando " .. Esperar_Arena .. "s para iniciar...")
+	local tempo = tonumber(Esperar_Arena) or 1
 
-	task.wait(Esperar_Arena)
+	print("⌛ Esperando " .. tempo .. "s para iniciar...")
+	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando " .. tempo .. "s para iniciar...")
 
+	-- 🔒 Garantir que movimento e busca fiquem travados durante o tempo
+	controleMove = false
+	alvoAtual = nil
+	
+
+	atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "✅ Início autorizado, buscando NPC...")
+
+	-- Agora inicia a lógica de farm
 	while autoFarmAtivo do
-		-- Bloqueia movimentação enquanto troca alvo
 		controleMove = false
 
 		local valido = alvoAtual
@@ -1056,7 +1063,6 @@ local function iniciarArena()
 			and alvoAtual:FindFirstChild("HumanoidRootPart")
 			and alvoAtual.Humanoid.Health > 0
 
-		-- Se alvo inválido, procurar novo
 		if not valido then
 			alvoAtual = getNpcMaisProximo()
 		end
@@ -1064,11 +1070,7 @@ local function iniciarArena()
 		if alvoAtual then
 			tempoSemNpc = 0
 			atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "Seguindo: " .. alvoAtual.Name)
-
-			-- Libera movimentação para o loop mover ir até o alvo
 			controleMove = true
-
-			-- Aguarda um pouco para o mover atuar (ajuste o tempo se quiser)
 			task.wait(0.5)
 		else
 			tempoSemNpc += 1
@@ -1120,7 +1122,6 @@ local function iniciarArena()
 		task.defer(iniciarArena)
 	end
 end
-
 
 
 
