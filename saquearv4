@@ -788,9 +788,6 @@ end)
 
 -- Parte de Teleportação e sistemas
 
--- 🔧 Adicione essa variável no seu config se ainda não tiver:
--- config.ancoragem = false
-
 local function teleportarParaArena()
 	local destino = autoTeleporteAtivo and config.pontoArena or pontoArena
 	hrp.CFrame = CFrame.new(destino + Vector3.new(0, 3, 0))
@@ -826,6 +823,12 @@ local function teleportarParaSpawn()
 end
 
 --===========================================================--
+local npcIgnorados = {} -- ou em espera
+local npcsAtivos = {} -- seguindo nesse momento
+
+-- Variável para contar erros consecutivos
+local errosSeguidos = 0
+
 -- 🔍 Checa se o NPC é válido
 local function npcValido(npc)
 	return npc:IsA("Model") 
@@ -861,6 +864,16 @@ local function encontrarNpc(distMin, distMax, comPrioridade)
 
 	if config.contador then
 		print("👥 NPCs encontrados:", total)
+
+		-- Se não encontrar nenhum dentro da faixa, lista NPCs fora da faixa para debug
+		if total == 0 then
+			for _, npc in pairs(pastaNpcs:GetChildren()) do
+				if npcValido(npc) then
+					local dist = (hrp.Position - npc.HumanoidRootPart.Position).Magnitude
+					print("⚠️ NPC fora da faixa:", npc.Name, "Distância:", math.floor(dist))
+				end
+			end
+		end
 	end
 
 	return alvo
@@ -883,7 +896,7 @@ local function aplicarHighlight(alvo)
 	end
 end
 
--- 🎯 Busca o NPC mais próximo com base no modo inteligente
+-- 🎯 Busca o NPC mais próximo com base no modo inteligente, ou último NPC válido se nenhum dentro da faixa
 local function getNpcMaisProximo()
 	local alvo = nil
 
@@ -891,6 +904,17 @@ local function getNpcMaisProximo()
 		alvo = encontrarNpc(config.distanciaMinima, config.distanciaMaxima, true) -- com prioridade
 	else
 		alvo = encontrarNpc(config.distanciaMinima, config.distanciaMaxima)
+	end
+
+	-- Se não achou NPC dentro da faixa, tenta pegar qualquer NPC válido como último recurso
+	if not alvo then
+		for _, npc in pairs(pastaNpcs:GetChildren()) do
+			if npcValido(npc) then
+				print("🔻 Usando último NPC fora da faixa:", npc.Name)
+				alvo = npc
+				break
+			end
+		end
 	end
 
 	aplicarHighlight(alvo)
@@ -927,7 +951,10 @@ local function moverAteNpc(npc)
 		end
 	end
 
-	humanoid:MoveTo(hrp.Position) -- Interrompe o movimento
+	-- Só interrompe o movimento se NPC morreu ou estiver longe demais do personagem
+	if not npcValido(npc) or (hrp.Position - npc.HumanoidRootPart.Position).Magnitude > distanciaChegada * 2 then
+		humanoid:MoveTo(hrp.Position)
+	end
 end
 
 -- 🆘 Reforço: busca NPC mais distante em dobro do alcance
@@ -945,28 +972,70 @@ local function reforco()
 	end
 end
 
+-- Controle de movimento ativo ou não
+local controleMove = true
 
+-- Variável global para armazenar o alvo atual
+local alvoAtual = nil
+
+-- Função para mover até o NPC (somente se controleMove == true)
+local function moverAteNpcControlado(npc)
+	if not npcValido(npc) then return end
+
+	if not controleMove then
+		-- Parar o movimento se controle estiver desativado
+		humanoid:MoveTo(hrp.Position)
+		return
+	end
+
+	local alvoPos = npc.HumanoidRootPart.Position
+	local tempoMaximo, tempoAtual = 10, 0
+	local distanciaChegada, dt = 3, 0.1
+
+	humanoid:MoveTo(alvoPos)
+
+	while tempoAtual < tempoMaximo do
+		task.wait(dt)
+		tempoAtual += dt
+
+		if not npcValido(npc) then
+			print("⚠️ NPC inválido ou morreu.")
+			break
+		end
+
+		local novaPos = npc.HumanoidRootPart.Position
+		local distanciaAtual = (hrp.Position - novaPos).Magnitude
+
+		if distanciaAtual <= distanciaChegada then
+			break
+		elseif (novaPos - alvoPos).Magnitude > 2 then
+			alvoPos = novaPos
+			humanoid:MoveTo(alvoPos)
+		end
+	end
+
+	if not npcValido(npc) or (hrp.Position - npc.HumanoidRootPart.Position).Magnitude > distanciaChegada * 2 then
+		humanoid:MoveTo(hrp.Position)
+	end
+end
+
+-- Loop separado só para mover o personagem até o alvo atual, se controleMove e autoFarmAtivo estiverem true
 spawn(function()
 	while task.wait(1) do
-		if autoFarmAtivo then
-			local alvo = getNpcMaisProximo()
-			if alvo then
-				moverAteNpc(alvo)
-			else
-				reforco()
+		if autoFarmAtivo and controleMove and alvoAtual then
+			local sucesso, erro = pcall(function()
+				moverAteNpcControlado(alvoAtual)
+			end)
+			if not sucesso then
+				warn("⚠️ Erro ao mover NPC:", erro)
 			end
 		end
 	end
 end)
 
-
---===========================================================--
-
--- Lógica principal da arena melhorada
--- 🧠 Lógica principal da arena melhorada
+-- Função principal que controla teleporte, lógica da arena e atualização do alvoAtual
 local function iniciarArena()
 	partidaAtiva = true
-	local alvoAtual = nil
 	local tempoSemNpc = 0
 
 	print("🎯 Indo para a arena...")
@@ -979,6 +1048,9 @@ local function iniciarArena()
 	task.wait(Esperar_Arena)
 
 	while autoFarmAtivo do
+		-- Bloqueia movimentação enquanto troca alvo
+		controleMove = false
+
 		local valido = alvoAtual
 			and alvoAtual:FindFirstChild("Humanoid")
 			and alvoAtual:FindFirstChild("HumanoidRootPart")
@@ -989,13 +1061,16 @@ local function iniciarArena()
 			alvoAtual = getNpcMaisProximo()
 		end
 
-		-- Se encontrou alvo, seguir
 		if alvoAtual then
 			tempoSemNpc = 0
 			atualizarStatusComTexto(Color3.fromRGB(0, 255, 0), "Seguindo: " .. alvoAtual.Name)
-			moverAteNpc(alvoAtual)
+
+			-- Libera movimentação para o loop mover ir até o alvo
+			controleMove = true
+
+			-- Aguarda um pouco para o mover atuar (ajuste o tempo se quiser)
+			task.wait(0.5)
 		else
-			-- Aguardar e tentar reforço
 			tempoSemNpc += 1
 			atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Esperando NPC...")
 
@@ -1007,6 +1082,8 @@ local function iniciarArena()
 				elseif config.modoInteligente then
 					print("🤖 Nenhum NPC, ativando modo inteligente.")
 					atualizarStatusComTexto(Color3.fromRGB(255, 165, 0), "Sem NPCs. Teleportando para spawn...")
+
+					controleMove = false
 					teleportarParaSpawn()
 					task.wait(2)
 
@@ -1029,6 +1106,8 @@ local function iniciarArena()
 
 	print("🏁 Arena finalizada, voltando ao spawn.")
 	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Arena finalizada, voltando ao spawn...")
+
+	controleMove = false
 	teleportarParaSpawn()
 
 	print("⏳ Aguardando 10s...")
@@ -1037,12 +1116,10 @@ local function iniciarArena()
 
 	partidaAtiva = false
 
-	-- Reentrar automaticamente se ainda ativo
 	if autoFarmAtivo then
 		task.defer(iniciarArena)
 	end
 end
-
 
 
 
