@@ -27,6 +27,7 @@ local config = {
 	highlightNPC = false,
 	modoInteligente = false,
 	ancoragem = false,
+	autojump = true,
 	voltar_origem = false,
 	pontoArena = pontoArena
 }
@@ -458,6 +459,12 @@ end, "Farm")
 criarCheckbox("Voltar Origem", 280, config.voltar_origem, function(v)
 	config.voltar_origem = v
 end, "Farm")
+
+criarCheckbox("Auto Pulo", 310, config.autojump, function(v)
+	config.autojump = v
+end, "Farm")
+
+
 
 --=====================================================================================================================--
  
@@ -1047,6 +1054,37 @@ spawn(function()
 	end
 end)
 
+
+
+local function monitorar_p_sit()
+	local plr = game.Players.LocalPlayer
+	local character = plr.Character or plr.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild("Humanoid")
+	local hrp = character:WaitForChild("HumanoidRootPart")
+
+	-- Monitora se o jogador sentar
+	humanoid:GetPropertyChangedSignal("Sit"):Connect(function()
+		if humanoid.Sit then
+			warn("🚫 Jogador sentou! Removendo estado...")
+
+			-- Opção 1: Força o jogador a pular
+			humanoid.Jump = true
+
+			-- Opção 2: Cancela o estado de sentar (caso você queira remover sem pulo)
+			task.wait(0.1)
+			humanoid.Sit = false
+		end
+	end)
+end
+
+if config.autojump then
+	monitorar_p_sit()
+end
+
+
+
+--====================================================================================--
+
 -- Função principal que controla teleporte, lógica da arena e atualização do alvoAtual
 local function iniciarArena()
 	partidaAtiva = true
@@ -1124,7 +1162,7 @@ local function iniciarArena()
 	atualizarStatusComTexto(Color3.fromRGB(255, 255, 0), "Arena finalizada, voltando ao spawn...")
 
 	controleMove = false
-	
+	-- Volta para spawn se for True e config.voltar_origem estiver ativo
 	if config.voltar_origem then
 		teleportarParaSpawn()
 		print("⏳ Aguardando 10s...")
@@ -1206,3 +1244,4 @@ end
 
 -- 🔄 Chamar logo após inicializar humanoid na primeira vez
 monitorarMorte()
+--=================================================================--
