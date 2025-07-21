@@ -29,6 +29,7 @@ local config = {
 	ancoragem = false,
 	autojump = true,
 	voltar_origem = false,
+	neon_btn = true,
 	pontoArena = pontoArena
 }
  
@@ -81,6 +82,17 @@ local function applyCorner(instance, radius)
 	corner.Parent = instance
 end
 
+-- Função para aplicar contorno neon via UIStroke
+local function applyUIStroke(instance, colorName, thickness)
+	thickness = thickness or 2
+	local stroke = Instance.new("UIStroke")
+	stroke.Parent = instance
+	stroke.Thickness = thickness
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+	stroke.Transparency = 0
+	-- Escolhe cor da paleta ou usa branco como fallback
+	stroke.Color = colors[colorName] or Color3.new(1, 1, 1)
+end
 
 --=========================================================--
 
@@ -148,7 +160,41 @@ button.Text = "Ativar AutoFarm"
 button.Parent = frame
 applyCorner(button)
 
+ 
+
+
 -- 🔘 Minimizar / Restaurar
+local icon = 120079732665376 -- seu asset ID
+
+-- 🔘 Minimizar: botão com texto "-"
+local minimizarBtn = Instance.new("TextButton")
+minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
+minimizarBtn.Position = UDim2.new(1, -30, 0, 0)
+minimizarBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimizarBtn.Text = "-"
+minimizarBtn.TextColor3 = Color3.new(1,1,1)
+minimizarBtn.TextSize = 22
+minimizarBtn.Font = Enum.Font.GothamBold
+minimizarBtn.Parent = frame
+applyCorner(minimizarBtn)
+-- (opcional) contorno menos chamativo:
+--applyUIStroke(minimizarBtn, "DarkGray", 1)
+
+-- 🔄 Restaurar: botão com imagem neon
+local restaurarBtn = Instance.new("ImageButton")
+restaurarBtn.Size = UDim2.new(0, 40, 0, 40)
+restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
+restaurarBtn.BackgroundTransparency = 1
+restaurarBtn.Image = "rbxassetid://" .. icon
+restaurarBtn.ImageColor3 = Color3.fromRGB(0, 255, 255) -- Neon azul opcional
+restaurarBtn.Visible = false
+restaurarBtn.Parent = gui
+applyCorner(restaurarBtn)
+
+-- contorno neon em cyan
+applyUIStroke(restaurarBtn, "Cyan", 1)
+
+--[[
 local minimizarBtn = Instance.new("TextButton")
 minimizarBtn.Size = UDim2.new(0, 30, 0, 30)
 minimizarBtn.Position = UDim2.new(1, -30, 0, 0)
@@ -166,7 +212,7 @@ restaurarBtn.Size = UDim2.new(0, 40, 0, 40)
 restaurarBtn.Position = UDim2.new(0, 20, 0, 80)
 restaurarBtn.Visible = false
 restaurarBtn.Parent = gui
-
+]]
 --=========================================================--
 
 -- Criação das informações de estados Obs: Muito bom para demostração
