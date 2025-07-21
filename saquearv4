@@ -570,11 +570,11 @@ end, "Farm")
 criarCheckbox("Voltar Origem", 280, config.voltar_origem, function(v)
 	config.voltar_origem = v
 end, "Farm")
-
+--[[
 criarCheckbox("Auto Pulo", 310, config.autojump, function(v)
 	config.autojump = v
 end, "Farm")
-
+]]
 
 
 --=====================================================================================================================--
@@ -1187,12 +1187,11 @@ local function monitorar_p_sit()
 		end
 	end)
 end
-
+--[[
 if config.autojump then
 	monitorar_p_sit()
 end
-
-
+]]
 
 --====================================================================================--
 
