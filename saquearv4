@@ -121,6 +121,35 @@ local function applyNeonUIStroke(instance, cores, velocidade)
 	end)
 end
 
+local RunService = game:GetService("RunService")
+
+local function applyRotatingGradientUIStroke(instance, cor1, cor2, cor3)
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 2
+	stroke.Transparency = 0
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+	stroke.Color = colors.White
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = instance
+
+	local gradient = Instance.new("UIGradient")
+	gradient.Rotation = 0
+	gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0.0, colors[cor1] or Color3.new(1, 1, 1)),
+		ColorSequenceKeypoint.new(0.5, colors[cor2] or Color3.new(1, 1, 1)),
+		ColorSequenceKeypoint.new(1.0, colors[cor3] or Color3.new(1, 1, 1))
+	})
+	gradient.Parent = stroke
+
+	-- Animação da rotação do gradiente
+	local angle = 0
+	RunService.RenderStepped:Connect(function()
+		if gradient.Parent == nil then return end
+		angle = (angle + 0.5) % 360 -- Velocidade de rotação
+		gradient.Rotation = angle
+	end)
+end
+
 
 
 --=========================================================--
@@ -163,7 +192,7 @@ frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
 applyCorner(frame, UDim.new(0, 8))
-
+applyRotatingGradientUIStroke(frame, "Cyan", "Magenta", "Blue")
 -- 🌫️ Sombra
 local shadow = Instance.new("ImageLabel")
 shadow.Name = "Shadow"
@@ -223,8 +252,10 @@ restaurarBtn.Parent = gui
 applyCorner(restaurarBtn)
 
 -- contorno neon em cyan
-applyUIStroke(restaurarBtn, "Cyan", 1)
+--applyUIStroke(restaurarBtn, "Cyan", 1)
 --applyNeonUIStroke(restaurarBtn, {"Cyan", "Magenta", "Blue"}, 0.2)
+applyRotatingGradientUIStroke(restaurarBtn, "Cyan", "Magenta", "Blue")
+
 
 
 --[[
@@ -259,6 +290,7 @@ statusBall.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 statusBall.BorderSizePixel = 0
 statusBall.Parent = frame
 applyCorner(statusBall, UDim.new(1, 0))
+
 local notificacoes = {} -- lista de notificações atuais
 
 local function criarNotificacao(texto, cor)
