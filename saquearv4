@@ -94,6 +94,35 @@ local function applyUIStroke(instance, colorName, thickness)
 	stroke.Color = colors[colorName] or Color3.new(1, 1, 1)
 end
 
+local function applyNeonUIStroke(instance, cores, velocidade)
+	velocidade = velocidade or 0.1
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 2
+	stroke.Transparency = 0
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+	stroke.Parent = instance
+
+	-- Se for string única, usa como cor fixa
+	if typeof(cores) == "string" then
+		stroke.Color = colors[cores] or Color3.new(1, 1, 1)
+		return
+	end
+
+	-- Se for tabela, anima entre elas
+	task.spawn(function()
+		local index = 1
+		while stroke.Parent do
+			local cor = cores[index]
+			stroke.Color = colors[cor] or Color3.new(1, 1, 1)
+			index = index % #cores + 1
+			task.wait(velocidade)
+		end
+	end)
+end
+
+
+
 --=========================================================--
 
 
@@ -188,11 +217,15 @@ restaurarBtn.BackgroundTransparency = 1
 restaurarBtn.Image = "rbxassetid://" .. icon
 restaurarBtn.ImageColor3 = Color3.fromRGB(0, 255, 255) -- Neon azul opcional
 restaurarBtn.Visible = false
+restaurarBtn.Active = true
+restaurarBtn.Draggable = true
 restaurarBtn.Parent = gui
 applyCorner(restaurarBtn)
 
 -- contorno neon em cyan
 applyUIStroke(restaurarBtn, "Cyan", 1)
+--applyNeonUIStroke(restaurarBtn, {"Cyan", "Magenta", "Blue"}, 0.2)
+
 
 --[[
 local minimizarBtn = Instance.new("TextButton")
