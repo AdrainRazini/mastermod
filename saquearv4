@@ -1,7 +1,6 @@
 -- 🔧 Serviços
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
-local player = game.Players.LocalPlayer
 local character = plr.Character or plr.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local hrp = character:WaitForChild("HumanoidRootPart")
@@ -528,7 +527,17 @@ local function toggleESP(ativo)
 	end
 end
 
+local player = game.Players.LocalPlayer
+player.CharacterAdded:Connect(function(char)
+	char:WaitForChild("Humanoid")
 
+	task.wait(0.2) -- pequeno delay para garantir que as partes existam
+
+	setWalkSpeed(ultimoWalkSpeed)
+	setJumpPower(ultimoJumpPower)
+	setCollision(ultimaColisao)
+	toggleESP(ultimoESP)
+end)
 
 
 
@@ -1067,11 +1076,11 @@ local function monitorar_p_sit()
 		end
 	end)
 end
---[[
+
 if config.autojump then
 	monitorar_p_sit()
 end
-]]
+
 
 
 --====================================================================================--
@@ -1236,22 +1245,3 @@ end
 -- 🔄 Chamar logo após inicializar humanoid na primeira vez
 monitorarMorte()
 --=================================================================--
-
-
-
-player.CharacterAdded:Connect(function(char)
-	char:WaitForChild("Humanoid")
-	task.wait(0.2)
-
-	setWalkSpeed(ultimoWalkSpeed)
-	setJumpPower(ultimoJumpPower)
-	setCollision(ultimaColisao)
-	toggleESP(ultimoESP)
-
-	-- 🔄 Reaplica monitoramento de sentar após respawn
-	if config.autojump then
-		task.delay(0.5, function()
-			monitorar_p_sit()
-		end)
-	end
-end)
