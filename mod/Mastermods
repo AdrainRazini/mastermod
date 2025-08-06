@@ -13,6 +13,15 @@ local config = {}
 
 -- Criação da lista de cores 
 local colors = {
+	Main = Color3.fromRGB(20, 20, 20),
+	Secondary = Color3.fromRGB(35, 35, 35),
+	Accent = Color3.fromRGB(0, 170, 255),
+	Text = Color3.fromRGB(255, 255, 255),
+	Button = Color3.fromRGB(50, 50, 50),
+	ButtonHover = Color3.fromRGB(70, 70, 70),
+	Stroke = Color3.fromRGB(80, 80, 80),
+	Highlight = Color3.fromRGB(0, 255, 0),
+	HighlightOthers = Color3.fromRGB(255, 0, 0), -- cor para outros jogadores
 	Red = Color3.fromRGB(255, 0, 0),
 	Green = Color3.fromRGB(0, 255, 0),
 	Blue = Color3.fromRGB(0, 0, 255),
@@ -223,7 +232,7 @@ function criar_Gui_Frame()
 	layout.Padding = UDim.new(0, 6)
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	
+
 	-- Criação da Frame de configuração
 
 	-- 📦 Configurações
@@ -394,13 +403,20 @@ function criar_Gui_Frame()
 
 	-- Controle do proprio personagem Obs: Bom para mods locais.
 
-	-- 🧍 Player Control
+
+	-- Controle do proprio personagem Obs: Bom para mods locais.
+
+	-- 🧍‍♂️ Player Control
 	local ultimoWalkSpeed = 16
 	local ultimoJumpPower = 50
 	local ultimaColisao = true
 	local ultimoESP = false
+	local noclipAtivo = false
+	local noAirAtivo = false
+	local infiniteJumpAtivo = false
+	local fixedYPosition = nil
 
-	-- 1. Velocidade de caminhada
+	-- 🔢 Velocidade
 	local function setWalkSpeed(valor)
 		ultimoWalkSpeed = valor
 		local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -409,6 +425,7 @@ function criar_Gui_Frame()
 		end
 	end
 
+	-- 🦘 Pulo
 	local function setJumpPower(valor)
 		ultimoJumpPower = valor
 		local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -417,6 +434,7 @@ function criar_Gui_Frame()
 		end
 	end
 
+	-- 🚫 Colisão
 	local function setCollision(ativo)
 		ultimaColisao = ativo
 		local character = game.Players.LocalPlayer.Character
@@ -429,6 +447,7 @@ function criar_Gui_Frame()
 		end
 	end
 
+	-- 👁️ ESP do próprio personagem
 	local function toggleESP(ativo)
 		ultimoESP = ativo
 		local char = game.Players.LocalPlayer.Character
@@ -440,7 +459,7 @@ function criar_Gui_Frame()
 				highlight = Instance.new("Highlight")
 				highlight.Name = "PlayerHighlight"
 				highlight.FillTransparency = 1
-				highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+				highlight.OutlineColor = colors.Highlight
 				highlight.OutlineTransparency = 0
 				highlight.Parent = char
 			end
@@ -451,24 +470,172 @@ function criar_Gui_Frame()
 		end
 	end
 
+	-- 🔁 Reaplica as configurações ao renascer
 	local player = game.Players.LocalPlayer
 	player.CharacterAdded:Connect(function(char)
 		char:WaitForChild("Humanoid")
 
-		task.wait(0.2) -- pequeno delay para garantir que as partes existam
-
+		task.wait(0.2)
 		setWalkSpeed(ultimoWalkSpeed)
 		setJumpPower(ultimoJumpPower)
 		setCollision(ultimaColisao)
 		toggleESP(ultimoESP)
 	end)
 
+	-- 🔄 Loop para manter colisão desativada
+	task.spawn(function()
+		while true do
+			task.wait(0.5)
+			if not ultimaColisao then
+				local character = player.Character
+				if character then
+					for _, part in pairs(character:GetDescendants()) do
+						if part:IsA("BasePart") then
+							part.CanCollide = false
+						end
+					end
+				end
+			end
+		end
+	end)
 
+	-- 🚷 Loop de noclip
+	game:GetService("RunService").Stepped:Connect(function()
+		if noclipAtivo then
+			local character = player.Character
+			if character then
+				for _, part in pairs(character:GetDescendants()) do
+					if part:IsA("BasePart") then
+						part.CanCollide = false
+					end
+				end
+			end
+		end
+	end)
 
+	-- ⬆️ No Air (fixar eixo Y)
+	game:GetService("RunService").Heartbeat:Connect(function()
+		if noAirAtivo and fixedYPosition then
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				local pos = hrp.Position
+				hrp.CFrame = CFrame.new(pos.X, fixedYPosition, pos.Z)
+				hrp.Velocity = Vector3.new(hrp.Velocity.X, 0, hrp.Velocity.Z)
+			end
+		end
+	end)
+
+	-- 🦘 Infinite Jump
+	local userInputService = game:GetService("UserInputService")
+	userInputService.JumpRequest:Connect(function()
+		if infiniteJumpAtivo then
+			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+			end
+		end
+	end)
+
+	-- ESP ALL: destaca todos os outros jogadores vivos no jogo
+	local espAllAtivo = false
+	local highlights = {}
+
+	local Players = game:GetService("Players")
+
+	local function removeAllHighlights()
+		for _, highlight in pairs(highlights) do
+			if highlight and highlight.Parent then
+				highlight:Destroy()
+			end
+		end
+		highlights = {}
+	end
+
+	local function criarHighlightParaPersonagem(character)
+		if character and not highlights[character] then
+			local humanoid = character:FindFirstChildOfClass("Humanoid")
+			if humanoid and humanoid.Health > 0 then
+				local highlight = Instance.new("Highlight")
+				highlight.Name = "ESPAllHighlight"
+				highlight.FillTransparency = 1
+				highlight.OutlineColor = colors.HighlightOthers
+				highlight.OutlineTransparency = 0
+				highlight.Parent = character
+				highlights[character] = highlight
+			end
+		end
+	end
+
+	local function toggleESPAll(ativo)
+		espAllAtivo = ativo
+		if not ativo then
+			removeAllHighlights()
+		else
+			-- Criar highlight para todos os personagens (exceto o próprio)
+			for _, plr in pairs(Players:GetPlayers()) do
+				if plr ~= Players.LocalPlayer and plr.Character then
+					criarHighlightParaPersonagem(plr.Character)
+				end
+			end
+		end
+	end
+
+	-- Centralizando conexão para PlayerAdded e CharacterAdded
+	Players.PlayerAdded:Connect(function(plr)
+		plr.CharacterAdded:Connect(function(char)
+			task.wait(0.5)
+			if espAllAtivo and plr ~= Players.LocalPlayer then
+				criarHighlightParaPersonagem(char)
+			end
+
+			local humanoid = char:WaitForChild("Humanoid")
+			humanoid.Died:Connect(function()
+				if highlights[char] then
+					highlights[char]:Destroy()
+					highlights[char] = nil
+				end
+			end)
+		end)
+	end)
+
+	Players.PlayerRemoving:Connect(function(plr)
+		local char = plr.Character
+		if char and highlights[char] then
+			highlights[char]:Destroy()
+			highlights[char] = nil
+		end
+	end)
+
+	-- UI checkbox para ativar/desativar ESP All
+	criarCheckbox("ESP All (todos)", 250, false, toggleESPAll, "Player")
+
+	-- ✅ UI: Criar entradas e opções no menu "Player"
 	criarEntrada("Velocidade:", 70, 16, setWalkSpeed, "Player")
 	criarEntrada("Pulo:", 100, 50, setJumpPower, "Player")
 	criarCheckbox("Colisão", 130, true, setCollision, "Player")
 	criarCheckbox("ESP (Highlight)", 160, false, toggleESP, "Player")
+
+	-- Novos checkbox para No Air e Infinite Jump
+	criarCheckbox("No Air (flutuar)", 190, false, function(ativo)
+		noAirAtivo = ativo
+		if ativo then
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				fixedYPosition = hrp.Position.Y
+			end
+		else
+			fixedYPosition = nil
+		end
+	end, "Player")
+
+	criarCheckbox("Infinite Jump", 220, false, function(ativo)
+		infiniteJumpAtivo = ativo
+	end, "Player")
+
+
+
 	--====================================================================--
 
 	--====================================================================================================================--
@@ -581,9 +748,9 @@ function criar_Gui_Frame()
 	corner.CornerRadius = UDim.new(0, 8)  -- Aqui ajustamos o arredondamento, se preferir mais ou menos, altere o valor
 	corner.Parent = minimizeImage
 
-	
-	
-	
+
+
+
 	MinimizeButton.MouseButton1Click:Connect(function()
 		isMinimized = not isMinimized
 
