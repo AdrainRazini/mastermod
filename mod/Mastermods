@@ -963,8 +963,8 @@ function criar_Gui_Frame()
 	-- Carregar scripts do GitHub
 	local scripts = {
 		{name = "Inventário", path = "inventario.lua"},
-        {name = "AimBot Jogadores/Npcs", path = "aimbot.lua"},
-		{name = "Aimbot Players/Npcs", path = "aimbot_es.lua"},
+        {name = "AimBot PT", path = "aimbot.lua"},
+		{name = "AimBot ES", path = "aimbot_es.lua"},
 		{name = "Dash Player", path = "dash.lua"},
 		{name = "Keyboard", path = "Keyboard.lua"},
 		{name = "FlyGui", path = "flygui.lua"},
