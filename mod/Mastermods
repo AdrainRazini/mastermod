@@ -791,9 +791,7 @@ function criar_Gui_Frame()
 	end)
 
 
-
-
-
+--[[
 	-- Criando alguns botões de exemplo
 
 	createButton("INVENTÁRIO", function()
@@ -840,11 +838,11 @@ function criar_Gui_Frame()
 	createButton("AUTO FARME MOEDAS", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Moedasfarme"))()
 	end)
---[[
+
 	createButton("AUTO FARME PRESENTES", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Farmegift"))()
 	end)
-]]
+
 	createButton("Abrir Música", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/Music"))()
 	end)
@@ -959,12 +957,20 @@ function criar_Gui_Frame()
 	createButton("autoclick", function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/autoclick"))() --autoclick
 	end)
+
+]]
+	
 	-- Carregar scripts do GitHub
 	local scripts = {
-		{name = "Supremo_Visor", path = "visor.lua"},
-		{name = "Tests_Mods_New", path = "Test_Scripts"},
-		{name= "Test_ui", path = "Uimod"}, 
-		{name= "Translator", path = "Translator"},
+		{name = "Inventário", path = "inventario.lua"},
+        {name = "AimBot Jogadores/Npcs", path = "aimbot.lua"},
+		{name = "Aimbot Players/Npcs", path = "aimbot_es.lua"},
+		{name = "Dash Player", path = "dash.lua"},
+		{name = "Keyboard", path = "Keyboard.lua"},
+		{name = "FlyGui", path = "flygui.lua"},
+		{name = "Tpcoordenadas", path = "tpcoordenadas.lua"},
+		{name = "Teleport tool", path = "teleporttool.lua"},
+		
 	}
 
 	for _, script in ipairs(scripts) do
