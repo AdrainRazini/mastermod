@@ -1,27 +1,14 @@
-
---[[
-
--- Verificar se já existe um ScreenGui com o nome "ModMenu"
-local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild(TeleportGui)
-
--- Se já existir, retorna para evitar a criação do GUI
-if existingScreenGui then
-	return
-end
-
-]]
-
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 
--- Atualiza a variável character sempre que o personagem for recriado
 player.CharacterAdded:Connect(function(newCharacter)
 	character = newCharacter
 end)
 
+-- GUI principal
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "TeleportGui"
 screenGui.ResetOnSpawn = false
@@ -32,20 +19,17 @@ mainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
 mainFrame.Position = UDim2.new(0.7, 0, 0.1, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 mainFrame.BorderSizePixel = 0
-mainFrame.ClipsDescendants = true
 mainFrame.Parent = screenGui
 
-local uiCorner = Instance.new("UICorner", mainFrame)
-uiCorner.CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 8)
 
+-- Cabeçalho para arrastar
 local dragFrame = Instance.new("Frame")
 dragFrame.Size = UDim2.new(1, 0, 0, 30)
 dragFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 dragFrame.BorderSizePixel = 0
 dragFrame.Parent = mainFrame
-
-local dragCorner = Instance.new("UICorner", dragFrame)
-dragCorner.CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", dragFrame).CornerRadius = UDim.new(0, 8)
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -40, 1, 0)
@@ -58,6 +42,7 @@ title.TextSize = 14
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = dragFrame
 
+-- Botão minimizar
 local minimizeButton = Instance.new("TextButton")
 minimizeButton.Size = UDim2.new(0, 30, 0, 24)
 minimizeButton.Position = UDim2.new(1, -35, 0.1, 0)
@@ -69,10 +54,9 @@ minimizeButton.TextSize = 18
 minimizeButton.BorderSizePixel = 0
 minimizeButton.AutoButtonColor = false
 minimizeButton.Parent = dragFrame
+Instance.new("UICorner", minimizeButton).CornerRadius = UDim.new(0, 6)
 
-local minimizeCorner = Instance.new("UICorner", minimizeButton)
-minimizeCorner.CornerRadius = UDim.new(0, 6)
-
+-- Área de rolagem para lista
 local scrollingFrame = Instance.new("ScrollingFrame")
 scrollingFrame.Size = UDim2.new(1, 0, 1, -30)
 scrollingFrame.Position = UDim2.new(0, 0, 0, 30)
@@ -85,7 +69,7 @@ local uiListLayout = Instance.new("UIListLayout", scrollingFrame)
 uiListLayout.Padding = UDim.new(0, 4)
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Botão de teleporte em sequência
+-- Botão sequência
 local seqButton = Instance.new("TextButton")
 seqButton.Size = UDim2.new(1, -10, 0, 40)
 seqButton.Position = UDim2.new(0, 5, 0, 5)
@@ -97,9 +81,7 @@ seqButton.TextColor3 = Color3.new(1, 1, 1)
 seqButton.BorderSizePixel = 0
 seqButton.AutoButtonColor = false
 seqButton.Parent = scrollingFrame
-
-local seqCorner = Instance.new("UICorner", seqButton)
-seqCorner.CornerRadius = UDim.new(0, 6)
+Instance.new("UICorner", seqButton).CornerRadius = UDim.new(0, 6)
 
 seqButton.MouseEnter:Connect(function()
 	seqButton.BackgroundColor3 = Color3.fromRGB(95, 45, 45)
@@ -108,21 +90,15 @@ seqButton.MouseLeave:Connect(function()
 	seqButton.BackgroundColor3 = Color3.fromRGB(75, 35, 35)
 end)
 
-
 -- Variáveis de controle
-local isActive = true
--- Controle do modo sequência
-local isSeqActive = false
 local isMinimized = false
 local dragging = false
 local dragStart, startPos
+local isSeqActive = false
 
-
-
-
-
+-- Função arrastar
 local function iniciarArraste(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		dragging = true
 		dragStart = input.Position
 		startPos = mainFrame.Position
@@ -130,14 +106,14 @@ local function iniciarArraste(input)
 end
 
 local function atualizarArraste(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 		local delta = input.Position - dragStart
 		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end
 
 local function finalizarArraste(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		dragging = false
 	end
 end
@@ -146,35 +122,32 @@ dragFrame.InputBegan:Connect(iniciarArraste)
 UserInputService.InputChanged:Connect(atualizarArraste)
 UserInputService.InputEnded:Connect(finalizarArraste)
 
--- Minimizar e restaurar
+-- Minimizar/restaurar
 minimizeButton.MouseButton1Click:Connect(function()
 	isMinimized = not isMinimized
 	scrollingFrame.Visible = not isMinimized
 	minimizeButton.Text = isMinimized and "+" or "−"
-
-	if isMinimized then
-		mainFrame.Size = UDim2.new(0.15, 0, 0, 30)
-	else
-		mainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
-	end
+	mainFrame.Size = isMinimized and UDim2.new(0.15, 0, 0, 30) or UDim2.new(0.3, 0, 0.5, 0)
 end)
 
--- Teleporte
+-- Função teleporte
 local function teleportarPara(jogadorAlvo)
-	if jogadorAlvo and jogadorAlvo.Character and jogadorAlvo.Character.PrimaryPart then
-		local alvoPosicao = jogadorAlvo.Character.PrimaryPart.Position + Vector3.new(0, 3, 0)
-		if character and character.PrimaryPart then
-			character:SetPrimaryPartCFrame(CFrame.new(alvoPosicao))
+	if jogadorAlvo and jogadorAlvo.Character then
+		local root = jogadorAlvo.Character:FindFirstChild("HumanoidRootPart")
+		local myRoot = character and character:FindFirstChild("HumanoidRootPart")
+		if root and myRoot then
+			myRoot.CFrame = CFrame.new(root.Position + Vector3.new(0, 3, 0))
 		end
 	end
 end
 
--- Lista de jogadores
+-- Atualizar lista
 local function atualizarListaDeJogadores()
 	for _, v in ipairs(scrollingFrame:GetChildren()) do
-		if v:IsA("TextButton") then v:Destroy() end
+		if v:IsA("TextButton") and v ~= seqButton then
+			v:Destroy()
+		end
 	end
-
 	for _, jogador in ipairs(Players:GetPlayers()) do
 		if jogador ~= player then
 			local button = Instance.new("TextButton")
@@ -186,9 +159,7 @@ local function atualizarListaDeJogadores()
 			button.TextColor3 = Color3.new(1, 1, 1)
 			button.BorderSizePixel = 0
 			button.AutoButtonColor = false
-
-			local buttonCorner = Instance.new("UICorner", button)
-			buttonCorner.CornerRadius = UDim.new(0, 6)
+			Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
 
 			button.MouseEnter:Connect(function()
 				button.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
@@ -197,18 +168,17 @@ local function atualizarListaDeJogadores()
 				button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 			end)
 
-			button.Parent = scrollingFrame
-
 			button.MouseButton1Click:Connect(function()
 				teleportarPara(jogador)
 			end)
+
+			button.Parent = scrollingFrame
 		end
 	end
-
-	task.wait()
 	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
 end
 
+-- Botão sequência
 seqButton.MouseButton1Click:Connect(function()
 	isSeqActive = not isSeqActive
 	seqButton.Text = isSeqActive and "⏹ Parar sequência" or "Teleportar em sequência"
@@ -216,12 +186,13 @@ seqButton.MouseButton1Click:Connect(function()
 	if isSeqActive then
 		task.spawn(function()
 			while isSeqActive do
-				local playersList = Players:GetPlayers()
-				for _, alvo in ipairs(playersList) do
+				for _, alvo in ipairs(Players:GetPlayers()) do
 					if not isSeqActive then break end
-					if alvo ~= player and alvo.Character and alvo.Character.PrimaryPart then
-						teleportarPara(alvo)
-						task.wait(1.5) -- tempo entre teletransportes
+					if alvo ~= player then
+						pcall(function()
+							teleportarPara(alvo)
+						end)
+						task.wait(1.5)
 					end
 				end
 			end
@@ -229,10 +200,9 @@ seqButton.MouseButton1Click:Connect(function()
 	end
 end)
 
--- Atualizar lista constantemente
-task.spawn(function()
-	while isActive do
-		atualizarListaDeJogadores()
-		task.wait(1)
-	end
-end)
+-- Atualiza quando entra/sai player
+Players.PlayerAdded:Connect(atualizarListaDeJogadores)
+Players.PlayerRemoving:Connect(atualizarListaDeJogadores)
+
+-- Primeira atualização
+atualizarListaDeJogadores()
