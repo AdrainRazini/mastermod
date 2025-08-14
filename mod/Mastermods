@@ -971,7 +971,6 @@ function criar_Gui_Frame()
 		{name = "Tpcoordenadas", path = "tpcoordenadas.lua"},
 		{name = "Teleport tool", path = "teleporttool.lua"},
 		{name = "Teleport Players", path = "tpplayers.lua"},
-		{name = "Id Tool", path = "idtoolbox.lua"}
 		
 	}
 
