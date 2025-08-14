@@ -1,5 +1,15 @@
 
+--[[
 
+-- Verificar se já existe um ScreenGui com o nome "ModMenu"
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild(TeleportGui)
+
+-- Se já existir, retorna para evitar a criação do GUI
+if existingScreenGui then
+	return
+end
+
+]]
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
