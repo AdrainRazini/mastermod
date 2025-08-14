@@ -85,11 +85,41 @@ local uiListLayout = Instance.new("UIListLayout", scrollingFrame)
 uiListLayout.Padding = UDim.new(0, 4)
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
+-- Botão de teleporte em sequência
+local seqButton = Instance.new("TextButton")
+seqButton.Size = UDim2.new(1, -10, 0, 40)
+seqButton.Position = UDim2.new(0, 5, 0, 5)
+seqButton.BackgroundColor3 = Color3.fromRGB(75, 35, 35)
+seqButton.Text = "Teleportar em sequência"
+seqButton.Font = Enum.Font.GothamBold
+seqButton.TextSize = 14
+seqButton.TextColor3 = Color3.new(1, 1, 1)
+seqButton.BorderSizePixel = 0
+seqButton.AutoButtonColor = false
+seqButton.Parent = scrollingFrame
+
+local seqCorner = Instance.new("UICorner", seqButton)
+seqCorner.CornerRadius = UDim.new(0, 6)
+
+seqButton.MouseEnter:Connect(function()
+	seqButton.BackgroundColor3 = Color3.fromRGB(95, 45, 45)
+end)
+seqButton.MouseLeave:Connect(function()
+	seqButton.BackgroundColor3 = Color3.fromRGB(75, 35, 35)
+end)
+
+
 -- Variáveis de controle
 local isActive = true
+-- Controle do modo sequência
+local isSeqActive = false
 local isMinimized = false
 local dragging = false
 local dragStart, startPos
+
+
+
+
 
 local function iniciarArraste(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -178,6 +208,26 @@ local function atualizarListaDeJogadores()
 	task.wait()
 	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
 end
+
+seqButton.MouseButton1Click:Connect(function()
+	isSeqActive = not isSeqActive
+	seqButton.Text = isSeqActive and "⏹ Parar sequência" or "Teleportar em sequência"
+
+	if isSeqActive then
+		task.spawn(function()
+			while isSeqActive do
+				local playersList = Players:GetPlayers()
+				for _, alvo in ipairs(playersList) do
+					if not isSeqActive then break end
+					if alvo ~= player and alvo.Character and alvo.Character.PrimaryPart then
+						teleportarPara(alvo)
+						task.wait(1.5) -- tempo entre teletransportes
+					end
+				end
+			end
+		end)
+	end
+end)
 
 -- Atualizar lista constantemente
 task.spawn(function()
