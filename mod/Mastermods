@@ -35,6 +35,7 @@ end
 -- Debug do módulo
 print("🔹 Módulo carregado:", Module)
 
+--[[
 -- Para icons
 if Module.icons then
 	for name, asset in pairs(Module.icons) do
@@ -48,7 +49,7 @@ if Module.colors then
 		print("Color:", name, color)
 	end
 end
-
+]]
 
 local config = {}
 
