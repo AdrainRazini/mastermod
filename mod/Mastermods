@@ -35,13 +35,18 @@ end
 -- Debug do módulo
 print("🔹 Módulo carregado:", Module)
 
--- Se tiver ícones e cores, mostra eles também
+-- Para icons
 if Module.icons then
-	print("📦 Icons:", Module.icons)
+	for name, asset in pairs(Module.icons) do
+		print("Icon:", name, asset)
+	end
 end
 
+-- Para colors
 if Module.colors then
-	print("🎨 Colors:", Module.colors)
+	for name, color in pairs(Module.colors) do
+		print("Color:", name, color)
+	end
 end
 
 
