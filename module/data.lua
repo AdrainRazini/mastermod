@@ -1,7 +1,7 @@
 local config = {}
 
 -- Criação da lista de cores 
-local colors = {
+config.colors = {
 	Main = Color3.fromRGB(20, 20, 20),
 	Secondary = Color3.fromRGB(35, 35, 35),
 	Accent = Color3.fromRGB(0, 170, 255),
@@ -42,14 +42,13 @@ local colors = {
 	Chocolate = Color3.fromRGB(210, 105, 30)
 }
 
-
-local icons = {
-	
+-- Ícones
+config.icons = {
 	-- Ícone do sistema (rr)
 	fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
 	fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
 	fa_rr_information = "rbxassetid://99073088081563", -- Informações
-	
+
 	-- Ícone normal (bx)
 	fa_bx_code_start = "rbxassetid://107895739450188", 
 	fa_bx_code_end = "rbxassetid://106185292775972",
@@ -57,4 +56,5 @@ local icons = {
 	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
 
-
+-- 🔑 Retorna a tabela para ser usada em outros scripts
+return config
