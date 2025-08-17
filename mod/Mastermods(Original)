@@ -8,42 +8,6 @@ local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/"
 local IMG_ICON = "rbxassetid://117585506735209"
 local NAME_MOD_MENU = "ModMenuGui"
 
-local Module
-
--- 1. Tenta carregar pelo GitHub (só funciona em executor com HttpGet habilitado)
-pcall(function()
-	Module = loadstring(game:HttpGet("https://raw.githubusercontent.com/".. GITHUB_USER .."/".. GITHUB_REPO .."/refs/heads/main/module/data.lua"))()
-end)
-
--- 2. Se não conseguiu, tenta pelo require Roblox
-if not Module then
-	warn("Falha ao carregar via GitHub, tentando require Roblox...")
-	pcall(function()
-		Module = require(83723667417989)
-	end)
-end
-
--- 3. Se ainda não conseguiu, cria um fallback vazio
-if not Module then
-	warn("Falha ao carregar módulo (nem GitHub nem Roblox). Usando fallback.")
-	Module = {
-		Loaded = false,
-		Message = "Módulo não encontrado, rodando em modo seguro."
-	}
-end
-
--- Debug do módulo
-print("🔹 Módulo carregado:", Module)
-
--- Se tiver ícones e cores, mostra eles também
-if Module.icons then
-	print("📦 Icons:", Module.icons)
-end
-
-if Module.colors then
-	print("🎨 Colors:", Module.colors)
-end
-
 
 local config = {}
 
@@ -87,21 +51,6 @@ local colors = {
 	Turquoise = Color3.fromRGB(64, 224, 208),
 	Slate = Color3.fromRGB(112, 128, 144),
 	Chocolate = Color3.fromRGB(210, 105, 30)
-}
-
-
-local icons = {
-	
-	-- Ícone do sistema (rr)
-	fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
-	fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
-	fa_rr_information = "rbxassetid://99073088081563", -- Informações
-	
-	-- Ícone normal (bx)
-	fa_bx_code_start = "rbxassetid://107895739450188", 
-	fa_bx_code_end = "rbxassetid://106185292775972",
-	fa_bx_config = "rbxassetid://95026906912083",
-	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
 
 
@@ -1010,11 +959,11 @@ function criar_Gui_Frame()
 	end)
 
 ]]
-
+	
 	-- Carregar scripts do GitHub
 	local scripts = {
 		{name = "Inventario", path = "inventario.lua"},
-		{name = "AimBot PT", path = "aimbot.lua"},
+        {name = "AimBot PT", path = "aimbot.lua"},
 		{name = "AimBot ES", path = "aimbot_es.lua"},
 		{name = "Dash Player", path = "dash.lua"},
 		{name = "Keyboard", path = "Keyboard.lua"},
@@ -1022,7 +971,7 @@ function criar_Gui_Frame()
 		{name = "Tpcoordenadas", path = "tpcoordenadas.lua"},
 		{name = "Teleport tool", path = "teleporttool.lua"},
 		{name = "Teleport Players", path = "tpplayers.lua"},
-
+		
 	}
 
 	for _, script in ipairs(scripts) do
