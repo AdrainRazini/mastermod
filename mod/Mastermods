@@ -1023,7 +1023,7 @@ function criar_Gui_Frame()
 		{name = "AimBot PT", path = "aimbot.lua"},
 		{name = "AimBot ES", path = "aimbot_es.lua"},
 		{name = "Dash Player", path = "dash.lua"},
-		{name = "Keyboard", path = "Keyboard.lua"},
+		{name = "Keyboard", path = "keyboard.lua"},
 		{name = "FlyGui", path = "flygui.lua"},
 		{name = "Tpcoordenadas", path = "tpcoordenadas.lua"},
 		{name = "Teleport tool", path = "teleporttool.lua"},
