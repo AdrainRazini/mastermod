@@ -50,8 +50,19 @@ function VirtualMouse.SmoothMove(x2, y2, steps, delay)
 	end
 end
 
--- Clique simulado (efeito visual)
+-- Detecta GUI sob o cursor
+local function detectGuiClick(x, y)
+	local guis = player.PlayerGui:GetGuiObjectsAtPosition(x, y)
+	for _, gui in ipairs(guis) do
+		if gui:IsA("GuiButton") then
+			gui:Activate() -- simula clique real
+		end
+	end
+end
+
+-- Clique simulado (efeito visual + clique real)
 function VirtualMouse.Click()
+	-- efeito visual
 	local clickEffect = Instance.new("Frame")
 	clickEffect.Size = UDim2.new(0, 40, 0, 40)
 	clickEffect.Position = cursor.Position
@@ -71,10 +82,13 @@ function VirtualMouse.Click()
 	tween.Completed:Connect(function()
 		clickEffect:Destroy()
 	end)
+
+	-- clique em botões reais
+	detectGuiClick(currentX, currentY)
 end
 
 -- =========================
--- Exemplo de uso
+-- Exemplo de uso (loop quadrado)
 -- =========================
 task.spawn(function()
 	while true do
