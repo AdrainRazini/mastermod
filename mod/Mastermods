@@ -1020,6 +1020,7 @@ function criar_Gui_Frame()
 	-- Carregar scripts do GitHub
 	local scripts = {
 		{name = "Inventario", path = "inventario.lua"},
+		{name = "Mause Click", path = "mause.lua"},
 		{name = "AimBot PT", path = "aimbot.lua"},
 		{name = "AimBot ES", path = "aimbot_es.lua"},
 		{name = "Dash Player", path = "dash.lua"},
