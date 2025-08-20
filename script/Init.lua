@@ -1,103 +1,149 @@
 --== CONFIG INICIAL ==--
-local Settings = {
+getgenv().Settings = {
+    ["Auto Click Keybind"] = "V",
+    ["Lock Mouse Position Keybind"] = "B",
+    ["Switch Button Keybind"] = "N",
+    ["Increase Speed Keybind"] = "K",
+    ["Decrease Speed Keybind"] = "L",
     ["Right Click"] = false,
-    ["Delay"] = 0.05, -- 0 = ultra rápido (RenderStepped)
+    ["GUI"] = true,
+    ["Delay"] = 0.05
 }
 
---== SCRIPT ==--
-if getgenv()["AlreadyRunning"] then return else getgenv()["AlreadyRunning"] = true end
+if getgenv()["Already Running"] then return else getgenv()["Already Running"] = true end
 
+local UIS = game:GetService("UserInputService")
+local VIM = game:GetService("VirtualInputManager")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = workspace.CurrentCamera
+local flags = {Auto_Clicking = false, Mouse_Locked = false}
+local TaskWait = task.wait
 
--- Flags do AutoClicker
-local flags = {AutoClicking = false}
+-- converter bind
+local getKeycode = function(bind)
+    return (pcall(function() return Enum.KeyCode[bind] end) and Enum.KeyCode[bind] or bind)
+end
 
---== GUI ==
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AutoClickerGUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = PlayerGui
+-- função Drawing
+local function Draw(obj, props)
+    local NewObj = Drawing.new(obj)
+    for i, v in next, props do
+        NewObj[i] = v
+    end
+    return NewObj
+end
 
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 200, 0, 140)
-Frame.Position = UDim2.new(1, -210, 1, -150)
-Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Frame.BackgroundTransparency = 0.4
-Frame.Parent = ScreenGui
+-- GUI de status
+local Text = Draw("Text", {
+    Size = 18,
+    Outline = true,
+    OutlineColor = Color3.fromRGB(255, 255, 255),
+    Color = Color3.fromRGB(0, 0, 0),
+    Text = "",
+    Visible = true,
+})
 
-local StatusLabel = Instance.new("TextLabel")
-StatusLabel.Size = UDim2.new(1, -10, 0, 60)
-StatusLabel.Position = UDim2.new(0, 5, 0, 5)
-StatusLabel.BackgroundTransparency = 1
-StatusLabel.TextColor3 = Color3.new(1,1,1)
-StatusLabel.TextScaled = true
-StatusLabel.TextWrapped = true
-StatusLabel.Parent = Frame
+-- Bolinha do mouse
+local MouseDot = Draw("Circle", {
+    Radius = 10,
+    Color = Color3.fromRGB(0, 255, 0),
+    Filled = true,
+    Transparency = 1,
+    Visible = true,
+    Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+})
 
-local function UpdateStatus()
-    StatusLabel.Text = string.format(
-        "AutoClicking: %s\nButton: %s\nDelay: %.2f",
-        flags.AutoClicking and "ON" or "OFF",
+local dragging = false
+
+-- Atualiza GUI de texto
+local function UpdateGUI()
+    Text.Text = string.format(
+        "Auto Clicking : %s\nMouse Locked : %s\nButton : %s\nDelay : %.2f",
+        tostring(flags.Auto_Clicking):upper(),
+        tostring(flags.Mouse_Locked):upper(),
         Settings["Right Click"] and "RIGHT" or "LEFT",
         Settings.Delay
     )
 end
 
-UpdateStatus()
+UpdateGUI()
 
---== Botões de controle ==
-local function CreateButton(text, pos, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 90, 0, 30)
-    btn.Position = pos
-    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Text = text
-    btn.Parent = Frame
-    btn.MouseButton1Click:Connect(callback)
-end
-
--- Toggle AutoClick
-CreateButton("Toggle", UDim2.new(0, 5, 0, 70), function()
-    flags.AutoClicking = not flags.AutoClicking
-    UpdateStatus()
-end)
-
--- Switch Button
-CreateButton("Switch Btn", UDim2.new(0, 105, 0, 70), function()
-    Settings["Right Click"] = not Settings["Right Click"]
-    UpdateStatus()
-end)
-
--- Increase Speed
-CreateButton("Faster", UDim2.new(0, 5, 0, 105), function()
-    Settings.Delay = math.max(0, Settings.Delay - 0.01)
-    UpdateStatus()
-end)
-
--- Decrease Speed
-CreateButton("Slower", UDim2.new(0, 105, 0, 105), function()
-    Settings.Delay = Settings.Delay + 0.01
-    UpdateStatus()
-end)
-
---== Loop principal (simulação de clique) ==
-RunService.RenderStepped:Connect(function()
-    if flags.AutoClicking then
-        -- Aqui você dispara a ação desejada
-        -- Exemplo: tocar em um Part clicável (substitua por sua lógica)
-        local Mouse = LocalPlayer:GetMouse()
-        local target = Mouse.Target
-        if target then
-            -- Simula clique
-            if Settings["Right Click"] then
-                target:FireServer("RightClick") -- ajuste conforme seu jogo
-            else
-                target:FireServer("LeftClick")  -- ajuste conforme seu jogo
-            end
+--== Função para arrastar bolinha ==
+UIS.InputBegan:Connect(function(input, GPE)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local mousePos = UIS:GetMouseLocation()
+        local dist = (Vector2.new(mousePos.X, mousePos.Y) - MouseDot.Position).Magnitude
+        if dist <= MouseDot.Radius then
+            dragging = true
         end
     end
 end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if dragging then
+        local mousePos = UIS:GetMouseLocation()
+        MouseDot.Position = Vector2.new(mousePos.X, mousePos.Y)
+        if flags.Mouse_Locked then
+            flags.Mouse_Locked_Position = MouseDot.Position
+        end
+    end
+end)
+
+--== Keybinds ==
+UIS.InputBegan:Connect(function(inputObj, GPE)
+    if not GPE then
+        if inputObj.KeyCode == getKeycode(Settings["Auto Click Keybind"]) then
+            flags.Auto_Clicking = not flags.Auto_Clicking
+        end
+
+        if inputObj.KeyCode == getKeycode(Settings["Lock Mouse Position Keybind"]) then
+            flags.Mouse_Locked_Position = MouseDot.Position
+            flags.Mouse_Locked = not flags.Mouse_Locked
+        end
+
+        if inputObj.KeyCode == getKeycode(Settings["Switch Button Keybind"]) then
+            Settings["Right Click"] = not Settings["Right Click"]
+        end
+
+        if inputObj.KeyCode == getKeycode(Settings["Increase Speed Keybind"]) then
+            Settings.Delay = math.max(0, Settings.Delay - 0.01)
+        end
+
+        if inputObj.KeyCode == getKeycode(Settings["Decrease Speed Keybind"]) then
+            Settings.Delay = Settings.Delay + 0.01
+        end
+
+        UpdateGUI()
+    end
+end)
+
+--== Loop principal ==
+while true do
+    Text.Visible = Settings.GUI
+    MouseDot.Visible = Settings.GUI
+
+    Text.Position = Vector2.new(Camera.ViewportSize.X - 180, Camera.ViewportSize.Y - 70)
+
+    if flags.Auto_Clicking then
+        for i = 1, 2 do
+            local btn = Settings["Right Click"] and 1 or 0
+            local pos = flags.Mouse_Locked and flags.Mouse_Locked_Position or UIS:GetMouseLocation()
+            VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, i == 1, nil, 0)
+        end
+    end
+
+    if Settings.Delay <= 0 then
+        RunService.RenderStepped:Wait()
+    else
+        TaskWait(Settings.Delay)
+    end
+end
