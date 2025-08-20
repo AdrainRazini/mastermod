@@ -1,7 +1,6 @@
 --== CONFIG INICIAL ==--
 getgenv().Settings = {
     ["Auto Click Keybind"] = "V",
-    ["Lock Mouse Position Keybind"] = "B",
     ["Switch Button Keybind"] = "N",
     ["Increase Speed Keybind"] = "K",
     ["Decrease Speed Keybind"] = "L",
@@ -19,15 +18,21 @@ local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
-local flags = {Auto_Clicking = false, Mouse_Locked = false}
 local TaskWait = task.wait
 
--- converter bind
+-- Estados iniciais
+local flags = {
+    Auto_Clicking = false,
+    Mouse_Locked = true, -- lock ativo por padrão
+    Mouse_Locked_Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+}
+
+-- Função para converter bind
 local getKeycode = function(bind)
     return (pcall(function() return Enum.KeyCode[bind] end) and Enum.KeyCode[bind] or bind)
 end
 
--- função Drawing
+-- Função Drawing
 local function Draw(obj, props)
     local NewObj = Drawing.new(obj)
     for i, v in next, props do
@@ -36,12 +41,22 @@ local function Draw(obj, props)
     return NewObj
 end
 
--- GUI de status
+--== GUI ==--
+-- Painel de fundo
+local Panel = Draw("Square", {
+    Size = Vector2.new(160, 100),
+    Color = Color3.fromRGB(50, 50, 50),
+    Filled = true,
+    Transparency = 0.5,
+    Visible = true,
+})
+
+-- Texto de status
 local Text = Draw("Text", {
-    Size = 18,
+    Size = 16,
     Outline = true,
-    OutlineColor = Color3.fromRGB(255, 255, 255),
-    Color = Color3.fromRGB(0, 0, 0),
+    OutlineColor = Color3.fromRGB(0,0,0),
+    Color = Color3.fromRGB(255,255,255),
     Text = "",
     Visible = true,
 })
@@ -53,15 +68,13 @@ local MouseDot = Draw("Circle", {
     Filled = true,
     Transparency = 1,
     Visible = true,
-    Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+    Position = flags.Mouse_Locked_Position
 })
 
-local dragging = false
-
--- Atualiza GUI de texto
+-- Atualiza a GUI de texto
 local function UpdateGUI()
     Text.Text = string.format(
-        "Auto Clicking : %s\nMouse Locked : %s\nButton : %s\nDelay : %.2f",
+        "AutoClick: %s\nMouse Locked: %s\nButton: %s\nDelay: %.2f",
         tostring(flags.Auto_Clicking):upper(),
         tostring(flags.Mouse_Locked):upper(),
         Settings["Right Click"] and "RIGHT" or "LEFT",
@@ -71,8 +84,18 @@ end
 
 UpdateGUI()
 
---== Função para arrastar bolinha ==
-UIS.InputBegan:Connect(function(input, GPE)
+-- Move painel e texto
+local function UpdateGUIPosition()
+    Panel.Position = Vector2.new(Camera.ViewportSize.X - Panel.Size.X - 20, 20)
+    Text.Position = Panel.Position + Vector2.new(10, 10)
+end
+
+UpdateGUIPosition()
+
+--== Arrastar bolinha ==
+local dragging = false
+
+UIS.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         local mousePos = UIS:GetMouseLocation()
         local dist = (Vector2.new(mousePos.X, mousePos.Y) - MouseDot.Position).Magnitude
@@ -98,27 +121,22 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
---== Keybinds ==
-UIS.InputBegan:Connect(function(inputObj, GPE)
+--== Keybinds ==--
+UIS.InputBegan:Connect(function(input, GPE)
     if not GPE then
-        if inputObj.KeyCode == getKeycode(Settings["Auto Click Keybind"]) then
+        if input.KeyCode == getKeycode(Settings["Auto Click Keybind"]) then
             flags.Auto_Clicking = not flags.Auto_Clicking
         end
 
-        if inputObj.KeyCode == getKeycode(Settings["Lock Mouse Position Keybind"]) then
-            flags.Mouse_Locked_Position = MouseDot.Position
-            flags.Mouse_Locked = not flags.Mouse_Locked
-        end
-
-        if inputObj.KeyCode == getKeycode(Settings["Switch Button Keybind"]) then
+        if input.KeyCode == getKeycode(Settings["Switch Button Keybind"]) then
             Settings["Right Click"] = not Settings["Right Click"]
         end
 
-        if inputObj.KeyCode == getKeycode(Settings["Increase Speed Keybind"]) then
+        if input.KeyCode == getKeycode(Settings["Increase Speed Keybind"]) then
             Settings.Delay = math.max(0, Settings.Delay - 0.01)
         end
 
-        if inputObj.KeyCode == getKeycode(Settings["Decrease Speed Keybind"]) then
+        if input.KeyCode == getKeycode(Settings["Decrease Speed Keybind"]) then
             Settings.Delay = Settings.Delay + 0.01
         end
 
@@ -126,12 +144,34 @@ UIS.InputBegan:Connect(function(inputObj, GPE)
     end
 end)
 
+--== Controle GUI interativa ==
+UIS.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local mousePos = UIS:GetMouseLocation()
+        -- Clicar na GUI para mudar estados
+        if mousePos.X >= Panel.Position.X and mousePos.X <= Panel.Position.X + Panel.Size.X and
+           mousePos.Y >= Panel.Position.Y and mousePos.Y <= Panel.Position.Y + Panel.Size.Y then
+            -- Clique dentro do painel
+            local relativeY = mousePos.Y - Panel.Position.Y
+            if relativeY < 25 then
+                flags.Auto_Clicking = not flags.Auto_Clicking
+            elseif relativeY < 50 then
+                flags.Mouse_Locked = not flags.Mouse_Locked
+            elseif relativeY < 75 then
+                Settings["Right Click"] = not Settings["Right Click"]
+            else
+                -- nada
+            end
+            UpdateGUI()
+        end
+    end
+end)
+
 --== Loop principal ==
 while true do
     Text.Visible = Settings.GUI
+    Panel.Visible = Settings.GUI
     MouseDot.Visible = Settings.GUI
-
-    Text.Position = Vector2.new(Camera.ViewportSize.X - 180, Camera.ViewportSize.Y - 70)
 
     if flags.Auto_Clicking then
         for i = 1, 2 do
