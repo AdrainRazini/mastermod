@@ -1,4 +1,3 @@
-
 local success, MouseModule = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/data.lua"))()
 end)
@@ -15,6 +14,10 @@ local GITHUB_REPO = "Mastermod"
 local Owner = "Adrian75556435"
 
 local G2L = {}
+local UIS = game:GetService("UserInputService")
+
+-- Controle de permissões
+local AllowMouseControl = false
 
 -- ScreenGui
 G2L["ScreenGui"] = Instance.new("ScreenGui")
@@ -25,12 +28,11 @@ G2L["ScreenGui"].ResetOnSpawn = false
 -- Frame principal
 G2L["MainFrame"] = Instance.new("Frame")
 G2L["MainFrame"].Parent = G2L["ScreenGui"]
-G2L["MainFrame"].Size = UDim2.new(0, 250, 0, 150)
-G2L["MainFrame"].Position = UDim2.new(0.5, -125, 0.5, -75)
+G2L["MainFrame"].Size = UDim2.new(0, 250, 0, 180)
+G2L["MainFrame"].Position = UDim2.new(0.5, -125, 0.5, -90)
 G2L["MainFrame"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 G2L["MainFrame"].BorderSizePixel = 0
-G2L["MainFrame"].Active = true -- Necessário para arrastar
-G2L["MainFrame"].Draggable = false -- a gente faz manual
+G2L["MainFrame"].Active = true
 
 -- Título
 G2L["Title"] = Instance.new("TextLabel")
@@ -42,11 +44,23 @@ G2L["Title"].TextColor3 = Color3.fromRGB(0, 170, 255)
 G2L["Title"].TextScaled = true
 G2L["Title"].Font = Enum.Font.GothamBold
 
+-- Botão de ativar/desativar
+G2L["ToggleBtn"] = Instance.new("TextButton")
+G2L["ToggleBtn"].Parent = G2L["MainFrame"]
+G2L["ToggleBtn"].Size = UDim2.new(0.9, 0, 0, 30)
+G2L["ToggleBtn"].Position = UDim2.new(0.05, 0, 0.2, 0)
+G2L["ToggleBtn"].BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+G2L["ToggleBtn"].Text = "Controle: OFF"
+G2L["ToggleBtn"].TextColor3 = Color3.fromRGB(255, 0, 0)
+G2L["ToggleBtn"].Font = Enum.Font.Gotham
+G2L["ToggleBtn"].TextScaled = true
+G2L["ToggleBtn"].BorderSizePixel = 0
+
 -- Botão mover mouse
 G2L["MoveBtn"] = Instance.new("TextButton")
 G2L["MoveBtn"].Parent = G2L["MainFrame"]
 G2L["MoveBtn"].Size = UDim2.new(0.9, 0, 0, 40)
-G2L["MoveBtn"].Position = UDim2.new(0.05, 0, 0.3, 0)
+G2L["MoveBtn"].Position = UDim2.new(0.05, 0, 0.45, 0)
 G2L["MoveBtn"].BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 G2L["MoveBtn"].Text = "Mover Mouse (canto)"
 G2L["MoveBtn"].TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -58,14 +72,13 @@ G2L["MoveBtn"].BorderSizePixel = 0
 G2L["ClickBtn"] = Instance.new("TextButton")
 G2L["ClickBtn"].Parent = G2L["MainFrame"]
 G2L["ClickBtn"].Size = UDim2.new(0.9, 0, 0, 40)
-G2L["ClickBtn"].Position = UDim2.new(0.05, 0, 0.65, 0)
+G2L["ClickBtn"].Position = UDim2.new(0.05, 0, 0.75, 0)
 G2L["ClickBtn"].BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 G2L["ClickBtn"].Text = "Clique Simulado"
 G2L["ClickBtn"].TextColor3 = Color3.fromRGB(255, 255, 255)
 G2L["ClickBtn"].Font = Enum.Font.Gotham
 G2L["ClickBtn"].TextScaled = true
 G2L["ClickBtn"].BorderSizePixel = 0
-
 
 game:GetService("StarterGui"):SetCore("SendNotification", { 
     Title = GITHUB_REPO;
@@ -74,13 +87,12 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Duration = 16;
 })
 
-
 --==============================
 -- FUNÇÕES
 --==============================
-
--- Mover mouse suavemente
 local function MoveMouseTo(targetPos, steps, delay)
+    if not AllowMouseControl then return end -- bloqueio se não autorizado
+
     steps = steps or 20
     delay = delay or 0.01
 
@@ -94,9 +106,7 @@ local function MoveMouseTo(targetPos, steps, delay)
         if MouseModule.getMause.IsLocked() then
             MouseModule.getMause.LockMouse(newPos)
         else
-            local btn = MouseModule.getMause.IsRightClick() and 1 or 0
-            game:GetService("VirtualInputManager"):SendMouseButtonEvent(newPos.X, newPos.Y, btn, true, game, 0)
-            game:GetService("VirtualInputManager"):SendMouseButtonEvent(newPos.X, newPos.Y, btn, false, game, 0)
+            game:GetService("VirtualInputManager"):SendMouseMoveEvent(newPos.X, newPos.Y, nil)
         end
 
         task.wait(delay)
@@ -107,8 +117,21 @@ end
 -- EVENTOS DA GUI
 --==============================
 
+-- Toggle controle
+G2L["ToggleBtn"].MouseButton1Click:Connect(function()
+    AllowMouseControl = not AllowMouseControl
+    if AllowMouseControl then
+        G2L["ToggleBtn"].Text = "Controle: ON"
+        G2L["ToggleBtn"].TextColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        G2L["ToggleBtn"].Text = "Controle: OFF"
+        G2L["ToggleBtn"].TextColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
+
 -- Botão de mover
 G2L["MoveBtn"].MouseButton1Click:Connect(function()
+    if not AllowMouseControl then return end
     local Camera = workspace.CurrentCamera
     local target = Vector2.new(Camera.ViewportSize.X - 100, Camera.ViewportSize.Y - 100)
     MoveMouseTo(target, 50, 0.01)
@@ -116,20 +139,21 @@ end)
 
 -- Botão de clicar
 G2L["ClickBtn"].MouseButton1Click:Connect(function()
+    if not AllowMouseControl then return end
     MouseModule.getMause.Click(true)
     task.wait(0.05)
     MouseModule.getMause.Click(false)
 end)
 
 --==============================
--- DRAG & DROP (arrastar frame)
+-- DRAG & DROP (mouse + touch)
 --==============================
 do
-    local UIS = game:GetService("UserInputService")
     local dragging, dragInput, dragStart, startPos
 
     G2L["MainFrame"].InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 
+        or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = G2L["MainFrame"].Position
@@ -143,7 +167,8 @@ do
     end)
 
     G2L["MainFrame"].InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
+        if input.UserInputType == Enum.UserInputType.MouseMovement 
+        or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
@@ -158,7 +183,6 @@ do
         end
     end)
 end
-
 
 --[[
 
