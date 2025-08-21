@@ -57,7 +57,8 @@ config.icons = {
 	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
 
-local config = {}
+-- getgenv 
+
 config.getMause = {}
 
 local UIS = game:GetService("UserInputService")
