@@ -56,8 +56,6 @@ config.icons = {
 	fa_bx_config = "rbxassetid://95026906912083",
 	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
---== MouseModule.lua ==--
-local config = {}
 
 config.getMause = {}
 
