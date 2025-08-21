@@ -51,9 +51,9 @@ config.icons = {
 	fa_rr_information = "rbxassetid://99073088081563", -- Informações
 
 	-- Ícone normal (bx)
-	fa_bx_code_start = "rbxassetid://107895739450188", 
-	fa_bx_code_end = "rbxassetid://106185292775972",
-	fa_bx_config = "rbxassetid://95026906912083",
+	fa_bx_code_start = "rbxassetid://107895739450188", -- <>
+	fa_bx_code_end = "rbxassetid://106185292775972", -- </>
+	fa_bx_config = "rbxassetid://95026906912083", -- ●
 	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
 
