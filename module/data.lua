@@ -57,6 +57,7 @@ config.icons = {
 	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
 
+local config = {}
 config.getMause = {}
 
 local UIS = game:GetService("UserInputService")
@@ -103,6 +104,26 @@ end
 -- Retorna posição atual (trava ou não)
 function config.getMause.GetPosition()
     return MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
+end
+
+-- Move o mouse suavemente até uma posição alvo
+function config.getMause.MoveTo(targetPos, steps, delay)
+    steps = steps or 20        -- número de passos
+    delay = delay or 0.01       -- intervalo entre passos
+    local startPos = config.getMause.GetPosition()
+    local deltaX = (targetPos.X - startPos.X) / steps
+    local deltaY = (targetPos.Y - startPos.Y) / steps
+
+    for i = 1, steps do
+        local newPos = Vector2.new(startPos.X + deltaX * i, startPos.Y + deltaY * i)
+        if MouseState.Locked then
+            config.getMause.LockMouse(newPos)
+        else
+            local btn = MouseState.RightClick and 1 or 0
+            VIM:SendMouseButtonEvent(newPos.X, newPos.Y, btn, false, nil, 0)
+        end
+        task.wait(delay)
+    end
 end
 
 -- 🔑 Retorna a tabela para ser usada em outros scripts

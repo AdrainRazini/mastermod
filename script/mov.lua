@@ -38,14 +38,33 @@ task.wait(0.05)
 MouseModule.getMause.Click(false) -- up
 
 
-
 --[[
 
+local success, MouseModule = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/data.lua"))()
+end)
+
+if not success or not MouseModule then
+    warn("Falha ao carregar MouseModule")
+    return
+end
+
+-- Uso em Outros Scripts
+
+-- Pegar posição atual
+local pos = MouseModule.getMause.GetPosition()
+print(pos.X, pos.Y)
+
+-- Mover o mouse para o canto inferior direito
+local Camera = workspace.CurrentCamera
+MouseModule.getMause.MoveTo(Vector2.new(Camera.ViewportSize.X - 100, Camera.ViewportSize.Y - 100), 50, 0.01)
+
 -- Travar mouse
-MouseModule.getMause.LockMouse() 
+MouseModule.getMause.LockMouse()
 
 -- Soltar mouse
 MouseModule.getMause.UnlockMouse()
+
 
 -- Alternar botão esquerdo/direito
 MouseModule.getMause.ToggleButton()
@@ -53,9 +72,5 @@ MouseModule.getMause.ToggleButton()
 -- Clique simulado
 MouseModule.getMause.Click(true)  -- down
 MouseModule.getMause.Click(false) -- up
-
--- Pegar posição atual
-local pos = MouseModule.getMause.GetPosition()
-print(pos.X, pos.Y)
 
 ]]
