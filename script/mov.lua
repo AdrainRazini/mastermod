@@ -32,7 +32,11 @@ end
 -- Exemplo de uso: mover o mouse para o canto inferior direito da tela
 local Camera = workspace.CurrentCamera
 local target = Vector2.new(Camera.ViewportSize.X - 100, Camera.ViewportSize.Y - 100)
-MoveMouseTo(target, 50)
+MoveMouseTo(target, 50)  -- move suavemente
+MouseModule.getMause.Click(true)  -- down
+task.wait(0.05)
+MouseModule.getMause.Click(false) -- up
+
 
 
 --[[
