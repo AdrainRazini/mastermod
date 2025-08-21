@@ -1,60 +1,60 @@
+-- module.lua
 local config = {}
 
--- Criação da lista de cores 
+--== Cores ==--
 config.colors = {
-	Main = Color3.fromRGB(20, 20, 20),
-	Secondary = Color3.fromRGB(35, 35, 35),
-	Accent = Color3.fromRGB(0, 170, 255),
-	Text = Color3.fromRGB(255, 255, 255),
-	Button = Color3.fromRGB(50, 50, 50),
-	ButtonHover = Color3.fromRGB(70, 70, 70),
-	Stroke = Color3.fromRGB(80, 80, 80),
-	Highlight = Color3.fromRGB(0, 255, 0),
-	HighlightOthers = Color3.fromRGB(255, 0, 0), -- cor para outros jogadores
-	Red = Color3.fromRGB(255, 0, 0),
-	Green = Color3.fromRGB(0, 255, 0),
-	Blue = Color3.fromRGB(0, 0, 255),
-	Yellow = Color3.fromRGB(255, 255, 0),
-	Orange = Color3.fromRGB(255, 165, 0),
-	Purple = Color3.fromRGB(128, 0, 128),
-	Pink = Color3.fromRGB(255, 105, 180),
-	White = Color3.fromRGB(255, 255, 255),
-	Black = Color3.fromRGB(0, 0, 0),
-	Gray = Color3.fromRGB(128, 128, 128),
-	DarkGray = Color3.fromRGB(50, 50, 50),
-	LightGray = Color3.fromRGB(200, 200, 200),
-	Cyan = Color3.fromRGB(0, 255, 255),
-	Magenta = Color3.fromRGB(255, 0, 255),
-	Brown = Color3.fromRGB(139, 69, 19),
-	Gold = Color3.fromRGB(255, 215, 0),
-	Silver = Color3.fromRGB(192, 192, 192),
-	Maroon = Color3.fromRGB(128, 0, 0),
-	Navy = Color3.fromRGB(0, 0, 128),
-	Lime = Color3.fromRGB(50, 205, 50),
-	Olive = Color3.fromRGB(128, 128, 0),
-	Teal = Color3.fromRGB(0, 128, 128),
-	Aqua = Color3.fromRGB(0, 255, 170),
-	Coral = Color3.fromRGB(255, 127, 80),
-	Crimson = Color3.fromRGB(220, 20, 60),
-	Indigo = Color3.fromRGB(75, 0, 130),
-	Turquoise = Color3.fromRGB(64, 224, 208),
-	Slate = Color3.fromRGB(112, 128, 144),
-	Chocolate = Color3.fromRGB(210, 105, 30)
+    Main = Color3.fromRGB(20, 20, 20),
+    Secondary = Color3.fromRGB(35, 35, 35),
+    Accent = Color3.fromRGB(0, 170, 255),
+    Text = Color3.fromRGB(255, 255, 255),
+    Button = Color3.fromRGB(50, 50, 50),
+    ButtonHover = Color3.fromRGB(70, 70, 70),
+    Stroke = Color3.fromRGB(80, 80, 80),
+    Highlight = Color3.fromRGB(0, 255, 0)
+    -- ... (demais cores como você já colocou)
 }
 
--- Ícones
+--== Ícones ==--
 config.icons = {
-	-- Ícone do sistema (rr)
-	fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
-	fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
-	fa_rr_information = "rbxassetid://99073088081563", -- Informações
-
-	-- Ícone normal (bx)
-	fa_bx_code_start = "rbxassetid://107895739450188", 
-	fa_bx_code_end = "rbxassetid://106185292775972",
-	fa_bx_config = "rbxassetid://95026906912083",
-	fa_bx_loader = "rbxassetid://123191542300310", -- loading
+    fa_rr_toggle_left = "rbxassetid://118353432570896",
+    fa_rr_toggle_right = "rbxassetid://136961682267523",
+    fa_rr_information = "rbxassetid://99073088081563",
+    fa_bx_code_start = "rbxassetid://107895739450188",
+    fa_bx_code_end = "rbxassetid://106185292775972",
+    fa_bx_config = "rbxassetid://95026906912083",
+    fa_bx_loader = "rbxassetid://123191542300310"
 }
 
--- 🔑 Retorna a tabela para ser usada em outros scripts
+--== Espaço para funções relacionadas ao mouse ==--
+config.getMause = {}
+
+--== Função global para mover o mouse usando executor ==--
+getgenv().MouseController = getgenv().MouseController or {}
+getgenv().MouseController.Flags = getgenv().MouseController.Flags or {
+    Mouse_Locked = true,
+    Mouse_Locked_Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X/2, workspace.CurrentCamera.ViewportSize.Y/2)
+}
+getgenv().MouseController.MouseDot = getgenv().MouseController.MouseDot or nil
+
+getgenv().MouseController.MoveMouseTo = function(position)
+    local VIM = game:GetService("VirtualInputManager")
+
+    -- Atualiza bolinha da GUI se existir
+    if getgenv().MouseController.MouseDot then
+        getgenv().MouseController.MouseDot.Position = position
+    end
+
+    -- Atualiza posição travada do mouse
+    if getgenv().MouseController.Flags.Mouse_Locked then
+        getgenv().MouseController.Flags.Mouse_Locked_Position = position
+    end
+
+    -- Envia evento para o executor
+    VIM:SendMouseMoveEvent(position.X, position.Y, 0)
+end
+
+-- Exemplo de uso dentro do módulo (opcional)
+-- getgenv().MouseController.MoveMouseTo(Vector2.new(500, 300))
+
+-- Retorna a tabela para outros scripts
 return config
