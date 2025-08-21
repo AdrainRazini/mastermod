@@ -8,23 +8,6 @@ if not success or not MouseModule then
     return
 end
 
--- Travar mouse
-MouseModule.getMause.LockMouse() 
-
--- Soltar mouse
-MouseModule.getMause.UnlockMouse()
-
--- Alternar botão esquerdo/direito
-MouseModule.getMause.ToggleButton()
-
--- Clique simulado
-MouseModule.getMause.Click(true)  -- down
-MouseModule.getMause.Click(false) -- up
-
--- Pegar posição atual
-local pos = MouseModule.getMause.GetPosition()
-print(pos.X, pos.Y)
-
 -- Função para mover o mouse suavemente até uma posição
 local function MoveMouseTo(targetPos, steps)
     steps = steps or 20  -- quantos passos para interpolar
@@ -50,3 +33,25 @@ end
 local Camera = workspace.CurrentCamera
 local target = Vector2.new(Camera.ViewportSize.X - 100, Camera.ViewportSize.Y - 100)
 MoveMouseTo(target, 50)
+
+
+--[[
+
+-- Travar mouse
+MouseModule.getMause.LockMouse() 
+
+-- Soltar mouse
+MouseModule.getMause.UnlockMouse()
+
+-- Alternar botão esquerdo/direito
+MouseModule.getMause.ToggleButton()
+
+-- Clique simulado
+MouseModule.getMause.Click(true)  -- down
+MouseModule.getMause.Click(false) -- up
+
+-- Pegar posição atual
+local pos = MouseModule.getMause.GetPosition()
+print(pos.X, pos.Y)
+
+]]
