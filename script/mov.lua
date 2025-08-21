@@ -8,54 +8,55 @@ local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/"
 local IMG_ICON = "rbxassetid://117585506735209"
 local NAME_MOD_MENU = "ModMenuGui"
 
-local Module
-
--- 1. Tenta carregar pelo GitHub (só funciona em executor com HttpGet habilitado)
-pcall(function()
-	Module = loadstring(game:HttpGet("https://raw.githubusercontent.com/".. GITHUB_USER .."/".. GITHUB_REPO .."/refs/heads/main/module/data.lua"))()
+-- Tenta carregar o módulo do GitHub
+local success, MouseModule = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/".. GITHUB_USER .."/".. GITHUB_REPO .."/refs/heads/main/module/MouseModule.lua"))()
 end)
 
-
--- Função para "pegar" a posição atual do mouse e definir como posição travada
-getgenv().MouseController.GetMousePosition = function()
-    local UIS = game:GetService("UserInputService")
-    local RunService = game:GetService("RunService")
-
-    -- Flag para esperar o clique
-    local clicked = false
-    local position = Vector2.new(0,0)
-
-    -- Conecta InputBegan para capturar clique do mouse
-    local conn
-    conn = UIS.InputBegan:Connect(function(input, GPE)
-        if not GPE and input.UserInputType == Enum.UserInputType.MouseButton1 then
-            position = UIS:GetMouseLocation()
-            clicked = true
-        end
-    end)
-
-    -- Espera até o clique acontecer
-    while not clicked do
-        RunService.RenderStepped:Wait()
-    end
-
-    -- Desconecta o evento
-    conn:Disconnect()
-
-    -- Atualiza posição travada e bolinha da GUI
-    if getgenv().MouseController.Flags then
-        getgenv().MouseController.Flags.Mouse_Locked_Position = position
-    end
-    if getgenv().MouseController.MouseDot then
-        getgenv().MouseController.MouseDot.Position = position
-    end
-
-    return position
+if not success or not MouseModule then
+    warn("Falha ao carregar MouseModule")
+    return
 end
 
--- Exemplo de uso:
-local mousePos = getgenv().MouseController.GetMousePosition()
-print("Mouse definido em:", mousePos)
+-- Travar mouse
+MouseModule.getMause.LockMouse() 
 
--- Depois pode mover o mouse com:
-getgenv().MouseController.MoveMouseTo(mousePos)
+-- Soltar mouse
+MouseModule.getMause.UnlockMouse()
+
+-- Alternar botão esquerdo/direito
+MouseModule.getMause.ToggleButton()
+
+-- Clique simulado
+MouseModule.getMause.Click(true)  -- down
+MouseModule.getMause.Click(false) -- up
+
+-- Pegar posição atual
+local pos = MouseModule.getMause.GetPosition()
+print(pos.X, pos.Y)
+
+-- Função para mover o mouse suavemente até uma posição
+local function MoveMouseTo(targetPos, steps)
+    steps = steps or 20  -- quantos passos para interpolar
+    local startPos = MouseModule.getMause.GetPosition()
+    local deltaX = (targetPos.X - startPos.X) / steps
+    local deltaY = (targetPos.Y - startPos.Y) / steps
+
+    for i = 1, steps do
+        local newPos = Vector2.new(startPos.X + deltaX * i, startPos.Y + deltaY * i)
+        -- Atualiza posição travada do mouse (se estiver usando LockMouse)
+        if MouseModule.getMause.IsLocked() then
+            MouseModule.getMause.LockMouse(newPos)
+        else
+            -- Envia evento de clique falso apenas para atualizar posição do VIM
+            local btn = MouseModule.getMause.IsRightClick() and 1 or 0
+            game:GetService("VirtualInputManager"):SendMouseButtonEvent(newPos.X, newPos.Y, btn, false, nil, 0)
+        end
+        task.wait(0.01) -- delay entre passos
+    end
+end
+
+-- Exemplo de uso: mover o mouse para o canto inferior direito da tela
+local Camera = workspace.CurrentCamera
+local target = Vector2.new(Camera.ViewportSize.X - 100, Camera.ViewportSize.Y - 100)
+MoveMouseTo(target, 50)
