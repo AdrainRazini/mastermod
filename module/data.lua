@@ -57,7 +57,9 @@ config.icons = {
 	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
 
+
 -- getgenv 
+
 
 config.getMause = {}
 
@@ -95,14 +97,13 @@ function config.getMause.IsRightClick()
 end
 
 -- Envia clique do mouse
--- i é para simular o down/up
-function config.getMause.Click(i)
+function config.getMause.Click(isDown)
     local btn = MouseState.RightClick and 1 or 0
     local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, i, nil, 0)
+    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, isDown, nil, 0)
 end
 
--- Retorna posição atual (trava ou não)
+-- Retorna posição atual
 function config.getMause.GetPosition()
     return MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
 end
@@ -110,7 +111,7 @@ end
 -- Move o mouse suavemente até uma posição alvo
 function config.getMause.MoveTo(targetPos, steps, delay)
     steps = steps or 20        -- número de passos
-    delay = delay or 0.01       -- intervalo entre passos
+    delay = delay or 0.01      -- intervalo entre passos
     local startPos = config.getMause.GetPosition()
     local deltaX = (targetPos.X - startPos.X) / steps
     local deltaY = (targetPos.Y - startPos.Y) / steps
@@ -120,8 +121,7 @@ function config.getMause.MoveTo(targetPos, steps, delay)
         if MouseState.Locked then
             config.getMause.LockMouse(newPos)
         else
-            local btn = MouseState.RightClick and 1 or 0
-            VIM:SendMouseButtonEvent(newPos.X, newPos.Y, btn, false, nil, 0)
+            VIM:SendMouseMoveEvent(newPos.X, newPos.Y, nil) -- movimento real
         end
         task.wait(delay)
     end
