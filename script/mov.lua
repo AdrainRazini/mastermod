@@ -10,7 +10,7 @@ local NAME_MOD_MENU = "ModMenuGui"
 
 -- Tenta carregar o módulo do GitHub
 local success, MouseModule = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/".. GITHUB_USER .."/".. GITHUB_REPO .."/refs/heads/main/module/MouseModule.lua"))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/".. GITHUB_USER .."/".. GITHUB_REPO .."/refs/heads/main/module/data.lua"))()
 end)
 
 if not success or not MouseModule then
