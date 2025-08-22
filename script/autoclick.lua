@@ -29,13 +29,13 @@ end
 
 --== Ícones ==--
 MouseModule.icons = MouseModule.icons or {
-	fa_rr_toggle_left = "rbxassetid://118353432570896",
-	fa_rr_toggle_right = "rbxassetid://136961682267523",
-	fa_rr_information = "rbxassetid://99073088081563",
-	fa_bx_code_start = "rbxassetid://107895739450188",
-	fa_bx_code_end = "rbxassetid://106185292775972",
-	fa_bx_config = "rbxassetid://95026906912083",
-	fa_bx_loader = "rbxassetid://123191542300310",
+	fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
+	fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
+	fa_rr_information = "rbxassetid://99073088081563", -- Info
+	fa_bx_code_start = "rbxassetid://107895739450188", -- <>
+	fa_bx_code_end = "rbxassetid://106185292775972", -- </>
+	fa_bx_config = "rbxassetid://95026906912083", -- ●
+	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
 
 --== Variáveis ==--
@@ -117,6 +117,24 @@ G2L["Referencia"].Font = Enum.Font.Gotham
 G2L["Referencia"].TextScaled = true
 G2L["Referencia"].BorderSizePixel = 1
 Instance.new("UICorner").Parent = G2L["Referencia"]
+
+local StarterGui = game:GetService("StarterGui")
+
+function Notification(icon, text, time)
+    -- Garante que só números do assetid serão usados
+    local cleanIcon = tostring(icon):gsub("%D", "") -- remove tudo que não for número
+
+    StarterGui:SetCore("SendNotification", { 
+        Title = GITHUB_REPO;
+        Text = text or "";
+        Icon = "rbxthumb://type=Asset&id="..cleanIcon.."&w=150&h=150";
+        Duration = time or 5;
+    })
+end
+
+-- Exemplo de uso
+Notification(icons.fa_bx_code_start, "Iniciando script...", 8)
+Notification("abc95026906912083", "Teste com letras no id", 6)
 
 -- Notificação inicial
 StarterGui:SetCore("SendNotification", { 
