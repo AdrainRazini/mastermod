@@ -28,7 +28,7 @@ if not success or not MouseModule then
 end
 
 --== Ícones ==--
-MouseModule.icons = MouseModule.icons or {
+local icons = {
 	fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
 	fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
 	fa_rr_information = "rbxassetid://99073088081563", -- Info
