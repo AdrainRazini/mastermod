@@ -66,6 +66,7 @@ config.getMause = {}
 
 local UIS = game:GetService("UserInputService")
 local VIM = game:GetService("VirtualInputManager")
+local GuiService = game:GetService("GuiService")
 
 -- Estado interno
 local MouseState = {
@@ -74,9 +75,21 @@ local MouseState = {
     RightClick = false
 }
 
+-- 🔒 Função que retorna posição segura (PC ou Mobile)
+local function getSafeMouseLocation()
+    if UIS.TouchEnabled and not UIS.MouseEnabled then
+        -- 📱 Se for celular, pega centro da tela
+        local screenSize = workspace.CurrentCamera.ViewportSize
+        return Vector2.new(screenSize.X/2, screenSize.Y/2)
+    else
+        -- 🖱 PC (mouse real)
+        return UIS:GetMouseLocation()
+    end
+end
+
 -- 🔒 Trava posição do mouse
 function config.getMause.LockMouse(pos)
-    MouseState.LockedPosition = pos or UIS:GetMouseLocation()
+    MouseState.LockedPosition = pos or getSafeMouseLocation()
     MouseState.Locked = true
 end
 
@@ -87,6 +100,7 @@ end
 function config.getMause.IsLocked()
     return MouseState.Locked
 end
+
 
 -- ↔️ Alterna botão do mouse
 function config.getMause.ToggleButton()

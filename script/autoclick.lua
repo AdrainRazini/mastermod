@@ -142,13 +142,12 @@ local function SafeClickUp(rightClick, duration)
 	MouseModule.getMause.ClickUp(rightClick, duration)
 end
 
--- Função para pegar centro do botão
+-- Função para pegar centro de um botão (UI adaptado)
 local function getButtonCenter(button)
-	local absPos = button.AbsolutePosition
-	local absSize = button.AbsoluteSize
-	return Vector2.new(absPos.X + absSize.X/2, absPos.Y + absSize.Y/2)
+    local absPos = button.AbsolutePosition
+    local absSize = button.AbsoluteSize
+    return Vector2.new(absPos.X + absSize.X/2, absPos.Y + absSize.Y/2)
 end
-
 --==============================
 -- EVENTOS
 --==============================
@@ -177,25 +176,26 @@ G2L["ClickBtn"].MouseButton1Click:Connect(function()
 	--SafeClickUp(true, 0.5) --direita
 end)
 
+-- Evento do botão para travar/destravar
 G2L["Referencia_Btn"].MouseButton1Click:Connect(function()
-	if not AllowMouseControl then return end
-	local refPos = getButtonCenter(G2L["Referencia"])
-	local mause = MouseModule.getMause
-	if not lock_mouse then
-		mause.LockMouse(refPos)
-		lock_mouse = true
-		G2L["Referencia_Btn"].Text = "Lock: ON"
-		G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
-		G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(40,100,40)
-	else
-		mause.UnlockMouse()
-		lock_mouse = false
-		G2L["Referencia_Btn"].Text = "Lock: OFF"
-		G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
-		G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
-	end
-end)
+    if not AllowMouseControl then return end
+    local refPos = getButtonCenter(G2L["Referencia"])
+    local mause = MouseModule.getMause
 
+    if not lock_mouse then
+        mause.LockMouse(refPos)
+        lock_mouse = true
+        G2L["Referencia_Btn"].Text = "Lock: ON"
+        G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
+        G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(40,100,40)
+    else
+        mause.UnlockMouse()
+        lock_mouse = false
+        G2L["Referencia_Btn"].Text = "Lock: OFF"
+        G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
+        G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
+    end
+end)
 G2L["ScrollBtn"].MouseButton1Click:Connect(function()
 	if not AllowMouseControl then return end
 	MouseModule.getMause.Scroll(3)
