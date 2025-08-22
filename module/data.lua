@@ -111,14 +111,15 @@ end
 function config.getMause.ClickUp(rightClick, time)
     rightClick = rightClick or MouseState.RightClick
     local btn = rightClick and 1 or 0
-    local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
+    local pos = config.getMause.GetPosition()
     
     -- Pressiona
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, nil, 0)
-    task.wait(time or 0.05) -- tempo de clique
+    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, game, 0)
+    task.wait(time or 0.05)
     -- Solta
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
+    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, game, 0)
 end
+
 
 -- 📍 Posição atual
 function config.getMause.GetPosition()
