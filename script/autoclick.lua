@@ -139,7 +139,7 @@ local function SafeClickUp(rightClick, duration)
 	if not AllowMouseControl or not MouseModule then return end
 	rightClick = rightClick or MouseModule.getMause.IsRightClick()
 	duration = duration or 0.05
-	MouseModule.getMause.ClickUp(rightClick, duration)
+	MouseModule.getMause.ClickUp() -- rightClick, duration
 end
 
 -- Função para pegar centro do botão
