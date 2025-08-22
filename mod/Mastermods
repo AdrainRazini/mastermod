@@ -191,7 +191,7 @@ end
 
 
 
--- Verificar se já existe um ScreenGui com o nome "ModMenu"
+-- Verificar se já existe um ScreenGui com o nome "GITHUB_REPO_NAME"
 local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild(GITHUB_REPO_NAME)
 
 -- Se já existir, retorna para evitar a criação do GUI
@@ -462,8 +462,6 @@ function criar_Gui_Frame()
 
 	--=====================================================================================================================--
 
-	-- Controle do proprio personagem Obs: Bom para mods locais.
-
 
 	-- Controle do proprio personagem Obs: Bom para mods locais.
 
@@ -530,18 +528,6 @@ function criar_Gui_Frame()
 			end
 		end
 	end
-
-	-- 🔁 Reaplica as configurações ao renascer
-	local player = game.Players.LocalPlayer
-	player.CharacterAdded:Connect(function(char)
-		char:WaitForChild("Humanoid")
-
-		task.wait(0.2)
-		setWalkSpeed(ultimoWalkSpeed)
-		setJumpPower(ultimoJumpPower)
-		setCollision(ultimaColisao)
-		toggleESP(ultimoESP)
-	end)
 
 	-- 🔄 Loop para manter colisão desativada
 	task.spawn(function()
@@ -667,7 +653,8 @@ function criar_Gui_Frame()
 			highlights[char] = nil
 		end
 	end)
-
+	
+	
 	-- UI checkbox para ativar/desativar ESP All
 	criarCheckbox("ESP All (todos)", 250, false, toggleESPAll, "Player")
 
@@ -694,6 +681,7 @@ function criar_Gui_Frame()
 	criarCheckbox("Infinite Jump", 220, false, function(ativo)
 		infiniteJumpAtivo = ativo
 	end, "Player")
+
 
 
 
@@ -1058,14 +1046,11 @@ function criar_Gui_Frame()
 	alert("✅ Menu " .. GITHUB_REPO .. " ativado!", 5)
 	-- Exemplo de uso
 	Notification(icons.fa_bx_mastermods, Owner, 12)
-	--Notification(icons.fa_bx_code_start, "Iniciando script...", 8)
+	--Notification(Icons.fa_bx_code_start, "Iniciando script...", 8)
 	--Notification("abc95026906912083", "Teste com letras no id", 6)
 end
 
 
-
-
-
-
 -- Executa o menu
 criar_Gui_Frame()
+
