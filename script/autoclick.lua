@@ -192,7 +192,7 @@ local function SafeClickUp(rightClick, duration)
         or (MouseModule.getMause.IsRightClick() and true or false)
     duration = duration or 0.05
 
-    MouseModule.getMause.ClickUp(rightClick, duration)
+    MouseModule.getMause.ClickUp() --rightClick, duration
 end
 
 -- ==============================
