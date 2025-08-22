@@ -175,6 +175,15 @@ local function SafeClick(button)
 	MouseModule.getMause.Click(false, button)
 end
 
+local function SafeClickUp(rightClick, duration)
+    if not AllowMouseControl or not MouseModule then return end
+    rightClick = rightClick or false  -- false = clique esquerdo
+    duration = duration or 0.05
+
+    MouseModule.getMause.ClickUp(rightClick, duration)
+end
+
+
 --==============================
 -- EVENTOS
 --==============================
@@ -203,7 +212,7 @@ end)
 
 -- Clique simulado
 G2L["ClickBtn"].MouseButton1Click:Connect(function()
-	SafeClick()
+	SafeClickUp(true, 0.5)
 end)
 
 -- Travar mouse no botão referência (centralizado)
