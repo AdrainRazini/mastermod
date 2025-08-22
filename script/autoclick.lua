@@ -167,21 +167,48 @@ local function MoveMouseTo(targetPos, steps, delay)
 	end
 end
 
-local function SafeClick(button)
-	if not AllowMouseControl or not MouseModule then return end
-	button = button or Enum.UserInputType.MouseButton1
-	MouseModule.getMause.Click(true, button)
-	task.wait(0.05)
-	MouseModule.getMause.Click(false, button)
+-- ==============================
+-- 🔒 Clique seguro
+-- ==============================
+
+-- Clique rápido manual (pressão e liberação com intervalo)
+local function SafeClick(rightClick, duration)
+    if not AllowMouseControl or not MouseModule then return end
+    rightClick = rightClick
+        or (MouseModule.getMause.IsRightClick() and true or false) -- usa botão atual
+    duration = duration or 0.05
+
+    -- Pressiona
+    MouseModule.getMause.Click(true, rightClick)
+    task.wait(duration)
+    -- Solta
+    MouseModule.getMause.Click(false, rightClick)
 end
 
+-- Clique rápido automático (ClickUp)
 local function SafeClickUp(rightClick, duration)
     if not AllowMouseControl or not MouseModule then return end
-    rightClick = rightClick or false  -- false = clique esquerdo
+    rightClick = rightClick
+        or (MouseModule.getMause.IsRightClick() and true or false)
     duration = duration or 0.05
 
     MouseModule.getMause.ClickUp(rightClick, duration)
 end
+
+-- ==============================
+-- 🔹 Exemplos de uso
+-- ==============================
+
+-- Clique rápido com botão atual
+MouseModule.getMause.ClickUp()
+
+-- Segurar botão atual
+MouseModule.getMause.Click(true)
+-- Soltar
+MouseModule.getMause.Click(false)
+-- Duplo clique com botão atual
+MouseModule.getMause.DoubleClick()
+
 
 
 --==============================
