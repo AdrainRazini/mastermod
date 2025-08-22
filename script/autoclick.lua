@@ -198,7 +198,7 @@ end
 -- ==============================
 -- 🔹 Exemplos de uso
 -- ==============================
-
+--[[
 -- Clique rápido com botão atual
 MouseModule.getMause.ClickUp()
 
@@ -208,7 +208,7 @@ MouseModule.getMause.Click(true)
 MouseModule.getMause.Click(false)
 -- Duplo clique com botão atual
 MouseModule.getMause.DoubleClick()
-
+]]
 
 
 --==============================
