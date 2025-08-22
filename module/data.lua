@@ -97,20 +97,26 @@ function config.getMause.IsRightClick()
     return MouseState.RightClick
 end
 
+
 -- 🖱 Clique (segurar/soltar manual)
 function config.getMause.Click(isDown, rightClick)
+       rightClick = rightClick or MouseState.RightClick
     local btn = rightClick and 1 or 0
     local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
+    -- Pressiona ou solta
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, isDown, nil, 0)
 end
 
--- 🖱 Clique simples (pressiona e solta)
+-- 🖱 Clique simples (pressiona e solta automaticamente)
 function config.getMause.ClickUp(rightClick, time)
+    rightClick = rightClick or MouseState.RightClick
     local btn = rightClick and 1 or 0
     local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
-
+    
+    -- Pressiona
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, nil, 0)
-    task.wait(time or 0.05)
+    task.wait(time or 0.05) -- tempo de clique
+    -- Solta
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
 end
 
@@ -127,11 +133,13 @@ end
 
 -- 🖱 Clique duplo
 function config.getMause.DoubleClick(rightClick, interval)
+    rightClick = rightClick or MouseState.RightClick
     interval = interval or 0.1
     config.getMause.ClickUp(rightClick)
     task.wait(interval)
     config.getMause.ClickUp(rightClick)
 end
+
 
 -- ✋ Arrastar de uma posição a outra
 function config.getMause.Drag(fromPos, toPos, steps, delay)
