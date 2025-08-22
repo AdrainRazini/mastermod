@@ -207,11 +207,18 @@ G2L["ClickBtn"].MouseButton1Click:Connect(function()
 end)
 
 -- Travar mouse no botão referência (centralizado)
+local function getButtonCenter(button)
+    local absPos = button.AbsolutePosition
+    local absSize = button.AbsoluteSize
+    return Vector2.new(absPos.X + absSize.X / 2, absPos.Y + absSize.Y / 2)
+end
+
 G2L["Referencia"].MouseButton1Click:Connect(function()
-	if not AllowMouseControl or not MouseModule then return end
-	local refPos = G2L["Referencia"].AbsolutePosition + G2L["Referencia"].AbsoluteSize / 2
-	MouseModule.getMause.LockMouse(Vector2.new(refPos.X, refPos.Y))
+    if not AllowMouseControl or not MouseModule then return end
+    local refPos = getButtonCenter(G2L["Referencia"])
+    MouseModule.getMause.LockMouse(refPos)
 end)
+
 
 --==============================
 -- DRAG & DROP
