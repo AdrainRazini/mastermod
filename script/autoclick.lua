@@ -139,7 +139,7 @@ local function SafeClickUp(rightClick, duration)
 	if not AllowMouseControl or not MouseModule then return end
 	rightClick = rightClick or MouseModule.getMause.IsRightClick()
 	duration = duration or 0.05
-	MouseModule.getMause.ClickUp() -- rightClick, duration
+	MouseModule.getMause.ClickUp(rightClick, duration)
 end
 
 -- Função para pegar centro do botão
@@ -173,7 +173,8 @@ G2L["MoveBtn"].MouseButton1Click:Connect(function()
 end)
 
 G2L["ClickBtn"].MouseButton1Click:Connect(function()
-	SafeClickUp(true, 0.5)
+	SafeClickUp(false, 0.5) --esquerda
+	--SafeClickUp(true, 0.5) --direita
 end)
 
 G2L["Referencia_Btn"].MouseButton1Click:Connect(function()
