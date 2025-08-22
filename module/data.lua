@@ -49,10 +49,10 @@ config.colors = {
 -- 🖼 Ícones
 --==============================
 config.icons = {
+		fa_bx_mastermods = "rbxassetid://102637810511338", -- Logo do meu mod
 	fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
 	fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
 	fa_rr_information = "rbxassetid://99073088081563", -- Info
-
 	fa_bx_code_start = "rbxassetid://107895739450188", -- <>
 	fa_bx_code_end = "rbxassetid://106185292775972", -- </>
 	fa_bx_config = "rbxassetid://95026906912083", -- ●

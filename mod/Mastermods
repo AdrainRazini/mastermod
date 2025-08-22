@@ -97,16 +97,13 @@ local colors = {
 
 
 local icons = {
-	
-	-- Ícone do sistema (rr)
+	fa_bx_mastermods = "rbxassetid://102637810511338", -- Logo do meu mod
 	fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
 	fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
-	fa_rr_information = "rbxassetid://99073088081563", -- Informações
-	
-	-- Ícone normal (bx)
-	fa_bx_code_start = "rbxassetid://107895739450188", 
-	fa_bx_code_end = "rbxassetid://106185292775972",
-	fa_bx_config = "rbxassetid://95026906912083",
+	fa_rr_information = "rbxassetid://99073088081563", -- Info
+	fa_bx_code_start = "rbxassetid://107895739450188", -- <>
+	fa_bx_code_end = "rbxassetid://106185292775972", -- </>
+	fa_bx_config = "rbxassetid://95026906912083", -- ●
 	fa_bx_loader = "rbxassetid://123191542300310", -- loading
 }
 
@@ -203,15 +200,22 @@ if existingScreenGui then
 end
 
 
-function hello ()
+--======================================================--
+local StarterGui = game:GetService("StarterGui")
 
-	game:GetService("StarterGui"):SetCore("SendNotification", { 
+function Notification(icon, text, time)
+	-- Garante que só números do assetid serão usados
+	local cleanIcon = tostring(icon):gsub("%D", "") -- remove tudo que não for número
+
+	StarterGui:SetCore("SendNotification", { 
 		Title = GITHUB_REPO;
-		Text = Owner;
-		Icon = "rbxthumb://type=Asset&id=102637810511338&w=150&h=150"})
-	Duration = 16;
-
+		Text = text or "";
+		Icon = "rbxthumb://type=Asset&id="..cleanIcon.."&w=150&h=150";
+		Duration = time or 5;
+	})
 end
+
+--======================================================--
 
 
 
@@ -1052,7 +1056,10 @@ function criar_Gui_Frame()
 	-- Mensagem inicial
 	alert("👋 Bem-vindo, " .. player.Name .. "!", 6)
 	alert("✅ Menu " .. GITHUB_REPO .. " ativado!", 5)
-	hello()
+	-- Exemplo de uso
+Notification(Icons.fa_bx_mastermods, Owner, 12)
+--Notification(Icons.fa_bx_code_start, "Iniciando script...", 8)
+--Notification("abc95026906912083", "Teste com letras no id", 6)
 end
 
 
