@@ -143,11 +143,20 @@ local function SafeClickUp(rightClick, duration)
 end
 
 -- Função para pegar centro de um botão (UI adaptado)
-local function getButtonCenter(button)
-    local absPos = button.AbsolutePosition
-    local absSize = button.AbsoluteSize
-    return Vector2.new(absPos.X + absSize.X/2, absPos.Y + absSize.Y/2)
+local GuiService = game:GetService("GuiService")
+
+-- Função para pegar o centro real do botão (PC e Mobile)
+local function getButtonCenterSafe(button)
+	local absPos = button.AbsolutePosition
+	local absSize = button.AbsoluteSize
+	local guiInset = GuiService:GetGuiInset()
+
+	return Vector2.new(
+		absPos.X + absSize.X/2 + guiInset.X,  -- corrige deslocamento lateral
+		absPos.Y + absSize.Y/2                -- vertical já vem certo
+	)
 end
+
 --==============================
 -- EVENTOS
 --==============================
