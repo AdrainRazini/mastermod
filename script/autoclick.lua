@@ -146,8 +146,9 @@ end
 local function getButtonCenter(button)
     local absPos = button.AbsolutePosition
     local absSize = button.AbsoluteSize
-    return Vector2.new(absPos.X + absSize.X/2 + 5, absPos.Y + absSize.Y/2)
+    return Vector2.new(absPos.X + absSize.X/2, absPos.Y + absSize.Y/2)
 end
+
 --==============================
 -- EVENTOS
 --==============================
@@ -196,6 +197,7 @@ G2L["Referencia_Btn"].MouseButton1Click:Connect(function()
         G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
     end
 end)
+
 G2L["ScrollBtn"].MouseButton1Click:Connect(function()
 	if not AllowMouseControl then return end
 	MouseModule.getMause.Scroll(3)

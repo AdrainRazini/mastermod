@@ -77,19 +77,15 @@ local MouseState = {
 
 -- 🔒 Função que retorna posição segura (PC ou Mobile)
 local function getSafeMouseLocation()
-    local guiInset = game:GetService("GuiService"):GetGuiInset()
-
     if UIS.TouchEnabled and not UIS.MouseEnabled then
-        -- 📱 Celular = centro da tela
+        -- 📱 Se for celular, pega centro da tela
         local screenSize = workspace.CurrentCamera.ViewportSize
         return Vector2.new(screenSize.X/2, screenSize.Y/2)
     else
-        -- 🖱 PC (corrigindo deslocamento com GuiInset)
-        local mousePos = UIS:GetMouseLocation()
-        return Vector2.new(mousePos.X, mousePos.Y - guiInset.Y)
+        -- 🖱 PC (mouse real)
+        return UIS:GetMouseLocation()
     end
 end
-
 
 -- 🔒 Trava posição do mouse
 function config.getMause.LockMouse(pos)
