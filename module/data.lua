@@ -138,11 +138,11 @@ function config.getMause.ClickUp(rightClick, time)
     print("[ClickUp] rightClick:", rightClick, "btn:", btn, "pos:", pos)
 
     -- Pressiona
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, nil, 0)
+    VIM:SendMouseButtonEvent(pos.X + 50, pos.Y - 20, btn, true, nil, 0)
     
     task.wait(time or 0.05)
     -- Solta
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
+    VIM:SendMouseButtonEvent(pos.X + 50 , pos.Y - 20, btn, false, nil, 0)
  
 end
 
