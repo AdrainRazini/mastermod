@@ -128,22 +128,24 @@ function config.getMause.Click(isDown, rightClick)
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, isDown, nil, 0)
 end
 
--- 🖱 Clique simples (pressiona e solta automaticamente)
 function config.getMause.ClickUp(rightClick, time)
-    rightClick = (rightClick ~= nil) and rightClick or MouseState.RightClick
+    rightClick = rightClick ~= nil and rightClick or MouseState.RightClick
     local btn = rightClick and 1 or 0
-    local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
+
+    -- Captura posição atual no momento do clique
+    local pos = UIS:GetMouseLocation()
 
     -- Debug
     print("[ClickUp] rightClick:", rightClick, "btn:", btn, "pos:", pos)
 
     -- Pressiona
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, nil, 0)
-    
-    task.wait(time or 0.05)
-    -- Solta
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
 
+    -- Pequena espera
+    task.wait(time or 0.05)
+
+    -- Solta na mesma posição
+    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
 end
 
 
