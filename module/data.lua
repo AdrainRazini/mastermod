@@ -75,18 +75,9 @@ local MouseState = {
     RightClick = false
 }
 
--- 📍 Posição atual (corrigida)
+-- 📍 Posição atual
 function config.getMause.GetPosition()
-    local pos
-    if MouseState.Locked then
-        pos = MouseState.LockedPosition
-    else
-        pos = UIS:GetMouseLocation()
-    end
-
-    -- Compensar inset lateral (barra superior e lateral)
-    local inset = GuiService:GetGuiInset()
-    return Vector2.new(pos.X + inset.X, pos.Y + inset.Y)
+    return MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
 end
 
 -- 🔒 Função que retorna posição segura (PC ou Mobile)
@@ -96,17 +87,14 @@ local function getSafeMouseLocation()
         local screenSize = workspace.CurrentCamera.ViewportSize
         return Vector2.new(screenSize.X/2, screenSize.Y/2)
     else
-        -- 🖱 PC (mouse real corrigido)
-        return config.getMause.GetPosition()
+        -- 🖱 PC (mouse real)
+        return UIS:GetMouseLocation()
     end
 end
 
 -- 🔒 Trava posição do mouse
 function config.getMause.LockMouse(pos)
-    pos = pos or getSafeMouseLocation()
-    -- aplicar compensação sempre
-    local inset = GuiService:GetGuiInset()
-    MouseState.LockedPosition = Vector2.new(pos.X + inset.X, pos.Y + inset.Y)
+    MouseState.LockedPosition = pos or getSafeMouseLocation()
     MouseState.Locked = true
 end
 
@@ -118,6 +106,7 @@ function config.getMause.IsLocked()
     return MouseState.Locked
 end
 
+
 -- ↔️ Alterna botão do mouse
 function config.getMause.ToggleButton()
     MouseState.RightClick = not MouseState.RightClick
@@ -127,11 +116,12 @@ function config.getMause.IsRightClick()
     return MouseState.RightClick
 end
 
+
 -- 🖱 Clique (segurar/soltar manual)
 function config.getMause.Click(isDown, rightClick)
     rightClick = (rightClick ~= nil) and rightClick or MouseState.RightClick
     local btn = rightClick and 1 or 0
-    local pos = config.getMause.GetPosition()
+    local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
     
     print("[Click] isDown:", isDown, "rightClick:", rightClick, "btn:", btn) -- DEBUG
     
@@ -165,6 +155,7 @@ function config.getMause.DoubleClick(rightClick, interval)
     task.wait(interval)
     config.getMause.ClickUp(rightClick)
 end
+
 
 -- ✋ Arrastar de uma posição a outra
 function config.getMause.Drag(fromPos, toPos, steps, delay)
