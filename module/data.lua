@@ -143,7 +143,7 @@ function config.getMause.ClickUp(rightClick, time)
     task.wait(time or 0.05)
     -- Solta
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
- 
+
 end
 
 
