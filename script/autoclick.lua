@@ -149,12 +149,20 @@ local function SafeClickUp(rightClick, duration)
 	MouseModule.getMause.ClickUp(rightClick, duration)
 end
 
-local function SafeClickUpAuto(rightClick, duration, value)
-	if not AllowMouseControl or not MouseModule then return end
-	rightClick = rightClick or MouseModule.getMause.IsRightClick()
-	duration = duration or 0.05
-	MouseModule.getMause.Auto_Clicking(rightClick, duration, value)
+local function SafeClickUpAuto(rightClick, duration, valueFunc)
+    if not AllowMouseControl or not MouseModule then return end
+    rightClick = rightClick or MouseModule.getMause.IsRightClick()
+    duration = duration or 0.05
+
+    -- Cria uma thread separada
+    task.spawn(function()
+        while valueFunc() do  -- executa enquanto a função retornar true
+            MouseModule.getMause.ClickUp(rightClick, duration)
+            task.wait(duration) -- espera entre os cliques
+        end
+    end)
 end
+
 
 
 -- Função para pegar o centro real de qualquer botão/frame
