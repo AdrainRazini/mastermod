@@ -151,14 +151,18 @@ end
 
 local function SafeClickUpAuto(rightClick, duration, valueFunc)
     if not AllowMouseControl or not MouseModule then return end
+
     rightClick = rightClick or MouseModule.getMause.IsRightClick()
     duration = duration or 0.05
 
-    -- Cria uma thread separada
+    -- Cria thread separada
     task.spawn(function()
-        while valueFunc() do  -- executa enquanto a função retornar true
-            MouseModule.getMause.ClickUp(rightClick, duration)
-            task.wait(duration) -- espera entre os cliques
+        while typeof(valueFunc) == "function" and valueFunc() do
+            -- Chama ClickUp apenas se existir
+            if MouseModule.getMause.ClickUp then
+                MouseModule.getMause.ClickUp(rightClick, duration)
+            end
+            task.wait(duration)
         end
     end)
 end
@@ -231,8 +235,6 @@ local clickTask = nil  -- referência para a thread de auto-click
 
 G2L["AutoClick_Btn"].MouseButton1Click:Connect(function()
     if not AllowMouseControl then return end
-    local refPos = getButtonCenter(G2L["Referencia"])
-    local mause = MouseModule.getMause
 
     auto_clicking = not auto_clicking  -- alterna o estado
     if auto_clicking then
@@ -240,20 +242,17 @@ G2L["AutoClick_Btn"].MouseButton1Click:Connect(function()
         G2L["AutoClick_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
         G2L["AutoClick_Btn"].BackgroundColor3 = Color3.fromRGB(40,100,40)
 
-        -- Inicia o auto-click em uma thread separada
-        clickTask = task.spawn(function()
-            while auto_clicking do
-                SafeClickUpAuto(false, 0.5, function() return true end)
-                task.wait(0.05)  -- tempo entre cliques
-            end
-        end)
+        -- Chama apenas uma vez, loop interno faz o resto
+        SafeClickUpAuto(false, 0.05, function() return auto_clicking end)
+
     else
         G2L["AutoClick_Btn"].Text = "AutoClick: Off"
         G2L["AutoClick_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
         G2L["AutoClick_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
-        -- A thread vai parar automaticamente porque auto_clicking agora é false
+        -- O loop interno para automaticamente porque auto_clicking agora é false
     end
 end)
+
 
 
 
