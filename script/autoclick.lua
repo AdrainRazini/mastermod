@@ -37,6 +37,7 @@ end
 local AllowMouseControl = false
 local G2L = {}
 local lock_mouse = false
+local auto_clicking = false
 
 --==============================
 -- GUI
@@ -95,10 +96,14 @@ end
 G2L["ToggleBtn"] = CreateButton("ToggleBtn", "Controle: OFF", 0)
 G2L["MoveBtn"] = CreateButton("MoveBtn", "Mover Mouse (canto)", 50)
 G2L["ClickBtn"] = CreateButton("ClickBtn", "Clique Simulado", 100)
-G2L["Referencia_Btn"] = CreateButton("Referencia_Btn", "Lock Mouse Off", 150)
-G2L["ScrollBtn"] = CreateButton("ScrollBtn", "Scroll Mouse", 200)
+G2L["AutoClick_Btn"] = CreateButton("AutoClickBtn", "AutoClick: Off", 150)
+G2L["Referencia_Btn"] = CreateButton("Referencia_Btn", "Lock Mouse Off", 200)
+
+-- extra
 G2L["CircleBtn"] = CreateButton("CircleBtn", "Mouse Circle", 250)
 G2L["DragBtn"] = CreateButton("DragBtn", "Arrastar Mouse", 300)
+G2L["ScrollBtn"] = CreateButton("ScrollBtn", "Scroll Mouse", 350)
+
 
 -- Ajuste da CanvasSize
 G2L["ButtonScroll"].CanvasSize = UDim2.new(0, 0, 0, 350)
@@ -143,6 +148,14 @@ local function SafeClickUp(rightClick, duration)
 	duration = duration or 0.05
 	MouseModule.getMause.ClickUp(rightClick, duration)
 end
+
+local function SafeClickUpAuto(rightClick, duration)
+	if not AllowMouseControl or not MouseModule then return end
+	rightClick = rightClick or MouseModule.getMause.IsRightClick()
+	duration = duration or 0.05
+	MouseModule.getMause.Auto_Clicking(rightClick, duration, Auto_Clicking)
+end
+
 
 -- Função para pegar o centro real de qualquer botão/frame
 local function getButtonCenter(button)
@@ -204,6 +217,30 @@ G2L["Referencia_Btn"].MouseButton1Click:Connect(function()
 		G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
 	end
 end)
+
+
+G2L["AutoClick_Btn"].MouseButton1Click:Connect(function()
+	if not AllowMouseControl then return end
+	local refPos = getButtonCenter(G2L["Referencia"])
+	local mause = MouseModule.getMause
+
+	if not auto_clicking then
+		
+		auto_clicking = true
+		G2L["AutoClick_Btn"].Text = "AutoClick: on"
+		G2L["AutoClick_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
+		G2L["AutoClick_Btn"].BackgroundColor3 = Color3.fromRGB(40,100,40)
+	else
+
+		auto_clicking = false
+		G2L["Referencia_Btn"].Text = "AutoClick: Off"
+		G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
+		G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
+	end
+SafeClickUpAuto(false, 0.5, auto_clicking)
+
+end)
+
 
 G2L["ScrollBtn"].MouseButton1Click:Connect(function()
 	if not AllowMouseControl then return end
