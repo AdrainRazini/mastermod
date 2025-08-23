@@ -37,7 +37,7 @@ end
 local AllowMouseControl = false
 local G2L = {}
 local lock_mouse = false
-local auto_clicking = false
+
 
 --==============================
 -- GUI
@@ -226,28 +226,35 @@ G2L["Referencia_Btn"].MouseButton1Click:Connect(function()
 	end
 end)
 
+local auto_clicking = false
+local clickTask = nil  -- referência para a thread de auto-click
 
 G2L["AutoClick_Btn"].MouseButton1Click:Connect(function()
-	if not AllowMouseControl then return end
-	local refPos = getButtonCenter(G2L["Referencia"])
-	local mause = MouseModule.getMause
+    if not AllowMouseControl then return end
+    local refPos = getButtonCenter(G2L["Referencia"])
+    local mause = MouseModule.getMause
 
-	if not auto_clicking then
-		
-		auto_clicking = true
-		G2L["AutoClick_Btn"].Text = "AutoClick: on"
-		G2L["AutoClick_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
-		G2L["AutoClick_Btn"].BackgroundColor3 = Color3.fromRGB(40,100,40)
-	else
+    auto_clicking = not auto_clicking  -- alterna o estado
+    if auto_clicking then
+        G2L["AutoClick_Btn"].Text = "AutoClick: On"
+        G2L["AutoClick_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
+        G2L["AutoClick_Btn"].BackgroundColor3 = Color3.fromRGB(40,100,40)
 
-		auto_clicking = false
-		G2L["AutoClick_Btn"].Text = "AutoClick: Off"
-		G2L["AutoClick_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
-		G2L["AutoClick_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
-	end
-SafeClickUpAuto(false, 0.5, auto_clicking)
-
+        -- Inicia o auto-click em uma thread separada
+        clickTask = task.spawn(function()
+            while auto_clicking do
+                SafeClickUpAuto(false, 0.5, function() return true end)
+                task.wait(0.05)  -- tempo entre cliques
+            end
+        end)
+    else
+        G2L["AutoClick_Btn"].Text = "AutoClick: Off"
+        G2L["AutoClick_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
+        G2L["AutoClick_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
+        -- A thread vai parar automaticamente porque auto_clicking agora é false
+    end
 end)
+
 
 
 G2L["ScrollBtn"].MouseButton1Click:Connect(function()
