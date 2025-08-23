@@ -4,6 +4,7 @@
 local GITHUB_REPO = "Mastermod"
 local Owner = "Adrian75556435"
 
+local VIM = game:GetService("VirtualInputManager")
 local UIS = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local VirtualInputManager = game:GetService("VirtualInputManager")
@@ -108,9 +109,10 @@ G2L["Referencia"].Parent = G2L["ScreenGui"]
 G2L["Referencia"].Size = UDim2.new(0, 0, 0, 0)
 G2L["Referencia"].Position = UDim2.new(0.55, 0, 0.45, 0)
 G2L["Referencia"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-
+--[[
 Instance.new("UICorner").Parent = G2L["Referencia"]
 Instance.new("UIStroke").Parent = G2L["Referencia"]
+]]
 
 --==============================
 -- FUNÇÕES
