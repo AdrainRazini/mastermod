@@ -117,6 +117,17 @@ function config.getMause.IsRightClick()
 end
 
 
+-- 🖱 Clique (segurar/soltar manual)
+function config.getMause.Click(isDown, rightClick)
+    rightClick = (rightClick ~= nil) and rightClick or MouseState.RightClick
+    local btn = rightClick and 1 or 0
+    local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
+    
+    print("[Click] isDown:", isDown, "rightClick:", rightClick, "btn:", btn) -- DEBUG
+    
+    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, isDown, nil, 0)
+end
+
 -- 🖱 Clique simples (pressiona e solta automaticamente)
 function config.getMause.ClickUp(rightClick, time)
     rightClick = (rightClick ~= nil) and rightClick or MouseState.RightClick
@@ -133,17 +144,7 @@ function config.getMause.ClickUp(rightClick, time)
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
 end
 
-function config.getMause.ClickUp(rightClick, time)
-    rightClick = rightClick or MouseState.RightClick
-    local btn = rightClick and 1 or 0
-    local pos = config.getMause.GetPosition()
-    
-    -- Pressiona
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, game, 0)
-    task.wait(time or 0.05)
-    -- Solta
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, game, 0)
-end
+
 
 
 -- ⬆️ Scroll do mouse
