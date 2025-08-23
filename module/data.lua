@@ -80,7 +80,7 @@ local function getSafeMouseLocation()
     if UIS.TouchEnabled and not UIS.MouseEnabled then
         -- 📱 Se for celular, pega centro da tela
         local screenSize = workspace.CurrentCamera.ViewportSize
-        return Vector2.new(screenSize.X/2, screenSize.Y/2)
+        return Vector2.new(screenSize.X/2 + 5, screenSize.Y/2)
     else
         -- 🖱 PC (mouse real)
         return UIS:GetMouseLocation()
