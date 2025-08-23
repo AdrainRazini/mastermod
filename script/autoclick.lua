@@ -102,7 +102,7 @@ G2L["DragBtn"] = CreateButton("DragBtn", "Arrastar Mouse", 300)
 -- Ajuste da CanvasSize
 G2L["ButtonScroll"].CanvasSize = UDim2.new(0, 0, 0, 350)
 
--- Botão Referência
+-- Referência
 G2L["Referencia"] = Instance.new("Frame")
 G2L["Referencia"].Parent = G2L["ScreenGui"]
 G2L["Referencia"].AnchorPoint = Vector2.new(0.5, 0.5)
@@ -142,11 +142,15 @@ local function SafeClickUp(rightClick, duration)
 	MouseModule.getMause.ClickUp(rightClick, duration)
 end
 
--- Função para pegar centro de um botão (UI adaptado)
+-- Função para pegar o centro real de qualquer botão/frame
 local function getButtonCenter(button)
+    -- Posição do canto superior esquerdo
     local absPos = button.AbsolutePosition
     local absSize = button.AbsoluteSize
-    return Vector2.new(absPos.X + absSize.X/2, absPos.Y + absSize.Y/2)
+    local anchor = button.AnchorPoint or Vector2.new(0,0)
+
+    -- Fórmula universal (compensa automaticamente o AnchorPoint)
+    return absPos + (absSize * anchor)
 end
 
 --==============================
