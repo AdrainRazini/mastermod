@@ -149,11 +149,11 @@ local function SafeClickUp(rightClick, duration)
 	MouseModule.getMause.ClickUp(rightClick, duration)
 end
 
-local function SafeClickUpAuto(rightClick, duration)
+local function SafeClickUpAuto(rightClick, duration, value)
 	if not AllowMouseControl or not MouseModule then return end
 	rightClick = rightClick or MouseModule.getMause.IsRightClick()
 	duration = duration or 0.05
-	MouseModule.getMause.Auto_Clicking(rightClick, duration, Auto_Clicking)
+	MouseModule.getMause.Auto_Clicking(rightClick, duration, value)
 end
 
 
@@ -233,9 +233,9 @@ G2L["AutoClick_Btn"].MouseButton1Click:Connect(function()
 	else
 
 		auto_clicking = false
-		G2L["Referencia_Btn"].Text = "AutoClick: Off"
-		G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
-		G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
+		G2L["AutoClick_Btn"].Text = "AutoClick: Off"
+		G2L["AutoClick_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
+		G2L["AutoClick_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
 	end
 SafeClickUpAuto(false, 0.5, auto_clicking)
 
