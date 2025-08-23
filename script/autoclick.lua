@@ -105,12 +105,13 @@ G2L["ButtonScroll"].CanvasSize = UDim2.new(0, 0, 0, 350)
 -- Referência
 G2L["Referencia"] = Instance.new("Frame")
 G2L["Referencia"].Parent = G2L["ScreenGui"]
-G2L["Referencia"].AnchorPoint = Vector2.new(0.55, 0.55)
-G2L["Referencia"].Size = UDim2.new(0, 5, 0, 5)
+G2L["Referencia"].Size = UDim2.new(0, 0, 0, 0)
 G2L["Referencia"].Position = UDim2.new(0.5, 0, 0.5, 0)
 G2L["Referencia"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+--[[
 Instance.new("UICorner").Parent = G2L["Referencia"]
 Instance.new("UIStroke").Parent = G2L["Referencia"]
+]]
 
 --==============================
 -- FUNÇÕES
@@ -144,13 +145,13 @@ end
 
 -- Função para pegar o centro real de qualquer botão/frame
 local function getButtonCenter(button)
-    -- Posição do canto superior esquerdo
-    local absPos = button.AbsolutePosition
-    local absSize = button.AbsoluteSize
-    local anchor = button.AnchorPoint or Vector2.new(0,0)
+	-- Posição do canto superior esquerdo
+	local absPos = button.AbsolutePosition
+	local absSize = button.AbsoluteSize
+	local anchor = button.AnchorPoint or Vector2.new(0,0)
 
-    -- Fórmula universal (compensa automaticamente o AnchorPoint)
-    return absPos + (absSize * anchor)
+	-- Fórmula universal (compensa automaticamente o AnchorPoint)
+	return absPos + (absSize * anchor)
 end
 
 --==============================
@@ -183,24 +184,24 @@ end)
 
 -- Evento do botão para travar/destravar
 G2L["Referencia_Btn"].MouseButton1Click:Connect(function()
-    if not AllowMouseControl then return end
-    local refPos = getButtonCenter(G2L["Referencia"])
-    local mause = MouseModule.getMause
+	if not AllowMouseControl then return end
+	local refPos = getButtonCenter(G2L["Referencia"])
+	local mause = MouseModule.getMause
 
-    if not lock_mouse then
-        mause.LockMouse(refPos)
+	if not lock_mouse then
+		mause.LockMouse(refPos)
 		print("Centro da Referencia:", "X =", refPos.X, "Y =", refPos.Y)
-        lock_mouse = true
-        G2L["Referencia_Btn"].Text = "Lock: ON"
-        G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
-        G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(40,100,40)
-    else
-        mause.UnlockMouse()
-        lock_mouse = false
-        G2L["Referencia_Btn"].Text = "Lock: OFF"
-        G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
-        G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
-    end
+		lock_mouse = true
+		G2L["Referencia_Btn"].Text = "Lock: ON"
+		G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
+		G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(40,100,40)
+	else
+		mause.UnlockMouse()
+		lock_mouse = false
+		G2L["Referencia_Btn"].Text = "Lock: OFF"
+		G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(255,0,0)
+		G2L["Referencia_Btn"].BackgroundColor3 = Color3.fromRGB(100,40,40)
+	end
 end)
 
 G2L["ScrollBtn"].MouseButton1Click:Connect(function()
