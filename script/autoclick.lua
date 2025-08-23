@@ -105,7 +105,7 @@ G2L["ButtonScroll"].CanvasSize = UDim2.new(0, 0, 0, 350)
 -- Referência
 G2L["Referencia"] = Instance.new("Frame")
 G2L["Referencia"].Parent = G2L["ScreenGui"]
-G2L["Referencia"].AnchorPoint = Vector2.new(0.5, 0.5)
+G2L["Referencia"].AnchorPoint = Vector2.new(0.55, 0.55)
 G2L["Referencia"].Size = UDim2.new(0, 5, 0, 5)
 G2L["Referencia"].Position = UDim2.new(0.5, 0, 0.5, 0)
 G2L["Referencia"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
