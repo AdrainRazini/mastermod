@@ -136,12 +136,10 @@ function config.getMause.ClickUp(rightClick, time)
     
     print("[ClickUp] rightClick:", rightClick, "btn:", btn) -- DEBUG
     
-    -- Trocar 'game' por 'nil'
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, nil, 0)
+    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, game, 0)
     task.wait(time or 0.05)
-    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
+    VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, game, 0)
 end
-
 
 -- ⬆️ Scroll do mouse
 function config.getMause.Scroll(amount)
