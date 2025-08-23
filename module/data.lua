@@ -66,6 +66,7 @@ config.getMause = {}
 
 local UIS = game:GetService("UserInputService")
 local VIM = game:GetService("VirtualInputManager")
+local GuiService = game:GetService("GuiService")
 
 -- Estado interno
 local MouseState = {
@@ -74,9 +75,26 @@ local MouseState = {
     RightClick = false
 }
 
+-- 📍 Posição atual
+function config.getMause.GetPosition()
+    return MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
+end
+
+-- 🔒 Função que retorna posição segura (PC ou Mobile)
+local function getSafeMouseLocation()
+    if UIS.TouchEnabled and not UIS.MouseEnabled then
+        -- 📱 Se for celular, pega centro da tela
+        local screenSize = workspace.CurrentCamera.ViewportSize
+        return Vector2.new(screenSize.X/2, screenSize.Y/2)
+    else
+        -- 🖱 PC (mouse real)
+        return UIS:GetMouseLocation()
+    end
+end
+
 -- 🔒 Trava posição do mouse
 function config.getMause.LockMouse(pos)
-    MouseState.LockedPosition = pos or UIS:GetMouseLocation()
+    MouseState.LockedPosition = pos or getSafeMouseLocation()
     MouseState.Locked = true
 end
 
@@ -87,6 +105,7 @@ end
 function config.getMause.IsLocked()
     return MouseState.Locked
 end
+
 
 -- ↔️ Alterna botão do mouse
 function config.getMause.ToggleButton()
@@ -100,30 +119,33 @@ end
 
 -- 🖱 Clique (segurar/soltar manual)
 function config.getMause.Click(isDown, rightClick)
-       rightClick = rightClick or MouseState.RightClick
+    rightClick = (rightClick ~= nil) and rightClick or MouseState.RightClick
     local btn = rightClick and 1 or 0
     local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
-    -- Pressiona ou solta
+    
+    print("[Click] isDown:", isDown, "rightClick:", rightClick, "btn:", btn) -- DEBUG
+    
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, isDown, nil, 0)
 end
 
 -- 🖱 Clique simples (pressiona e solta automaticamente)
 function config.getMause.ClickUp(rightClick, time)
-    rightClick = rightClick or MouseState.RightClick
+    rightClick = (rightClick ~= nil) and rightClick or MouseState.RightClick
     local btn = rightClick and 1 or 0
     local pos = MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
-    
+
+    -- Debug
+    print("[ClickUp] rightClick:", rightClick, "btn:", btn, "pos:", pos)
+
     -- Pressiona
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, true, nil, 0)
-    task.wait(time or 0.05) -- tempo de clique
+    task.wait(time or 0.05)
     -- Solta
     VIM:SendMouseButtonEvent(pos.X, pos.Y, btn, false, nil, 0)
 end
 
--- 📍 Posição atual
-function config.getMause.GetPosition()
-    return MouseState.Locked and MouseState.LockedPosition or UIS:GetMouseLocation()
-end
+
+
 
 -- ⬆️ Scroll do mouse
 function config.getMause.Scroll(amount)
