@@ -185,6 +185,7 @@ G2L["Referencia_Btn"].MouseButton1Click:Connect(function()
 
     if not lock_mouse then
         mause.LockMouse(refPos)
+		print("Centro da Referencia:", "X =", refPos.X, "Y =", refPos.Y)
         lock_mouse = true
         G2L["Referencia_Btn"].Text = "Lock: ON"
         G2L["Referencia_Btn"].TextColor3 = Color3.fromRGB(0,255,0)
