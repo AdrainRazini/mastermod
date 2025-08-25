@@ -539,7 +539,7 @@ player.CharacterAdded:Connect(function()
 		G1L["ScreenGui"]:Destroy()
 	end
 	createGUI()
-	startLoading()
+	startLoading(true)
 end)
 
 
