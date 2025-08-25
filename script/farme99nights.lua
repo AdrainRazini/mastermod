@@ -4,7 +4,7 @@ local NAME_MOD = "99 nights in the forest"
 
 local VIM = game:GetService("VirtualInputManager")
 local UIS = game:GetService("UserInputService")
-local StarterGui = game:GetService("StarterGui")
+
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
