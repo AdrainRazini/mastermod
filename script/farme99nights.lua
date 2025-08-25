@@ -20,7 +20,7 @@ local Farmes, Player, Lights, Games = {}, {}, {}, {}
 local List_Mods = {Farmes, Player, Lights, Games}
 
 --============= Extração de Itens ===============--
-local Itens_Workspace = Workspace:WaitForChild("Itens")
+local Itens_Workspace = Workspace:WaitForChild("Items")
 local Itens_List = Itens_Workspace:GetChildren()
 local Farmes_List = {}
 
