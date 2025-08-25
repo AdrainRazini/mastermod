@@ -287,7 +287,7 @@ local function createGUI()
 
 	-- Loading Text
 	G1L["LoadingLabel"] = Instance.new("TextLabel", G1L["LoadingFrame"])
-	G1L["LoadingLabel"].Size = UDim2.new(1, 0, 1, 0)
+	G1L["LoadingLabel"].Size = UDim2.new(1, 0, 0.5, 0)
 	G1L["LoadingLabel"].Text = "Loading..."
 	G1L["LoadingLabel"].TextColor3 = Color3.fromRGB(200, 200, 255)
 	G1L["LoadingLabel"].BackgroundTransparency = 1
@@ -398,6 +398,7 @@ end
 -- Atualiza visuais conforme estado atual
 local function updateLoadingVisuals()
 	G1L["LoadingLabel"].Visible = config.text_loading
+	G1L["SpinnerFrame"].Visible = config.spinner_frame
 	G1L["Spinner"].Visible = config.loading
 	G1L["Bar_Max"].Visible = config.bar_loading
 end
@@ -428,7 +429,6 @@ local function Estado(input)
 	-- Ativa a escolhida
 	config[escolha] = true
 
-	print("[Estado] Ativada a opção:", escolha)
 end
 
 
@@ -439,11 +439,13 @@ local function startSpinner()
 	-- Desliga se não estiver ativo
 	if not config.loading then
 		G1L["Spinner"].Visible = false
+		G1L["SpinnerFrame"].Visible = false
 		return
 	end
 
 	-- Mostra o spinner
 	G1L["Spinner"].Visible = true
+	G1L["SpinnerFrame"].Visible = true
 
 	local startTime = tick()
 
@@ -455,6 +457,7 @@ local function startSpinner()
 		end
 		G1L["Spinner"].Rotation = 0 -- opcional: reseta a rotação no final
 		G1L["Spinner"].Visible = false -- opcional: esconde ao terminar
+		G1L["SpinnerFrame"].Visible = false
 	end)
 end
 
