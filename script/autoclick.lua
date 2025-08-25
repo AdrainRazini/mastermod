@@ -37,6 +37,8 @@ end
 local AllowMouseControl = false
 local G2L = {}
 local lock_mouse = false
+local auto_clicking = false
+local clickTask = nil  -- referência para a thread de auto-click
 
 
 --==============================
@@ -148,7 +150,7 @@ local function SafeClickUp(rightClick, duration)
 	duration = duration or 0.05
 	MouseModule.getMause.ClickUp(rightClick, duration)
 end
-
+--[[
 local function SafeClickUpAuto(rightClick, duration, valueFunc)
     if not AllowMouseControl or not MouseModule then return end
 
@@ -166,7 +168,26 @@ local function SafeClickUpAuto(rightClick, duration, valueFunc)
         end
     end)
 end
+]]
 
+local function SafeClickUpAuto(rightClick, duration, valueFunc)
+    if not AllowMouseControl or not MouseModule then return end
+
+    rightClick = rightClick or MouseModule.getMause.IsRightClick()
+    duration = duration or 0.05
+
+    task.spawn(function()
+        while AllowMouseControl 
+            and typeof(valueFunc) == "function" 
+            and valueFunc() do
+
+            if MouseModule.getMause.ClickUp then
+                MouseModule.getMause.ClickUp(rightClick, duration)
+            end
+            task.wait(duration)
+        end
+    end)
+end
 
 
 -- Função para pegar o centro real de qualquer botão/frame
@@ -230,8 +251,6 @@ G2L["Referencia_Btn"].MouseButton1Click:Connect(function()
 	end
 end)
 
-local auto_clicking = false
-local clickTask = nil  -- referência para a thread de auto-click
 
 G2L["AutoClick_Btn"].MouseButton1Click:Connect(function()
     if not AllowMouseControl then return end
