@@ -1042,8 +1042,8 @@ function criar_Gui_Frame()
 	end
 
 	-- Mensagem inicial
-	alert("👋 Bem-vindo, " .. player.Name .. "!", 6)
-	alert("✅ Menu " .. GITHUB_REPO .. " ativado!", 5)
+	--alert("👋 Bem-vindo, " .. player.Name .. "!", 6)
+	--alert("✅ Menu " .. GITHUB_REPO .. " ativado!", 5)
 	-- Exemplo de uso
 	Notification(icons.fa_bx_mastermods, Owner, 12)
 	--Notification(Icons.fa_bx_code_start, "Iniciando script...", 8)
