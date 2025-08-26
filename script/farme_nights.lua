@@ -66,7 +66,7 @@ G1L["NpcFrame"].Size = UDim2.new(0, 250, 0, 300)
 G1L["NpcFrame"].Position = UDim2.new(0.05, 0, 0.1, 0)
 G1L["NpcFrame"].BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 G1L["NpcFrame"].BorderSizePixel = 0
-G1L["NpcFrame"].CanvasSize = UDim2.new(0, 0, 0, 0) -- vai ser ajustado dinamicamente
+G1L["NpcFrame"].CanvasSize = UDim2.new(0, 0, 0, 0) -- ajustado dinamicamente
 G1L["NpcFrame"].ScrollBarThickness = 6
 
 -- Layout para organizar os NPCs em lista
@@ -114,3 +114,24 @@ end
 
 -- chamada inicial
 atualizarNPCs()
+
+-- =====================================
+-- Botão para resetar câmera ao Player
+-- =====================================
+local resetBtn = Instance.new("TextButton", G1L["ScreenGui"])
+resetBtn.Name = "ResetCameraBtn"
+resetBtn.Size = UDim2.new(0, 150, 0, 40)
+resetBtn.Position = UDim2.new(0.05, 0, 0.75, 0)
+resetBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+resetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+resetBtn.Font = Enum.Font.SourceSansBold
+resetBtn.TextSize = 20
+resetBtn.Text = "Voltar ao Player"
+
+resetBtn.MouseButton1Click:Connect(function()
+	local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+	if humanoid then
+		workspace.CurrentCamera.CameraSubject = humanoid
+		print("Câmera resetada para o player")
+	end
+end)
