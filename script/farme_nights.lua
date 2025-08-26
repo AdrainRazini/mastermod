@@ -74,12 +74,27 @@ local Fix_Npcs = {"Bunny", "Wolf"}
 G1L["ScreenGui"] = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 G1L["ScreenGui"].Name = NAME_MOD
 
-G1L["Frame_Mod"] = Instance.new("Frame", G1L["ScreenGui"])
+-- Frame principal de módulos
+G1L["Frame_Mod"] = Instance.new("ScrollingFrame", G1L["ScreenGui"])
 G1L["Frame_Mod"].Size = UDim2.new(0.2, 0, 0.6, 0)
 G1L["Frame_Mod"].Position = UDim2.new(0.7, 0, 0.2, 0)
 G1L["Frame_Mod"].BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 G1L["Frame_Mod"].BorderSizePixel = 0
 G1L["Frame_Mod"].Visible = true
+G1L["Frame_Mod"].CanvasSize = UDim2.new(0, 0, 0, 0) -- inicial
+
+-- Layout vertical para empilhar títulos
+local modListLayout = Instance.new("UIListLayout", G1L["Frame_Mod"])
+modListLayout.FillDirection = Enum.FillDirection.Vertical
+modListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+modListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+modListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+modListLayout.Padding = UDim.new(0, 10) -- espaçamento entre títulos
+
+-- Atualiza CanvasSize automaticamente
+modListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    G1L["Frame_Mod"].CanvasSize = UDim2.new(0, 0, 0, modListLayout.AbsoluteContentSize.Y)
+end)
 
 -- Frame rolável para listar NPCs
 G1L["NpcFrame"] = Instance.new("ScrollingFrame", G1L["ScreenGui"])
@@ -214,7 +229,7 @@ Characters.ChildRemoved:Connect(removeNpc)
 
 function Create_Titles(Name, Text, Retorno)
 	local container_titles = Instance.new("Frame", G1L["Frame_Mod"])
-	container_titles.Size = UDim2.new(0.9, 0, 0.1, 0)
+	container_titles.Size = UDim2.new(0.9, 0, 0, 50)
 	container_titles.Position = UDim2.new(0.05, 0, 0.1, 0)
 	container_titles.BackgroundTransparency = 1
 
@@ -264,6 +279,14 @@ function Create_Titles(Name, Text, Retorno)
 end
 
 
+Create_Titles("Modelo", "Modelo", function(estado)
+	if estado then
+		print("Modelo ligado!")
+	else
+		print("Modelo desligado!")
+	end
+end)
+
 Create_Titles("FlyMod", "Ativar Fly", function(estado)
 	if estado then
 		print("Fly ligado!")
@@ -271,3 +294,5 @@ Create_Titles("FlyMod", "Ativar Fly", function(estado)
 		print("Fly desligado!")
 	end
 end)
+
+
