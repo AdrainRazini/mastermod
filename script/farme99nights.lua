@@ -50,3 +50,24 @@ end
 -- Lista de NPCs que precisam de "fix"
 local Fix_Npcs = {"Bunny", "Wolf"}
 --===============================================--
+-- Criar TextLabel de teste
+G1L["test_lb"] = Instance.new("TextLabel")
+G1L["test_lb"].Name = "TestLabel"
+G1L["test_lb"].Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- ou o Frame principal da sua GUI
+G1L["test_lb"].Size = UDim2.new(0, 200, 0, 50)
+G1L["test_lb"].Position = UDim2.new(0.5, -100, 0.1, 0) -- centralizado horizontalmente
+G1L["test_lb"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+G1L["test_lb"].TextColor3 = Color3.fromRGB(255, 255, 255)
+G1L["test_lb"].Font = Enum.Font.SourceSansBold
+G1L["test_lb"].TextSize = 20
+G1L["test_lb"].Text = "NPCs encontrados: 0"
+
+local function atualizarNPCs()
+	local nomes = {}
+	for _, npc in ipairs(Npcs_List) do
+		table.insert(nomes, npc.Name)
+	end
+	G1L["test_lb"].Text = "NPCs: " .. table.concat(nomes, ", ")
+end
+
+atualizarNPCs()
