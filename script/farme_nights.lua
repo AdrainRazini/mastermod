@@ -56,27 +56,61 @@ local Fix_Npcs = {"Bunny", "Wolf"}
 --===============================================--
 
 -- GUI principal
-G1L["ScreenGui"] = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+G1L["ScreenGui"] = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 G1L["ScreenGui"].Name = NAME_MOD
 
+-- Frame rolável para listar NPCs
+G1L["NpcFrame"] = Instance.new("ScrollingFrame", G1L["ScreenGui"])
+G1L["NpcFrame"].Name = "NpcFrame"
+G1L["NpcFrame"].Size = UDim2.new(0, 250, 0, 300)
+G1L["NpcFrame"].Position = UDim2.new(0.05, 0, 0.1, 0)
+G1L["NpcFrame"].BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+G1L["NpcFrame"].BorderSizePixel = 0
+G1L["NpcFrame"].CanvasSize = UDim2.new(0, 0, 0, 0) -- vai ser ajustado dinamicamente
+G1L["NpcFrame"].ScrollBarThickness = 6
 
--- Criar TextLabel de teste
-G1L["test_lb"] = Instance.new("TextLabel", G1L["ScreenGui"])
-G1L["test_lb"].Name = "TestLabel"
-G1L["test_lb"].Size = UDim2.new(0, 200, 0, 50)
-G1L["test_lb"].Position = UDim2.new(0.5, -100, 0.1, 0) -- centralizado horizontalmente
-G1L["test_lb"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-G1L["test_lb"].TextColor3 = Color3.fromRGB(255, 255, 255)
-G1L["test_lb"].Font = Enum.Font.SourceSansBold
-G1L["test_lb"].TextSize = 20
-G1L["test_lb"].Text = "NPCs encontrados: 0"
+-- Layout para organizar os NPCs em lista
+local UIListLayout = Instance.new("UIListLayout", G1L["NpcFrame"])
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-local function atualizarNPCs()
-	local nomes = {}
-	for _, npc in ipairs(Npcs_List) do
-		table.insert(nomes, npc.Name)
-	end
-	G1L["test_lb"].Text = "NPCs: " .. table.concat(nomes, ", ")
+-- Função para criar um botão para cada NPC
+local function criarNpcButton(npc)
+	local btn = Instance.new("TextButton", G1L["NpcFrame"])
+	btn.Name = npc.Name .. "_Btn"
+	btn.Size = UDim2.new(1, 0, 0, 30)
+	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 18
+	btn.Text = npc.Name
+
+	-- Evento de clique → foca a câmera no NPC escolhido
+	btn.MouseButton1Click:Connect(function()
+		local humanoidRoot = npc:FindFirstChild("HumanoidRootPart")
+		if humanoidRoot then
+			workspace.CurrentCamera.CameraSubject = humanoidRoot
+			print("Focando em:", npc.Name)
+		end
+	end)
 end
 
+-- Função para atualizar lista de NPCs
+local function atualizarNPCs()
+	-- limpa botões antigos
+	for _, child in ipairs(G1L["NpcFrame"]:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+
+	-- cria botões para cada NPC
+	for _, npc in ipairs(Npcs_List) do
+		criarNpcButton(npc)
+	end
+
+	-- ajusta tamanho da rolagem
+	G1L["NpcFrame"].CanvasSize = UDim2.new(0, 0, 0, #Npcs_List * 35)
+end
+
+-- chamada inicial
 atualizarNPCs()
