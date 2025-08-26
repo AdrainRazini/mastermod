@@ -19,6 +19,19 @@ local G1L, G2L, G3L, G4L, G5L = {}, {}, {}, {}, {}
 local Farmes, Player, Lights, Games = {}, {}, {}, {}
 local List_Mods = {Farmes, Player, Lights, Games}
 
+
+local icons = {
+	fa_bx_mastermods = "rbxassetid://102637810511338", -- Logo do meu mod
+	fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
+	fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
+	fa_rr_information = "rbxassetid://99073088081563", -- Info
+	fa_bx_code_start = "rbxassetid://107895739450188", -- <>
+	fa_bx_code_end = "rbxassetid://106185292775972", -- </>
+	fa_bx_config = "rbxassetid://95026906912083", -- ●
+	fa_bx_loader = "rbxassetid://123191542300310", -- loading
+}
+
+
 --============= Extração de Itens ===============--
 local Itens_Workspace = Workspace:WaitForChild("Items")
 local Itens_List = Itens_Workspace:GetChildren()
@@ -60,6 +73,13 @@ local Fix_Npcs = {"Bunny", "Wolf"}
 -- GUI principal
 G1L["ScreenGui"] = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 G1L["ScreenGui"].Name = NAME_MOD
+
+G1L["Frame_Mod"] = Instance.new("Frame", G1L["ScreenGui"])
+G1L["Frame_Mod"].Size = UDim2.new(0.2, 0, 0.6, 0)
+G1L["Frame_Mod"].Position = UDim2.new(0.7, 0, 0.2, 0)
+G1L["Frame_Mod"].BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+G1L["Frame_Mod"].BorderSizePixel = 0
+G1L["Frame_Mod"].Visible = true
 
 -- Frame rolável para listar NPCs
 G1L["NpcFrame"] = Instance.new("ScrollingFrame", G1L["ScreenGui"])
@@ -190,22 +210,64 @@ Characters.ChildRemoved:Connect(removeNpc)
 -- =====================================
 -- Botão para resetar câmera ao Player
 -- =====================================
---[[
-local resetBtn = Instance.new("TextButton", G1L["ScreenGui"])
-resetBtn.Name = "ResetCameraBtn"
-resetBtn.Size = UDim2.new(0, 150, 0, 40)
-resetBtn.Position = UDim2.new(0.05, 0, 0.75, 0)
-resetBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-resetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-resetBtn.Font = Enum.Font.SourceSansBold
-resetBtn.TextSize = 20
-resetBtn.Text = "Voltar ao Player"
 
-resetBtn.MouseButton1Click:Connect(function()
-	local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
-	if humanoid then
-		workspace.CurrentCamera.CameraSubject = humanoid
-		print("Câmera resetada para o player")
+
+function Create_Titles(Name, Text, Retorno)
+	local container_titles = Instance.new("Frame", G1L["Frame_Mod"])
+	container_titles.Size = UDim2.new(0.9, 0, 0.1, 0)
+	container_titles.Position = UDim2.new(0.05, 0, 0.1, 0)
+	container_titles.BackgroundTransparency = 1
+
+	-- Layout horizontal
+	local ly = Instance.new("UIListLayout", container_titles)
+	ly.FillDirection = Enum.FillDirection.Horizontal
+	ly.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	ly.VerticalAlignment = Enum.VerticalAlignment.Center
+	ly.SortOrder = Enum.SortOrder.LayoutOrder
+	ly.Padding = UDim.new(0.05, 0)
+
+	-- Label do título
+	local title_mod_Lb = Instance.new("TextLabel", container_titles)
+	title_mod_Lb.Size = UDim2.new(0.7, 0, 1, 0)
+	title_mod_Lb.BackgroundTransparency = 1
+	title_mod_Lb.Text = Text
+	title_mod_Lb.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title_mod_Lb.Font = Enum.Font.SourceSansBold
+	title_mod_Lb.TextSize = 18
+	title_mod_Lb.TextXAlignment = Enum.TextXAlignment.Left
+
+	-- Toggle button
+	local toggle_btn = Instance.new("ImageButton", container_titles)
+	toggle_btn.Size = UDim2.new(0.2, 0, 0.6, 0)
+	toggle_btn.AnchorPoint = Vector2.new(0, 0.5)
+	toggle_btn.Position = UDim2.new(0.8, 0, 0.5, 0)
+	toggle_btn.Image = icons.fa_rr_toggle_left
+	toggle_btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	toggle_btn.BackgroundTransparency = 0.85
+
+	local toggled = false
+	toggle_btn.MouseButton1Click:Connect(function()
+		toggled = not toggled
+		if toggled then
+			toggle_btn.Image = icons.fa_rr_toggle_right
+			toggle_btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255) -- azul ligado
+		else
+			toggle_btn.Image = icons.fa_rr_toggle_left
+			toggle_btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- cinza desligado
+		end
+
+		-- chama a função Retorno passando o estado atual
+		if Retorno then
+			Retorno(toggled)
+		end
+	end)
+end
+
+
+Create_Titles("FlyMod", "Ativar Fly", function(estado)
+	if estado then
+		print("Fly ligado!")
+	else
+		print("Fly desligado!")
 	end
 end)
-]]
