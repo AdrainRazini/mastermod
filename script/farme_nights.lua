@@ -38,8 +38,9 @@ local Npcs_List = {}
 
 for _, npc in ipairs(Characters_List) do
 	if npc:IsA("Model") then
+		-- Procura qualquer Humanoid dentro do modelo
 		local humanoid = npc:FindFirstChildOfClass("Humanoid")
-		if humanoid and humanoid.Name == "NPC" then
+		if humanoid then
 			table.insert(Npcs_List, npc)
 		end
 	end
@@ -52,6 +53,7 @@ end
 
 -- Lista de NPCs que precisam de "fix"
 local Fix_Npcs = {"Bunny", "Wolf"}
+
 
 --===============================================--
 
@@ -114,6 +116,40 @@ end
 
 -- chamada inicial
 atualizarNPCs()
+
+-- Função para verificar e adicionar NPC
+local function addNpc(npc)
+	if npc:IsA("Model") then
+		local humanoid = npc:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.Name == "NPC" then
+			table.insert(Npcs_List, npc)
+			atualizarNPCs()
+			print("NPC adicionado:", npc.Name)
+		end
+	end
+end
+
+-- Função para remover NPC da lista
+local function removeNpc(npc)
+	for i, v in ipairs(Npcs_List) do
+		if v == npc then
+			table.remove(Npcs_List, i)
+			atualizarNPCs()
+			print("NPC removido:", npc.Name)
+			break
+		end
+	end
+end
+
+-- Inicial: pega todos os que já existem
+for _, npc in ipairs(Characters:GetChildren()) do
+	addNpc(npc)
+end
+
+-- Eventos: acompanha mudanças em tempo real
+Characters.ChildAdded:Connect(addNpc)
+Characters.ChildRemoved:Connect(removeNpc)
+
 
 -- =====================================
 -- Botão para resetar câmera ao Player
