@@ -11,7 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local LocalPlayer = Players.LocalPlayer
-
+local player = Players.LocalPlayer
 -- Estruturas principais
 local G1L, G2L, G3L, G4L, G5L = {}, {}, {}, {}, {}
 
@@ -37,8 +37,11 @@ local Characters_List = Characters:GetChildren()
 local Npcs_List = {}
 
 for _, npc in ipairs(Characters_List) do
-	if npc:IsA("Model") and npc:FindFirstChild("Humanoid") then
-		table.insert(Npcs_List, npc)
+	if npc:IsA("Model") then
+		local humanoid = npc:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.Name == "NPC" then
+			table.insert(Npcs_List, npc)
+		end
 	end
 end
 
@@ -49,7 +52,14 @@ end
 
 -- Lista de NPCs que precisam de "fix"
 local Fix_Npcs = {"Bunny", "Wolf"}
+
 --===============================================--
+
+-- GUI principal
+G1L["ScreenGui"] = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+G1L["ScreenGui"].Name = NAME_MOD
+
+
 -- Criar TextLabel de teste
 G1L["test_lb"] = Instance.new("TextLabel")
 G1L["test_lb"].Name = "TestLabel"
