@@ -229,11 +229,10 @@ Characters.ChildRemoved:Connect(removeNpc)
 
 function Create_Titles(Name, Text, Retorno)
 	local container_titles = Instance.new("Frame", G1L["Frame_Mod"])
-	container_titles.Size = UDim2.new(0.9, 0, 0, 50)
-	container_titles.Position = UDim2.new(0.05, 0, 0.1, 0)
+	container_titles.Size = UDim2.new(0.9, 0, 0, 60)
 	container_titles.BackgroundTransparency = 1
 
-	-- Layout horizontal
+	-- Layout horizontal para título+observação e toggle
 	local ly = Instance.new("UIListLayout", container_titles)
 	ly.FillDirection = Enum.FillDirection.Horizontal
 	ly.HorizontalAlignment = Enum.HorizontalAlignment.Left
@@ -241,9 +240,21 @@ function Create_Titles(Name, Text, Retorno)
 	ly.SortOrder = Enum.SortOrder.LayoutOrder
 	ly.Padding = UDim.new(0.05, 0)
 
+	-- Frame vertical para título e observação
+	local textContainer = Instance.new("Frame", container_titles)
+	textContainer.Size = UDim2.new(0.7, 0, 1, 0)
+	textContainer.BackgroundTransparency = 1
+
+	local verticalLy = Instance.new("UIListLayout", textContainer)
+	verticalLy.FillDirection = Enum.FillDirection.Vertical
+	verticalLy.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	verticalLy.VerticalAlignment = Enum.VerticalAlignment.Top
+	verticalLy.SortOrder = Enum.SortOrder.LayoutOrder
+	verticalLy.Padding = UDim.new(0, 2)
+
 	-- Label do título
-	local title_mod_Lb = Instance.new("TextLabel", container_titles)
-	title_mod_Lb.Size = UDim2.new(0.7, 0, 1, 0)
+	local title_mod_Lb = Instance.new("TextLabel", textContainer)
+	title_mod_Lb.Size = UDim2.new(1, 0, 0.6, 0)
 	title_mod_Lb.BackgroundTransparency = 1
 	title_mod_Lb.Text = Text
 	title_mod_Lb.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -251,7 +262,18 @@ function Create_Titles(Name, Text, Retorno)
 	title_mod_Lb.TextSize = 18
 	title_mod_Lb.TextXAlignment = Enum.TextXAlignment.Left
 
-	-- Toggle button
+	-- Observação abaixo do título
+	local Obs = Instance.new("TextLabel", textContainer)
+	Obs.Size = UDim2.new(1, 0, 0.4, 0)
+	Obs.BackgroundTransparency = 1
+	Obs.Text = "Text"
+	Obs.Selectable = true
+	Obs.TextColor3 = Color3.fromRGB(200, 200, 200)
+	Obs.Font = Enum.Font.SourceSans
+	Obs.TextSize = 14
+	Obs.TextXAlignment = Enum.TextXAlignment.Left
+
+	-- Toggle button à direita
 	local toggle_btn = Instance.new("ImageButton", container_titles)
 	toggle_btn.Size = UDim2.new(0.2, 0, 0.6, 0)
 	toggle_btn.AnchorPoint = Vector2.new(0, 0.5)
@@ -265,13 +287,12 @@ function Create_Titles(Name, Text, Retorno)
 		toggled = not toggled
 		if toggled then
 			toggle_btn.Image = icons.fa_rr_toggle_right
-			toggle_btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255) -- azul ligado
+			toggle_btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 		else
 			toggle_btn.Image = icons.fa_rr_toggle_left
-			toggle_btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- cinza desligado
+			toggle_btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 		end
 
-		-- chama a função Retorno passando o estado atual
 		if Retorno then
 			Retorno(toggled)
 		end
@@ -294,5 +315,14 @@ Create_Titles("FlyMod", "Ativar Fly", function(estado)
 		print("Fly desligado!")
 	end
 end)
+
+Create_Titles("Auto", "Ativar Auto Madeira", function(estado)
+	if estado then
+		print(" Auto Madeira ligado!")
+	else
+		print(" Auto Madeira desligado!")
+	end
+end)
+
 
 
