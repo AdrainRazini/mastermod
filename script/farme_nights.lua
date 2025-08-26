@@ -61,9 +61,8 @@ G1L["ScreenGui"].Name = NAME_MOD
 
 
 -- Criar TextLabel de teste
-G1L["test_lb"] = Instance.new("TextLabel")
+G1L["test_lb"] = Instance.new("TextLabel", G1L["ScreenGui"])
 G1L["test_lb"].Name = "TestLabel"
-G1L["test_lb"].Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- ou o Frame principal da sua GUI
 G1L["test_lb"].Size = UDim2.new(0, 200, 0, 50)
 G1L["test_lb"].Position = UDim2.new(0.5, -100, 0.1, 0) -- centralizado horizontalmente
 G1L["test_lb"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
