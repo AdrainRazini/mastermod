@@ -86,15 +86,51 @@ local function criarNpcButton(npc)
 	btn.TextSize = 18
 	btn.Text = npc.Name
 
-	-- Evento de clique → foca a câmera no NPC escolhido
 	btn.MouseButton1Click:Connect(function()
 		local humanoidRoot = npc:FindFirstChild("HumanoidRootPart")
 		if humanoidRoot then
 			workspace.CurrentCamera.CameraSubject = humanoidRoot
 			print("Focando em:", npc.Name)
+
+			-- Cria botão flutuante na ScreenGui
+			local floatingBtn = Instance.new("TextButton")
+			floatingBtn.Size = UDim2.new(0, 120, 0, 40)
+			floatingBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+			floatingBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+			floatingBtn.Font = Enum.Font.SourceSansBold
+			floatingBtn.TextSize = 14
+			floatingBtn.Text = "Reset Camera ("..npc.Name..")"
+			floatingBtn.Parent = G1L["ScreenGui"]
+
+			-- Clique reseta a câmera
+			floatingBtn.MouseButton1Click:Connect(function()
+				local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					workspace.CurrentCamera.CameraSubject = humanoid
+					print("Câmera resetada para o player")
+					floatingBtn:Destroy()
+				end
+			end)
+
+			-- Atualiza posição do botão a cada frame
+			local renderConn
+			renderConn = game:GetService("RunService").RenderStepped:Connect(function()
+				if humanoidRoot and floatingBtn.Parent then
+					local cam = workspace.CurrentCamera
+					local screenPos, onScreen = cam:WorldToViewportPoint(humanoidRoot.Position)
+					if onScreen then
+						floatingBtn.Position = UDim2.new(0, screenPos.X - floatingBtn.Size.X.Offset/2, 0, screenPos.Y - floatingBtn.Size.Y.Offset/2)
+					else
+						floatingBtn.Visible = false
+					end
+				else
+					renderConn:Disconnect()
+				end
+			end)
 		end
 	end)
 end
+
 
 -- Função para atualizar lista de NPCs
 local function atualizarNPCs()
@@ -154,6 +190,7 @@ Characters.ChildRemoved:Connect(removeNpc)
 -- =====================================
 -- Botão para resetar câmera ao Player
 -- =====================================
+--[[
 local resetBtn = Instance.new("TextButton", G1L["ScreenGui"])
 resetBtn.Name = "ResetCameraBtn"
 resetBtn.Size = UDim2.new(0, 150, 0, 40)
@@ -171,3 +208,4 @@ resetBtn.MouseButton1Click:Connect(function()
 		print("Câmera resetada para o player")
 	end
 end)
+]]
