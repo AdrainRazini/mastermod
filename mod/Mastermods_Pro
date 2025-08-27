@@ -1007,13 +1007,103 @@ Create_Titles("Mastermods" ,"Modelo", "Modelo", "Modelo de Funções", function(
 	end
 end)
 
+
+local flyBodyVelocity
+local flyJumpConn
+local flyRenderConn
+local flyInputConn
+
 Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", function(estado)
+	local player = game.Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoidRoot = character:WaitForChild("HumanoidRootPart")
+	local humanoid = character:WaitForChild("Humanoid")
+	local flySpeed = 50
+	local uis = game:GetService("UserInputService")
+	local cam = workspace.CurrentCamera
+	local moveDir = Vector3.new(0,0,0)
+
 	if estado then
 		print("Fly ligado!")
+
+		-- Cria BodyVelocity
+		if not flyBodyVelocity or not flyBodyVelocity.Parent then
+			flyBodyVelocity = Instance.new("BodyVelocity")
+			flyBodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+			flyBodyVelocity.Velocity = Vector3.new(0,0,0)
+			flyBodyVelocity.P = 1250
+			flyBodyVelocity.Parent = humanoidRoot
+		end
+
+		-- Atualiza direção do voo
+		flyRenderConn = game:GetService("RunService").RenderStepped:Connect(function()
+			local lookVector = cam.CFrame.LookVector
+			local rightVector = cam.CFrame.RightVector
+			local upVector = Vector3.new(0,1,0)
+
+			-- Aplica movimento baseado em input
+			local velocity = (lookVector * moveDir.Z + rightVector * moveDir.X + upVector * moveDir.Y) * flySpeed
+			if flyBodyVelocity then
+				flyBodyVelocity.Velocity = velocity
+			end
+		end)
+
+		-- Impulso ao pular
+		flyJumpConn = humanoid.Jumping:Connect(function()
+			local impulse = cam.CFrame.LookVector * flySpeed
+			humanoidRoot.Velocity = humanoidRoot.Velocity + impulse
+		end)
+
+		-- Input do jogador (PC ou Mobile)
+		flyInputConn = uis.InputBegan:Connect(function(input, processed)
+			if processed then return end
+			if input.UserInputType == Enum.UserInputType.Keyboard then
+				if input.KeyCode == Enum.KeyCode.W then moveDir = Vector3.new(moveDir.X, moveDir.Y, 1) end
+				if input.KeyCode == Enum.KeyCode.S then moveDir = Vector3.new(moveDir.X, moveDir.Y, -1) end
+				if input.KeyCode == Enum.KeyCode.A then moveDir = Vector3.new(-1, moveDir.Y, moveDir.Z) end
+				if input.KeyCode == Enum.KeyCode.D then moveDir = Vector3.new(1, moveDir.Y, moveDir.Z) end
+				if input.KeyCode == Enum.KeyCode.Space then moveDir = Vector3.new(moveDir.X, 1, moveDir.Z) end
+				if input.KeyCode == Enum.KeyCode.LeftControl then moveDir = Vector3.new(moveDir.X, -1, moveDir.Z) end
+			elseif input.UserInputType == Enum.UserInputType.Touch then
+				-- aqui você pode adicionar lógica para controle mobile via botões na tela
+				-- ou usar a direção do movimento do toque
+                --[[
+	         local lookVector = humanoidRoot.CFrame.LookVector
+	         moveDir = Vector3.new(lookVector.X, moveDir.Y, lookVector.Z)
+				]]
+			end
+		end)
+
+		uis.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.Keyboard then
+				if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.S then moveDir = Vector3.new(moveDir.X, moveDir.Y, 0) end
+				if input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.D then moveDir = Vector3.new(0, moveDir.Y, moveDir.Z) end
+				if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.LeftControl then moveDir = Vector3.new(moveDir.X, 0, moveDir.Z) end
+			end
+		end)
+
 	else
 		print("Fly desligado!")
+
+		if flyBodyVelocity then
+			flyBodyVelocity:Destroy()
+			flyBodyVelocity = nil
+		end
+		if flyRenderConn then
+			flyRenderConn:Disconnect()
+			flyRenderConn = nil
+		end
+		if flyJumpConn then
+			flyJumpConn:Disconnect()
+			flyJumpConn = nil
+		end
+		if flyInputConn then
+			flyInputConn:Disconnect()
+			flyInputConn = nil
+		end
 	end
 end)
+
 
 Create_Titles("Mastermods", "Auto Madeira", "Ativar Auto Madeira", "Colotar e quebrar Madeiras", function(estado)
 	if estado then
