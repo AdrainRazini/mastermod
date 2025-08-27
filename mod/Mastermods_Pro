@@ -369,15 +369,6 @@ G1L["Left_Container"].BorderSizePixel = 0
 applyAutoScrolling(G1L["Left_Container"], UDim.new(0, 5))
 
 
-G1L["Right_Container"] = Instance.new("ScrollingFrame", G1L["Container_Frame"])
-G1L["Right_Container"].Size = UDim2.new(0.7, 0, 0.8, 0)
-G1L["Right_Container"].Position = UDim2.new(0.3, 0, 0.15, 0)
-G1L["Right_Container"].BackgroundColor3 = colors.DarkGray
-G1L["Right_Container"].BorderSizePixel = 0
-
-applyAutoScrolling(G1L["Right_Container"], UDim.new(0, 5), Enum.HorizontalAlignment.Center)
-applyUIListLayout(G1L["Right_Container"], UDim.new(0, 5))
-
 local List_Right_Container = {}
 
 function Right_Container(name)
@@ -401,6 +392,34 @@ end
 for _, name in ipairs(List_Mods) do
 	Right_Container(name)
 end
+
+    Right_Container("Configurate")
+
+function Title_Lb(Text, parent)
+	-- Cria o TextLabel para o título
+	local Label = Instance.new("TextLabel")
+	Label.Parent = List_Right_Container[parent]
+	Label.Text = Text
+	Label.Size = UDim2.new(0.85, 0, 0, 30)
+	Label.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	Label.BorderSizePixel = 0
+	Label.Font = Enum.Font.SourceSansBold
+	Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Label.TextSize = 16
+	Label.LayoutOrder = 1
+	-- Aplica gradiente animado (se sua função existir)
+	applyRotatingGradientUIStroke(Label, "Red", "Orange", "Yellow")
+end
+
+-- Exemplo de uso direto
+Title_Lb("MOD MENU CONFIG", "Configurate")
+
+-- Agora percorre a lista
+for _, Name in ipairs(List_Mods) do
+	Title_Lb(Name, Name) -- passa o parent correto
+end
+
+
 
 local List_Frame_Mods_toggled = {}
 
@@ -473,6 +492,23 @@ Frame_Mod_Scroll("Npc", "Mastermods")
 G1L["Minimize"].MouseButton1Click:Connect(function()
 	G1L["Container_Frame"].Visible = false
 	G1L["IconMod"].Visible = true
+end)
+
+G1L["Configurate"].MouseButton1Click:Connect(function()
+	
+	local name = "Configurate"
+	
+	-- esconde todos os containers
+	for _, cont in pairs(List_Right_Container) do
+		cont.Visible = false
+	end
+
+	-- mostra o container correspondente
+	if List_Right_Container[name] then
+		List_Right_Container[name].Visible = true
+	end
+	
+
 end)
 
 G1L["DeleteGui"].MouseButton1Click:Connect(function()
