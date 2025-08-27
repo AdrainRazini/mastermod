@@ -65,7 +65,7 @@ local G1L, G2L, G3L, G4L, G5L = {}, {}, {}, {}, {}
 
 -- Módulos/categorias
 local Farmes, Player, Lights, Games = {}, {}, {}, {}
-local List_Mods = {"Mastermods", "Player", "Lights", "Games"}
+local List_Mods = {"Mastermods", "Player", "Load", "Games"}
 
 
 local icons = {
@@ -192,7 +192,7 @@ local function applyUIListLayout(instance, padding, sortOrder, alignment)
 	list.Padding = padding or UDim.new(0, 0)
 
 	-- Ordem dos elementos
-	list.SortOrder = sortOrder or Enum.SortOrder.LayoutOrder
+	list.SortOrder = sortOrder or Enum.SortOrder.LayoutOrder 
 
 	-- Alinhamento
 	list.HorizontalAlignment = alignment or Enum.HorizontalAlignment.Center
@@ -292,7 +292,7 @@ G1L["ScreenGui"] = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 G1L["ScreenGui"].Name = NAME_MOD_MENU
 
 G1L["Container_Frame"] = Instance.new("Frame", G1L["ScreenGui"])
-G1L["Container_Frame"].Size = UDim2.new(0.8, 0, 0.8, 0)
+G1L["Container_Frame"].Size = UDim2.new(0.7, 0, 0.8, 0)
 G1L["Container_Frame"].AnchorPoint = Vector2.new(0.5, 0.5)
 G1L["Container_Frame"].Position = UDim2.new(0.5, 0, 0.5, 0)
 G1L["Container_Frame"].BackgroundColor3 = colors.Main
@@ -304,9 +304,11 @@ applyRotatingGradientUIStroke(G1L["Container_Frame"], "Purple", "Indigo", "Aqua"
 
 
 G1L["Top_Container"] = Instance.new("Frame", G1L["Container_Frame"])
-G1L["Top_Container"].Size = UDim2.new(1, 0, 0.1, 0)
+G1L["Top_Container"].Size = UDim2.new(1, 0, 0, 25)
+G1L["Top_Container"].Position = UDim2.new(0, 0, 0., 0)
 G1L["Top_Container"].BackgroundColor3 = colors.DarkGray
 G1L["Top_Container"].BorderSizePixel = 0
+
 
 applyCorner(G1L["Top_Container"], UDim.new(0, 5))
 
@@ -317,6 +319,13 @@ G1L["Top_Title"].Position = UDim2.new(0.05, 0, 0, 0)
 G1L["Top_Title"].Text = NAME_MOD_MENU
 
 
+G1L["Configurate"] = Instance.new("ImageButton", G1L["Top_Container"])
+G1L["Configurate"].Size = UDim2.new(0, 25, 0, 25)
+G1L["Configurate"].Position = UDim2.new(0.85, 0, 0, 0)
+G1L["Configurate"].Image = icons.fa_bx_config
+
+applyCorner(G1L["Configurate"], UDim.new(0, 5))
+applyRotatingGradientUIStroke(G1L["Configurate"], "Purple", "Indigo", "Aqua") -- Gradiente animado
 
 G1L["Minimize"] = Instance.new("TextButton", G1L["Top_Container"])
 G1L["Minimize"].Size = UDim2.new(0, 25, 0, 25)
@@ -353,7 +362,7 @@ applyRotatingGradientUIStroke(G1L["IconMod"], "Red", "Orange", "Yellow") -- Grad
 
 G1L["Left_Container"] = Instance.new("ScrollingFrame", G1L["Container_Frame"])
 G1L["Left_Container"].Size = UDim2.new(0.3, 0, 0.8, 0)
-G1L["Left_Container"].Position = UDim2.new(0, 0, 0.1, 0)
+G1L["Left_Container"].Position = UDim2.new(0, 0, 0.15, 0)
 G1L["Left_Container"].BackgroundColor3 = colors.DarkGray
 G1L["Left_Container"].BorderSizePixel = 0
 
@@ -362,7 +371,7 @@ applyAutoScrolling(G1L["Left_Container"], UDim.new(0, 5))
 
 G1L["Right_Container"] = Instance.new("ScrollingFrame", G1L["Container_Frame"])
 G1L["Right_Container"].Size = UDim2.new(0.7, 0, 0.8, 0)
-G1L["Right_Container"].Position = UDim2.new(0.3, 0, 0.1, 0)
+G1L["Right_Container"].Position = UDim2.new(0.3, 0, 0.15, 0)
 G1L["Right_Container"].BackgroundColor3 = colors.DarkGray
 G1L["Right_Container"].BorderSizePixel = 0
 
@@ -374,7 +383,7 @@ local List_Right_Container = {}
 function Right_Container(name)
 	local container = Instance.new("ScrollingFrame", G1L["Container_Frame"])
 	container.Size = UDim2.new(0.7, 0, 0.8, 0)
-	container.Position = UDim2.new(0.3, 0, 0.1, 0)
+	container.Position = UDim2.new(0.3, 0, 0.15, 0)
 	container.BackgroundColor3 = colors.DarkGray
 	container.BorderSizePixel = 0
 	container.Visible = false
