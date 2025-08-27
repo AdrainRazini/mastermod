@@ -1,6 +1,11 @@
+-- URL da API do GitHub para listar os scripts
+local GITHUB_USER = "AdrainRazini"
 local GITHUB_REPO = "Mastermod"
+local GITHUB_REPO_NAME = "Mastermod"
 local Owner = "Adrian75556435"
-local NAME_MOD = "99 nights in the forest"
+local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/script"
+local IMG_ICON = "rbxassetid://117585506735209"
+local NAME_MOD_MENU = "99 Noites"
 
 local VIM = game:GetService("VirtualInputManager")
 local UIS = game:GetService("UserInputService")
@@ -10,14 +15,57 @@ local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
-local LocalPlayer = Players.LocalPlayer
+
 local player = Players.LocalPlayer
--- Estruturas principais
+
+
+--===============================================--
+--=================== Module ====================--
+--===============================================--
+
+local Module
+
+-- 1. Tenta carregar pelo GitHub (só funciona em executor com HttpGet habilitado)
+pcall(function()
+	Module = loadstring(game:HttpGet("https://raw.githubusercontent.com/".. GITHUB_USER .."/".. GITHUB_REPO .."/refs/heads/main/module/data.lua"))()
+end)
+
+-- 2. Se não conseguiu, tenta pelo require Roblox
+if not Module then
+	warn("Falha ao carregar via GitHub, tentando require Roblox...")
+	pcall(function()
+		Module = require(83723667417989)
+	end)
+end
+
+-- 3. Se ainda não conseguiu, cria um fallback vazio
+if not Module then
+	warn("Falha ao carregar módulo (nem GitHub nem Roblox). Usando fallback.")
+	Module = {
+		Loaded = false,
+		Message = "Módulo não encontrado, rodando em modo seguro."
+	}
+end
+
+-- Debug do módulo
+print("🔹 Módulo carregado:", Module)
+
+
+--===============================================--
+--===============================================--
+
+
+--===============================================--
+--==================== DATA =====================--
+--===============================================--
+
+
+-- Estruturas principais GUI
 local G1L, G2L, G3L, G4L, G5L = {}, {}, {}, {}, {}
 
 -- Módulos/categorias
 local Farmes, Player, Lights, Games = {}, {}, {}, {}
-local List_Mods = {Farmes, Player, Lights, Games}
+local List_Mods = {"Farmes", "Player", "Lights", "Games"}
 
 
 local icons = {
@@ -32,85 +80,512 @@ local icons = {
 }
 
 
---============= Extração de Itens ===============--
-local Itens_Workspace = Workspace:WaitForChild("Items")
-local Itens_List = Itens_Workspace:GetChildren()
-local Farmes_List = {}
-
-for _, farm in ipairs(Itens_List) do
-	if farm:IsA("Model") then
-		table.insert(Farmes_List, farm)
-	end
-end
+--===============================================--
+--============= Lista De Cores dat ===============--
 --===============================================--
 
---============= Extração de Npcs ===============--
-local Characters = Workspace:WaitForChild("Characters")
+-- Criação da lista de cores 
+local colors = {
+	Main = Color3.fromRGB(20, 20, 20),
+	Secondary = Color3.fromRGB(35, 35, 35),
+	Accent = Color3.fromRGB(0, 170, 255),
+	Text = Color3.fromRGB(255, 255, 255),
+	Button = Color3.fromRGB(50, 50, 50),
+	ButtonHover = Color3.fromRGB(70, 70, 70),
+	Stroke = Color3.fromRGB(80, 80, 80),
+	Red = Color3.fromRGB(255, 0, 0),
+	Green = Color3.fromRGB(0, 255, 0),
+	Blue = Color3.fromRGB(0, 0, 255),
+	Yellow = Color3.fromRGB(255, 255, 0),
+	Orange = Color3.fromRGB(255, 165, 0),
+	Purple = Color3.fromRGB(128, 0, 128),
+	Pink = Color3.fromRGB(255, 105, 180),
+	White = Color3.fromRGB(255, 255, 255),
+	Black = Color3.fromRGB(0, 0, 0),
+	Gray = Color3.fromRGB(128, 128, 128),
+	DarkGray = Color3.fromRGB(50, 50, 50),
+	LightGray = Color3.fromRGB(200, 200, 200),
+	Cyan = Color3.fromRGB(0, 255, 255),
+	Magenta = Color3.fromRGB(255, 0, 255),
+	Brown = Color3.fromRGB(139, 69, 19),
+	Gold = Color3.fromRGB(255, 215, 0),
+	Silver = Color3.fromRGB(192, 192, 192),
+	Maroon = Color3.fromRGB(128, 0, 0),
+	Navy = Color3.fromRGB(0, 0, 128),
+	Lime = Color3.fromRGB(50, 205, 50),
+	Olive = Color3.fromRGB(128, 128, 0),
+	Teal = Color3.fromRGB(0, 128, 128),
+	Aqua = Color3.fromRGB(0, 255, 170),
+	Coral = Color3.fromRGB(255, 127, 80),
+	Crimson = Color3.fromRGB(220, 20, 60),
+	Indigo = Color3.fromRGB(75, 0, 130),
+	Turquoise = Color3.fromRGB(64, 224, 208),
+	Slate = Color3.fromRGB(112, 128, 144),
+	Chocolate = Color3.fromRGB(210, 105, 30)
+}
+
+--===============================================--
+--===============================================--
+
+
+--========= Extração de Npcs Ou Jogadore ===========--
+local Characters = Workspace.Characters
 local Characters_List = Characters:GetChildren()
 local Npcs_List = {}
 
-for _, npc in ipairs(Characters_List) do
-	if npc:IsA("Model") then
-		-- Procura qualquer Humanoid dentro do modelo
-		local humanoid = npc:FindFirstChildOfClass("Humanoid")
-		if humanoid then
-			table.insert(Npcs_List, npc)
+-- Função recursiva para procurar NPCs
+local function findNPCs(parent)
+	for _, child in ipairs(parent:GetChildren()) do
+		if child:IsA("Model") then
+			local humanoid = child:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				table.insert(Npcs_List, child)
+			end
 		end
+		-- Continua a busca nos filhos do objeto
+		findNPCs(child)
 	end
 end
+
+-- Inicia a busca a partir do Workspace
+findNPCs(Characters)
 
 -- Exibe nomes dos NPCs encontrados
 for _, npc in ipairs(Npcs_List) do
 	print("NPC encontrado:", npc.Name)
 end
 
--- Lista de NPCs que precisam de "fix"
-local Fix_Npcs = {"Bunny", "Wolf"}
+--===============================================--
 
 
 --===============================================--
+--============= Função De Estilos ===============--
+--===============================================--
 
--- GUI principal
-G1L["ScreenGui"] = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-G1L["ScreenGui"].Name = NAME_MOD
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
--- Frame principal de módulos
-G1L["Frame_Mod"] = Instance.new("ScrollingFrame", G1L["ScreenGui"])
-G1L["Frame_Mod"].Size = UDim2.new(0.2, 0, 0.6, 0)
-G1L["Frame_Mod"].Position = UDim2.new(0.7, 0, 0.2, 0)
-G1L["Frame_Mod"].BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+-- 🖼️ Função utilitária para criar UI Corner Obs: Aplicar Ui nas frames
+local function applyCorner(instance, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = radius or UDim.new(0, 6)
+	corner.Parent = instance
+end
+
+-- Função para aplicar contorno neon via UIStroke
+local function applyUIStroke(instance, colorName, thickness)
+	thickness = thickness or 2
+	local stroke = Instance.new("UIStroke")
+	stroke.Parent = instance
+	stroke.Thickness = thickness
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+	stroke.Transparency = 0
+	-- Escolhe cor da paleta ou usa branco como fallback
+	stroke.Color = colors[colorName] or Color3.new(1, 1, 1)
+end
+
+local function applyUIListLayout(instance, padding, sortOrder, alignment)
+	local list = Instance.new("UIListLayout")
+	list.Parent = instance
+
+	-- Padding entre elementos (UDim ou padrão 0)
+	list.Padding = padding or UDim.new(0, 0)
+
+	-- Ordem dos elementos
+	list.SortOrder = sortOrder or Enum.SortOrder.LayoutOrder
+
+	-- Alinhamento
+	list.HorizontalAlignment = alignment or Enum.HorizontalAlignment.Center
+end
+
+
+
+local function applyRotatingGradientUIStroke(instance, cor1, cor2, cor3)
+	cor1 = cor1 or "White"
+	cor2 = cor2 or "White"
+	cor3 = cor3 or "White"
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 2
+	stroke.Transparency = 0
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Color = colors.White
+	stroke.Parent = instance
+
+	local gradient = Instance.new("UIGradient")
+	gradient.Rotation = 0
+	gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0.0, colors[cor1]),
+		ColorSequenceKeypoint.new(0.5, colors[cor2]),
+		ColorSequenceKeypoint.new(1.0, colors[cor3])
+	})
+	gradient.Parent = stroke
+
+	-- Animação da rotação do gradiente
+	local angle = 0
+	RunService.RenderStepped:Connect(function()
+		if not gradient.Parent then return end
+		angle = (angle + 0.5) % 360
+		gradient.Rotation = angle
+	end)
+end
+
+-- Função para aplicar ajuste automático de CanvasSize em qualquer ScrollingFrame
+
+local function applyAutoScrolling(instance, padding, alignment)
+	-- Verifica se já existe um UIListLayout
+	local layout = instance:FindFirstChildOfClass("UIListLayout")
+	if not layout then
+		layout = Instance.new("UIListLayout")
+		layout.Parent = instance
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+	end
+
+	-- Aplica padding se passado
+	if padding then
+		layout.Padding = padding
+	end
+
+	-- Aplica alinhamento opcional
+	if alignment then
+		layout.HorizontalAlignment = alignment or Enum.HorizontalAlignment.Left
+	end
+
+	-- Função de atualização
+	local function updateCanvas()
+		local contentSize = layout.AbsoluteContentSize
+		local frameSizeY = instance.AbsoluteSize.Y
+
+		instance.CanvasSize = UDim2.new(
+			0, 0,
+			0, math.max(contentSize.Y, frameSizeY) + 10 -- margem extra
+		)
+	end
+
+	-- Conecta sinais
+	layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+	instance:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateCanvas)
+
+	-- Força atualização inicial
+	updateCanvas()
+
+	return layout
+end
+
+
+
+function applyDraggable (instance, Active, Draggable)
+	instance.Active = Active
+	instance.Draggable = Draggable
+end
+
+--===============================================--
+--===============================================--
+
+
+--===============================================--
+--=============== GUI principal =================-- 
+--===============================================--
+
+G1L["ScreenGui"] = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+G1L["ScreenGui"].Name = NAME_MOD_MENU
+
+G1L["Container_Frame"] = Instance.new("Frame", G1L["ScreenGui"])
+G1L["Container_Frame"].Size = UDim2.new(0.8, 0, 0.8, 0)
+G1L["Container_Frame"].AnchorPoint = Vector2.new(0.5, 0.5)
+G1L["Container_Frame"].Position = UDim2.new(0.5, 0, 0.5, 0)
+G1L["Container_Frame"].BackgroundColor3 = colors.Main
+G1L["Container_Frame"].BorderSizePixel = 0
+
+applyDraggable(G1L["Container_Frame"], true, true)
+applyCorner(G1L["Container_Frame"], UDim.new(0, 12)) -- Cantos arredondados
+applyRotatingGradientUIStroke(G1L["Container_Frame"], "Purple", "Indigo", "Aqua") -- Gradiente animado
+
+
+G1L["Top_Container"] = Instance.new("Frame", G1L["Container_Frame"])
+G1L["Top_Container"].Size = UDim2.new(1, 0, 0.1, 0)
+G1L["Top_Container"].BackgroundColor3 = colors.DarkGray
+G1L["Top_Container"].BorderSizePixel = 0
+
+applyCorner(G1L["Top_Container"], UDim.new(0, 5))
+
+
+G1L["Top_Title"] = Instance.new("TextLabel", G1L["Top_Container"])
+G1L["Top_Title"].Size = UDim2.new(0, 100, 1, 0)
+G1L["Top_Title"].Position = UDim2.new(0.05, 0, 0, 0)
+G1L["Top_Title"].Text = NAME_MOD_MENU
+
+
+
+G1L["Minimize"] = Instance.new("TextButton", G1L["Top_Container"])
+G1L["Minimize"].Size = UDim2.new(0, 25, 0, 25)
+G1L["Minimize"].Text = "-"
+G1L["Minimize"].Position = UDim2.new(0.9, 0, 0, 0)
+G1L["Minimize"].BackgroundColor3 = colors.Red
+
+applyCorner(G1L["Minimize"], UDim.new(0, 5))
+applyRotatingGradientUIStroke(G1L["Minimize"], "Purple", "Indigo", "Aqua") -- Gradiente animado
+
+
+G1L["DeleteGui"] = Instance.new("TextButton", G1L["Top_Container"])
+G1L["DeleteGui"].Size = UDim2.new(0, 25, 0, 25)
+G1L["DeleteGui"].Text = "X"
+G1L["DeleteGui"].Position = UDim2.new(0.95, 0, 0, 0)
+G1L["DeleteGui"].BackgroundColor3 = colors.Red
+
+applyCorner(G1L["DeleteGui"], UDim.new(0, 5))
+applyRotatingGradientUIStroke(G1L["DeleteGui"], "Red", "Orange", "Yellow") -- Gradiente animado
+
+
+G1L["IconMod"] = Instance.new("ImageButton", G1L["ScreenGui"])
+G1L["IconMod"].Size = UDim2.new(0, 25, 0, 25)
+G1L["IconMod"].Position = UDim2.new(0, 0, 0, 0)
+G1L["IconMod"].BackgroundColor3 = colors.Orange
+G1L["IconMod"].Image = icons.fa_bx_mastermods
+G1L["IconMod"].BorderSizePixel = 0
+G1L["IconMod"].Visible = false
+
+applyCorner(G1L["IconMod"], UDim.new(0, 50))
+applyDraggable(G1L["IconMod"], true, true)
+applyRotatingGradientUIStroke(G1L["IconMod"], "Red", "Orange", "Yellow") -- Gradiente animado
+
+
+G1L["Left_Container"] = Instance.new("ScrollingFrame", G1L["Container_Frame"])
+G1L["Left_Container"].Size = UDim2.new(0.3, 0, 0.8, 0)
+G1L["Left_Container"].Position = UDim2.new(0, 0, 0.1, 0)
+G1L["Left_Container"].BackgroundColor3 = colors.DarkGray
+G1L["Left_Container"].BorderSizePixel = 0
+
+applyAutoScrolling(G1L["Left_Container"], UDim.new(0, 5))
+
+
+G1L["Right_Container"] = Instance.new("ScrollingFrame", G1L["Container_Frame"])
+G1L["Right_Container"].Size = UDim2.new(0.7, 0, 0.8, 0)
+G1L["Right_Container"].Position = UDim2.new(0.3, 0, 0.1, 0)
+G1L["Right_Container"].BackgroundColor3 = colors.DarkGray
+G1L["Right_Container"].BorderSizePixel = 0
+
+applyAutoScrolling(G1L["Right_Container"], UDim.new(0, 5), Enum.HorizontalAlignment.Center)
+applyUIListLayout(G1L["Right_Container"], UDim.new(0, 5))
+
+
+-- Frame principal _ MODS
+G1L["Frame_Mod"] = Instance.new("ScrollingFrame", G1L["Right_Container"])
+G1L["Frame_Mod"].Size = UDim2.new(0.85, 0, 0, 200)
+G1L["Frame_Mod"].Position = UDim2.new(0, 0, 0, 0)
+G1L["Frame_Mod"].BackgroundColor3 = colors.Secondary
 G1L["Frame_Mod"].BorderSizePixel = 0
 G1L["Frame_Mod"].Visible = true
-G1L["Frame_Mod"].CanvasSize = UDim2.new(0, 0, 0, 0) -- inicial
+G1L["Frame_Mod"].CanvasSize = UDim2.new(0, 0, 0, 0)
 
--- Layout vertical para empilhar títulos
-local modListLayout = Instance.new("UIListLayout", G1L["Frame_Mod"])
-modListLayout.FillDirection = Enum.FillDirection.Vertical
-modListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-modListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-modListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-modListLayout.Padding = UDim.new(0, 10) -- espaçamento entre títulos
+-- Aplicar auto scrolling com espaçamento de 5px
+applyAutoScrolling(G1L["Frame_Mod"], UDim.new(0, 5))
+applyUIListLayout(G1L["Frame_Mod"], UDim.new(0, 5)) -- Espaçamento entre itens
+applyRotatingGradientUIStroke(G1L["Frame_Mod"], "Blue", "Purple", "Magenta")
 
--- Atualiza CanvasSize automaticamente
-modListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    G1L["Frame_Mod"].CanvasSize = UDim2.new(0, 0, 0, modListLayout.AbsoluteContentSize.Y)
-end)
 
 -- Frame rolável para listar NPCs
-G1L["NpcFrame"] = Instance.new("ScrollingFrame", G1L["ScreenGui"])
+G1L["NpcFrame"] = Instance.new("ScrollingFrame", G1L["Right_Container"])
 G1L["NpcFrame"].Name = "NpcFrame"
-G1L["NpcFrame"].Size = UDim2.new(0, 250, 0, 300)
+G1L["NpcFrame"].Size = UDim2.new(0.85, 0, 0, 300)
 G1L["NpcFrame"].Position = UDim2.new(0.05, 0, 0.1, 0)
 G1L["NpcFrame"].BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 G1L["NpcFrame"].BorderSizePixel = 0
 G1L["NpcFrame"].CanvasSize = UDim2.new(0, 0, 0, 0) -- ajustado dinamicamente
 G1L["NpcFrame"].ScrollBarThickness = 6
 
--- Layout para organizar os NPCs em lista
-local UIListLayout = Instance.new("UIListLayout", G1L["NpcFrame"])
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Função para criar um botão para cada NPC
+applyUIListLayout(G1L["NpcFrame"], UDim.new(0, 5)) -- Espaçamento entre itens
+
+
+--==============================================================================--
+
+--============= Controle de visibilidade =============--
+
+G1L["Minimize"].MouseButton1Click:Connect(function()
+	G1L["Container_Frame"].Visible = false
+	G1L["IconMod"].Visible = true
+end)
+
+G1L["DeleteGui"].MouseButton1Click:Connect(function()
+	G1L["ScreenGui"]:Destroy()
+	script:Destroy()
+end)
+
+G1L["IconMod"].MouseButton1Click:Connect(function()
+	G1L["Container_Frame"].Visible = true
+	G1L["IconMod"].Visible = false
+end)
+--=====================================================--
+
+--==============================================================================--
+
+
+
+
+
+--=====================================================--
+-- Função para criar botões dinamicamente
+--=====================================================--
+
+function CreatList(instance, data)
+	for _, name in ipairs(data) do
+		local Btn = Instance.new("TextButton", instance)
+		Btn.Size = UDim2.new(1, -10, 0, 40)
+		Btn.BackgroundColor3 = colors.Secondary
+		Btn.TextColor3 = colors.Text
+		Btn.Font = Enum.Font.GothamBold
+		Btn.TextSize = 16
+		Btn.Text = name
+		Btn.BorderSizePixel = 0
+		Btn.AutoButtonColor = true
+
+		-- Efeito hover
+		Btn.MouseEnter:Connect(function()
+			Btn.BackgroundColor3 = colors.ButtonHover
+		end)
+		Btn.MouseLeave:Connect(function()
+			Btn.BackgroundColor3 = colors.Secondary
+		end)
+
+		-- Ação ao clicar
+		Btn.MouseButton1Click:Connect(function()
+			print("Clicou em:", name)
+			-- Aqui você pode abrir a aba correspondente
+		end)
+
+		-- Deixar bonitinho
+		applyCorner(Btn, UDim.new(0, 8))
+	end
+end
+
+-- Criar botões no menu lateral
+CreatList(G1L["Left_Container"], List_Mods)
+
+local currentIndex = 1
+local currentContainer
+local currentRenderConn
+
+
+-- Função principal de foco
+local function focusNpc(npc, list)
+	if not npc then return end
+	local humanoidRoot = npc:FindFirstChild("HumanoidRootPart")
+	if not humanoidRoot then return end
+
+	workspace.CurrentCamera.CameraSubject = humanoidRoot
+	print("Focando em:", npc.Name)
+
+	-- Destroi container/conexão anterior
+	if currentContainer then
+		currentContainer:Destroy()
+		currentContainer = nil
+	end
+	if currentRenderConn then
+		currentRenderConn:Disconnect()
+		currentRenderConn = nil
+	end
+
+	-- Próximo NPC
+	local function focusNextNpc()
+		if #Npcs_List == 0 then return end
+		currentIndex = currentIndex + 1
+		if currentIndex > #Npcs_List then
+			currentIndex = 1
+		end
+		focusNpc(Npcs_List[currentIndex], Npcs_List)
+	end
+
+	-- Anterior NPC
+	local function focusPrevNpc()
+		if #Npcs_List == 0 then return end
+		currentIndex = currentIndex - 1
+		if currentIndex < 1 then
+			currentIndex = #Npcs_List
+		end
+		focusNpc(Npcs_List[currentIndex], Npcs_List)
+	end
+
+
+	-- Cria container (agrupa botões)
+	local container_Focus = Instance.new("Frame", G1L["ScreenGui"])
+	container_Focus.Size = UDim2.new(0, 200, 0, 100)
+	container_Focus.BackgroundTransparency = 1 -- invisível
+	currentContainer = container_Focus
+
+	-- Botão reset
+	local floatingBtn = Instance.new("TextButton")
+	floatingBtn.Size = UDim2.new(0, 160, 0, 40)
+	floatingBtn.Position = UDim2.new(0, 20, 0, 0)
+	floatingBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+	floatingBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	floatingBtn.Font = Enum.Font.SourceSansBold
+	floatingBtn.TextSize = 14
+	floatingBtn.Text = "Reset Camera ("..npc.Name..")"
+	floatingBtn.Parent = container_Focus
+
+	-- Botão próximo
+	local proximo = Instance.new("TextButton")
+	proximo.Size = UDim2.new(0, 80, 0, 40)
+	proximo.Position = UDim2.new(0, 110, 0, 50)
+	proximo.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+	proximo.TextColor3 = Color3.fromRGB(255, 255, 255)
+	proximo.Font = Enum.Font.SourceSansBold
+	proximo.TextSize = 14
+	proximo.Text = "Próximo"
+	proximo.Parent = container_Focus
+	proximo.MouseButton1Click:Connect(focusNextNpc)
+
+	-- Botão anterior
+	local anterior = Instance.new("TextButton")
+	anterior.Size = UDim2.new(0, 80, 0, 40)
+	anterior.Position = UDim2.new(0, 10, 0, 50)
+	anterior.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
+	anterior.TextColor3 = Color3.fromRGB(255, 255, 255)
+	anterior.Font = Enum.Font.SourceSansBold
+	anterior.TextSize = 14
+	anterior.Text = "Anterior"
+	anterior.Parent = container_Focus
+	anterior.MouseButton1Click:Connect(focusPrevNpc)
+
+	-- Reset câmera
+	floatingBtn.MouseButton1Click:Connect(function()
+		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			workspace.CurrentCamera.CameraSubject = humanoid
+			print("Câmera resetada para o player")
+		end
+		if currentContainer then
+			currentContainer:Destroy()
+			currentContainer = nil
+		end
+		if currentRenderConn then
+			currentRenderConn:Disconnect()
+			currentRenderConn = nil
+		end
+	end)
+
+	-- Faz o container seguir o NPC
+	currentRenderConn = game:GetService("RunService").RenderStepped:Connect(function()
+		if humanoidRoot and humanoidRoot.Parent and container_Focus.Parent then
+			local cam = workspace.CurrentCamera
+			local screenPos, onScreen = cam:WorldToViewportPoint(humanoidRoot.Position)
+			container_Focus.Visible = onScreen
+			if onScreen then
+				container_Focus.Position = UDim2.new(0, screenPos.X - container_Focus.Size.X.Offset/2, 0, screenPos.Y - container_Focus.Size.Y.Offset/2)
+			end
+		else
+			if currentRenderConn then
+				currentRenderConn:Disconnect()
+				currentRenderConn = nil
+			end
+		end
+	end)
+end
+
+
+-- Função para criar botões de NPC
 local function criarNpcButton(npc)
 	local btn = Instance.new("TextButton", G1L["NpcFrame"])
 	btn.Name = npc.Name .. "_Btn"
@@ -122,47 +597,14 @@ local function criarNpcButton(npc)
 	btn.Text = npc.Name
 
 	btn.MouseButton1Click:Connect(function()
-		local humanoidRoot = npc:FindFirstChild("HumanoidRootPart")
-		if humanoidRoot then
-			workspace.CurrentCamera.CameraSubject = humanoidRoot
-			print("Focando em:", npc.Name)
-
-			-- Cria botão flutuante na ScreenGui
-			local floatingBtn = Instance.new("TextButton")
-			floatingBtn.Size = UDim2.new(0, 120, 0, 40)
-			floatingBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-			floatingBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-			floatingBtn.Font = Enum.Font.SourceSansBold
-			floatingBtn.TextSize = 14
-			floatingBtn.Text = "Reset Camera ("..npc.Name..")"
-			floatingBtn.Parent = G1L["ScreenGui"]
-
-			-- Clique reseta a câmera
-			floatingBtn.MouseButton1Click:Connect(function()
-				local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-				if humanoid then
-					workspace.CurrentCamera.CameraSubject = humanoid
-					print("Câmera resetada para o player")
-					floatingBtn:Destroy()
-				end
-			end)
-
-			-- Atualiza posição do botão a cada frame
-			local renderConn
-			renderConn = game:GetService("RunService").RenderStepped:Connect(function()
-				if humanoidRoot and floatingBtn.Parent then
-					local cam = workspace.CurrentCamera
-					local screenPos, onScreen = cam:WorldToViewportPoint(humanoidRoot.Position)
-					if onScreen then
-						floatingBtn.Position = UDim2.new(0, screenPos.X - floatingBtn.Size.X.Offset/2, 0, screenPos.Y - floatingBtn.Size.Y.Offset/2)
-					else
-						floatingBtn.Visible = false
-					end
-				else
-					renderConn:Disconnect()
-				end
-			end)
+		-- define índice atual para esse NPC
+		for i, v in ipairs(Npcs_List) do
+			if v == npc then
+				currentIndex = i
+				break
+			end
 		end
+		focusNpc(npc, Npcs_List)
 	end)
 end
 
@@ -223,27 +665,33 @@ Characters.ChildRemoved:Connect(removeNpc)
 
 
 -- =====================================
--- Botão para resetar câmera ao Player
+-- Criação dos Títulos
 -- =====================================
 
-
-function Create_Titles(Name, Text, Retorno)
+function Create_Titles(Name, Text, Observacao, Retorno)
 	local container_titles = Instance.new("Frame", G1L["Frame_Mod"])
-	container_titles.Size = UDim2.new(0.9, 0, 0, 60)
+	container_titles.Name = Name
+	container_titles.Size = UDim2.new(0.95, 0, 0, 60)
 	container_titles.BackgroundTransparency = 1
 
-	-- Layout horizontal para título+observação e toggle
+	-- Layout horizontal
 	local ly = Instance.new("UIListLayout", container_titles)
 	ly.FillDirection = Enum.FillDirection.Horizontal
 	ly.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	ly.VerticalAlignment = Enum.VerticalAlignment.Center
 	ly.SortOrder = Enum.SortOrder.LayoutOrder
-	ly.Padding = UDim.new(0.05, 0)
+	ly.Padding = UDim.new(0, 10)
 
-	-- Frame vertical para título e observação
+	-- Padding interno
+	local padding = Instance.new("UIPadding", container_titles)
+	padding.PaddingLeft = UDim.new(0, 5)
+	padding.PaddingRight = UDim.new(0, 5)
+
+	-- Container para texto (título + observação)
 	local textContainer = Instance.new("Frame", container_titles)
-	textContainer.Size = UDim2.new(0.7, 0, 1, 0)
+	textContainer.Size = UDim2.new(1, -60, 1, 0) -- ocupa espaço, menos área do botão
 	textContainer.BackgroundTransparency = 1
+	textContainer.AutomaticSize = Enum.AutomaticSize.Y
 
 	local verticalLy = Instance.new("UIListLayout", textContainer)
 	verticalLy.FillDirection = Enum.FillDirection.Vertical
@@ -254,44 +702,52 @@ function Create_Titles(Name, Text, Retorno)
 
 	-- Label do título
 	local title_mod_Lb = Instance.new("TextLabel", textContainer)
-	title_mod_Lb.Size = UDim2.new(1, 0, 0.6, 0)
 	title_mod_Lb.BackgroundTransparency = 1
 	title_mod_Lb.Text = Text
+	title_mod_Lb.Size = UDim2.new(1, 0, 0, 0)
 	title_mod_Lb.TextColor3 = Color3.fromRGB(255, 255, 255)
 	title_mod_Lb.Font = Enum.Font.SourceSansBold
 	title_mod_Lb.TextSize = 18
 	title_mod_Lb.TextXAlignment = Enum.TextXAlignment.Left
+	title_mod_Lb.AutomaticSize = Enum.AutomaticSize.Y
 
-	-- Observação abaixo do título
+	-- Observação
 	local Obs = Instance.new("TextLabel", textContainer)
-	Obs.Size = UDim2.new(1, 0, 0.4, 0)
 	Obs.BackgroundTransparency = 1
-	Obs.Text = "Text"
-	Obs.Selectable = true
+	Obs.Text = Observacao
+	Obs.Size = UDim2.new(1, 0, 0, 0)
 	Obs.TextColor3 = Color3.fromRGB(200, 200, 200)
 	Obs.Font = Enum.Font.SourceSans
 	Obs.TextSize = 14
 	Obs.TextXAlignment = Enum.TextXAlignment.Left
+	Obs.AutomaticSize = Enum.AutomaticSize.Y
 
-	-- Toggle button à direita
+	-- Toggle button (fixo à direita)
 	local toggle_btn = Instance.new("ImageButton", container_titles)
-	toggle_btn.Size = UDim2.new(0.2, 0, 0.6, 0)
-	toggle_btn.AnchorPoint = Vector2.new(0, 0.5)
-	toggle_btn.Position = UDim2.new(0.8, 0, 0.5, 0)
+	toggle_btn.Size = UDim2.new(0, 50, 0, 30)
+	toggle_btn.AnchorPoint = Vector2.new(1, 0.5)
+	toggle_btn.Position = UDim2.new(1, -5, 0.5, 0)
 	toggle_btn.Image = icons.fa_rr_toggle_left
 	toggle_btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-	toggle_btn.BackgroundTransparency = 0.85
+	toggle_btn.BackgroundTransparency = 0.15
 
+	Instance.new("UICorner", toggle_btn).CornerRadius = UDim.new(0.5, 0)
+
+	-- Lógica do toggle com animação
 	local toggled = false
 	toggle_btn.MouseButton1Click:Connect(function()
 		toggled = not toggled
+
+		local goal = {}
 		if toggled then
 			toggle_btn.Image = icons.fa_rr_toggle_right
-			toggle_btn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+			goal.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 		else
 			toggle_btn.Image = icons.fa_rr_toggle_left
-			toggle_btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+			goal.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 		end
+
+		TweenService:Create(toggle_btn, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), goal):Play()
 
 		if Retorno then
 			Retorno(toggled)
@@ -299,8 +755,11 @@ function Create_Titles(Name, Text, Retorno)
 	end)
 end
 
+--=====================================================--
+-- Criação das GUIs com toggle
+--=====================================================--
 
-Create_Titles("Modelo", "Modelo", function(estado)
+Create_Titles("Modelo", "Modelo", "Modelo de Funções", function(estado)
 	if estado then
 		print("Modelo ligado!")
 	else
@@ -308,7 +767,7 @@ Create_Titles("Modelo", "Modelo", function(estado)
 	end
 end)
 
-Create_Titles("FlyMod", "Ativar Fly", function(estado)
+Create_Titles("FlyMod", "FlyMod", "Poder para voar no map", function(estado)
 	if estado then
 		print("Fly ligado!")
 	else
@@ -316,7 +775,7 @@ Create_Titles("FlyMod", "Ativar Fly", function(estado)
 	end
 end)
 
-Create_Titles("Auto", "Ativar Auto Madeira", function(estado)
+Create_Titles("Auto Madeira", "Ativar Auto Madeira", "Colotar e quebrar Madeiras", function(estado)
 	if estado then
 		print(" Auto Madeira ligado!")
 	else
