@@ -443,7 +443,9 @@ function Frame_Mod_toggled(name, parent)
 	return frame
 end
 
-Frame_Mod_toggled("Farmes", "Mastermods")
+Frame_Mod_toggled("Configurate", "Configurate")
+
+Frame_Mod_toggled("Mastermods", "Mastermods")
 
 
 Frame_Mod_toggled("Player", "Player")
