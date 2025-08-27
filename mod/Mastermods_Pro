@@ -484,6 +484,112 @@ function Frame_Mod_Scroll(name, parent)
 end
 
 Frame_Mod_Scroll("Npc", "Mastermods")
+Frame_Mod_Scroll("Load", "Load")
+
+--==================================================--
+--====================> Alert <=====================--
+--==================================================--
+
+
+local activeAlerts = {}
+
+local function showAlertInMenu(menuGui, text, duration)
+	if not menuGui then return end
+
+	local alertFrame = Instance.new("Frame")
+	alertFrame.Size = UDim2.new(0, 280, 0, 50)
+	alertFrame.Position = UDim2.new(1, -300, 1, -60 - (#activeAlerts * 60))
+	alertFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+	alertFrame.BackgroundTransparency = 0
+	alertFrame.BorderSizePixel = 0
+	alertFrame.AnchorPoint = Vector2.new(0, 1)
+	alertFrame.Name = "LocalAlert"
+	alertFrame.ZIndex = 999
+	alertFrame.Parent = menuGui
+
+	Instance.new("UICorner", alertFrame).CornerRadius = UDim.new(0, 8)
+
+	local label = Instance.new("TextLabel", alertFrame)
+	label.Size = UDim2.new(1, -20, 1, -10)
+	label.Position = UDim2.new(0, 10, 0, 5)
+	label.BackgroundTransparency = 1
+	label.Text = text
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 16
+	label.TextWrapped = true
+	label.ZIndex = 1000
+
+	table.insert(activeAlerts, alertFrame)
+
+	task.delay(duration or 3, function()
+		for i = 1, 10 do
+			alertFrame.BackgroundTransparency += 0.05
+			label.TextTransparency += 0.05
+			task.wait(0.04)
+		end
+		alertFrame:Destroy()
+		table.remove(activeAlerts, table.find(activeAlerts, alertFrame))
+		for i, alert in ipairs(activeAlerts) do
+			alert:TweenPosition(UDim2.new(1, -300, 1, -60 - ((i - 1) * 60)), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+		end
+	end)
+end
+
+local function alert(msg, dur)
+	showAlertInMenu(G1L["ScreenGui"], msg, dur or 4)
+end
+
+local function createButton(text, callback)
+	local Button = Instance.new("TextButton")
+	Button.Parent = List_Frame_Mods["Load"]
+	Button.Size = UDim2.new(0.9, 0, 0, 40)
+	Button.Text = text
+	Button.BackgroundColor3 = Color3.fromRGB(60, 120, 255)
+	Button.TextColor3 = Color3.new(1, 1, 1)
+	Button.Font = Enum.Font.GothamBold
+	Button.TextSize = 16
+	Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
+
+	Button.MouseButton1Click:Connect(function()
+		alert("📦 Botão '" .. text .. "' executado", 3)
+		callback()
+	end)
+
+end
+
+-- Carregar scripts do GitHub
+local scripts = {
+	{name = "Inventario", path = "inventario.lua"},
+	{name = "99 Nights", path = "farme_nights.lua"},
+	--{name = "Mause Click", path = "mause.lua"},
+	--{name = "Mause Click 2", path = "Init.lua"},
+	--{name = "Test Event Mause", path = "mov.lua"},
+	{name = "Auto Click", path = "autoclick.lua"},
+	{name = "AimBot PT", path = "aimbot.lua"},
+	{name = "AimBot ES", path = "aimbot_es.lua"},
+	{name = "Dash Player", path = "dash.lua"},
+	{name = "Keyboard", path = "keyboard.lua"},
+	{name = "FlyGui", path = "flygui.lua"},
+	{name = "Tpcoordenadas", path = "tpcoordenadas.lua"},
+	{name = "Teleport tool", path = "teleporttool.lua"},
+	{name = "Teleport Players", path = "tpplayers.lua"},
+
+}
+
+for _, script in ipairs(scripts) do
+	createButton(script.name:upper(), function()
+		local success, response = pcall(function()
+			return game:HttpGet("https://raw.githubusercontent.com/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/main/script/" .. script.path)
+		end)
+		if success then
+			alert("🧠 Script '" .. script.name:upper() .. "' carregado!", 5)
+			loadstring(response)()
+		else
+			alert("❌ Falha ao carregar '" .. script.name:upper() .. "'", 5)
+		end
+	end)
+end
 
 
 
@@ -893,7 +999,7 @@ end
 -- Criação das GUIs com toggle
 --=====================================================--
 
-Create_Titles("Farmes" ,"Modelo", "Modelo", "Modelo de Funções", function(estado)
+Create_Titles("Mastermods" ,"Modelo", "Modelo", "Modelo de Funções", function(estado)
 	if estado then
 		print("Modelo ligado!")
 	else
@@ -901,7 +1007,7 @@ Create_Titles("Farmes" ,"Modelo", "Modelo", "Modelo de Funções", function(esta
 	end
 end)
 
-Create_Titles("Farmes", "FlyMod", "FlyMod", "Poder para voar no map", function(estado)
+Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", function(estado)
 	if estado then
 		print("Fly ligado!")
 	else
@@ -909,7 +1015,7 @@ Create_Titles("Farmes", "FlyMod", "FlyMod", "Poder para voar no map", function(e
 	end
 end)
 
-Create_Titles("Farmes", "Auto Madeira", "Ativar Auto Madeira", "Colotar e quebrar Madeiras", function(estado)
+Create_Titles("Mastermods", "Auto Madeira", "Ativar Auto Madeira", "Colotar e quebrar Madeiras", function(estado)
 	if estado then
 		print(" Auto Madeira ligado!")
 	else
