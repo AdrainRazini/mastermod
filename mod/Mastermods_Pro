@@ -1007,12 +1007,17 @@ Create_Titles("Mastermods" ,"Modelo", "Modelo", "Modelo de Funções", function(
 	end
 end)
 
-
+-- Variáveis globais do Fly
 local flyBodyVelocity
 local flyJumpConn
 local flyRenderConn
 local flyInputConn
+local flyMobile
+local joystickVector = Vector2.new(0,0)
+local touchConn
+local joystick
 
+-- Criação do título e funcionalidade do Fly
 Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", function(estado)
 	local player = game.Players.LocalPlayer
 	local character = player.Character or player.CharacterAdded:Wait()
@@ -1021,10 +1026,80 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 	local flySpeed = 50
 	local uis = game:GetService("UserInputService")
 	local cam = workspace.CurrentCamera
-	local moveDir = Vector3.new(0,0,0)
+
+	-- Tabela para armazenar o estado das teclas
+	local moveInput = {W=false, A=false, S=false, D=false, Space=false, Ctrl=false}
 
 	if estado then
 		print("Fly ligado!")
+
+		-- Cria joystick apenas se ainda não existir
+		local uis = game:GetService("UserInputService")
+
+		if uis.TouchEnabled and not flyMobile then
+			-- Cria joystick visual
+			local joystickFrame = Instance.new("Frame", G1L["ScreenGui"])
+			joystickFrame.Size = UDim2.new(0, 100, 0, 100)
+			joystickFrame.Position = UDim2.new(0.1, 0, 0.5, 0)
+			joystickFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+			joystickFrame.Visible = true
+			applyCorner(joystickFrame, UDim.new(0, 50))
+
+			local joystickFrame_D = Instance.new("Frame", joystickFrame)
+			joystickFrame_D.Size = UDim2.new(0.2, 0, 0.2, 0)
+			joystickFrame_D.Position = UDim2.new(0.4,0,0.4,0)
+			joystickFrame_D.BackgroundColor3 = Color3.new(0.6,0.6,0.6)
+			joystickFrame_D.Visible = true
+			applyDraggable(joystickFrame_D, true, true)
+			applyCorner(joystickFrame_D, UDim.new(0, 50))
+
+			flyMobile = joystickFrame
+			joystick = joystickFrame
+
+			-- Conexão do toque para mover joystick
+
+			-- Quando o toque terminar, centraliza o joystick
+			uis.TouchEnded:Connect(function(touch)
+				joystickVector = Vector2.new(0,0)
+				if flyMobile then
+					local joystickFrame_D = flyMobile:FindFirstChildOfClass("Frame") -- seu ponto arrastável
+					if joystickFrame_D then
+						joystickFrame_D.Position = UDim2.new(0.4, 0, 0.4, 0) -- posição central original
+					end
+				end
+			end)
+
+
+			touchConn = uis.TouchMoved:Connect(function(touch)
+				-- Posição relativa ao centro do joystick
+				local localPos = Vector2.new(
+					touch.Position.X - (joystickFrame.AbsolutePosition.X + joystickFrame.AbsoluteSize.X/2),
+					touch.Position.Y - (joystickFrame.AbsolutePosition.Y + joystickFrame.AbsoluteSize.Y/2)
+				)
+
+				-- Limita para não sair do raio do frame
+				local maxRadius = joystickFrame.AbsoluteSize.X / 2
+				if localPos.Magnitude > maxRadius then
+					localPos = localPos.Unit * maxRadius
+				end
+
+				-- Atualiza joystickVector normalizado (-1 a 1)
+				joystickVector = Vector2.new(
+					localPos.X / maxRadius,
+					localPos.Y / maxRadius
+				)
+
+				-- Atualiza a posição visual do ponto arrastável
+				joystickFrame_D.Position = UDim2.new(
+					0.5 + joystickVector.X * 0.5 - joystickFrame_D.Size.X.Offset / joystickFrame.AbsoluteSize.X,
+					0,
+					0.5 + joystickVector.Y * 0.5 - joystickFrame_D.Size.Y.Offset / joystickFrame.AbsoluteSize.Y,
+					0
+				)
+			end)
+
+		end
+
 
 		-- Cria BodyVelocity
 		if not flyBodyVelocity or not flyBodyVelocity.Parent then
@@ -1037,14 +1112,53 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 
 		-- Atualiza direção do voo
 		flyRenderConn = game:GetService("RunService").RenderStepped:Connect(function()
-			local lookVector = cam.CFrame.LookVector
-			local rightVector = cam.CFrame.RightVector
-			local upVector = Vector3.new(0,1,0)
+			
+			-- Mobile: atualiza moveInput pelo joystick
+			if flyMobile then
+				local camLook = cam.CFrame.LookVector
+				local camRight = cam.CFrame.RightVector
+				local forward = Vector3.new(camLook.X,0,camLook.Z).Unit
+				local right = Vector3.new(camRight.X,0,camRight.Z).Unit
+				local moveDir = forward * joystickVector.Y + right * joystickVector.X
+				moveInput.W = moveDir.Z > 0
+				moveInput.S = moveDir.Z < 0
+				moveInput.A = moveDir.X < 0
+				moveInput.D = moveDir.X > 0
+			end
 
-			-- Aplica movimento baseado em input
-			local velocity = (lookVector * moveDir.Z + rightVector * moveDir.X + upVector * moveDir.Y) * flySpeed
+			-- direção do voo
+			local dir = Vector3.new(
+				(moveInput.D and 1 or 0) - (moveInput.A and 1 or 0),
+				(moveInput.Space and 1 or 0) - (moveInput.Ctrl and 1 or 0),
+				(moveInput.W and 1 or 0) - (moveInput.S and 1 or 0)
+			)
+
+			if dir.Magnitude > 0 then
+				dir = dir.Unit
+			end
+
 			if flyBodyVelocity then
-				flyBodyVelocity.Velocity = velocity
+				local lookVector = cam.CFrame.LookVector
+				local rightVector = cam.CFrame.RightVector
+				local upVector = Vector3.new(0,1,0)
+				flyBodyVelocity.Velocity = (lookVector*dir.Z + rightVector*dir.X + upVector*dir.Y) * flySpeed
+			end
+			
+			local dir = Vector3.new(
+				(moveInput.D and 1 or 0) - (moveInput.A and 1 or 0),
+				(moveInput.Space and 1 or 0) - (moveInput.Ctrl and 1 or 0),
+				(moveInput.W and 1 or 0) - (moveInput.S and 1 or 0)
+			)
+
+			if dir.Magnitude > 0 then
+				dir = dir.Unit
+			end
+
+			if flyBodyVelocity then
+				local lookVector = cam.CFrame.LookVector
+				local rightVector = cam.CFrame.RightVector
+				local upVector = Vector3.new(0,1,0)
+				flyBodyVelocity.Velocity = (lookVector*dir.Z + rightVector*dir.X + upVector*dir.Y) * flySpeed
 			end
 		end)
 
@@ -1054,37 +1168,44 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 			humanoidRoot.Velocity = humanoidRoot.Velocity + impulse
 		end)
 
-		-- Input do jogador (PC ou Mobile)
+		-- Input do jogador (PC) e Mobile
 		flyInputConn = uis.InputBegan:Connect(function(input, processed)
 			if processed then return end
 			if input.UserInputType == Enum.UserInputType.Keyboard then
-				if input.KeyCode == Enum.KeyCode.W then moveDir = Vector3.new(moveDir.X, moveDir.Y, 1) end
-				if input.KeyCode == Enum.KeyCode.S then moveDir = Vector3.new(moveDir.X, moveDir.Y, -1) end
-				if input.KeyCode == Enum.KeyCode.A then moveDir = Vector3.new(-1, moveDir.Y, moveDir.Z) end
-				if input.KeyCode == Enum.KeyCode.D then moveDir = Vector3.new(1, moveDir.Y, moveDir.Z) end
-				if input.KeyCode == Enum.KeyCode.Space then moveDir = Vector3.new(moveDir.X, 1, moveDir.Z) end
-				if input.KeyCode == Enum.KeyCode.LeftControl then moveDir = Vector3.new(moveDir.X, -1, moveDir.Z) end
+				if moveInput[input.KeyCode.Name] ~= nil then
+					moveInput[input.KeyCode.Name] = true
+				end
+				
 			elseif input.UserInputType == Enum.UserInputType.Touch then
-				-- aqui você pode adicionar lógica para controle mobile via botões na tela
-				-- ou usar a direção do movimento do toque
-                --[[
-	         local lookVector = humanoidRoot.CFrame.LookVector
-	         moveDir = Vector3.new(lookVector.X, moveDir.Y, lookVector.Z)
-				]]
+				-- Mobile simples: move na direção que o personagem olha
+				-- Pega a direção da câmera
+				local camLook = cam.CFrame.LookVector
+				local camRight = cam.CFrame.RightVector
+
+				-- Normaliza para manter apenas a direção
+				local dir = Vector3.new(camLook.X, 0, camLook.Z).Unit
+
+				-- Aplica para frente/tras baseado na orientação
+				moveInput.W = true    -- sempre mover pra frente no look da câmera
+				moveInput.S = false
+				moveInput.A = false
+				moveInput.D = false
+
 			end
 		end)
 
 		uis.InputEnded:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.Keyboard then
-				if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.S then moveDir = Vector3.new(moveDir.X, moveDir.Y, 0) end
-				if input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.D then moveDir = Vector3.new(0, moveDir.Y, moveDir.Z) end
-				if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.LeftControl then moveDir = Vector3.new(moveDir.X, 0, moveDir.Z) end
+				if moveInput[input.KeyCode.Name] ~= nil then
+					moveInput[input.KeyCode.Name] = false
+				end
 			end
 		end)
 
 	else
 		print("Fly desligado!")
 
+		-- Desconecta tudo e destrói o BodyVelocity
 		if flyBodyVelocity then
 			flyBodyVelocity:Destroy()
 			flyBodyVelocity = nil
@@ -1101,8 +1222,14 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 			flyInputConn:Disconnect()
 			flyInputConn = nil
 		end
+		if joystick then
+			joystick:Destroy()
+			joystick = nil
+			flyMobile = nil
+		end
 	end
 end)
+
 
 
 Create_Titles("Mastermods", "Auto Madeira", "Ativar Auto Madeira", "Colotar e quebrar Madeiras", function(estado)
