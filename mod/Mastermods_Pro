@@ -4,6 +4,7 @@ local GITHUB_REPO = "Mastermod"
 local GITHUB_REPO_NAME = "Mastermod"
 local Owner = "Adrian75556435"
 local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/script"
+local IMG_ICON = "rbxassetid://117585506735209"
 local NAME_MOD_MENU = "Mastermod (Pro)"
 
 local VIM = game:GetService("VirtualInputManager")
@@ -63,8 +64,8 @@ print("🔹 Módulo carregado:", Module)
 local G1L, G2L, G3L, G4L, G5L = {}, {}, {}, {}, {}
 
 -- Módulos/categorias
-local Mastermod, Player, Lights, Games = {}, {}, {}, {}
-local List_Mods = {"Mastermod", "Player", "Lights", "Games"}
+local Farmes, Player, Lights, Games = {}, {}, {}, {}
+local List_Mods = {"Mastermods", "Player", "Lights", "Games"}
 
 
 local icons = {
@@ -126,10 +127,12 @@ local colors = {
 --===============================================--
 --===============================================--
 
+--========= Extração de Items ===========--
 
---========= Extração de Npcs Ou Jogadore ===========--
-local Characters = Workspace
-local Characters_List = Characters:GetChildren()
+
+--===============================================--
+--========= Extração de NPCs Ou Jogadores =========--
+local Characters = workspace
 local Npcs_List = {}
 
 -- Função recursiva para procurar NPCs
@@ -141,20 +144,18 @@ local function findNPCs(parent)
 				table.insert(Npcs_List, child)
 			end
 		end
-		-- Continua a busca nos filhos do objeto
+		-- Continua a busca nos filhos
 		findNPCs(child)
 	end
 end
 
--- Inicia a busca a partir do Workspace
+-- Inicia a busca a partir do Characters
 findNPCs(Characters)
 
 -- Exibe nomes dos NPCs encontrados
 for _, npc in ipairs(Npcs_List) do
 	print("NPC encontrado:", npc.Name)
 end
-
---===============================================--
 
 
 --===============================================--
@@ -368,34 +369,92 @@ G1L["Right_Container"].BorderSizePixel = 0
 applyAutoScrolling(G1L["Right_Container"], UDim.new(0, 5), Enum.HorizontalAlignment.Center)
 applyUIListLayout(G1L["Right_Container"], UDim.new(0, 5))
 
+local List_Right_Container = {}
 
--- Frame principal _ MODS
-G1L["Frame_Mod"] = Instance.new("ScrollingFrame", G1L["Right_Container"])
-G1L["Frame_Mod"].Size = UDim2.new(0.85, 0, 0, 200)
-G1L["Frame_Mod"].Position = UDim2.new(0, 0, 0, 0)
-G1L["Frame_Mod"].BackgroundColor3 = colors.Secondary
-G1L["Frame_Mod"].BorderSizePixel = 0
-G1L["Frame_Mod"].Visible = true
-G1L["Frame_Mod"].CanvasSize = UDim2.new(0, 0, 0, 0)
+function Right_Container(name)
+	local container = Instance.new("ScrollingFrame", G1L["Container_Frame"])
+	container.Size = UDim2.new(0.7, 0, 0.8, 0)
+	container.Position = UDim2.new(0.3, 0, 0.1, 0)
+	container.BackgroundColor3 = colors.DarkGray
+	container.BorderSizePixel = 0
+	container.Visible = false
+	container.Name = "Right_Container_"..name
 
--- Aplicar auto scrolling com espaçamento de 5px
-applyAutoScrolling(G1L["Frame_Mod"], UDim.new(0, 5))
-applyUIListLayout(G1L["Frame_Mod"], UDim.new(0, 5)) -- Espaçamento entre itens
-applyRotatingGradientUIStroke(G1L["Frame_Mod"], "Blue", "Purple", "Magenta")
+	applyAutoScrolling(container, UDim.new(0, 5), Enum.HorizontalAlignment.Center)
+	applyUIListLayout(container, UDim.new(0, 5))
+
+	-- guarda referência para acessar depois
+	List_Right_Container[name] = container
+	return container
+end
+
+-- cria todos os containers da lista
+for _, name in ipairs(List_Mods) do
+	Right_Container(name)
+end
+
+local List_Frame_Mods_toggled = {}
+
+function Frame_Mod_toggled(name, parent)
+	-- Frame principal _ MODS
+	local frame = Instance.new("ScrollingFrame", List_Right_Container[parent])
+	frame.Size = UDim2.new(0.85, 0, 0, 200)
+	frame.Position = UDim2.new(0, 0, 0, 0)
+	frame.BackgroundColor3 = colors.Secondary
+	frame.BorderSizePixel = 0
+	frame.Visible = true
+	frame.Name = "Frame_Mod_".. name
+	frame.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+	-- Aplicar estilos
+	applyAutoScrolling(frame, UDim.new(0, 5))
+	applyUIListLayout(frame, UDim.new(0, 5))
+	applyRotatingGradientUIStroke(frame, "Blue", "Purple", "Magenta")
+
+	List_Frame_Mods_toggled[name] = frame
+	return frame
+end
+
+Frame_Mod_toggled("Farmes", "Mastermods")
 
 
--- Frame rolável para listar NPCs
-G1L["NpcFrame"] = Instance.new("ScrollingFrame", G1L["Right_Container"])
-G1L["NpcFrame"].Name = "NpcFrame"
-G1L["NpcFrame"].Size = UDim2.new(0.85, 0, 0, 300)
-G1L["NpcFrame"].Position = UDim2.new(0.05, 0, 0.1, 0)
-G1L["NpcFrame"].BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-G1L["NpcFrame"].BorderSizePixel = 0
-G1L["NpcFrame"].CanvasSize = UDim2.new(0, 0, 0, 0) -- ajustado dinamicamente
-G1L["NpcFrame"].ScrollBarThickness = 6
+Frame_Mod_toggled("Player", "Player")
 
 
-applyUIListLayout(G1L["NpcFrame"], UDim.new(0, 5)) -- Espaçamento entre itens
+local List_Frame_Mods = {}
+
+
+function Frame_Mod_Scroll(name, parent)
+	-- Frame rolável para listar elementos
+	local scroll = Instance.new("ScrollingFrame")
+	scroll.Name = name .. "_Scroll"
+	scroll.Size = UDim2.new(0.85, 0, 0, 300)
+	scroll.Position = UDim2.new(0.05, 0, 0.1, 0)
+	scroll.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	scroll.BorderSizePixel = 0
+	scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+	scroll.ScrollBarThickness = 6
+	scroll.Parent = List_Right_Container[parent]
+
+	-- Layout para organizar os itens
+	local layout = Instance.new("UIListLayout", scroll)
+	layout.Padding = UDim.new(0, 5)
+	layout.FillDirection = Enum.FillDirection.Vertical
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+	-- Ajusta o CanvasSize dinamicamente
+	layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+	end)
+
+	-- Salva na tabela para referência futura
+	List_Frame_Mods[name] = scroll
+
+	return scroll
+end
+
+Frame_Mod_Scroll("Npc", "Mastermods")
+
 
 
 --==============================================================================--
@@ -409,8 +468,6 @@ end)
 
 G1L["DeleteGui"].MouseButton1Click:Connect(function()
 	G1L["ScreenGui"]:Destroy()
-	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-	workspace.CurrentCamera.CameraSubject = humanoid
 	script:Destroy()
 end)
 
@@ -421,6 +478,8 @@ end)
 --=====================================================--
 
 --==============================================================================--
+
+
 
 
 
@@ -448,10 +507,19 @@ function CreatList(instance, data)
 			Btn.BackgroundColor3 = colors.Secondary
 		end)
 
-		-- Ação ao clicar
+		-- Ação ao clicar → troca de aba
 		Btn.MouseButton1Click:Connect(function()
 			print("Clicou em:", name)
-			-- Aqui você pode abrir a aba correspondente
+
+			-- esconde todos os containers
+			for _, cont in pairs(List_Right_Container) do
+				cont.Visible = false
+			end
+
+			-- mostra o container correspondente
+			if List_Right_Container[name] then
+				List_Right_Container[name].Visible = true
+			end
 		end)
 
 		-- Deixar bonitinho
@@ -462,18 +530,37 @@ end
 -- Criar botões no menu lateral
 CreatList(G1L["Left_Container"], List_Mods)
 
+
 local currentIndex = 1
 local currentContainer
 local currentRenderConn
 
 
 -- Função principal de foco
-local function focusNpc(npc, list)
+local function focus(npc, list)
 	if not npc then return end
 	local humanoidRoot = npc:FindFirstChild("HumanoidRootPart")
-	if not humanoidRoot then return end
 
+	--[[
+	if not humanoidRoot then return end
 	workspace.CurrentCamera.CameraSubject = humanoidRoot
+	]]
+
+	if humanoidRoot then
+		-- Se for NPC com HumanoidRootPart
+		workspace.CurrentCamera.CameraSubject = humanoidRoot
+	else
+		-- Se for apenas um Part, modelo sem humanoid
+		if npc:IsA("BasePart") then
+			workspace.CurrentCamera.CameraSubject = npc
+		elseif npc:IsA("Model") then
+			local primary = npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart")
+			if primary then
+				workspace.CurrentCamera.CameraSubject = primary
+			end
+		end
+	end
+
 	print("Focando em:", npc.Name)
 
 	-- Destroi container/conexão anterior
@@ -493,7 +580,7 @@ local function focusNpc(npc, list)
 		if currentIndex > #Npcs_List then
 			currentIndex = 1
 		end
-		focusNpc(Npcs_List[currentIndex], Npcs_List)
+		focus(Npcs_List[currentIndex], Npcs_List)
 	end
 
 	-- Anterior NPC
@@ -503,7 +590,7 @@ local function focusNpc(npc, list)
 		if currentIndex < 1 then
 			currentIndex = #Npcs_List
 		end
-		focusNpc(Npcs_List[currentIndex], Npcs_List)
+		focus(Npcs_List[currentIndex], Npcs_List)
 	end
 
 
@@ -585,8 +672,8 @@ end
 
 
 -- Função para criar botões de NPC
-local function criarNpcButton(npc)
-	local btn = Instance.new("TextButton", G1L["NpcFrame"])
+local function criarNpcButton(npc, parent)
+	local btn = Instance.new("TextButton")
 	btn.Name = npc.Name .. "_Btn"
 	btn.Size = UDim2.new(1, 0, 0, 30)
 	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -594,6 +681,7 @@ local function criarNpcButton(npc)
 	btn.Font = Enum.Font.SourceSansBold
 	btn.TextSize = 18
 	btn.Text = npc.Name
+	btn.Parent = List_Frame_Mods[parent]
 
 	btn.MouseButton1Click:Connect(function()
 		-- define índice atual para esse NPC
@@ -603,15 +691,18 @@ local function criarNpcButton(npc)
 				break
 			end
 		end
-		focusNpc(npc, Npcs_List)
+		focus(npc, Npcs_List)
 	end)
 end
 
 
 -- Função para atualizar lista de NPCs
 local function atualizarNPCs()
+	local npcFrame = List_Frame_Mods["Npc"]
+	if not npcFrame then return end
+
 	-- limpa botões antigos
-	for _, child in ipairs(G1L["NpcFrame"]:GetChildren()) do
+	for _, child in ipairs(npcFrame:GetChildren()) do
 		if child:IsA("TextButton") then
 			child:Destroy()
 		end
@@ -619,15 +710,10 @@ local function atualizarNPCs()
 
 	-- cria botões para cada NPC
 	for _, npc in ipairs(Npcs_List) do
-		criarNpcButton(npc)
+		criarNpcButton(npc, "Npc")
 	end
-
-	-- ajusta tamanho da rolagem
-	G1L["NpcFrame"].CanvasSize = UDim2.new(0, 0, 0, #Npcs_List * 35)
 end
 
--- chamada inicial
-atualizarNPCs()
 
 -- Função para verificar e adicionar NPC
 local function addNpc(npc)
@@ -662,13 +748,15 @@ end
 Characters.ChildAdded:Connect(addNpc)
 Characters.ChildRemoved:Connect(removeNpc)
 
+-- chamada inicial (já depois de addNpc dos existentes)
+atualizarNPCs()
 
 -- =====================================
 -- Criação dos Títulos
 -- =====================================
 
-function Create_Titles(Name, Text, Observacao, Retorno)
-	local container_titles = Instance.new("Frame", G1L["Frame_Mod"])
+function Create_Titles(Parent, Name, Text, Observacao, Retorno)
+	local container_titles = Instance.new("Frame", List_Frame_Mods_toggled[Parent])
 	container_titles.Name = Name
 	container_titles.Size = UDim2.new(0.95, 0, 0, 60)
 	container_titles.BackgroundTransparency = 1
@@ -758,7 +846,7 @@ end
 -- Criação das GUIs com toggle
 --=====================================================--
 
-Create_Titles("Modelo", "Modelo", "Modelo de Funções", function(estado)
+Create_Titles("Farmes" ,"Modelo", "Modelo", "Modelo de Funções", function(estado)
 	if estado then
 		print("Modelo ligado!")
 	else
@@ -766,7 +854,7 @@ Create_Titles("Modelo", "Modelo", "Modelo de Funções", function(estado)
 	end
 end)
 
-Create_Titles("FlyMod", "FlyMod", "Poder para voar no map", function(estado)
+Create_Titles("Farmes", "FlyMod", "FlyMod", "Poder para voar no map", function(estado)
 	if estado then
 		print("Fly ligado!")
 	else
@@ -774,7 +862,7 @@ Create_Titles("FlyMod", "FlyMod", "Poder para voar no map", function(estado)
 	end
 end)
 
-Create_Titles("Auto Madeira", "Ativar Auto Madeira", "Colotar e quebrar Madeiras", function(estado)
+Create_Titles("Farmes", "Auto Madeira", "Ativar Auto Madeira", "Colotar e quebrar Madeiras", function(estado)
 	if estado then
 		print(" Auto Madeira ligado!")
 	else
