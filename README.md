@@ -13,10 +13,10 @@ O uso de mods e scripts em jogos online pode violar os Termos de Serviço do Rob
  loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/apresentar"))()
 ```
 ---
----
+
 ## Mastermod (Pro)
 ```
-
+ loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/mod/Mastermods_Pro"))()
 ```
 ---
 
@@ -25,6 +25,7 @@ O uso de mods e scripts em jogos online pode violar os Termos de Serviço do Rob
 ```
 mastermod/
 ├── mod/              # mod menu   
+├── module/           # modulos
 ├── script/           # Scripts principais do mod menu     
 ├── README.md         # Documentação do projeto
 └── Mastermod         # Arquivo principal do mod menu
