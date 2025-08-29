@@ -1192,43 +1192,23 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 
 		-- Atualiza direção do voo
 		flyRenderConn = game:GetService("RunService").RenderStepped:Connect(function()
-			
-			-- Mobile: atualiza moveInput pelo joystick
+			local dir = Vector3.new(0,0,0)
+
 			if flyMobile then
+				-- Usa o joystick para mobile
 				local camLook = cam.CFrame.LookVector
 				local camRight = cam.CFrame.RightVector
 				local forward = Vector3.new(camLook.X,0,camLook.Z).Unit
 				local right = Vector3.new(camRight.X,0,camRight.Z).Unit
-				local moveDir = forward * joystickVector.Y + right * joystickVector.X
-				moveInput.W = moveDir.Z > 0
-				moveInput.S = moveDir.Z < 0
-				moveInput.A = moveDir.X < 0
-				moveInput.D = moveDir.X > 0
+				dir = forward * joystickVector.Y + right * joystickVector.X
+			else
+				-- Usa teclado
+				dir = Vector3.new(
+					(moveInput.D and 1 or 0) - (moveInput.A and 1 or 0),
+					(moveInput.Space and 1 or 0) - (moveInput.Ctrl and 1 or 0),
+					(moveInput.W and 1 or 0) - (moveInput.S and 1 or 0)
+				)
 			end
-
-			-- direção do voo
-			local dir = Vector3.new(
-				(moveInput.D and 1 or 0) - (moveInput.A and 1 or 0),
-				(moveInput.Space and 1 or 0) - (moveInput.Ctrl and 1 or 0),
-				(moveInput.W and 1 or 0) - (moveInput.S and 1 or 0)
-			)
-
-			if dir.Magnitude > 0 then
-				dir = dir.Unit
-			end
-
-			if flyBodyVelocity then
-				local lookVector = cam.CFrame.LookVector
-				local rightVector = cam.CFrame.RightVector
-				local upVector = Vector3.new(0,1,0)
-				flyBodyVelocity.Velocity = (lookVector*dir.Z + rightVector*dir.X + upVector*dir.Y) * flySpeed
-			end
-			
-			local dir = Vector3.new(
-				(moveInput.D and 1 or 0) - (moveInput.A and 1 or 0),
-				(moveInput.Space and 1 or 0) - (moveInput.Ctrl and 1 or 0),
-				(moveInput.W and 1 or 0) - (moveInput.S and 1 or 0)
-			)
 
 			if dir.Magnitude > 0 then
 				dir = dir.Unit
@@ -1241,6 +1221,7 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 				flyBodyVelocity.Velocity = (lookVector*dir.Z + rightVector*dir.X + upVector*dir.Y) * flySpeed
 			end
 		end)
+
 
 		-- Impulso ao pular
 		flyJumpConn = humanoid.Jumping:Connect(function()
