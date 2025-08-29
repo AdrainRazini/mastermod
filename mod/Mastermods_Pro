@@ -1204,7 +1204,7 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 				dir = Vector3.new(
 					joystickVector.X, -- esquerda/direita
 					0,                -- altura (pode mapear depois se quiser subir/descer pelo joystick)
-					joystickVector.Y  -- frente/trás
+					-joystickVector.Y  -- frente/trás
 				)
 			else
 				-- Usa teclado
