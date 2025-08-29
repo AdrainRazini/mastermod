@@ -1306,17 +1306,38 @@ local Conect_Clone
 
 Create_Titles("Mastermods", "Clone Player", "Ativar Clone", "Clonar Jogador", function(estado)
 	if estado then
-		print(" Auto Clone ligado!")
-		local clone_player = player.Character:Clone()
-		clone_player:SetPrimaryPartCFrame(player.Character.PrimaryPart.CFrame * CFrame.new(5,0,0))
-		clone_player.Parent = workspace
-		Conect_Clone = clone_player
+		print("Auto Clone ligado!")
+
+		-- Verifica se o personagem existe
+		if player.Character then
+			-- Clona o personagem
+			local clone_player = player.Character:Clone()
+
+			-- Remove scripts indesejados (opcional)
+			for _, obj in pairs(clone_player:GetDescendants()) do
+				if obj:IsA("Script") or obj:IsA("LocalScript") then
+					obj:Destroy()
+				end
+			end
+
+			-- Posiciona o clone ao lado do jogador
+			if clone_player.PrimaryPart then
+				clone_player:SetPrimaryPartCFrame(player.Character.PrimaryPart.CFrame * CFrame.new(5,0,0))
+			else
+				print("Erro: personagem não tem PrimaryPart")
+			end
+
+			-- Coloca o clone no Workspace
+			clone_player.Parent = workspace
+			Conect_Clone = clone_player
+		end
 	else
-		print(" Auto Clone desligado!")
+		print("Auto Clone desligado!")
+
+		-- Remove clone se existir
 		if Conect_Clone and Conect_Clone.Parent then
 			Conect_Clone:Destroy()
 		end
 		Conect_Clone = nil
 	end
 end)
-
