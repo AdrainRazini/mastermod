@@ -56,7 +56,6 @@ print("🔹 Módulo carregado:", Module)
 --===============================================--
 --===============================================--
 
-
 --===============================================--
 --==================== DATA =====================--
 --===============================================--
@@ -175,33 +174,69 @@ Notification(icons.fa_bx_mastermods, nil, Owner, 15)
 
 
 
---===============================================--
+--=================================================--
 --========= Extração de NPCs Ou Jogadores =========--
-local Characters = workspace
+--=================================================--
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local Characters = Workspace
+-- Listas globais
+local All_List = {}
+local Players_List = {}
 local Npcs_List = {}
 
--- Função recursiva para procurar NPCs
-local function findNPCs(parent)
+-- Função para limpar listas
+local function clearLists()
+	All_List = {}
+	Players_List = {}
+	Npcs_List = {}
+end
+
+
+--===============================================--
+-- Função recursiva para procurar todos NPCs ou jogadores
+--===============================================--
+local function scanWorkspace(parent)
 	for _, child in ipairs(parent:GetChildren()) do
 		if child:IsA("Model") then
 			local humanoid = child:FindFirstChildOfClass("Humanoid")
 			if humanoid then
-				table.insert(Npcs_List, child)
+				-- Adiciona na lista geral
+				table.insert(All_List, child)
+
+				-- Se for jogador
+				if Players:GetPlayerFromCharacter(child) then
+					table.insert(Players_List, child)
+				else
+					-- Senão, considera NPC
+					table.insert(Npcs_List, child)
+				end
 			end
 		end
-		-- Continua a busca nos filhos
-		findNPCs(child)
+
+		-- Continua nos filhos (subpastas, models, etc)
+		scanWorkspace(child)
 	end
 end
 
--- Inicia a busca a partir do Characters
-findNPCs(Characters)
+-- Inicia a varredura
+scanWorkspace(Workspace)
 
--- Exibe nomes dos NPCs encontrados
-for _, npc in ipairs(Npcs_List) do
-	print("NPC encontrado:", npc.Name)
+-- Exemplo de impressão
+print("=== Todos encontrados ===")
+for _, model in ipairs(All_List) do
+	print(model.Name)
 end
 
+print("=== Jogadores encontrados ===")
+for _, plr in ipairs(Players_List) do
+	print(plr.Name)
+end
+
+print("=== NPCs encontrados ===")
+for _, npc in ipairs(Npcs_List) do
+	print(npc.Name)
+end
 
 --===============================================--
 --============= Função De Estilos ===============--
