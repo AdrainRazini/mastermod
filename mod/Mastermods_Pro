@@ -1151,6 +1151,11 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 
 
 			touchConn = uis.TouchMoved:Connect(function(touch)
+				-- Verifica se o toque está na metade esquerda da tela
+				if touch.Position.X > workspace.CurrentCamera.ViewportSize.X / 2 then
+					return  -- ignora toques na metade direita
+				end
+
 				-- Posição relativa ao centro do joystick
 				local localPos = Vector2.new(
 					touch.Position.X - (joystickFrame.AbsolutePosition.X + joystickFrame.AbsoluteSize.X/2),
@@ -1177,6 +1182,7 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 					0
 				)
 			end)
+
 
 		end
 
