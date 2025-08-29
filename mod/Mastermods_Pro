@@ -1200,17 +1200,12 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 			local dir = Vector3.new(0,0,0)
 
 			if flyMobile then
-				-- Usa o joystick para mobile, alinhado à câmera
-				local lookVector = cam.CFrame.LookVector
-				local rightVector = cam.CFrame.RightVector
-
-				-- Mantém só X/Z (não sobe sozinho com a câmera)
-				local forward = Vector3.new(lookVector.X, 0, lookVector.Z).Unit
-				local right = Vector3.new(rightVector.X, 0, rightVector.Z).Unit
-
-				-- joystickVector.Y = frente/tras
-				-- joystickVector.X = esquerda/direita
-				dir = forward * joystickVector.Y + right * joystickVector.X
+				-- Mobile monta dir no mesmo formato do PC (pesos locais)
+				dir = Vector3.new(
+					joystickVector.X, -- esquerda/direita
+					0,                -- altura (pode mapear depois se quiser subir/descer pelo joystick)
+					joystickVector.Y  -- frente/trás
+				)
 			else
 				-- Usa teclado
 				dir = Vector3.new(
@@ -1231,6 +1226,7 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 				flyBodyVelocity.Velocity = (lookVector*dir.Z + rightVector*dir.X + upVector*dir.Y) * flySpeed
 			end
 		end)
+
 
 
 
