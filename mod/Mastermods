@@ -1009,7 +1009,7 @@ function criar_Gui_Frame()
 
 ]]
 
-    local mod_scripts = {
+	local mod_scripts = {
 		{name = "Mastermods (Pro)", path = "Mastermods_Pro"}
 	}
 	-- Carregar scripts do GitHub
@@ -1036,6 +1036,20 @@ function criar_Gui_Frame()
 		createButton(script.name:upper(), function()
 			local success, response = pcall(function()
 				return game:HttpGet("https://raw.githubusercontent.com/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/main/script/" .. script.path)
+			end)
+			if success then
+				alert("🧠 Script '" .. script.name:upper() .. "' carregado!", 5)
+				loadstring(response)()
+			else
+				alert("❌ Falha ao carregar '" .. script.name:upper() .. "'", 5)
+			end
+		end)
+	end
+	
+	for _, script in ipairs(mod_scripts) do
+		createButton(script.name:upper(), function()
+			local success, response = pcall(function()
+				return game:HttpGet("https://raw.githubusercontent.com/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/main/mod/" .. script.path)
 			end)
 			if success then
 				alert("🧠 Script '" .. script.name:upper() .. "' carregado!", 5)
