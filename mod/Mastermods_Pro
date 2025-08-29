@@ -136,15 +136,15 @@ local colors = {
 
 local StarterGui = game:GetService("StarterGui")
 
-function Notification(icon, text, time)
+function Notification(icon,Title, text, tempo)
 	-- Garante que só números do assetid serão usados
 	local cleanIcon = tostring(icon):gsub("%D", "") -- remove tudo que não for número
 
 	StarterGui:SetCore("SendNotification", { 
-		Title = GITHUB_REPO;
+		Title = Title or GITHUB_REPO;
 		Text = text or "";
 		Icon = "rbxthumb://type=Asset&id="..cleanIcon.."&w=150&h=150";
-		Duration = time or 5;
+		Duration = tempo or 5;
 	})
 end
 
@@ -163,14 +163,14 @@ local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):Fin
 
 -- Se já existir, retorna para evitar a criação do GUI
 if existingScreenGui then
-	return Notification(icons.fa_bx_config, "Codigo Neutro", 5)
+	return Notification(icons.fa_bx_config, NAME_MOD_MENU, "Neutralized Code", 5)
 end
 
 --===============================================--
 --===============================================--
 
 
-Notification(icons.fa_bx_mastermods, Owner, 12)
+Notification(icons.fa_bx_mastermods, nil, Owner, 15)
 
 
 
