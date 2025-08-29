@@ -1196,19 +1196,21 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 			flyBodyVelocity.Parent = humanoidRoot
 		end
 
-		-- Atualiza direção do voo
 		flyRenderConn = game:GetService("RunService").RenderStepped:Connect(function()
 			local dir = Vector3.new(0,0,0)
 
 			if flyMobile then
-				-- Usa o joystick para mobile
-				local camLook = cam.CFrame.LookVector
-				local camRight = cam.CFrame.RightVector
-				local forward = Vector3.new(camLook.X,0,camLook.Z).Unit
-				local right = Vector3.new(camRight.X,0,camRight.Z).Unit
+				-- Usa o joystick para mobile, alinhado à câmera
+				local lookVector = cam.CFrame.LookVector
+				local rightVector = cam.CFrame.RightVector
 
-				-- Corrigido: inverte Y
-				dir = forward * -joystickVector.Y + right * joystickVector.X
+				-- Mantém só X/Z (não sobe sozinho com a câmera)
+				local forward = Vector3.new(lookVector.X, 0, lookVector.Z).Unit
+				local right = Vector3.new(rightVector.X, 0, rightVector.Z).Unit
+
+				-- joystickVector.Y = frente/tras
+				-- joystickVector.X = esquerda/direita
+				dir = forward * joystickVector.Y + right * joystickVector.X
 			else
 				-- Usa teclado
 				dir = Vector3.new(
@@ -1217,7 +1219,6 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 					(moveInput.W and 1 or 0) - (moveInput.S and 1 or 0)
 				)
 			end
-
 
 			if dir.Magnitude > 0 then
 				dir = dir.Unit
@@ -1230,6 +1231,7 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 				flyBodyVelocity.Velocity = (lookVector*dir.Z + rightVector*dir.X + upVector*dir.Y) * flySpeed
 			end
 		end)
+
 
 
 		-- Impulso ao pular
