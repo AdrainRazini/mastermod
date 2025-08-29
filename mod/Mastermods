@@ -1009,6 +1009,9 @@ function criar_Gui_Frame()
 
 ]]
 
+    local mod_scripts = {
+		{name = "Mastermods (Pro)", path = "Mastermods_Pro"}
+	}
 	-- Carregar scripts do GitHub
 	local scripts = {
 		{name = "Inventario", path = "inventario.lua"},
