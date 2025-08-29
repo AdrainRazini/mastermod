@@ -1016,7 +1016,6 @@ function criar_Gui_Frame()
 	local scripts = {
 		{name = "Inventario", path = "inventario.lua"},
 		{name = "99 Nights", path = "farme_nights.lua"},
-		{name = "VirtualUser", path = "Virtual_User_Test.lua"},
 		--{name = "Mause Click", path = "mause.lua"},
 		--{name = "Mause Click 2", path = "Init.lua"},
 		--{name = "Test Event Mause", path = "mov.lua"},
