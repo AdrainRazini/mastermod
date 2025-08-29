@@ -1320,5 +1320,22 @@ Create_Titles("Mastermods", "Auto Madeira", "Ativar Auto Madeira", "Colotar e qu
 	end
 end)
 
+-- pode dar erro se não for executor 
+local Conect_Clone
 
+Create_Titles("Mastermods", "Clone Player", "Ativar Clone", "Clonar Jogador", function(estado)
+	if estado then
+		print(" Auto Clone ligado!")
+		local clone_player = player.Character:Clone()
+		clone_player:SetPrimaryPartCFrame(player.Character.PrimaryPart.CFrame * CFrame.new(5,0,0))
+		clone_player.Parent = workspace
+		Conect_Clone = clone_player
+	else
+		print(" Auto Clone desligado!")
+		if Conect_Clone and Conect_Clone.Parent then
+			Conect_Clone:Destroy()
+		end
+		Conect_Clone = nil
+	end
+end)
 
