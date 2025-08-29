@@ -19,6 +19,8 @@ local Workspace = game:GetService("Workspace")
 local player = Players.LocalPlayer
 
 
+
+
 --===============================================--
 --=================== Module ====================--
 --===============================================--
@@ -127,7 +129,50 @@ local colors = {
 --===============================================--
 --===============================================--
 
---========= Extração de Items ===========--
+
+--================ Notificação ====================--
+--=================================================--
+
+
+local StarterGui = game:GetService("StarterGui")
+
+function Notification(icon, text, time)
+	-- Garante que só números do assetid serão usados
+	local cleanIcon = tostring(icon):gsub("%D", "") -- remove tudo que não for número
+
+	StarterGui:SetCore("SendNotification", { 
+		Title = GITHUB_REPO;
+		Text = text or "";
+		Icon = "rbxthumb://type=Asset&id="..cleanIcon.."&w=150&h=150";
+		Duration = time or 5;
+	})
+end
+
+
+
+--===============================================--
+--===============================================--
+
+
+--===============================================--
+--================ Segurança ====================--
+--===============================================--
+
+-- Verificar se já existe um ScreenGui com o nome "ModMenu"
+local existingScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild(NAME_MOD_MENU)
+
+-- Se já existir, retorna para evitar a criação do GUI
+if existingScreenGui then
+	return Notification(icons.fa_bx_config, "Codigo Neutro", 5)
+end
+
+--===============================================--
+--===============================================--
+
+
+Notification(icons.fa_bx_mastermods, Owner, 12)
+
+
 
 
 --===============================================--
