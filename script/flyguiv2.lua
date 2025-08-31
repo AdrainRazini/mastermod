@@ -222,81 +222,85 @@ end
 --===============================================--
 --===============================================--
 
-
-
-
-
 local G1L = {}
 
-G1L["ScreenGui"] = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-G1L["ScreenGui"].Name = "FlyGui"
-
-G1L["Container_Mini"] = Instance.new("Frame", G1L["ScreenGui"])
-G1L["Container_Mini"].Name = "Container_Mini"
-G1L["Container_Mini"].Size = UDim2.new(0, 200, 0, 50)
-applyCorner(G1L["Container_Mini"])
-
-G1L["Right_Container"] = Instance.new("Frame", G1L["Container_Mini"])
-G1L["Right_Container"].Name = "Right_Container"
-G1L["Right_Container"].Size = UDim2.new(0, 25, 1, 0)
-G1L["Right_Container"].Position = UDim2.new(1, 0, 0, 0)
-
-applyUIListLayout(G1L["Right_Container"])
-
-G1L["Right_Container2"] = Instance.new("Frame", G1L["Container_Mini"])
-G1L["Right_Container2"].Name = "Right_Container_Speed"
-G1L["Right_Container2"].Size = UDim2.new(0, 25, 1, 0)
-G1L["Right_Container2"].Position = UDim2.new(1.15, 0, 0, 0)
-
-applyUIListLayout(G1L["Right_Container2"])
-
-G1L["Space_Btn"] = Instance.new("ImageButton", G1L["Right_Container"])
-G1L["Space_Btn"].Name = "Space_Btn"
-G1L["Space_Btn"].Size = UDim2.new(0, 25, 0, 25)
-G1L["Space_Btn"].Position = UDim2.new(0, 0, 0, 0)
-G1L["Space_Btn"].Image = icons.fa_bx_arrow_up
-
-G1L["Ctrl_Btn"] = Instance.new("ImageButton", G1L["Right_Container"])
-G1L["Ctrl_Btn"].Name = "Ctrl_Btn"
-G1L["Ctrl_Btn"].Size = UDim2.new(0, 25, 0, 25)
-G1L["Ctrl_Btn"].Position = UDim2.new(0, 0, 0, 0)
-G1L["Ctrl_Btn"].Image = icons.fa_bx_arrow_low
-
-applyCorner(G1L["Space_Btn"])
-applyCorner(G1L["Ctrl_Btn"])
-applyUIStroke(G1L["Space_Btn"], "Accent")
-applyUIStroke(G1L["Ctrl_Btn"], "Accent")
+function  CreatGui ()
 
 
+	G1L["ScreenGui"] = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+	G1L["ScreenGui"].Name = "FlyGui"
 
-G1L["Up_Btn"] = Instance.new("ImageButton", G1L["Right_Container2"])
-G1L["Up_Btn"].Name = "Up_Btn"
-G1L["Up_Btn"].Size = UDim2.new(0, 25, 0, 25)
-G1L["Up_Btn"].Position = UDim2.new(0, 0, 0, 0)
-G1L["Up_Btn"].Image = icons.fa_bx_up
+	G1L["Container_Mini"] = Instance.new("Frame", G1L["ScreenGui"])
+	G1L["Container_Mini"].Name = "Container_Mini"
+	G1L["Container_Mini"].Size = UDim2.new(0, 200, 0, 50)
+	applyCorner(G1L["Container_Mini"])
 
-G1L["Low_Btn"] = Instance.new("ImageButton", G1L["Right_Container2"])
-G1L["Low_Btn"].Name = "Low_Btn"
-G1L["Low_Btn"].Size = UDim2.new(0, 25, 0, 25)
-G1L["Low_Btn"].Position = UDim2.new(0, 0, 0, 0)
-G1L["Low_Btn"].Image = icons.fa_bx_low
+	G1L["Right_Container"] = Instance.new("Frame", G1L["Container_Mini"])
+	G1L["Right_Container"].Name = "Right_Container"
+	G1L["Right_Container"].Size = UDim2.new(0, 25, 1, 0)
+	G1L["Right_Container"].Position = UDim2.new(1, 0, 0, 0)
 
-applyCorner(G1L["Up_Btn"])
-applyCorner(G1L["Low_Btn"])
-applyUIStroke(G1L["Up_Btn"], "Accent")
-applyUIStroke(G1L["Low_Btn"], "Accent")
+	applyUIListLayout(G1L["Right_Container"])
 
-applyRotatingGradientUIStroke(G1L["Container_Mini"], "Purple", "Indigo", "Aqua") -- Gradiente animado
-applyDraggable(G1L["Container_Mini"], true, true)
+	G1L["Right_Container2"] = Instance.new("Frame", G1L["Container_Mini"])
+	G1L["Right_Container2"].Name = "Right_Container_Speed"
+	G1L["Right_Container2"].Size = UDim2.new(0, 25, 1, 0)
+	G1L["Right_Container2"].Position = UDim2.new(1.15, 0, 0, 0)
+
+	applyUIListLayout(G1L["Right_Container2"])
+
+	G1L["Space_Btn"] = Instance.new("ImageButton", G1L["Right_Container"])
+	G1L["Space_Btn"].Name = "Space_Btn"
+	G1L["Space_Btn"].Size = UDim2.new(0, 25, 0, 25)
+	G1L["Space_Btn"].Position = UDim2.new(0, 0, 0, 0)
+	G1L["Space_Btn"].Image = icons.fa_bx_arrow_up
+
+	G1L["Ctrl_Btn"] = Instance.new("ImageButton", G1L["Right_Container"])
+	G1L["Ctrl_Btn"].Name = "Ctrl_Btn"
+	G1L["Ctrl_Btn"].Size = UDim2.new(0, 25, 0, 25)
+	G1L["Ctrl_Btn"].Position = UDim2.new(0, 0, 0, 0)
+	G1L["Ctrl_Btn"].Image = icons.fa_bx_arrow_low
+
+	applyCorner(G1L["Space_Btn"])
+	applyCorner(G1L["Ctrl_Btn"])
+	applyUIStroke(G1L["Space_Btn"], "Accent")
+	applyUIStroke(G1L["Ctrl_Btn"], "Accent")
 
 
-G1L["Speed_Lb"] = Instance.new("TextLabel", G1L["Container_Mini"])
-G1L["Speed_Lb"].Size = UDim2.new(1, 0, 0, 25)
-G1L["Speed_Lb"].Position = UDim2.new(0, 0, -0.5, 0)
-G1L["Speed_Lb"].Text =  "By: @Adrian"
+
+	G1L["Up_Btn"] = Instance.new("ImageButton", G1L["Right_Container2"])
+	G1L["Up_Btn"].Name = "Up_Btn"
+	G1L["Up_Btn"].Size = UDim2.new(0, 25, 0, 25)
+	G1L["Up_Btn"].Position = UDim2.new(0, 0, 0, 0)
+	G1L["Up_Btn"].Image = icons.fa_bx_up
+
+	G1L["Low_Btn"] = Instance.new("ImageButton", G1L["Right_Container2"])
+	G1L["Low_Btn"].Name = "Low_Btn"
+	G1L["Low_Btn"].Size = UDim2.new(0, 25, 0, 25)
+	G1L["Low_Btn"].Position = UDim2.new(0, 0, 0, 0)
+	G1L["Low_Btn"].Image = icons.fa_bx_low
+
+	applyCorner(G1L["Up_Btn"])
+	applyCorner(G1L["Low_Btn"])
+	applyUIStroke(G1L["Up_Btn"], "Accent")
+	applyUIStroke(G1L["Low_Btn"], "Accent")
+
+	applyRotatingGradientUIStroke(G1L["Container_Mini"], "Purple", "Indigo", "Aqua") -- Gradiente animado
+	applyDraggable(G1L["Container_Mini"], true, true)
 
 
-applyRotatingGradientUIStroke(G1L["Speed_Lb"], "Purple", "Indigo", "Aqua") -- Gradiente animado
+	G1L["Speed_Lb"] = Instance.new("TextLabel", G1L["Container_Mini"])
+	G1L["Speed_Lb"].Size = UDim2.new(1, 0, 0, 25)
+	G1L["Speed_Lb"].Position = UDim2.new(0, 0, -0.5, 0)
+	G1L["Speed_Lb"].Text =  "By: @Adrian"
+
+
+	applyRotatingGradientUIStroke(G1L["Speed_Lb"], "Purple", "Indigo", "Aqua") -- Gradiente animado
+
+end
+
+CreatGui()
+
 
 
 function Create_Titles(Parent, Name, Text, Observacao, Retorno)
@@ -630,8 +634,46 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Power to fly on the map", funct
 	end
 end)
 
+-- Conecta evento de morte do humanoid para limpar tudo
+local function setupFlyDeathCleanup(character)
+	local humanoid = character:WaitForChild("Humanoid")
+	humanoid.Died:Connect(function()
+		if flyBodyVelocity then
+			flyBodyVelocity:Destroy()
+			flyBodyVelocity = nil
+		end
+		if flyRenderConn then
+			flyRenderConn:Disconnect()
+			flyRenderConn = nil
+		end
+		if flyJumpConn then
+			flyJumpConn:Disconnect()
+			flyJumpConn = nil
+		end
+		if flyInputConn then
+			flyInputConn:Disconnect()
+			flyInputConn = nil
+		end
+		if joystick then
+			joystick:Destroy()
+			joystick = nil
+			flyMobile = nil
+		end
+	end)
+end
+
+-- Ao carregar o personagem
 player.CharacterAdded:Connect(function(char)
+	G1L:Destroy()
+	CreatGui()
+	setupFlyDeathCleanup(char) -- Limpa conexões ao morrer
 	if flyBodyVelocity then
 		flyBodyVelocity.Parent = char:WaitForChild("HumanoidRootPart")
 	end
 end)
+
+-- Caso já tenha personagem
+if player.Character then
+	setupFlyDeathCleanup(player.Character)
+end
+
