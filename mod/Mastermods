@@ -1015,6 +1015,7 @@ function criar_Gui_Frame()
 	-- Carregar scripts do GitHub
 	local scripts = {
 		{name = "Inventario", path = "inventario.lua"},
+		{name = "FlyGui", path = "flyguiv2.lua"},
 		{name = "99 Nights", path = "farme_nights.lua"},
 		--{name = "Mause Click", path = "mause.lua"},
 		--{name = "Mause Click 2", path = "Init.lua"},
