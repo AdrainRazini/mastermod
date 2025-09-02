@@ -17,6 +17,9 @@ local Workspace = game:GetService("Workspace")
 
 
 local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoidRoot = char:WaitForChild("HumanoidRootPart")
+
 
 
 
@@ -1299,13 +1302,189 @@ Create_Titles("Mastermods", "FlyMod", "FlyMod", "Poder para voar no map", functi
 end)
 
 
-Create_Titles("Mastermods", "Auto Madeira", "Ativar Auto Madeira", "Colotar e quebrar Madeiras", function(estado)
+-- Auto Farme Madeira Melhorado
+local list_tree = {
+	"Small Tree",
+	"Tree Big1",
+	"Tree Big2",
+	"Tree Big3",
+	"Snowy Small Tree",
+}
+
+local Conect_tree
+local Fix_tree
+local Conect_gui_tree
+local MAX_DISTANCE_Tree = 200 -- distância máxima para procurar árvores
+
+-- Toggle UI
+Create_Titles("Mastermods", "Auto Madeira", "Ativar Auto Madeira", "Coletar e quebrar Madeiras", function(estado)
+
+
+	-- Função para encontrar a árvore mais próxima com filtro
+	local function GetNearestTree(filtro)
+		local nearest
+		local minDist = math.huge
+
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if table.find(list_tree, obj.Name) then
+				if not filtro or obj.Name == filtro then
+					local root = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+					if root then
+						local dist = (humanoidRoot.Position - root.Position).Magnitude
+						if dist < minDist and dist <= MAX_DISTANCE_Tree then
+							nearest = obj
+							minDist = dist
+						end
+					end
+				end
+			end
+		end
+
+		return nearest
+	end
+
+	-- Função para mover até a árvore suavemente
+	local function MoveToTree(tree)
+		if tree then
+			local target = tree.PrimaryPart or tree:FindFirstChildWhichIsA("BasePart")
+			if target then
+				local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear)
+				local tween = TweenService:Create(humanoidRoot, tweenInfo, {CFrame = CFrame.new(target.Position + Vector3.new(0,5,0))})
+				tween:Play()
+				tween.Completed:Wait()
+			end
+		end
+	end
+
+	
+	-- Função para AutoFarm com fixo
+	local function AutoFarmTree(filtro)
+		while task.wait(0.2) and char.Parent do
+			-- Procura a árvore mais próxima do tipo selecionado
+			local tree = GetNearestTree(filtro)
+			if not tree then
+				-- Atualiza GUI
+				if Conect_gui_tree then
+					local focusLabel = Conect_gui_tree:FindFirstChild("FocusLabel", true)
+					if focusLabel then focusLabel.Text = "Nenhuma árvore encontrada" end
+				end
+				task.wait(1)
+				continue
+			end
+
+			-- Atualiza label do foco
+			if Conect_gui_tree then
+				local focusLabel = Conect_gui_tree:FindFirstChild("FocusLabel", true)
+				if focusLabel then focusLabel.Text = "Foco Atual: " .. tree.Name end
+			end
+
+			-- Mover até a árvore
+			MoveToTree(tree)
+
+			-- Enquanto a árvore existir, ataque/fique nela
+			while tree and tree.Parent do
+				-- Aqui você pode simular ataque/click
+				print("Atacando árvore:", tree.Name)
+				task.wait(0.3)
+			end
+
+			-- Quando a árvore sumir, o loop procura a próxima
+		end
+	end
+
+
 	if estado then
-		print(" Auto Madeira ligado!")
+		print("Auto Madeira ligado!")
+
+		Conect_tree = task.spawn(AutoFarmTree, nil)
+
+		-- Criar GUI
+		local gui_tree = Instance.new("ScreenGui")
+		gui_tree.Name = "AutoTreeGUI"
+		gui_tree.ResetOnSpawn = false
+		gui_tree.Parent = player:WaitForChild("PlayerGui")
+
+		-- Frame principal da interface
+		local mainFrame = Instance.new("Frame", gui_tree)
+		mainFrame.Size = UDim2.new(0, 320, 0, 250)
+		mainFrame.Position = UDim2.new(0.5, -160, 0.1, 0)
+		mainFrame.BackgroundTransparency = 0.3
+		mainFrame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+
+		applyDraggable(mainFrame, true, true)
+
+		-- Label de status
+		local label = Instance.new("TextLabel", mainFrame)
+		label.Name = "StatusLabel"
+		label.Size = UDim2.new(1, -10, 0, 40)
+		label.Position = UDim2.new(0, 5, 0, 5)
+		label.BackgroundTransparency = 0.3
+		label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		label.TextColor3 = Color3.fromRGB(0, 255, 0)
+		label.Text = "Auto Madeira Ativo"
+		label.Font = Enum.Font.SourceSansBold
+		label.TextSize = 20
+
+		-- Label do foco atual
+		local focusLabel = Instance.new("TextLabel", mainFrame)
+		focusLabel.Name = "FocusLabel"
+		focusLabel.Size = UDim2.new(1, -10, 0, 30)
+		focusLabel.Position = UDim2.new(0, 5, 0, 50)
+		focusLabel.BackgroundTransparency = 0.3
+		focusLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		focusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+		focusLabel.Text = "Foco Atual: Nenhuma"
+		focusLabel.Font = Enum.Font.SourceSansBold
+		focusLabel.TextSize = 18
+
+		-- Frame para os botões de árvore
+		local frame_tree = Instance.new("Frame", mainFrame)
+		frame_tree.Size = UDim2.new(1, -10, 1, -90)
+		frame_tree.Position = UDim2.new(0, 5, 0, 85)
+		frame_tree.BackgroundTransparency = 0.3
+		frame_tree.BackgroundColor3 = Color3.fromRGB(30,30,30)
+
+		local Scrollin_Trees = Instance.new("ScrollingFrame", frame_tree)
+		Scrollin_Trees.Size = UDim2.new(1, 0, 1, 0)
+		Scrollin_Trees.CanvasSize = UDim2.new(0,0,0,0)
+		Scrollin_Trees.ScrollBarThickness = 8
+		Scrollin_Trees.BackgroundTransparency = 1
+
+		applyAutoScrolling(Scrollin_Trees, UDim.new(0,5))
+
+		-- Criar botões para escolher árvore
+		for _, treeName in ipairs(list_tree) do
+			local btn = Instance.new("TextButton", Scrollin_Trees)
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = treeName
+			btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			btn.TextColor3 = Color3.fromRGB(0,255,0)
+			btn.Font = Enum.Font.SourceSans
+			btn.TextSize = 16
+
+			btn.MouseButton1Click:Connect(function()
+				if Conect_tree then task.cancel(Conect_tree) end
+				Conect_tree = task.spawn(AutoFarmTree, treeName)
+			end)
+		end
+
+		Conect_gui_tree = gui_tree
+
 	else
-		print(" Auto Madeira desligado!")
+		print("Auto Madeira desligado!")
+		if Conect_tree then
+			task.cancel(Conect_tree)
+			Conect_tree = nil
+		end
+		if Conect_gui_tree then
+			Conect_gui_tree:Destroy()
+			Conect_gui_tree = nil
+		end
 	end
 end)
+
+
+
 
 -- pode dar erro se não for executor 
 local Conect_Clone
