@@ -1434,8 +1434,13 @@ Create_Titles("Mastermods", "Auto Madeira", "Ativar Auto Madeira", "Coletar e qu
 			MoveToTree(tree)
 
 			-- Enquanto a árvore existir, ataque/fique nela
-			-- Dentro de AutoFarmTree
+			-- Dentro do loop de AutoFarmTree
 			while tree and tree.Parent and auto_clicking do
+				-- Centraliza mouse automaticamente
+				task.spawn(function()
+					lockMouse() -- usa centro da tela se não passar refPos
+				end)
+
 				SafeClickUpAuto(false, 0.05, function() return auto_clicking end)
 				print("Atacando árvore:", tree.Name)
 				task.wait(0.3)
