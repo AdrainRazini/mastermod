@@ -811,22 +811,22 @@ local function focus(npc, list)
 
 	-- Próximo NPC
 	local function focusNextNpc()
-		if #Npcs_List == 0 then return end
+		if #All_List == 0 then return end
 		currentIndex = currentIndex + 1
-		if currentIndex > #Npcs_List then
+		if currentIndex > #All_List then
 			currentIndex = 1
 		end
-		focus(Npcs_List[currentIndex], Npcs_List)
+		focus(All_List[currentIndex], All_List)
 	end
 
 	-- Anterior NPC
 	local function focusPrevNpc()
-		if #Npcs_List == 0 then return end
+		if #All_List == 0 then return end
 		currentIndex = currentIndex - 1
 		if currentIndex < 1 then
-			currentIndex = #Npcs_List
+			currentIndex = #All_List
 		end
-		focus(Npcs_List[currentIndex], Npcs_List)
+		focus(All_List[currentIndex], All_List)
 	end
 
 
@@ -921,13 +921,13 @@ local function criarNpcButton(npc, parent)
 
 	btn.MouseButton1Click:Connect(function()
 		-- define índice atual para esse NPC
-		for i, v in ipairs(Npcs_List) do
+		for i, v in ipairs(All_List) do
 			if v == npc then
 				currentIndex = i
 				break
 			end
 		end
-		focus(npc, Npcs_List)
+		focus(npc, All_List)
 	end)
 end
 
@@ -945,9 +945,10 @@ local function atualizarNPCs()
 	end
 
 	-- cria botões para cada NPC
-	for _, npc in ipairs(Npcs_List) do
+	for _, npc in ipairs(All_List) do
 		criarNpcButton(npc, "Npc")
 	end
+	
 end
 
 
@@ -956,7 +957,7 @@ local function addNpc(npc)
 	if npc:IsA("Model") then
 		local humanoid = npc:FindFirstChildOfClass("Humanoid")
 		if humanoid and humanoid.Name == "NPC" then
-			table.insert(Npcs_List, npc)
+			table.insert(All_List, npc)
 			atualizarNPCs()
 			print("NPC adicionado:", npc.Name)
 		end
@@ -965,9 +966,9 @@ end
 
 -- Função para remover NPC da lista
 local function removeNpc(npc)
-	for i, v in ipairs(Npcs_List) do
+	for i, v in ipairs(All_List) do
 		if v == npc then
-			table.remove(Npcs_List, i)
+			table.remove(All_List, i)
 			atualizarNPCs()
 			print("NPC removido:", npc.Name)
 			break
@@ -1328,6 +1329,9 @@ refPos = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
 end
 
 local mouse = Module.getMause
+if not mouse then
+	mouse = nil
+end
 
 if lock_mouse  then
 	mouse.LockMouse(refPos)
