@@ -1016,6 +1016,7 @@ function criar_Gui_Frame()
 	local scripts = {
 		{name = "Inventario", path = "inventario.lua"},
 		{name = "animal simulator", path = "animal_simulator.lua"},
+		{name = "test aura kill", path = "test_aura_kill.lua"},
 		{name = "FlyGui", path = "flyguiv2.lua"},
 		{name = "99 Nights", path = "farme_nights.lua"},
 		--{name = "Mause Click", path = "mause.lua"},
