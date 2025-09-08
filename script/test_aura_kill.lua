@@ -148,6 +148,23 @@ local function giveFireball()
         if skillsRemote then
             local pos = mouse.Hit.Position
             skillsRemote:FireServer(pos, "NewFireball")
+        end
+    end)
+end
+
+-- FIREBALL TOOL FUNCTION
+local function giveFireballEletric()
+    local tool = Instance.new("Tool")
+    tool.Name = "FireballEletric"
+    tool.RequiresHandle = false
+    tool.CanBeDropped = false
+    tool.ManualActivationOnly = false
+    tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
+
+    local mouse = player:GetMouse()
+    tool.Activated:Connect(function()
+        if skillsRemote then
+            local pos = mouse.Hit.Position
             skillsRemote:FireServer(pos, "NewLightningball")
         end
     end)
@@ -225,6 +242,7 @@ local function AutoFireLoop()
                 local pos = hrpTarget.Position
                 pcall(function()
                     skillsRemote:FireServer(pos, "NewFireball")
+                    skillsRemote:FireServer(pos, "NewLightningball")
                 end)
             end
         end
