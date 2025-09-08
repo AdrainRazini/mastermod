@@ -134,6 +134,36 @@ local function findDummy(folder)
     end
 end
 
+
+-- FIREBALL TOOL FUNCTION
+local function giveFireball()
+    local tool = Instance.new("Tool")
+    tool.Name = "Fireball"
+    tool.RequiresHandle = false
+    tool.CanBeDropped = false
+    tool.ManualActivationOnly = false
+    tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
+
+    local mouse = player:GetMouse()
+    local function shoot()
+        if tool and skillsRemote then
+            local pos = mouse.Hit.Position
+            skillsRemote:FireServer(pos, "NewFireball")
+        end
+    end
+
+    tool.Activated:Connect(shoot)
+end
+
+giveFireball()
+player.CharacterAdded:Connect(function()
+    task.wait(1)
+    giveFireball()
+end)
+
+
+
+
 local PVP = { killAura = true }
 local maxRange = 100 -- distância máxima em studs
 
