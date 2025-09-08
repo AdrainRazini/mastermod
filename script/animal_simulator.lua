@@ -1,3 +1,13 @@
+
+-- URL da API do GitHub para listar os scripts
+local GITHUB_USER = "AdrainRazini"
+local GITHUB_REPO = "Mastermod"
+local GITHUB_REPO_NAME = "Mastermod"
+local Owner = "Adrian75556435"
+local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/contents/script"
+local IMG_ICON = "rbxassetid://117585506735209"
+local NAME_MOD_MENU = "ModMenuGui"
+
 -- SERVICES
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -7,7 +17,7 @@ local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
 -- ReGui
-local ReGui = loadstring(game:HttpGet("https://raw.githubusercontent.com/depthso/Dear-ReGui/refs/heads/main/ReGui.lua"))()
+local ReGui = loadstring(game:HttpGet("https://raw.githubusercontent.com/".. GITHUB_USER .."/".. GITHUB_REPO .."/refs/heads/main/module/dataUi.lua"))()   --loadstring(game:HttpGet("https://raw.githubusercontent.com/depthso/Dear-ReGui/refs/heads/main/ReGui.lua"))()
 local PrefabsId = "rbxassetid://71968920594655"
 
 ReGui:Init({
