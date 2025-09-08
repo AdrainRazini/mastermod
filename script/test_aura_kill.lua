@@ -7,19 +7,111 @@ local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/"
 local IMG_ICON = "rbxassetid://117585506735209"
 local NAME_MOD_MENU = "ModMenuGui"
 
+
 -- SERVICES
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
+local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
 
--- GUI PRINCIPAL
-local ReGui = {}
+
+
+
+
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+-- 🖼️ Função utilitária para criar UI Corner Obs: Aplicar Ui nas frames
+local function applyCorner(instance, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = radius or UDim.new(0, 6)
+	corner.Parent = instance
+end
+
+-- Função para aplicar contorno neon via UIStroke
+local function applyUIStroke(instance, colorName, thickness)
+	thickness = thickness or 2
+	local stroke = Instance.new("UIStroke")
+	stroke.Parent = instance
+	stroke.Thickness = thickness
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+	stroke.Transparency = 0
+	-- Escolhe cor da paleta ou usa branco como fallback
+	stroke.Color = colors[colorName] or Color3.new(1, 1, 1)
+end
+
+local function applyUIListLayout(instance, padding, sortOrder, alignment)
+	local list = Instance.new("UIListLayout")
+	list.Parent = instance
+
+	-- Padding entre elementos (UDim ou padrão 0)
+	list.Padding = padding or UDim.new(0, 0)
+
+	-- Ordem dos elementos
+	list.SortOrder = sortOrder or Enum.SortOrder.LayoutOrder 
+
+	-- Alinhamento
+	list.HorizontalAlignment = alignment or Enum.HorizontalAlignment.Center
+end
+
+-- Função para aplicar ajuste automático de CanvasSize em qualquer ScrollingFrame
+
+local function applyAutoScrolling(instance, padding, alignment)
+	-- Verifica se já existe um UIListLayout
+	local layout = instance:FindFirstChildOfClass("UIListLayout")
+	if not layout then
+		layout = Instance.new("UIListLayout")
+		layout.Parent = instance
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+	end
+
+	-- Aplica padding se passado
+	if padding then
+		layout.Padding = padding
+	end
+
+	-- Aplica alinhamento opcional
+	if alignment then
+		layout.HorizontalAlignment = alignment or Enum.HorizontalAlignment.Left
+	end
+
+	-- Função de atualização
+	local function updateCanvas()
+		local contentSize = layout.AbsoluteContentSize
+		local frameSizeY = instance.AbsoluteSize.Y
+
+		instance.CanvasSize = UDim2.new(
+			0, 0,
+			0, math.max(contentSize.Y, frameSizeY) + 10 -- margem extra
+		)
+	end
+
+	-- Conecta sinais
+	layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+	instance:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateCanvas)
+
+	-- Força atualização inicial
+	updateCanvas()
+
+	return layout
+end
+
+
+
+function applyDraggable (instance, Active, Draggable)
+	instance.Active = Active
+	instance.Draggable = Draggable
+end
+
+
+
+ReGui = {}
 ReGui["Screen"] = Instance.new("ScreenGui")
 ReGui["Screen"].Name = NAME_MOD_MENU
 ReGui["Screen"].Parent = game:GetService("CoreGui")
@@ -35,80 +127,57 @@ local function getAliveHumanoid(model)
     if hum and hum.Health > 0 then return hum end
 end
 
--- ⚔️ CONFIG
-local PVP = { killAura = true }
-local maxRange = 50 -- valor inicial
-
--- HIGHLIGHT DO ALVO
-local function highlightTarget(target)
-    -- remove highlight antigo
-    for _, h in ipairs(Workspace:GetChildren()) do
-        if h:IsA("Highlight") and h.Name == "KillAuraHighlight" then
-            h:Destroy()
-        end
-    end
-
-    -- cria highlight novo
-    if target and target:FindFirstChild("HumanoidRootPart") then
-        local highlight = Instance.new("Highlight")
-        highlight.Adornee = target
-        highlight.FillColor = Color3.fromRGB(255, 50, 50)
-        highlight.OutlineTransparency = 0
-        highlight.Name = "KillAuraHighlight"
-        highlight.Parent = Workspace
+local function findDummy(folder)
+    for _, d in ipairs(folder:GetChildren()) do
+        local hum = getAliveHumanoid(d)
+        if hum then return d, hum end
     end
 end
 
--- LOOP DO AURA
+local PVP = { killAura = true }
+local maxRange = 100 -- distância máxima em studs
+
 local function killAuraLoop()
-    while true do
-        if PVP.killAura then
-            local _, _, hrp = getCharacter()
-            local closest = nil
-            local shortest = maxRange
+    while PVP.killAura do
+        local _, _, hrp = getCharacter()
+        local closest = nil
+        local shortest = maxRange
 
-            for _, p in ipairs(Players:GetPlayers()) do
-                if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                    if dist < shortest then
-                        shortest = dist
-                        closest = p
-                    end
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                if dist < shortest then
+                    shortest = dist
+                    closest = p
                 end
             end
-
-            if closest and attackRemote then
-                local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-                if hum and hum.Health > 0 then
-                    highlightTarget(closest.Character)
-                    pcall(function()
-                        attackRemote:FireServer(hum, 1)
-                    end)
-                end
-            else
-                highlightTarget(nil) -- limpa se não tiver alvo
-            end
-        else
-            highlightTarget(nil) -- limpa se desligar
         end
 
-        task.wait(0.1) -- delay fixo
+        if closest and attackRemote then
+            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+            if hum and hum.Health > 0 then
+                pcall(function()
+                    attackRemote:FireServer(hum, 1)
+                end)
+            end
+        end
+
+        task.wait(0.1) -- delay do aura
     end
 end
 
 task.spawn(killAuraLoop)
 
--- 📦 FRAME DE CONTROLE
+-- FRAME DE CONTROLE
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 150)
+frame.Size = UDim2.new(0, 200, 0, 120)
 frame.Position = UDim2.new(0.05, 0, 0.2, 0)
 frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 frame.BorderSizePixel = 0
 frame.Parent = ReGui["Screen"]
 
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 10)
-corner.Parent = frame
+applyDraggable(frame, true, true)
+applyCorner(frame)
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 30)
@@ -123,7 +192,7 @@ title.Parent = frame
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0.9, 0, 0, 30)
 toggleBtn.Position = UDim2.new(0.05, 0, 0.35, 0)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 100)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleBtn.Font = Enum.Font.GothamBold
 toggleBtn.TextSize = 14
@@ -134,70 +203,11 @@ local btnCorner = Instance.new("UICorner")
 btnCorner.CornerRadius = UDim.new(0, 8)
 btnCorner.Parent = toggleBtn
 
-local function updateButton()
-    toggleBtn.Text = "Kill Aura: " .. (PVP.killAura and "ON" or "OFF")
-    toggleBtn.BackgroundColor3 = PVP.killAura and Color3.fromRGB(0, 170, 100) or Color3.fromRGB(170, 50, 50)
-end
-
 toggleBtn.MouseButton1Click:Connect(function()
     PVP.killAura = not PVP.killAura
-    updateButton()
-end)
-
-updateButton()
-
--- SLIDER DE DISTÂNCIA
-local sliderBack = Instance.new("Frame")
-sliderBack.Size = UDim2.new(0.9, 0, 0, 20)
-sliderBack.Position = UDim2.new(0.05, 0, 0.75, 0)
-sliderBack.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-sliderBack.BorderSizePixel = 0
-sliderBack.Parent = frame
-
-local sliderCorner = Instance.new("UICorner")
-sliderCorner.CornerRadius = UDim.new(0, 6)
-sliderCorner.Parent = sliderBack
-
-local sliderFill = Instance.new("Frame")
-sliderFill.Size = UDim2.new(0.25, 0, 1, 0) -- inicial: 25% = 50 studs
-sliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-sliderFill.BorderSizePixel = 0
-sliderFill.Parent = sliderBack
-
-local fillCorner = Instance.new("UICorner")
-fillCorner.CornerRadius = UDim.new(0, 6)
-fillCorner.Parent = sliderFill
-
-local sliderLabel = Instance.new("TextLabel")
-sliderLabel.Size = UDim2.new(1, 0, 0, 20)
-sliderLabel.Position = UDim2.new(0, 0, 1.1, 0)
-sliderLabel.BackgroundTransparency = 1
-sliderLabel.Text = "Range: 50"
-sliderLabel.Font = Enum.Font.Gotham
-sliderLabel.TextSize = 14
-sliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-sliderLabel.Parent = frame
-
--- Drag do Slider
-local dragging = false
-
-sliderBack.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
+    toggleBtn.Text = "Kill Aura: " .. (PVP.killAura and "ON" or "OFF")
+    if PVP.killAura then
+        task.spawn(killAuraLoop)
     end
 end)
 
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local relX = math.clamp((input.Position.X - sliderBack.AbsolutePosition.X) / sliderBack.AbsoluteSize.X, 0, 1)
-        sliderFill.Size = UDim2.new(relX, 0, 1, 0)
-        maxRange = math.floor(relX * 200) -- range de 0 a 200 studs
-        sliderLabel.Text = "Range: " .. maxRange
-    end
-end)
