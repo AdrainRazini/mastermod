@@ -16,16 +16,14 @@ local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 
--- ReGui
-local ReGui = loadstring(game:HttpGet("https://raw.githubusercontent.com/".. GITHUB_USER .."/".. GITHUB_REPO .."/refs/heads/main/module/dataUi.lua"))()
-local PrefabsId = "rbxassetid://71968920594655"
-
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
 local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
 
-local PVP = { killAura=true }
-
+ReGui = {}
+ReGui["Screen"] = Instance.new("ScreenGui")
+ReGui["Screen"].Name = NAME_MOD_MENU
+ReGui["Screen"].Parent = game:GetService("CoreGui")
 
 -- UTILS
 local function getCharacter()
@@ -45,14 +43,14 @@ local function findDummy(folder)
     end
 end
 
+local PVP = { killAura = true }
+local maxRange = 100 -- distância máxima em studs
 
--- PVP FUNCTIONS
 local function killAuraLoop()
-    local maxRange = 100 -- distância máxima em studs (pode alterar)
     while PVP.killAura do
         local _, _, hrp = getCharacter()
         local closest = nil
-        local shortest = maxRange -- só considera players dentro do alcance
+        local shortest = maxRange
 
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
@@ -64,14 +62,16 @@ local function killAuraLoop()
             end
         end
 
-        if closest then
+        if closest and attackRemote then
             local hum = closest.Character:FindFirstChildOfClass("Humanoid")
             if hum and hum.Health > 0 then
-                attackRemote:FireServer(hum, 1)
+                pcall(function()
+                    attackRemote:FireServer(hum, 1)
+                end)
             end
         end
 
-        task.wait(0.1)
+        task.wait(0.1) -- delay do aura
     end
 end
 
