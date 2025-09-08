@@ -89,6 +89,8 @@ local function farmBosses()
 end
 
 -- PVP FUNCTIONS
+--[[ 
+--Original 
 local function killAuraLoop()
     while PVP.killAura do
         local _, _, hrp = getCharacter()
@@ -109,6 +111,40 @@ local function killAuraLoop()
         task.wait(0.1)
     end
 end
+]]
+
+
+-- PVP FUNCTIONS
+local function killAuraLoop()
+    local maxRange = 100 -- distância máxima em studs (pode alterar)
+    while PVP.killAura do
+        local _, _, hrp = getCharacter()
+        local closest = nil
+        local shortest = maxRange -- só considera players dentro do alcance
+
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                if dist < shortest then
+                    shortest = dist
+                    closest = p
+                end
+            end
+        end
+
+        if closest then
+            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+            if hum and hum.Health > 0 then
+                attackRemote:FireServer(hum, 1)
+            end
+        end
+
+        task.wait(0.1)
+    end
+end
+
+
+
 
 -- FIREBALL TOOL FUNCTION
 local function giveFireball()
