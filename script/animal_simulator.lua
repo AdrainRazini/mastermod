@@ -25,7 +25,7 @@ ReGui:Init({
 })
 
 local Window = ReGui:TabsWindow({
-    Title = "Animal Simulator SOLIN HUB",
+    Title = "Animal Simulator",
     Size = UDim2.new(0, 400, 0, 400),
 }):Center()
 
