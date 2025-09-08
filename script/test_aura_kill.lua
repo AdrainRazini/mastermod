@@ -148,6 +148,7 @@ local function giveFireball()
         if skillsRemote then
             local pos = mouse.Hit.Position
             skillsRemote:FireServer(pos, "NewFireball")
+            skillsRemote:FireServer(pos, "NewLightningball")
         end
     end)
 end
