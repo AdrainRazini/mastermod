@@ -27,6 +27,25 @@ local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("
 local PVP = { killAura=true }
 
 
+-- UTILS
+local function getCharacter()
+    local c = player.Character or player.CharacterAdded:Wait()
+    return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
+end
+
+local function getAliveHumanoid(model)
+    local hum = model and model:FindFirstChildOfClass("Humanoid")
+    if hum and hum.Health > 0 then return hum end
+end
+
+local function findDummy(folder)
+    for _, d in ipairs(folder:GetChildren()) do
+        local hum = getAliveHumanoid(d)
+        if hum then return d, hum end
+    end
+end
+
+
 -- PVP FUNCTIONS
 local function killAuraLoop()
     local maxRange = 100 -- distância máxima em studs (pode alterar)
