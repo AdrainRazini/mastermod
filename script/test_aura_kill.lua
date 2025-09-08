@@ -205,22 +205,31 @@ local function AutoFire()
 
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                if dist < shortest then
-                    shortest = dist
-                    closest = p
+                local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health > 0 then -- ✅ só ataca se estiver vivo
+                    local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                    if dist < shortest then
+                        shortest = dist
+                        closest = p
+                    end
                 end
             end
         end
 
-        if closest and closest.Character and closest.Character:FindFirstChild("HumanoidRootPart") then
-            local pos = closest.Character.HumanoidRootPart.Position
-            pcall(function()
-                skillsRemote:FireServer(pos, "NewFireball")
-            end)
+        if closest and closest.Character then
+            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+            local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+
+            if hum and hum.Health > 0 and hrpTarget then -- ✅ garante que está vivo
+                local pos = hrpTarget.Position
+                pcall(function()
+                    skillsRemote:FireServer(pos, "NewFireball")
+                end)
+            end
         end
     end
 end
+
 
 -- Iniciar os loops
 task.spawn(killAuraLoop)
