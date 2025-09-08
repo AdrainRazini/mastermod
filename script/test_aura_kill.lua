@@ -196,7 +196,7 @@ local function killAuraLoop()
 end
 
 -- 🔥 AutoFire Fireball
-local function AutoFire()
+local function AutoFireLoop()
     giveFireball()
     while task.wait(0.3) do
         if not PVP.AutoFire then continue end
@@ -233,7 +233,7 @@ end
 
 -- Iniciar os loops
 task.spawn(killAuraLoop)
-task.spawn(AutoFire)
+task.spawn(AutoFireLoop)
 
 
 -- FRAME DE CONTROLE
@@ -256,7 +256,7 @@ title.TextSize = 16
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Parent = frame
 
--- BOTÃO ON/OFF
+-- BOTÃO ON/OFF Kill Aura
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0.9, 0, 0, 30)
 toggleBtn.Position = UDim2.new(0.05, 0, 0.35, 0)
@@ -268,7 +268,19 @@ toggleBtn.Text = "Kill Aura: ON"
 toggleBtn.Parent = frame
 applyCorner(toggleBtn)
 
+-- BOTÃO ON/OFF Auto Fire
+local toggleBtn2 = Instance.new("TextButton")
+toggleBtn2.Size = UDim2.new(0.9, 0, 0, 30)
+toggleBtn2.Position = UDim2.new(0.05, 0, 0.65, 0) -- posição diferente
+toggleBtn2.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+toggleBtn2.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn2.Font = Enum.Font.GothamBold
+toggleBtn2.TextSize = 14
+toggleBtn2.Text = "Auto Fire: ON"
+toggleBtn2.Parent = frame
+applyCorner(toggleBtn2)
 
+-- Conexões
 toggleBtn.MouseButton1Click:Connect(function()
     PVP.killAura = not PVP.killAura
     toggleBtn.Text = "Kill Aura: " .. (PVP.killAura and "ON" or "OFF")
@@ -277,3 +289,10 @@ toggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+toggleBtn2.MouseButton1Click:Connect(function()
+    PVP.AutoFire = not PVP.AutoFire
+    toggleBtn2.Text = "Auto Fire: " .. (PVP.AutoFire and "ON" or "OFF")
+    if PVP.AutoFire then
+        task.spawn(AutoFire)
+    end
+end)
