@@ -134,7 +134,6 @@ local function findDummy(folder)
     end
 end
 
-
 -- FIREBALL TOOL FUNCTION
 local function giveFireball()
     local tool = Instance.new("Tool")
@@ -145,33 +144,35 @@ local function giveFireball()
     tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
 
     local mouse = player:GetMouse()
-    local function shoot()
-        if tool and skillsRemote then
+    tool.Activated:Connect(function()
+        if skillsRemote then
             local pos = mouse.Hit.Position
             skillsRemote:FireServer(pos, "NewFireball")
         end
-    end
-
-    tool.Activated:Connect(shoot)
+    end)
 end
 
-giveFireball()
+local PVP = { 
+    killAura = true,
+    AutoFire = true,
+}
+
+local maxRange = 100 -- distância máxima
+
+-- Quando respawnar, garantir que tenha a Fireball
 player.CharacterAdded:Connect(function()
     task.wait(1)
-    giveFireball()
+    if PVP.AutoFire then
+        giveFireball()
+    end
 end)
 
-
-
-
-local PVP = { killAura = true }
-local maxRange = 100 -- distância máxima em studs
-
+-- ⚔ Kill Aura
 local function killAuraLoop()
-    while PVP.killAura do
+    while task.wait(0.1) do
+        if not PVP.killAura then continue end
         local _, _, hrp = getCharacter()
-        local closest = nil
-        local shortest = maxRange
+        local closest, shortest = nil, maxRange
 
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
@@ -191,12 +192,40 @@ local function killAuraLoop()
                 end)
             end
         end
-
-        task.wait(0.1) -- delay do aura
     end
 end
 
+-- 🔥 AutoFire Fireball
+local function AutoFire()
+    giveFireball()
+    while task.wait(0.3) do
+        if not PVP.AutoFire then continue end
+        local _, _, hrp = getCharacter()
+        local closest, shortest = nil, maxRange
+
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                if dist < shortest then
+                    shortest = dist
+                    closest = p
+                end
+            end
+        end
+
+        if closest and closest.Character and closest.Character:FindFirstChild("HumanoidRootPart") then
+            local pos = closest.Character.HumanoidRootPart.Position
+            pcall(function()
+                skillsRemote:FireServer(pos, "NewFireball")
+            end)
+        end
+    end
+end
+
+-- Iniciar os loops
 task.spawn(killAuraLoop)
+task.spawn(AutoFire)
+
 
 -- FRAME DE CONTROLE
 local frame = Instance.new("Frame")
@@ -228,10 +257,8 @@ toggleBtn.Font = Enum.Font.GothamBold
 toggleBtn.TextSize = 14
 toggleBtn.Text = "Kill Aura: ON"
 toggleBtn.Parent = frame
+applyCorner(toggleBtn)
 
-local btnCorner = Instance.new("UICorner")
-btnCorner.CornerRadius = UDim.new(0, 8)
-btnCorner.Parent = toggleBtn
 
 toggleBtn.MouseButton1Click:Connect(function()
     PVP.killAura = not PVP.killAura
