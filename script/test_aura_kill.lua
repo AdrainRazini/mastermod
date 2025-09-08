@@ -7,20 +7,19 @@ local SCRIPTS_FOLDER_URL = "https://api.github.com/repos/" .. GITHUB_USER .. "/"
 local IMG_ICON = "rbxassetid://117585506735209"
 local NAME_MOD_MENU = "ModMenuGui"
 
-
 -- SERVICES
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
-local TeleportService = game:GetService("TeleportService")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
-local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
 
-ReGui = {}
+-- GUI PRINCIPAL
+local ReGui = {}
 ReGui["Screen"] = Instance.new("ScreenGui")
 ReGui["Screen"].Name = NAME_MOD_MENU
 ReGui["Screen"].Parent = game:GetService("CoreGui")
@@ -36,50 +35,72 @@ local function getAliveHumanoid(model)
     if hum and hum.Health > 0 then return hum end
 end
 
-local function findDummy(folder)
-    for _, d in ipairs(folder:GetChildren()) do
-        local hum = getAliveHumanoid(d)
-        if hum then return d, hum end
+-- ⚔️ CONFIG
+local PVP = { killAura = true }
+local maxRange = 50 -- valor inicial
+
+-- HIGHLIGHT DO ALVO
+local function highlightTarget(target)
+    -- remove highlight antigo
+    for _, h in ipairs(Workspace:GetChildren()) do
+        if h:IsA("Highlight") and h.Name == "KillAuraHighlight" then
+            h:Destroy()
+        end
+    end
+
+    -- cria highlight novo
+    if target and target:FindFirstChild("HumanoidRootPart") then
+        local highlight = Instance.new("Highlight")
+        highlight.Adornee = target
+        highlight.FillColor = Color3.fromRGB(255, 50, 50)
+        highlight.OutlineTransparency = 0
+        highlight.Name = "KillAuraHighlight"
+        highlight.Parent = Workspace
     end
 end
 
-local PVP = { killAura = true }
-local maxRange = 100 -- distância máxima em studs
-
+-- LOOP DO AURA
 local function killAuraLoop()
-    while PVP.killAura do
-        local _, _, hrp = getCharacter()
-        local closest = nil
-        local shortest = maxRange
+    while true do
+        if PVP.killAura then
+            local _, _, hrp = getCharacter()
+            local closest = nil
+            local shortest = maxRange
 
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                if dist < shortest then
-                    shortest = dist
-                    closest = p
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                    if dist < shortest then
+                        shortest = dist
+                        closest = p
+                    end
                 end
             end
-        end
 
-        if closest and attackRemote then
-            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health > 0 then
-                pcall(function()
-                    attackRemote:FireServer(hum, 1)
-                end)
+            if closest and attackRemote then
+                local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health > 0 then
+                    highlightTarget(closest.Character)
+                    pcall(function()
+                        attackRemote:FireServer(hum, 1)
+                    end)
+                end
+            else
+                highlightTarget(nil) -- limpa se não tiver alvo
             end
+        else
+            highlightTarget(nil) -- limpa se desligar
         end
 
-        task.wait(0.1) -- delay do aura
+        task.wait(0.1) -- delay fixo
     end
 end
 
 task.spawn(killAuraLoop)
 
--- FRAME DE CONTROLE
+-- 📦 FRAME DE CONTROLE
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 120)
+frame.Size = UDim2.new(0, 200, 0, 150)
 frame.Position = UDim2.new(0.05, 0, 0.2, 0)
 frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 frame.BorderSizePixel = 0
@@ -102,7 +123,7 @@ title.Parent = frame
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0.9, 0, 0, 30)
 toggleBtn.Position = UDim2.new(0.05, 0, 0.35, 0)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 100)
 toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleBtn.Font = Enum.Font.GothamBold
 toggleBtn.TextSize = 14
@@ -113,13 +134,17 @@ local btnCorner = Instance.new("UICorner")
 btnCorner.CornerRadius = UDim.new(0, 8)
 btnCorner.Parent = toggleBtn
 
+local function updateButton()
+    toggleBtn.Text = "Kill Aura: " .. (PVP.killAura and "ON" or "OFF")
+    toggleBtn.BackgroundColor3 = PVP.killAura and Color3.fromRGB(0, 170, 100) or Color3.fromRGB(170, 50, 50)
+end
+
 toggleBtn.MouseButton1Click:Connect(function()
     PVP.killAura = not PVP.killAura
-    toggleBtn.Text = "Kill Aura: " .. (PVP.killAura and "ON" or "OFF")
-    if PVP.killAura then
-        task.spawn(killAuraLoop)
-    end
+    updateButton()
 end)
+
+updateButton()
 
 -- SLIDER DE DISTÂNCIA
 local sliderBack = Instance.new("Frame")
@@ -134,7 +159,7 @@ sliderCorner.CornerRadius = UDim.new(0, 6)
 sliderCorner.Parent = sliderBack
 
 local sliderFill = Instance.new("Frame")
-sliderFill.Size = UDim2.new(0.5, 0, 1, 0) -- metade preenchida (50 studs iniciais)
+sliderFill.Size = UDim2.new(0.25, 0, 1, 0) -- inicial: 25% = 50 studs
 sliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 sliderFill.BorderSizePixel = 0
 sliderFill.Parent = sliderBack
@@ -154,7 +179,6 @@ sliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 sliderLabel.Parent = frame
 
 -- Drag do Slider
-local UserInputService = game:GetService("UserInputService")
 local dragging = false
 
 sliderBack.InputBegan:Connect(function(input)
