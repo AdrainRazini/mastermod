@@ -21,6 +21,54 @@ local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiII
 local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
 
 
+--===============================================--
+--============= Lista De Cores dat ===============--
+--===============================================--
+
+-- Criação da lista de cores 
+local colors = {
+	Main = Color3.fromRGB(20, 20, 20),
+	Secondary = Color3.fromRGB(35, 35, 35),
+	Accent = Color3.fromRGB(0, 170, 255),
+	Text = Color3.fromRGB(255, 255, 255),
+	Button = Color3.fromRGB(50, 50, 50),
+	ButtonHover = Color3.fromRGB(70, 70, 70),
+	Stroke = Color3.fromRGB(80, 80, 80),
+	Red = Color3.fromRGB(255, 0, 0),
+	Green = Color3.fromRGB(0, 255, 0),
+	Blue = Color3.fromRGB(0, 0, 255),
+	Yellow = Color3.fromRGB(255, 255, 0),
+	Orange = Color3.fromRGB(255, 165, 0),
+	Purple = Color3.fromRGB(128, 0, 128),
+	Pink = Color3.fromRGB(255, 105, 180),
+	White = Color3.fromRGB(255, 255, 255),
+	Black = Color3.fromRGB(0, 0, 0),
+	Gray = Color3.fromRGB(128, 128, 128),
+	DarkGray = Color3.fromRGB(50, 50, 50),
+	LightGray = Color3.fromRGB(200, 200, 200),
+	Cyan = Color3.fromRGB(0, 255, 255),
+	Magenta = Color3.fromRGB(255, 0, 255),
+	Brown = Color3.fromRGB(139, 69, 19),
+	Gold = Color3.fromRGB(255, 215, 0),
+	Silver = Color3.fromRGB(192, 192, 192),
+	Maroon = Color3.fromRGB(128, 0, 0),
+	Navy = Color3.fromRGB(0, 0, 128),
+	Lime = Color3.fromRGB(50, 205, 50),
+	Olive = Color3.fromRGB(128, 128, 0),
+	Teal = Color3.fromRGB(0, 128, 128),
+	Aqua = Color3.fromRGB(0, 255, 170),
+	Coral = Color3.fromRGB(255, 127, 80),
+	Crimson = Color3.fromRGB(220, 20, 60),
+	Indigo = Color3.fromRGB(75, 0, 130),
+	Turquoise = Color3.fromRGB(64, 224, 208),
+	Slate = Color3.fromRGB(112, 128, 144),
+	Chocolate = Color3.fromRGB(210, 105, 30)
+}
+
+--===============================================--
+--===============================================--
+
+
 
 
 
@@ -109,150 +157,201 @@ function applyDraggable (instance, Active, Draggable)
 	instance.Draggable = Draggable
 end
 
-
-
-ReGui = {}
-ReGui["Screen"] = Instance.new("ScreenGui")
-ReGui["Screen"].Name = NAME_MOD_MENU
-ReGui["Screen"].Parent = game:GetService("CoreGui")
-
+--=========================================================--
 -- UTILS
 local function getCharacter()
-    local c = player.Character or player.CharacterAdded:Wait()
-    return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
+	local c = player.Character or player.CharacterAdded:Wait()
+	return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
 end
 
 local function getAliveHumanoid(model)
-    local hum = model and model:FindFirstChildOfClass("Humanoid")
-    if hum and hum.Health > 0 then return hum end
+	local hum = model and model:FindFirstChildOfClass("Humanoid")
+	if hum and hum.Health > 0 then return hum end
 end
 
 local function findDummy(folder)
-    for _, d in ipairs(folder:GetChildren()) do
-        local hum = getAliveHumanoid(d)
-        if hum then return d, hum end
-    end
+	for _, d in ipairs(folder:GetChildren()) do
+		local hum = getAliveHumanoid(d)
+		if hum then return d, hum end
+	end
 end
-
 -- FIREBALL TOOL FUNCTION
 local function giveFireball()
-    local tool = Instance.new("Tool")
-    tool.Name = "Fireball"
-    tool.RequiresHandle = false
-    tool.CanBeDropped = false
-    tool.ManualActivationOnly = false
-    tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
+	-- evita duplicação
+	if player.Backpack:FindFirstChild("Fireball") or player.Character:FindFirstChild("Fireball") then
+		return
+	end
 
-    local mouse = player:GetMouse()
-    tool.Activated:Connect(function()
-        if skillsRemote then
-            local pos = mouse.Hit.Position
-            skillsRemote:FireServer(pos, "NewFireball")
-        end
-    end)
+	local tool = Instance.new("Tool")
+	tool.Name = "Fireball"
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.ManualActivationOnly = false
+	tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
+
+	local mouse = player:GetMouse()
+	tool.Activated:Connect(function()
+		if skillsRemote then
+			local pos = mouse.Hit.Position
+			skillsRemote:FireServer(pos, "NewFireball")
+		end
+	end)
 end
 
--- FIREBALL TOOL FUNCTION
-local function giveFireballEletric()
-    local tool = Instance.new("Tool")
-    tool.Name = "FireballEletric"
-    tool.RequiresHandle = false
-    tool.CanBeDropped = false
-    tool.ManualActivationOnly = false
-    tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
 
-    local mouse = player:GetMouse()
-    tool.Activated:Connect(function()
-        if skillsRemote then
-            local pos = mouse.Hit.Position
-            skillsRemote:FireServer(pos, "NewLightningball")
-        end
-    end)
+-- FIREBALL ELETRIC TOOL FUNCTION
+local function giveFireballEletric()
+	-- evita duplicação
+	if player.Backpack:FindFirstChild("FireballEletric") or player.Character:FindFirstChild("FireballEletric") then
+		return
+	end
+
+	local tool = Instance.new("Tool")
+	tool.Name = "FireballEletric"
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.ManualActivationOnly = false
+	tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
+
+	local mouse = player:GetMouse()
+	tool.Activated:Connect(function()
+		if skillsRemote then
+			local pos = mouse.Hit.Position
+			skillsRemote:FireServer(pos, "NewLightningball")
+		end
+	end)
 end
 
 local PVP = { 
-    killAura = true,
-    AutoFire = true,
+	killAura = true,
+	AutoFire = true,
+	AutoEletric = true,
 }
 
 local maxRange = 100 -- distância máxima
 
 -- Quando respawnar, garantir que tenha a Fireball
 player.CharacterAdded:Connect(function()
-    task.wait(1)
-    if PVP.AutoFire then
-        giveFireball()
-    end
+	task.wait(1)
+	if PVP.AutoFire then
+		giveFireball()
+	end
+	if PVP.AutoEletric then
+		giveFireballEletric()
+	end
 end)
 
 -- ⚔ Kill Aura
 local function killAuraLoop()
-    while task.wait(0.1) do
-        if not PVP.killAura then continue end
-        local _, _, hrp = getCharacter()
-        local closest, shortest = nil, maxRange
+	while task.wait(0.1) do
+		if not PVP.killAura then continue end
+		local _, _, hrp = getCharacter()
+		local closest, shortest = nil, maxRange
 
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                if dist < shortest then
-                    shortest = dist
-                    closest = p
-                end
-            end
-        end
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+				if dist < shortest then
+					shortest = dist
+					closest = p
+				end
+			end
+		end
 
-        if closest and attackRemote then
-            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health > 0 then
-                pcall(function()
-                    attackRemote:FireServer(hum, 1)
-                end)
-            end
-        end
-    end
+		if closest and attackRemote then
+			local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+			if hum and hum.Health > 0 then
+				pcall(function()
+					attackRemote:FireServer(hum, 1)
+				end)
+			end
+		end
+	end
 end
 
 -- 🔥 AutoFire Fireball
 local function AutoFireLoop()
-    giveFireball()
-    while task.wait(0.3) do
-        if not PVP.AutoFire then continue end
-        local _, _, hrp = getCharacter()
-        local closest, shortest = nil, maxRange
+	giveFireball()
+	while task.wait(0.3) do
+		if not PVP.AutoFire then continue end
+		local _, _, hrp = getCharacter()
+		local closest, shortest = nil, maxRange
 
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                if hum and hum.Health > 0 then -- ✅ só ataca se estiver vivo
-                    local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                    if dist < shortest then
-                        shortest = dist
-                        closest = p
-                    end
-                end
-            end
-        end
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local hum = p.Character:FindFirstChildOfClass("Humanoid")
+				if hum and hum.Health > 0 then -- ✅ só ataca se estiver vivo
+					local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+					if dist < shortest then
+						shortest = dist
+						closest = p
+					end
+				end
+			end
+		end
 
-        if closest and closest.Character then
-            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-            local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+		if closest and closest.Character then
+			local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+			local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
 
-            if hum and hum.Health > 0 and hrpTarget then -- ✅ garante que está vivo
-                local pos = hrpTarget.Position
-                pcall(function()
-                    skillsRemote:FireServer(pos, "NewFireball")
-                    skillsRemote:FireServer(pos, "NewLightningball")
-                end)
-            end
-        end
-    end
+			if hum and hum.Health > 0 and hrpTarget then -- ✅ garante que está vivo
+				local pos = hrpTarget.Position
+				pcall(function()
+					skillsRemote:FireServer(pos, "NewFireball")
+				end)
+			end
+		end
+	end
 end
 
+-- 🔥 AutoEletric Lightningball
+local function AutoEletricLoop()
+	giveFireballEletric()
+	while task.wait(0.3) do
+		if not PVP.AutoEletric then continue end
+		local _, _, hrp = getCharacter()
+		local closest, shortest = nil, maxRange
+
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local hum = p.Character:FindFirstChildOfClass("Humanoid")
+				if hum and hum.Health > 0 then -- ✅ só ataca se estiver vivo
+					local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+					if dist < shortest then
+						shortest = dist
+						closest = p
+					end
+				end
+			end
+		end
+
+		if closest and closest.Character then
+			local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+			local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+
+			if hum and hum.Health > 0 and hrpTarget then -- ✅ garante que está vivo
+				local pos = hrpTarget.Position
+				pcall(function()
+					skillsRemote:FireServer(pos, "NewLightningball")
+				end)
+			end
+		end
+	end
+end
 
 -- Iniciar os loops
 task.spawn(killAuraLoop)
 task.spawn(AutoFireLoop)
+task.spawn(AutoEletricLoop)
+
+
+local player = game:GetService("Players").LocalPlayer
+local guiParent = game:GetService("CoreGui") or player:WaitForChild("PlayerGui")
+
+ReGui = {}
+ReGui["Screen"] = Instance.new("ScreenGui")
+ReGui["Screen"].Name = NAME_MOD_MENU
+ReGui["Screen"].Parent = guiParent
 
 
 -- FRAME DE CONTROLE
@@ -266,52 +365,60 @@ frame.Parent = ReGui["Screen"]
 applyDraggable(frame, true, true)
 applyCorner(frame)
 
-local title = Instance.new("TextLabel")
+local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
 title.Text = "⚔ Kill Aura"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 16
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Parent = frame
 
--- BOTÃO ON/OFF Kill Aura
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0.9, 0, 0, 30)
-toggleBtn.Position = UDim2.new(0.05, 0, 0.35, 0)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.TextSize = 14
-toggleBtn.Text = "Kill Aura: ON"
-toggleBtn.Parent = frame
-applyCorner(toggleBtn)
 
--- BOTÃO ON/OFF Auto Fire
-local toggleBtn2 = Instance.new("TextButton")
-toggleBtn2.Size = UDim2.new(0.9, 0, 0, 30)
-toggleBtn2.Position = UDim2.new(0.05, 0, 0.65, 0) -- posição diferente
-toggleBtn2.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-toggleBtn2.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn2.Font = Enum.Font.GothamBold
-toggleBtn2.TextSize = 14
-toggleBtn2.Text = "Auto Fire: ON"
-toggleBtn2.Parent = frame
-applyCorner(toggleBtn2)
+local scroll_frame = Instance.new("ScrollingFrame", frame)
+scroll_frame.Size = UDim2.new(0, 200, 0, 100)
+scroll_frame.Position = UDim2.new(0, 0, 0.3, 0)
+scroll_frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+scroll_frame.BorderSizePixel = 0
+applyAutoScrolling(scroll_frame)
 
--- Conexões
-toggleBtn.MouseButton1Click:Connect(function()
-    PVP.killAura = not PVP.killAura
-    toggleBtn.Text = "Kill Aura: " .. (PVP.killAura and "ON" or "OFF")
-    if PVP.killAura then
-        task.spawn(killAuraLoop)
-    end
+
+
+-- Função para criar botões
+local function createToggleButton(text, callback)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -10, 0, 30)
+	btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.Text = text .. ": ON"
+	btn.Parent = scroll_frame
+	applyCorner(btn)
+
+	btn.MouseButton1Click:Connect(function()
+		local state = callback()
+		btn.Text = text .. ": " .. (state and "ON" or "OFF")
+	end)
+
+	return btn
+end
+
+-- BOTÕES
+createToggleButton("Kill Aura", function()
+	PVP.killAura = not PVP.killAura
+	if PVP.killAura then task.spawn(killAuraLoop) end
+	return PVP.killAura
 end)
 
-toggleBtn2.MouseButton1Click:Connect(function()
-    PVP.AutoFire = not PVP.AutoFire
-    toggleBtn2.Text = "Auto Fire: " .. (PVP.AutoFire and "ON" or "OFF")
-    if PVP.AutoFire then
-        task.spawn(AutoFire)
-    end
+createToggleButton("Auto Fire", function()
+	PVP.AutoFire = not PVP.AutoFire
+	if PVP.AutoFire then task.spawn(AutoFireLoop) end
+	return PVP.AutoFire
 end)
+
+createToggleButton("Auto Eletric", function()
+	PVP.AutoEletric = not PVP.AutoEletric
+	if PVP.AutoEletric then task.spawn(AutoEletricLoop) end
+	return PVP.AutoEletric
+end)
+
