@@ -241,7 +241,7 @@ local function AutoFireLoop()
             if hum and hum.Health > 0 and hrpTarget then -- ✅ garante que está vivo
                 local pos = hrpTarget.Position
                 pcall(function()
-                    skillsRemote:FireServer(pos, "NewFireball")
+                    --skillsRemote:FireServer(pos, "NewFireball")
                     skillsRemote:FireServer(pos, "NewLightningball")
                 end)
             end
