@@ -41,6 +41,7 @@ local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS
 
 -- FLAGS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
+local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
 local PVP = { killAura=false }
 
 -- UTILS
@@ -212,6 +213,7 @@ end})
 FarmTab:Checkbox({ Value=false, Label="TP to Dummy 5k", Callback=function(self, Value)
     AF.tpDummy5k = Value
 end})
+--========================================================================================--
 
 -- UI: PVP TAB
 local PvPTab = Window:CreateTab({ Name = "PvP" })
@@ -220,18 +222,18 @@ PvPTab:Checkbox({ Value=false, Label="Kill Aura", Callback=function(self, Value)
     PVP.killAura = Value
     if Value then task.spawn(killAuraLoop) end
 end})
-
+--========================================================================================--
 -- UI: TROLL TAB
 local TrollTab = Window:CreateTab({ Name = "Troll" })
 TrollTab:Label({ Text = "Coming Soon..." })
 TrollTab:Button({ Label="Test Button", Callback=function()
     print("You pressed the Troll button!")
 end})
-
+--========================================================================================--
 -- UI: SKIN / EVENTS TAB
 local SkinEventsTab = Window:CreateTab({ Name = "Skin / Events" })
 SkinEventsTab:Label({ Text = "Coming Soon..." })
-
+--========================================================================================--
 -- UI: MISCELLANEOUS TAB
 local MiscTab = Window:CreateTab({ Name = "Miscellaneous" })
 MiscTab:Label({ Text = "Miscellaneous Options" })
@@ -256,25 +258,25 @@ MiscTab:Button({
         tool.Activated:Connect(shoot)
     end
 })
-
+--========================================================================================--
 -- UI: WEBHOOK TAB
 local WebhookTab = Window:CreateTab({ Name = "Webhook" })
 WebhookTab:Label({ Text = "Coming Soon..." })
-
+--========================================================================================--
 -- UI: SETTINGS TAB
 local SettingsTab = Window:CreateTab({ Name = "Settings" })
 SettingsTab:Label({ Text = "Coming Soon..." })
-
+--========================================================================================--
 -- UI: SCRIPT TAB
 local ScriptTab = Window:CreateTab({ Name = "Script" })
 ScriptTab:Label({ Text = "Coming Soon..." })
-
+--========================================================================================--
 -- UI: READ ME TAB
 local ReadMeTab = Window:CreateTab({ Name = "Read Me" })
 ReadMeTab:Label({
-    Text = "• This UI library was created by depso. Thanks.\n• Owner Of Script: Solin\n• Script & Management By: awb04"
+    Text = "• This UI library was created by depso. Thanks.\n• Owner Of Script: Solin\n• Script & Management By: @Adrian75556435"
 })
-
+--========================================================================================--
 -- SAFE CHECK & UNIFIED TP
 RunService.RenderStepped:Connect(function()
     local _, _, hrp = getCharacter()
@@ -288,3 +290,4 @@ RunService.RenderStepped:Connect(function()
         hrp.CFrame = targetDummy[1].HumanoidRootPart.CFrame + Vector3.new(0,0,4)
     end
 end)
+--========================================================================================--
