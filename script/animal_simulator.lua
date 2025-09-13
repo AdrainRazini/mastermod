@@ -217,8 +217,7 @@ end})
 
 -- 🔹 Tabs internas
 local Header_Farm = FarmTab:CollapsingHeader({ Title = "Opções Avançadas" })
-Header:Label({ Text = "Config extra aqui..." })
-
+Header_Farm:Label({ Text = "Config extra aqui..." })
 
 local Sub_Farm_Tabs = FarmTab:TabSelector()
 local Tab_Farm_1 = Sub_Farm_Tabs:CreateTab({ Name = "Logs" })
