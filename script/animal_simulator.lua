@@ -100,32 +100,6 @@ local function farmBosses()
 end
 
 -- PVP FUNCTIONS
---[[ 
---Original 
-local function killAuraLoop()
-    while PVP.killAura do
-        local _, _, hrp = getCharacter()
-        local closest = nil
-        local shortest = math.huge
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                if dist < shortest then
-                    shortest = dist
-                    closest = p
-                end
-            end
-        end
-        if closest then
-            attackRemote:FireServer(closest.Character:FindFirstChildOfClass("Humanoid"), 1)
-        end
-        task.wait(0.1)
-    end
-end
-]]
-
-
--- PVP FUNCTIONS
 local function killAuraLoop()
     local maxRange = 100 -- distância máxima em studs (pode alterar)
     while PVP.killAura do
@@ -227,6 +201,23 @@ Tab_Farm_2:Label({ Text = "Aqui ficam configs adicionais..." })
 
 --========================================================================================--
 
+--======================================================================================--
+-- UI: PVP TAB
+local PvpTab = Window:CreateTab({ Name = "PVP" })
+
+PvpTab:Checkbox({ Value=false, Label="Kill Aura", Callback=function(self, Value)
+    PVP.killAura = Value
+    if Value then task.spawn(killAuraLoop) end
+end})
+
+PvpTab:SliderInt({ Label="Distância máxima", Value=100, Minimum=10, Maximum=200, Callback=function(self, Value)
+    -- atualiza range
+    print("Novo range:", Value)
+end})
+
+PvpTab:Label({ Text = "Configurações de combate em PvP" })
+
+--[[
 -- UI: PVP TAB
 local PvPTab = Window:CreateTab({ Name = "PvP" })
 
@@ -234,6 +225,7 @@ PvPTab:Checkbox({ Value=false, Label="Kill Aura", Callback=function(self, Value)
     PVP.killAura = Value
     if Value then task.spawn(killAuraLoop) end
 end})
+]]
 --========================================================================================--
 -- UI: TROLL TAB
 local TrollTab = Window:CreateTab({ Name = "Troll" })
