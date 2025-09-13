@@ -218,7 +218,7 @@ end})
 -- 🔹 Tabs internas
 local Sub_Farm_Tabs = FarmTab:TabSelector()
 local Tab1 = Sub_Farm_Tabs:CreateTab({ Name = "Logs" })
-Tab1:Label({ Text = "Aqui ficam os logs do webhook..." })
+Tab1:Label({ Text = "Aqui ficam os logs do Do Farme..." })
 local Tab2 = Sub_Farm_Tabs:CreateTab({ Name = "Config" })
 Tab2:Label({ Text = "Aqui ficam configs adicionais..." })
 
