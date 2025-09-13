@@ -183,6 +183,7 @@ player.CharacterAdded:Connect(function()
     giveFireball()
 end)
 
+--======================================================================================--
 -- UI: FARM TAB
 local FarmTab = Window:CreateTab({ Name = "Farm" })
 
@@ -213,6 +214,14 @@ end})
 FarmTab:Checkbox({ Value=false, Label="TP to Dummy 5k", Callback=function(self, Value)
     AF.tpDummy5k = Value
 end})
+
+-- 🔹 Tabs internas
+local Sub_Farm_Tabs = FarmTab:TabSelector()
+local Tab1 = Sub_Farm_Tabs:CreateTab({ Name = "Logs" })
+Tab1:Label({ Text = "Aqui ficam os logs do webhook..." })
+local Tab2 = Sub_Farm_Tabs:CreateTab({ Name = "Config" })
+Tab2:Label({ Text = "Aqui ficam configs adicionais..." })
+
 --========================================================================================--
 
 -- UI: PVP TAB
