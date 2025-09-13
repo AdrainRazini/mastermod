@@ -263,6 +263,91 @@ MiscTab:Button({
 local WebhookTab = Window:CreateTab({ Name = "Webhook" })
 WebhookTab:Label({ Text = "Coming Soon..." })
 --========================================================================================--
+
+-- 🔹 Texto
+WebhookTab:Label({ Text = "Exemplo de Widgets - Showcase" })
+
+-- 🔹 Botões
+local BtnRow = WebhookTab:Row()
+BtnRow:Button({ Text = "Botão Padrão", Callback = function() print("Botão clicado!") end })
+BtnRow:SmallButton({ Text = "Botão Pequeno" })
+
+-- 🔹 Checkbox e Radio
+WebhookTab:Checkbox({ Label = "Ativar Webhook?", Value = false })
+local RadioRow = WebhookTab:Row()
+RadioRow:Radiobox({ Label = "Opção A" })
+RadioRow:Radiobox({ Label = "Opção B" })
+
+-- 🔹 Input
+WebhookTab:InputText({ Label = "Webhook URL", Placeholder = "cole aqui..." })
+WebhookTab:InputInt({ Label = "Quantidade", Value = 10, Minimum = 1, Maximum = 100 })
+WebhookTab:InputFloat({ Label = "Delay (segundos)", Value = 0.5, Minimum = 0.1, Maximum = 10 })
+
+-- 🔹 Sliders
+WebhookTab:SliderInt({ Label = "Mensagens", Value = 5, Minimum = 1, Maximum = 50 })
+WebhookTab:SliderFloat({ Label = "Velocidade", Value = 0.5, Minimum = 0, Maximum = 1 })
+
+-- 🔹 Drag
+WebhookTab:DragInt({ Label = "Drag Numérico", Value = 10, Minimum = 0, Maximum = 100 })
+WebhookTab:DragFloat({ Label = "Drag Decimal", Value = 0.1, Minimum = 0, Maximum = 1 })
+
+-- 🔹 Enum / Progresso
+WebhookTab:SliderEnum({ Label = "Tipo de Log", Items = { "Erro", "Aviso", "Info" }, Value = 2 })
+WebhookTab:SliderProgress({ Label = "Progresso", Value = 25, Minimum = 0, Maximum = 100 })
+
+-- 🔹 Keybind
+WebhookTab:Keybind({
+    Label = "Atalho Webhook",
+    IniFlag = "WebhookKeybind",
+    KeyBlacklist = { Enum.UserInputType.MouseButton1 }
+})
+
+-- 🔹 Cor e CFrame
+WebhookTab:InputColor3({ Label = "Cor de Destaque", Value = Color3.fromRGB(255, 0, 0) })
+WebhookTab:InputCFrame({ Label = "Posição Teste", Value = CFrame.new(0, 5, 0) })
+
+-- 🔹 Mídia
+WebhookTab:Image({ Image = "rbxassetid://1122334455", Size = UDim2.fromOffset(100, 100) })
+local Video = WebhookTab:VideoPlayer({
+    Video = 5608327482, Looped = true, Size = UDim2.fromOffset(200, 120)
+})
+Video:Play()
+
+-- 🔹 Texto com bullets
+WebhookTab:BulletText({ Rows = { "Mensagem 1", "Mensagem 2", "Mensagem 3" } })
+WebhookTab:Bullet():Label({ Text = "Bullet + Label" })
+WebhookTab:Bullet():SmallButton({ Text = "Bullet + Botão" })
+
+-- 🔹 Gráficos
+WebhookTab:PlotHistogram({ Points = {0.1, 0.5, 0.9, 0.3, 0.7} })
+WebhookTab:Button({
+    Text = "Novo Gráfico",
+    Callback = function()
+        local pts = {}
+        for i = 1, math.random(5, 10) do
+            table.insert(pts, math.random())
+        end
+        WebhookTab:PlotHistogram({ Points = pts })
+    end
+})
+
+-- 🔹 Headers e Árvores
+local Header = WebhookTab:CollapsingHeader({ Title = "Opções Avançadas" })
+Header:Label({ Text = "Config extra aqui..." })
+
+local Node = WebhookTab:TreeNode({ Title = "Webhook Debug" })
+Node:Label({ Text = "Detalhes técnicos" })
+Node:SmallButton({ Text = "Reiniciar" })
+
+-- 🔹 Tabs internas
+local SubTabs = WebhookTab:TabSelector()
+local Tab1 = SubTabs:CreateTab({ Name = "Logs" })
+Tab1:Label({ Text = "Aqui ficam os logs do webhook..." })
+local Tab2 = SubTabs:CreateTab({ Name = "Config" })
+Tab2:Label({ Text = "Aqui ficam configs adicionais..." })
+
+
+--========================================================================================--
 -- UI: SETTINGS TAB
 local SettingsTab = Window:CreateTab({ Name = "Settings" })
 SettingsTab:Label({ Text = "Coming Soon..." })
