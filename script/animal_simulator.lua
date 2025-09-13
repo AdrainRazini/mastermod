@@ -42,7 +42,12 @@ local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS
 -- FLAGS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
 local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
-local PVP = { killAura=false }
+local PVP = { 
+	killAura = true,
+	AutoFire = true,
+	AutoEletric = true,
+}
+
 
 -- UTILS
 local function getCharacter()
@@ -99,63 +104,179 @@ local function farmBosses()
     end
 end
 
--- PVP FUNCTIONS
-local function killAuraLoop()
-    local maxRange = 100 -- distância máxima em studs (pode alterar)
-    while PVP.killAura do
-        local _, _, hrp = getCharacter()
-        local closest = nil
-        local shortest = maxRange -- só considera players dentro do alcance
-
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                if dist < shortest then
-                    shortest = dist
-                    closest = p
-                end
-            end
-        end
-
-        if closest then
-            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health > 0 then
-                attackRemote:FireServer(hum, 1)
-            end
-        end
-
-        task.wait(0.1)
-    end
-end
-
-
 
 
 -- FIREBALL TOOL FUNCTION
 local function giveFireball()
-    local tool = Instance.new("Tool")
-    tool.Name = "Fireball"
-    tool.RequiresHandle = false
-    tool.CanBeDropped = false
-    tool.ManualActivationOnly = false
-    tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
+	-- evita duplicação
+	if player.Backpack:FindFirstChild("Fireball") or player.Character:FindFirstChild("Fireball") then
+		return
+	end
 
-    local mouse = player:GetMouse()
-    local function shoot()
-        if tool and skillsRemote then
-            local pos = mouse.Hit.Position
-            skillsRemote:FireServer(pos, "NewFireball")
-        end
-    end
+	local tool = Instance.new("Tool")
+	tool.Name = "Fireball"
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.ManualActivationOnly = false
+	tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
 
-    tool.Activated:Connect(shoot)
+	local mouse = player:GetMouse()
+	tool.Activated:Connect(function()
+		if skillsRemote then
+			local pos = mouse.Hit.Position
+			skillsRemote:FireServer(pos, "NewFireball")
+		end
+	end)
 end
 
-giveFireball()
+
+-- FIREBALL ELETRIC TOOL FUNCTION
+local function giveFireballEletric()
+	-- evita duplicação
+	if player.Backpack:FindFirstChild("FireballEletric") or player.Character:FindFirstChild("FireballEletric") then
+		return
+	end
+
+	local tool = Instance.new("Tool")
+	tool.Name = "FireballEletric"
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.ManualActivationOnly = false
+	tool.Parent = player:FindFirstChildOfClass("Backpack") or player.Backpack
+
+	local mouse = player:GetMouse()
+	tool.Activated:Connect(function()
+		if skillsRemote then
+			local pos = mouse.Hit.Position
+			skillsRemote:FireServer(pos, "NewLightningball")
+		end
+	end)
+end
+
+
+
+local PVP = { 
+	killAura = true,
+	AutoFire = true,
+	AutoEletric = true,
+}
+
+
+
+local maxRange = 100 -- distância máxima em studs (pode alterar)
+-- PVP FUNCTIONS
+-- ⚔ Kill Aura
+local function killAuraLoop()
+	while task.wait(0.1) do
+		if not PVP.killAura then continue end
+		local _, _, hrp = getCharacter()
+		local closest, shortest = nil, maxRange
+
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+				if dist < shortest then
+					shortest = dist
+					closest = p
+				end
+			end
+		end
+
+		if closest and attackRemote then
+			local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+			if hum and hum.Health > 0 then
+				pcall(function()
+					attackRemote:FireServer(hum, 1)
+				end)
+			end
+		end
+	end
+end
+
+
+-- 🔥 AutoFire Fireball
+local function AutoFireLoop()
+	giveFireball()
+	while task.wait(0.3) do
+		if not PVP.AutoFire then continue end
+		local _, _, hrp = getCharacter()
+		local closest, shortest = nil, maxRange
+
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local hum = p.Character:FindFirstChildOfClass("Humanoid")
+				if hum and hum.Health > 0 then -- ✅ só ataca se estiver vivo
+					local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+					if dist < shortest then
+						shortest = dist
+						closest = p
+					end
+				end
+			end
+		end
+
+		if closest and closest.Character then
+			local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+			local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+
+			if hum and hum.Health > 0 and hrpTarget then -- ✅ garante que está vivo
+				local pos = hrpTarget.Position
+				pcall(function()
+					skillsRemote:FireServer(pos, "NewFireball")
+				end)
+			end
+		end
+	end
+end
+
+-- 🔥 AutoEletric Lightningball
+local function AutoEletricLoop()
+	giveFireballEletric()
+	while task.wait(0.3) do
+		if not PVP.AutoEletric then continue end
+		local _, _, hrp = getCharacter()
+		local closest, shortest = nil, maxRange
+
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local hum = p.Character:FindFirstChildOfClass("Humanoid")
+				if hum and hum.Health > 0 then -- ✅ só ataca se estiver vivo
+					local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+					if dist < shortest then
+						shortest = dist
+						closest = p
+					end
+				end
+			end
+		end
+
+		if closest and closest.Character then
+			local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+			local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+
+			if hum and hum.Health > 0 and hrpTarget then -- ✅ garante que está vivo
+				local pos = hrpTarget.Position
+				pcall(function()
+					skillsRemote:FireServer(pos, "NewLightningball")
+				end)
+			end
+		end
+	end
+end
+
+
+-- Quando respawnar, garantir que tenha a Fireball
 player.CharacterAdded:Connect(function()
-    task.wait(1)
-    giveFireball()
+	task.wait(1)
+	if PVP.AutoFire then
+		giveFireball()
+	end
+	if PVP.AutoEletric then
+		giveFireballEletric()
+	end
 end)
+
+
 
 --======================================================================================--
 -- UI: FARM TAB
@@ -202,20 +323,54 @@ Tab_Farm_2:Label({ Text = "Aqui ficam configs adicionais..." })
 --========================================================================================--
 
 --======================================================================================--
+
 -- UI: PVP TAB
 local PvpTab = Window:CreateTab({ Name = "PVP" })
 
-PvpTab:Checkbox({ Value=false, Label="Kill Aura", Callback=function(self, Value)
-    PVP.killAura = Value
-    if Value then task.spawn(killAuraLoop) end
-end})
+-- Kill Aura
+PvpTab:Checkbox({
+    Value = false,
+    Label = "Kill Aura",
+    Callback = function(self, Value)
+        PVP.killAura = Value
+        if Value then task.spawn(killAuraLoop) end
+    end
+})
 
-PvpTab:SliderInt({ Label="Distância máxima", Value=100, Minimum=10, Maximum=200, Callback=function(self, Value)
-    -- atualiza range
-    print("Novo range:", Value)
-end})
+-- Auto Fireball
+PvpTab:Checkbox({
+    Value = false,
+    Label = "Auto Fireball",
+    Callback = function(self, Value)
+        PVP.AutoFire = Value
+        if Value then task.spawn(AutoFireLoop) end
+    end
+})
+
+-- Auto Lightningball
+PvpTab:Checkbox({
+    Value = false,
+    Label = "Auto Lightningball",
+    Callback = function(self, Value)
+        PVP.AutoEletric = Value
+        if Value then task.spawn(AutoEletricLoop) end
+    end
+})
+
+-- Slider de Range
+PvpTab:SliderInt({
+    Label = "Distância máxima",
+    Value = 100,
+    Minimum = 10,
+    Maximum = 200,
+    Callback = function(self, Value)
+        maxRange = Value
+        print("Novo range de ataque:", Value)
+    end
+})
 
 PvpTab:Label({ Text = "Configurações de combate em PvP" })
+
 
 --[[
 -- UI: PVP TAB

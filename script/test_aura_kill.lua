@@ -175,6 +175,7 @@ local function findDummy(folder)
 		if hum then return d, hum end
 	end
 end
+
 -- FIREBALL TOOL FUNCTION
 local function giveFireball()
 	-- evita duplicação
