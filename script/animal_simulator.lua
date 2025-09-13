@@ -281,7 +281,9 @@ RadioRow:Radiobox({ Label = "Opção B" })
 -- 🔹 Input
 WebhookTab:InputText({ Label = "Webhook URL", Placeholder = "cole aqui..." })
 WebhookTab:InputInt({ Label = "Quantidade", Value = 10, Minimum = 1, Maximum = 100 })
+--[[
 WebhookTab:InputFloat({ Label = "Delay (segundos)", Value = 0.5, Minimum = 0.1, Maximum = 10 })
+]]
 
 -- 🔹 Sliders
 WebhookTab:SliderInt({ Label = "Mensagens", Value = 5, Minimum = 1, Maximum = 50 })
