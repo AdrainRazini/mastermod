@@ -215,18 +215,14 @@ FarmTab:Checkbox({ Value=false, Label="TP to Dummy 5k", Callback=function(self, 
     AF.tpDummy5k = Value
 end})
 
-
+-- 🔹 Tabs internas
 local Header_Farm = FarmTab:CollapsingHeader({ Title = "Opções Avançadas" })
 Header:Label({ Text = "Config extra aqui..." })
 
-local Node_Farm = FarmTab:TreeNode({ Title = "Farm Debug" })
-Node_Farm:Label({ Text = "Detalhes técnicos" })
-Node_Farm:SmallButton({ Text = "Reiniciar" })
 
--- 🔹 Tabs internas
 local Sub_Farm_Tabs = FarmTab:TabSelector()
 local Tab_Farm_1 = Sub_Farm_Tabs:CreateTab({ Name = "Logs" })
-Tab_Farm_1:Label({ Text = "Aqui ficam os logs do Sub Farm Tabs..." })
+Tab_Farm_1:Label({ Text = "Aqui ficam os logs do Do Farme..." })
 local Tab_Farm_2 = Sub_Farm_Tabs:CreateTab({ Name = "Config" })
 Tab_Farm_2:Label({ Text = "Aqui ficam configs adicionais..." })
 
