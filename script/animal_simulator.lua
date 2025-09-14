@@ -109,6 +109,19 @@ local function farmBosses()
         task.wait(1)
     end
 end
+
+
+local function DoAttack(targetHum, targetHRP, event)
+    if event == "Melee" then
+        pcall(function() attackRemote:FireServer(targetHum, 1) end)
+    elseif event == "Fireball" then
+        pcall(function() skillsRemote:FireServer(targetHRP.Position, "NewFireball") end)
+    elseif event == "Lightning" then
+        pcall(function() skillsRemote:FireServer(targetHRP.Position, "NewLightningball") end)
+    end
+end
+
+
 --==========================================================================--
 
 
@@ -656,15 +669,22 @@ ReadMeTab:Label({
 --========================================================================================--
 -- SAFE CHECK & UNIFIED TP
 RunService.RenderStepped:Connect(function()
-    local _, _, hrp = getCharacter()
-    local targetDummy
-    if AF.tpDummy5k and folder5k then
-        targetDummy = findDummy(folder5k)
-    elseif AF.tpDummy then
-        targetDummy = findDummy(dummiesFolder)
+    -- exemplo de TP para dummy quando ativado
+    if AF.tpDummy then
+        local dummy, hum = findDummy(dummiesFolder)
+        if dummy and dummy:FindFirstChild("HumanoidRootPart") then
+            local _, _, hrp = getCharacter()
+            hrp.CFrame = dummy.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
+        end
     end
-    if targetDummy and targetDummy[1]:FindFirstChild("HumanoidRootPart") then
-        hrp.CFrame = targetDummy[1].HumanoidRootPart.CFrame + Vector3.new(0,0,4)
+
+    if AF.tpDummy5k then
+        local dummy, hum = findDummy(folder5k)
+        if dummy and dummy:FindFirstChild("HumanoidRootPart") then
+            local _, _, hrp = getCharacter()
+            hrp.CFrame = dummy.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
+        end
     end
 end)
+
 --========================================================================================--
