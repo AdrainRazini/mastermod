@@ -339,15 +339,16 @@ FarmTab:Checkbox({ Value=false, Label="Auto Coins", Callback=function(self, Valu
     if Value then task.spawn(autoCoins) end
 end})
 
-FarmTab:DragFloat({ 
-    Label = "Drag Decimal Timer Auto Coin", 
+
+FarmTab:SliderFloat({ 
+    Label = "Timer Auto Coin", 
     Value = 0.1, 
     Minimum = 0, 
     Maximum = 1 
        Callback = function(self, Value)
         AF_Timer.Coins_Speed = Value
         print("Novo range de Auto Coin:", Value)
-    end
+     end
 })
 
 FarmTab:Checkbox({ Value=false, Label="Auto Dummy", Callback=function(self, Value)
