@@ -47,6 +47,7 @@ local PVP = {
 	AutoFire = false,
 	AutoEletric = false,
     AutoAttack = false,
+    AttackType = nil
 }
 
 local maxRange = 100 -- distância máxima em studs (pode alterar)
@@ -269,49 +270,51 @@ player.CharacterAdded:Connect(function()
 end)
 
 -- Função genérica de auto ataque
-local function AutoAttackPlayers(attackType)
-	while task.wait(0.2) do
-		if not PVP.AutoAttack then continue end
 
-		local _, _, hrp = getCharacter()
-		local closest, shortest = nil, maxRange
+local function AutoAttackPlayers()
+    while task.wait(0.2) do
+        if not PVP.AutoAttack then continue end
 
-		for _, p in ipairs(Players:GetPlayers()) do
-			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-				local hum = p.Character:FindFirstChildOfClass("Humanoid")
-				if hum and hum.Health > 0 then
-					local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-					if dist < shortest then
-						shortest = dist
-						closest = p
-					end
-				end
-			end
-		end
+        local _, _, hrp = getCharacter()
+        local closest, shortest = nil, maxRange
 
-		if closest and closest.Character then
-			local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-			local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
-			if hum and hum.Health > 0 and hrpTarget then
-				local pos = hrpTarget.Position
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health > 0 then
+                    local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                    if dist < shortest then
+                        shortest = dist
+                        closest = p
+                    end
+                end
+            end
+        end
 
-				-- Escolhe o tipo de ataque
-				pcall(function()
-					if attackType == "Melee" and attackRemote then
-						attackRemote:FireServer(hum, 1)
+        if closest and closest.Character then
+            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+            local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+            if hum and hum.Health > 0 and hrpTarget then
+                local pos = hrpTarget.Position
 
-					elseif attackType == "Fireball" and skillsRemote then
-						giveFireball()
-						skillsRemote:FireServer(pos, "NewFireball")
+                -- Escolhe o tipo dinamicamente
+                local attackType = PVP.AttackType or "Melee"
+                pcall(function()
+                    if attackType == "Melee" and attackRemote then
+                        attackRemote:FireServer(hum, 1)
 
-					elseif attackType == "Lightning" and skillsRemote then
-						giveFireballEletric()
-						skillsRemote:FireServer(pos, "NewLightningball")
-					end
-				end)
-			end
-		end
-	end
+                    elseif attackType == "Fireball" and skillsRemote then
+                        giveFireball()
+                        skillsRemote:FireServer(pos, "NewFireball")
+
+                    elseif attackType == "Lightning" and skillsRemote then
+                        giveFireballEletric()
+                        skillsRemote:FireServer(pos, "NewLightningball")
+                    end
+                end)
+            end
+        end
+    end
 end
 
 
@@ -363,7 +366,6 @@ Tab_Farm_2:Label({ Text = "Aqui ficam configs adicionais..." })
 
 -- UI: PVP TAB
 local PvpTab = Window:CreateTab({ Name = "PVP" })
-
 -- ⚔️ Configuração básica
 PvpTab:Checkbox({
     Value = false,
@@ -371,7 +373,7 @@ PvpTab:Checkbox({
     Callback = function(self, Value)
         PVP.AutoAttack = Value
         if Value then
-            task.spawn(function() AutoAttackPlayers("Melee") end)
+            task.spawn(AutoAttackPlayers) -- só spawna o loop, sem fixar tipo
         end
     end
 })
@@ -381,10 +383,8 @@ PvpTab:SliderEnum({
     Items = { "Melee", "Fireball", "Lightning" },
     Value = 1,
     Callback = function(self, Value, Text)
+        PVP.AttackType = Text -- salva globalmente
         print("Tipo de ataque trocado para:", Text)
-        if PVP.AutoAttack then
-            task.spawn(function() AutoAttackPlayers(Text) end)
-        end
     end
 })
 
