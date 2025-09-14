@@ -43,10 +43,13 @@ local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
 local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
 local PVP = { 
-	killAura = true,
-	AutoFire = true,
-	AutoEletric = true,
+	killAura = false,
+	AutoFire = false,
+	AutoEletric = false,
+    AutoAttack = false,
 }
+
+local maxRange = 100 -- distância máxima em studs (pode alterar)
 
 
 -- UTILS
@@ -153,17 +156,6 @@ local function giveFireballEletric()
 	end)
 end
 
-
-
-local PVP = { 
-	killAura = true,
-	AutoFire = true,
-	AutoEletric = true,
-}
-
-
-
-local maxRange = 100 -- distância máxima em studs (pode alterar)
 -- PVP FUNCTIONS
 -- ⚔ Kill Aura
 local function killAuraLoop()
@@ -276,6 +268,51 @@ player.CharacterAdded:Connect(function()
 	end
 end)
 
+-- Função genérica de auto ataque
+local function AutoAttackPlayers(attackType)
+	while task.wait(0.2) do
+		if not PVP.AutoAttack then continue end
+
+		local _, _, hrp = getCharacter()
+		local closest, shortest = nil, maxRange
+
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local hum = p.Character:FindFirstChildOfClass("Humanoid")
+				if hum and hum.Health > 0 then
+					local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+					if dist < shortest then
+						shortest = dist
+						closest = p
+					end
+				end
+			end
+		end
+
+		if closest and closest.Character then
+			local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+			local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+			if hum and hum.Health > 0 and hrpTarget then
+				local pos = hrpTarget.Position
+
+				-- Escolhe o tipo de ataque
+				pcall(function()
+					if attackType == "Melee" and attackRemote then
+						attackRemote:FireServer(hum, 1)
+
+					elseif attackType == "Fireball" and skillsRemote then
+						giveFireball()
+						skillsRemote:FireServer(pos, "NewFireball")
+
+					elseif attackType == "Lightning" and skillsRemote then
+						giveFireballEletric()
+						skillsRemote:FireServer(pos, "NewLightningball")
+					end
+				end)
+			end
+		end
+	end
+end
 
 
 --======================================================================================--
@@ -327,8 +364,36 @@ Tab_Farm_2:Label({ Text = "Aqui ficam configs adicionais..." })
 -- UI: PVP TAB
 local PvpTab = Window:CreateTab({ Name = "PVP" })
 
--- Kill Aura
+-- ⚔️ Configuração básica
 PvpTab:Checkbox({
+    Value = false,
+    Label = "Auto Attack (Genérico)",
+    Callback = function(self, Value)
+        PVP.AutoAttack = Value
+        if Value then
+            task.spawn(function() AutoAttackPlayers("Melee") end)
+        end
+    end
+})
+
+PvpTab:SliderEnum({
+    Label = "Tipo de Ataque",
+    Items = { "Melee", "Fireball", "Lightning" },
+    Value = 1,
+    Callback = function(self, Value, Text)
+        print("Tipo de ataque trocado para:", Text)
+        if PVP.AutoAttack then
+            task.spawn(function() AutoAttackPlayers(Text) end)
+        end
+    end
+})
+
+PvpTab:Label({ Text = "Configurações básicas de PvP" })
+
+-- ⚙️ Opções Avançadas
+local Header_PVP = PvpTab:CollapsingHeader({ Title = "Opções Avançadas" })
+
+Header_PVP:Checkbox({
     Value = false,
     Label = "Kill Aura",
     Callback = function(self, Value)
@@ -337,8 +402,7 @@ PvpTab:Checkbox({
     end
 })
 
--- Auto Fireball
-PvpTab:Checkbox({
+Header_PVP:Checkbox({
     Value = false,
     Label = "Auto Fireball",
     Callback = function(self, Value)
@@ -347,8 +411,7 @@ PvpTab:Checkbox({
     end
 })
 
--- Auto Lightningball
-PvpTab:Checkbox({
+Header_PVP:Checkbox({
     Value = false,
     Label = "Auto Lightningball",
     Callback = function(self, Value)
@@ -357,8 +420,7 @@ PvpTab:Checkbox({
     end
 })
 
--- Slider de Range
-PvpTab:SliderInt({
+Header_PVP:SliderInt({
     Label = "Distância máxima",
     Value = 100,
     Minimum = 10,
@@ -369,19 +431,18 @@ PvpTab:SliderInt({
     end
 })
 
-PvpTab:Label({ Text = "Configurações de combate em PvP" })
+Header_PVP:Label({ Text = "Configurações extras aqui..." })
 
+-- 🔹 Tabs internas (dentro do PVP Tab principal)
+local Sub_PVP_Tabs = PvpTab:TabSelector()
+local Tab_PVP_1 = Sub_PVP_Tabs:CreateTab({ Name = "Logs" })
+Tab_PVP_1:Label({ Text = "Aqui ficam os logs do PvP..." })
 
---[[
--- UI: PVP TAB
-local PvPTab = Window:CreateTab({ Name = "PvP" })
+local Tab_PVP_2 = Sub_PVP_Tabs:CreateTab({ Name = "Config" })
+Tab_PVP_2:Label({ Text = "Aqui ficam configs adicionais..." })
 
-PvPTab:Checkbox({ Value=false, Label="Kill Aura", Callback=function(self, Value)
-    PVP.killAura = Value
-    if Value then task.spawn(killAuraLoop) end
-end})
-]]
 --========================================================================================--
+
 -- UI: TROLL TAB
 local TrollTab = Window:CreateTab({ Name = "Troll" })
 TrollTab:Label({ Text = "Coming Soon..." })
