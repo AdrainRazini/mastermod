@@ -329,6 +329,14 @@ local function AutoAttackFlyPlayers()
     task.spawn(function() AutoAttackLoop(true) end)
 end
 
+local IntStorage = {} -- tabela para guardar os valores
+
+local function SetInt(key, Val)
+    if not key then return end
+    IntStorage[key] = Val
+    print("SetInt salvo:", key, "=", Val)
+end
+
 
 
 --======================================================================================--
@@ -410,8 +418,12 @@ PvpTab:SliderEnum({
     Value = 1,
     Callback = function(self, Value)
         local selectedType = attackTypes[Value] -- pega o texto usando o índice
+
         PVP.AttackType = selectedType
+        SetInt("AttackType", selectedType)
+
         print("Tipo de ataque trocado para:", selectedType)
+        print("Valor salvo no IntStorage:", IntStorage["AttackType"])
     end
 })
 
