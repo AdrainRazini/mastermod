@@ -401,6 +401,7 @@ PvpTab:Checkbox({
     end
 })
 
+--[[
 
 local Items_Auto = { "Melee", "Fireball", "Lightning" }
 
@@ -417,6 +418,20 @@ for _, item in ipairs(Items_Auto) do
         end
     })
 end
+]]
+
+PvpTab:SliderEnum({
+    Label = "Tipo de Attack",
+    Items = { "Melee", "Fireball", "Lightning" },
+    Value = 1,
+    Callback = function(self, Value)
+        -- `Value` é o índice do item selecionado
+        local selectedType = self.Items[Value]
+        PVP.AttackType = selectedType
+        print("Tipo de ataque trocado para:", selectedType)
+    end
+})
+
 
 
 
