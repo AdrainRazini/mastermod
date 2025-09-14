@@ -54,7 +54,7 @@ local PVP = {
 
 local maxRange = 100 -- distância máxima em studs (pode alterar)
 
-
+--==========================================================================--
 -- UTILS
 local function getCharacter()
     local c = player.Character or player.CharacterAdded:Wait()
@@ -109,7 +109,7 @@ local function farmBosses()
         task.wait(1)
     end
 end
-
+--==========================================================================--
 
 
 -- FIREBALL TOOL FUNCTION
