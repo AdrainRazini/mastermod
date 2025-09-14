@@ -161,21 +161,6 @@ end
 
 -- PVP FUNCTIONS
 
-local function DoAttack(targetHum, targetHRP, attackType, fly)
-    local char, hum, hrp = getCharacter()
-    if fly and targetHRP then
-        hrp.CFrame = targetHRP.CFrame + Vector3.new(0, 5, 0)
-    end
-
-    if attackType == "Melee" then
-        pcall(function() attackRemote:FireServer(targetHum, 1) end)
-    elseif attackType == "Fireball" then
-        pcall(function() skillsRemote:FireServer(targetHRP.Position, "NewFireball") end)
-    elseif attackType == "Lightning" then
-        pcall(function() skillsRemote:FireServer(targetHRP.Position, "NewLightningball") end)
-    end
-end
-
 
 -- ⚔ Kill Aura
 local function killAuraLoop()
@@ -289,69 +274,59 @@ player.CharacterAdded:Connect(function()
 end)
 
 -- Função genérica de auto ataque
-
-local function AutoAttackPlayers()
+local function AutoAttackLoop(fly)
     giveFireball()
     giveFireballEletric()
 
-    while PVP.AutoAttack do
+    while (fly and PVP.AutoFlyAttack) or (not fly and PVP.AutoAttack) do
         local closest, shortest = nil, maxRange
         local _, _, hrp = getCharacter()
 
+        -- Encontrar o jogador mais próximo
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                if hum and hum.Health > 0 then
-                    local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                local targetHum = p.Character:FindFirstChildOfClass("Humanoid")
+                local targetHRP = p.Character:FindFirstChild("HumanoidRootPart")
+                if targetHum and targetHum.Health > 0 then
+                    local dist = (targetHRP.Position - hrp.Position).Magnitude
                     if dist < shortest then
                         shortest = dist
-                        closest = p
+                        closest = {Humanoid = targetHum, HRP = targetHRP}
                     end
                 end
             end
         end
 
+        -- Atacar se encontrou alguém
         if closest then
-            DoAttack(closest.Character:FindFirstChildOfClass("Humanoid"),
-                     closest.Character:FindFirstChild("HumanoidRootPart"),
-                     PVP.AttackType, false)
+            local hum = closest.Humanoid
+            local hrpTarget = closest.HRP
+            if fly then
+                hrp.CFrame = hrpTarget.CFrame + Vector3.new(0, 5, 0) -- voa 5 studs acima
+            end
+
+            -- Executa ataque conforme tipo selecionado
+            if PVP.AttackType == "Melee" then
+                pcall(function() attackRemote:FireServer(hum, 1) end)
+            elseif PVP.AttackType == "Fireball" then
+                pcall(function() skillsRemote:FireServer(hrpTarget.Position, "NewFireball") end)
+            elseif PVP.AttackType == "Lightning" then
+                pcall(function() skillsRemote:FireServer(hrpTarget.Position, "NewLightningball") end)
+            end
         end
 
         task.wait(0.2)
     end
+end
+
+-- Chamadas específicas
+local function AutoAttackPlayers()
+    task.spawn(function() AutoAttackLoop(false) end)
 end
 
 local function AutoAttackFlyPlayers()
-    giveFireball()
-    giveFireballEletric()
-
-    while PVP.AutoFlyAttack do
-        local closest, shortest = nil, maxRange
-        local _, _, hrp = getCharacter()
-
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                if hum and hum.Health > 0 then
-                    local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                    if dist < shortest then
-                        shortest = dist
-                        closest = p
-                    end
-                end
-            end
-        end
-
-        if closest then
-            DoAttack(closest.Character:FindFirstChildOfClass("Humanoid"),
-                     closest.Character:FindFirstChild("HumanoidRootPart"),
-                     PVP.AttackType, true)
-        end
-
-        task.wait(0.2)
-    end
+    task.spawn(function() AutoAttackLoop(true) end)
 end
-
 
 
 
