@@ -346,7 +346,7 @@ FarmTab:DragFloat({
     Maximum = 1 
        Callback = function(self, Value)
         AF_Timer.Coins_Speed = Value
-        print("Novo range de ataque:", Value)
+        print("Novo range de Auto Coin:", Value)
     end
 })
 
