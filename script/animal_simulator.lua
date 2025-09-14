@@ -42,13 +42,15 @@ local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS
 -- FLAGS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
 local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
-local PVP = { 
-	killAura = false,
-	AutoFire = false,
-	AutoEletric = false,
-    AutoAttack = false,
+local PVP = {
+    killAura = false,
+    AutoFire = false,
+    AutoEletric = false,
+    AutoAttack = false,      -- para AutoAttackPlayers
+    AutoFlyAttack = false,   -- para AutoAttackFlyPlayers
     AttackType = nil
 }
+
 
 local maxRange = 100 -- distância máxima em studs (pode alterar)
 
@@ -158,6 +160,23 @@ local function giveFireballEletric()
 end
 
 -- PVP FUNCTIONS
+
+local function DoAttack(targetHum, targetHRP, attackType, fly)
+    local char, hum, hrp = getCharacter()
+    if fly and targetHRP then
+        hrp.CFrame = targetHRP.CFrame + Vector3.new(0, 5, 0)
+    end
+
+    if attackType == "Melee" then
+        pcall(function() attackRemote:FireServer(targetHum, 1) end)
+    elseif attackType == "Fireball" then
+        pcall(function() skillsRemote:FireServer(targetHRP.Position, "NewFireball") end)
+    elseif attackType == "Lightning" then
+        pcall(function() skillsRemote:FireServer(targetHRP.Position, "NewLightningball") end)
+    end
+end
+
+
 -- ⚔ Kill Aura
 local function killAuraLoop()
 	while task.wait(0.1) do
@@ -272,11 +291,12 @@ end)
 -- Função genérica de auto ataque
 
 local function AutoAttackPlayers()
-    while task.wait(0.2) do
-        if not PVP.AutoAttack then continue end
+    giveFireball()
+    giveFireballEletric()
 
-        local _, _, hrp = getCharacter()
+    while PVP.AutoAttack do
         local closest, shortest = nil, maxRange
+        local _, _, hrp = getCharacter()
 
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
@@ -291,31 +311,48 @@ local function AutoAttackPlayers()
             end
         end
 
-        if closest and closest.Character then
-            local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-            local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
-            if hum and hum.Health > 0 and hrpTarget then
-                local pos = hrpTarget.Position
-
-                -- Escolhe o tipo dinamicamente
-                local attackType = PVP.AttackType or "Melee"
-                pcall(function()
-                    if attackType == "Melee" and attackRemote then
-                        attackRemote:FireServer(hum, 1)
-
-                    elseif attackType == "Fireball" and skillsRemote then
-                        giveFireball()
-                        skillsRemote:FireServer(pos, "NewFireball")
-
-                    elseif attackType == "Lightning" and skillsRemote then
-                        giveFireballEletric()
-                        skillsRemote:FireServer(pos, "NewLightningball")
-                    end
-                end)
-            end
+        if closest then
+            DoAttack(closest.Character:FindFirstChildOfClass("Humanoid"),
+                     closest.Character:FindFirstChild("HumanoidRootPart"),
+                     PVP.AttackType, false)
         end
+
+        task.wait(0.2)
     end
 end
+
+local function AutoAttackFlyPlayers()
+    giveFireball()
+    giveFireballEletric()
+
+    while PVP.AutoFlyAttack do
+        local closest, shortest = nil, maxRange
+        local _, _, hrp = getCharacter()
+
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health > 0 then
+                    local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                    if dist < shortest then
+                        shortest = dist
+                        closest = p
+                    end
+                end
+            end
+        end
+
+        if closest then
+            DoAttack(closest.Character:FindFirstChildOfClass("Humanoid"),
+                     closest.Character:FindFirstChild("HumanoidRootPart"),
+                     PVP.AttackType, true)
+        end
+
+        task.wait(0.2)
+    end
+end
+
+
 
 
 --======================================================================================--
@@ -378,6 +415,16 @@ PvpTab:Checkbox({
     end
 })
 
+PvpTab:Checkbox({
+    Value = false,
+    Label = "Auto Attack + Fly (Genérico)",
+    Callback = function(self, Value)
+        PVP.AutoFlyAttack = Value
+        if Value then
+            task.spawn(AutoAttackFlyPlayers) -- só spawna o loop, sem fixar tipo
+        end
+    end
+})
 PvpTab:SliderEnum({
     Label = "Tipo de Ataque",
     Items = { "Melee", "Fireball", "Lightning" },
