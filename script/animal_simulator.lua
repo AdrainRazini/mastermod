@@ -402,16 +402,29 @@ PvpTab:Checkbox({
 })
 
 
-PvpTab:SliderEnum({
-    Label = "Tipo de Ataque",
-    Items = { "Melee", "Fireball", "Lightning" },
-    Value = 1,
-    Callback = function(self, Value)
-        local selectedType = attackTypes[Value] -- pega o texto usando o índice
-        PVP.AttackType = selectedType
-        print("Tipo de ataque trocado para:", selectedType)
-    end
-})
+local Items_Auto = { "Melee", "Fireball", "Lightning" }
+local RadioRow_PVP = PvpTab:Row()
+local RadioButtons = {} -- guarda referências para desmarcar
+
+for i, item in ipairs(Items_Auto) do
+    local rb = RadioRow_PVP:Radiobox({
+        Label = item,
+        Callback = function()
+            -- desmarcar todos os outros
+            for j, other in ipairs(RadioButtons) do
+                if j ~= i then
+                    other:Set(false)  -- desmarca
+                end
+            end
+
+            -- marca o clicado
+            PVP.AttackType = item
+            print("Tipo de ataque trocado para:", item)
+        end
+    })
+    table.insert(RadioButtons, rb)
+end
+
 
 
 
