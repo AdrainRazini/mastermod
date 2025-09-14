@@ -425,7 +425,7 @@ PvpTab:Checkbox({
     end
 })
 
---[[
+
 
 local Items_Auto = { "Melee", "Fireball", "Lightning" }
 
@@ -442,8 +442,9 @@ for _, item in ipairs(Items_Auto) do
         end
     })
 end
-]]
 
+
+--[[
 PvpTab:SliderEnum({
     Label = "Tipo de Attack",
     Items = { "Melee", "Fireball", "Lightning" },
@@ -456,7 +457,7 @@ PvpTab:SliderEnum({
     end
 })
 
-
+]]
 
 
 
