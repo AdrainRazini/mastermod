@@ -79,7 +79,7 @@ local function autoCoins()
         local events = ReplicatedStorage:FindFirstChild("Events")
         local coinEvent = events and events:FindFirstChild("CoinEvent")
         if coinEvent then coinEvent:FireServer() end
-        task.wait(1)
+        task.wait(AF_Timer.Coins_Speed)
     end
 end
 
@@ -338,6 +338,17 @@ FarmTab:Checkbox({ Value=false, Label="Auto Coins", Callback=function(self, Valu
     AF.coins = Value
     if Value then task.spawn(autoCoins) end
 end})
+
+FarmTab:DragFloat({ 
+    Label = "Drag Decimal Timer Auto Coin", 
+    Value = 0.1, 
+    Minimum = 0, 
+    Maximum = 1 
+       Callback = function(self, Value)
+        AF_Timer.Coins_Speed = Value
+        print("Novo range de ataque:", Value)
+    end
+})
 
 FarmTab:Checkbox({ Value=false, Label="Auto Dummy", Callback=function(self, Value)
     AF.dummies = Value
