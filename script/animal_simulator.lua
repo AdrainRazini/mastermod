@@ -48,7 +48,7 @@ local PVP = {
     AutoEletric = false,
     AutoAttack = false,      -- para AutoAttackPlayers
     AutoFlyAttack = false,   -- para AutoAttackFlyPlayers
-    AttackType = nil
+    AttackType = "Melee"
 }
 
 
@@ -409,12 +409,12 @@ PvpTab:SliderEnum({
     Items = attackTypes,
     Value = 1,
     Callback = function(self, Value)
-        -- Value é o índice, então pegamos o texto do array
-        local selectedType = attackTypes[Value]
+        local selectedType = attackTypes[Value] -- pega o texto usando o índice
         PVP.AttackType = selectedType
         print("Tipo de ataque trocado para:", selectedType)
     end
 })
+
 
 
 PvpTab:Label({ Text = "Configurações básicas de PvP" })
