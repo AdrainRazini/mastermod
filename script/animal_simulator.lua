@@ -401,22 +401,17 @@ PvpTab:Checkbox({
     end
 })
 
-local Items_Auto = { "Melee", "Fireball", "Lightning" }
 
--- Criar uma row para os radio buttons
-local RadioRow_PVP = PvpTab:Row()
-
--- Criar radio buttons dinamicamente a partir da lista
-for _, item in ipairs(Items_Auto) do
-    RadioRow_PVP:Radiobox({
-        Label = item,
-        Callback = function()
-            PVP.AttackType = item
-            print("Tipo de ataque trocado para:", item)
-        end
-    })
-end
-
+PvpTab:SliderEnum({
+    Label = "Tipo de Ataque",
+    Items = { "Melee", "Fireball", "Lightning" },
+    Value = 1,
+    Callback = function(self, Value)
+        local selectedType = attackTypes[Value] -- pega o texto usando o índice
+        PVP.AttackType = selectedType
+        print("Tipo de ataque trocado para:", selectedType)
+    end
+})
 
 
 
