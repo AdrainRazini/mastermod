@@ -402,15 +402,20 @@ PvpTab:Checkbox({
     end
 })
 
+local attackTypes = { "Melee", "Fireball", "Lightning" }
+
 PvpTab:SliderEnum({
     Label = "Tipo de Ataque",
-    Items = { "Melee", "Fireball", "Lightning" },
+    Items = attackTypes,
     Value = 1,
-    Callback = function(self, Value, Text)
-        PVP.AttackType = Text -- salva globalmente
-        print("Tipo de ataque trocado para:", Text)
+    Callback = function(self, Value)
+        -- Value é o índice, então pegamos o texto do array
+        local selectedType = attackTypes[Value]
+        PVP.AttackType = selectedType
+        print("Tipo de ataque trocado para:", selectedType)
     end
 })
+
 
 PvpTab:Label({ Text = "Configurações básicas de PvP" })
 
