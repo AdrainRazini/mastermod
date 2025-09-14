@@ -401,6 +401,7 @@ PvpTab:Checkbox({
         end
     end
 })
+
 PvpTab:SliderEnum({
     Label = "Tipo de Ataque",
     Items = { "Melee", "Fireball", "Lightning" },
