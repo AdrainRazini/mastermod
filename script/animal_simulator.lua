@@ -274,13 +274,19 @@ player.CharacterAdded:Connect(function()
 end)
 
 -- Função genérica de auto ataque
+
 local function AutoAttackLoop(fly)
     giveFireball()
     giveFireballEletric()
 
+    local char, hum, hrp = getCharacter()
+    if fly and hrp then
+        hrp.Anchored = true
+    end
+
     while (fly and PVP.AutoFlyAttack) or (not fly and PVP.AutoAttack) do
         local closest, shortest = nil, maxRange
-        local char, hum, hrp = getCharacter()
+        char, hum, hrp = getCharacter()
 
         -- Encontrar o jogador mais próximo
         for _, p in ipairs(Players:GetPlayers()) do
@@ -317,6 +323,11 @@ local function AutoAttackLoop(fly)
         end
 
         task.wait(0.2)
+    end
+
+    -- Desancora ao sair do loop
+    if fly and hrp then
+        hrp.Anchored = false
     end
 end
 
