@@ -403,26 +403,19 @@ PvpTab:Checkbox({
 
 
 local Items_Auto = { "Melee", "Fireball", "Lightning" }
-local RadioRow_PVP = PvpTab:Row()
-local RadioButtons = {} -- guarda referências para desmarcar
 
-for i, item in ipairs(Items_Auto) do
-    local rb = RadioRow_PVP:Radiobox({
+-- Criar uma row para os radio buttons
+local RadioRow_PVP = PvpTab:Row()
+
+-- Criar radio buttons dinamicamente a partir da lista
+for _, item in ipairs(Items_Auto) do
+    RadioRow_PVP:Radiobox({
         Label = item,
         Callback = function()
-            -- desmarcar todos os outros
-            for j, other in ipairs(RadioButtons) do
-                if j ~= i then
-                    other:Set(false)  -- desmarca
-                end
-            end
-
-            -- marca o clicado
             PVP.AttackType = item
             print("Tipo de ataque trocado para:", item)
         end
     })
-    table.insert(RadioButtons, rb)
 end
 
 
