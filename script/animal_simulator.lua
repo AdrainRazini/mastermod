@@ -280,7 +280,7 @@ local function AutoAttackLoop(fly)
 
     while (fly and PVP.AutoFlyAttack) or (not fly and PVP.AutoAttack) do
         local closest, shortest = nil, maxRange
-        local _, _, hrp = getCharacter()
+        local char, hum, hrp = getCharacter()
 
         -- Encontrar o jogador mais próximo
         for _, p in ipairs(Players:GetPlayers()) do
@@ -297,21 +297,22 @@ local function AutoAttackLoop(fly)
             end
         end
 
-        -- Atacar se encontrou alguém
+        -- Executa ataque se encontrou alvo
         if closest then
-            local hum = closest.Humanoid
-            local hrpTarget = closest.HRP
+            local targetHum = closest.Humanoid
+            local targetHRP = closest.HRP
+
             if fly then
-                hrp.CFrame = hrpTarget.CFrame + Vector3.new(0, 5, 0) -- voa 5 studs acima
+                hrp.CFrame = targetHRP.CFrame + Vector3.new(0, 5, 0)
             end
 
-            -- Executa ataque conforme tipo selecionado
+            -- Sempre lê PVP.AttackType aqui para atualizar em tempo real
             if PVP.AttackType == "Melee" then
-                pcall(function() attackRemote:FireServer(hum, 1) end)
+                pcall(function() attackRemote:FireServer(targetHum, 1) end)
             elseif PVP.AttackType == "Fireball" then
-                pcall(function() skillsRemote:FireServer(hrpTarget.Position, "NewFireball") end)
+                pcall(function() skillsRemote:FireServer(targetHRP.Position, "NewFireball") end)
             elseif PVP.AttackType == "Lightning" then
-                pcall(function() skillsRemote:FireServer(hrpTarget.Position, "NewLightningball") end)
+                pcall(function() skillsRemote:FireServer(targetHRP.Position, "NewLightningball") end)
             end
         end
 
@@ -319,7 +320,7 @@ local function AutoAttackLoop(fly)
     end
 end
 
--- Chamadas específicas
+-- Chamadas para UI
 local function AutoAttackPlayers()
     task.spawn(function() AutoAttackLoop(false) end)
 end
