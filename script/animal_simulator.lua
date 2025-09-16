@@ -452,7 +452,7 @@ PvpTab:SliderEnum({
 
 --[[
 
--- Botões
+-- Botão
 local Items_Auto = { "Melee", "Fireball", "Lightning" }
 
 -- Criar uma row para os radio buttons
