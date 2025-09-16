@@ -439,7 +439,7 @@ PvpTab:Checkbox({
 })
 
 
-
+--[[
 local Items_Auto = { "Melee", "Fireball", "Lightning" }
 
 -- Criar uma row para os radio buttons
@@ -455,7 +455,7 @@ for _, item in ipairs(Items_Auto) do
         end
     })
 end
-
+]]
 
 PvpTab:SliderEnum({
     Label = "Tipo de Attack (Beta)", -- Texto que aparece no menu
