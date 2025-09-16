@@ -438,21 +438,8 @@ PvpTab:Checkbox({
     end
 })
 
-PvpTab:SliderEnum({
-    Label = "Tipo de Attack",
-    Items = { "Melee", "Fireball", "Lightning" },
-    Value = 1,
-    Callback = function(Value)
-        -- `Value` é o índice selecionado
-        local selectedType = { "Melee", "Fireball", "Lightning" }[Value]
-        PVP.AttackType = selectedType
-        print("Tipo de ataque trocado para:", selectedType)
-    end
-})
 
---[[
 
--- Botão
 local Items_Auto = { "Melee", "Fireball", "Lightning" }
 
 -- Criar uma row para os radio buttons
@@ -468,7 +455,7 @@ for _, item in ipairs(Items_Auto) do
         end
     })
 end
-]]
+
 
 --[[
 PvpTab:SliderEnum({
@@ -578,10 +565,10 @@ MiscTab:Button({
     end
 })
 --========================================================================================--
-
 -- UI: WEBHOOK TAB
 local WebhookTab = Window:CreateTab({ Name = "Webhook" })
 WebhookTab:Label({ Text = "Coming Soon..." })
+--========================================================================================--
 
 -- 🔹 Texto
 WebhookTab:Label({ Text = "Exemplo de Widgets - Showcase" })
@@ -663,89 +650,6 @@ local Tab1 = SubTabs:CreateTab({ Name = "Logs" })
 Tab1:Label({ Text = "Aqui ficam os logs do webhook..." })
 local Tab2 = SubTabs:CreateTab({ Name = "Config" })
 Tab2:Label({ Text = "Aqui ficam configs adicionais..." })
-
----------------------------------------------------------------------
--- 🔹 EXTRAS (que não estavam antes)
----------------------------------------------------------------------
-
--- Separator + Spacing
-WebhookTab:Separator()
-WebhookTab:Spacing()
-
--- SameLine
-WebhookTab:Label({ Text = "Usuário:" })
-WebhookTab:SameLine()
-WebhookTab:InputText({ Label = "Nome" })
-
--- ChildWindow
-local Child = WebhookTab:ChildWindow({ Title = "Sub Janela", Size = UDim2.fromOffset(200,120) })
-Child:Label({ Text = "Linha 1 dentro da janela" })
-Child:Label({ Text = "Linha 2 dentro da janela" })
-
--- MenuBar
-local Menu = WebhookTab:MenuBar()
-Menu:MenuItem({ Text = "Arquivo" })
-Menu:MenuItem({ Text = "Editar" })
-Menu:MenuItem({ Text = "Ajuda" })
-
--- Combo
-WebhookTab:Combo({
-    Label = "ComboBox",
-    Items = { "Item A", "Item B", "Item C" },
-    Value = 1
-})
-
--- ListBox
-WebhookTab:ListBox({
-    Label = "Lista de Opções",
-    Items = { "Opção 1", "Opção 2", "Opção 3", "Opção 4" },
-    Value = 2
-})
-
--- Selectable
-WebhookTab:Selectable({
-    Text = "Clique para selecionar",
-    Callback = function() print("Selecionado!") end
-})
-
--- ProgressBar
-WebhookTab:ProgressBar({ Value = 0.6, Size = UDim2.fromOffset(200,20) })
-
--- TextColored
-WebhookTab:TextColored({
-    Text = "Texto em vermelho",
-    Color = Color3.fromRGB(255,0,0)
-})
-
--- Table
-local T = WebhookTab:Table({ Columns = 2 })
-T:Label({ Text = "Chave" }) T:Label({ Text = "Valor" })
-T:Label({ Text = "Level" }) T:Label({ Text = "42" })
-T:Label({ Text = "XP" })    T:Label({ Text = "9999" })
-
--- PopupModal
-WebhookTab:Button({
-    Text = "Abrir Popup",
-    Callback = function()
-        local Pop = WebhookTab:PopupModal({ Title = "Confirmação" })
-        Pop:Label({ Text = "Deseja continuar?" })
-        Pop:Button({ Text = "Sim", Callback = function() print("Confirmado!") end })
-    end
-})
-
--- Notify
-WebhookTab:Button({
-    Text = "Mostrar Notificação",
-    Callback = function()
-        WebhookTab:Notify({
-            Title = "Sucesso",
-            Text = "Webhook enviado!",
-            Duration = 3
-        })
-    end
-})
-
-
 
 
 --========================================================================================--
