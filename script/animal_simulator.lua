@@ -438,8 +438,21 @@ PvpTab:Checkbox({
     end
 })
 
+PvpTab:SliderEnum({
+    Label = "Tipo de Attack",
+    Items = { "Melee", "Fireball", "Lightning" },
+    Value = 1,
+    Callback = function(Value)
+        -- `Value` é o índice selecionado
+        local selectedType = { "Melee", "Fireball", "Lightning" }[Value]
+        PVP.AttackType = selectedType
+        print("Tipo de ataque trocado para:", selectedType)
+    end
+})
 
+--[[
 
+-- Botões
 local Items_Auto = { "Melee", "Fireball", "Lightning" }
 
 -- Criar uma row para os radio buttons
@@ -455,7 +468,7 @@ for _, item in ipairs(Items_Auto) do
         end
     })
 end
-
+]]
 
 --[[
 PvpTab:SliderEnum({
