@@ -457,6 +457,18 @@ for _, item in ipairs(Items_Auto) do
 end
 
 
+PvpTab:SliderEnum({
+    Label = "Tipo de Attack (Beta)", -- Texto que aparece no menu
+    Items = { "Melee", "Fireball", "Lightning" }, -- Lista de opções
+    Value = 1, -- Índice inicial (1 = "Melee")
+    Callback = function(Value) -- Função chamada quando o valor muda
+        local selectedType = { "Melee", "Fireball", "Lightning" }[Value]
+        PVP.AttackType = selectedType
+        print("Tipo de ataque trocado para:", selectedType)
+    end
+})
+
+
 --[[
 PvpTab:SliderEnum({
     Label = "Tipo de Attack",
