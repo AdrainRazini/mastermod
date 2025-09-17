@@ -222,33 +222,40 @@ function chach.applyAutoScrolling(instance, padding, alignment)
 	return layout
 end
 
-
 local UserInputService = game:GetService("UserInputService")
 
 function chach.applyDraggable(frame, dragButton)
-	local dragging, dragStart, startPos
+	local dragging = false
+	local dragStart = Vector2.new()
+	local startPos = UDim2.new()
 
-	dragButton.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	local function startDrag(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = frame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
 		end
-	end)
+	end
 
-	dragButton.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+	local function updateDrag(input)
+		if dragging then
 			local delta = input.Position - dragStart
 			frame.Position = UDim2.new(
 				startPos.X.Scale, startPos.X.Offset + delta.X,
 				startPos.Y.Scale, startPos.Y.Offset + delta.Y
 			)
 		end
-	end)
+	end
 
-	dragButton.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = false
+	dragButton.InputBegan:Connect(startDrag)
+	dragButton.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			updateDrag(input)
 		end
 	end)
 end
@@ -686,14 +693,12 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 		if callback then callback(checked) end
 	end
 
-	local function inputHandler(input)
+	-- INPUT APENAS NO BOX
+	box.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			toggle()
 		end
-	end
-
-	box.InputBegan:Connect(inputHandler)
-	label.InputBegan:Connect(inputHandler)
+	end)
 
 	return {
 		Frame = frame,
@@ -747,14 +752,12 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 		if callback then callback(toggled) end
 	end
 
-	local function inputHandler(input)
+	-- INPUT APENAS NO ICON
+	toggleIcon.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			toggle()
 		end
-	end
-
-	toggleIcon.InputBegan:Connect(inputHandler)
-	label.InputBegan:Connect(inputHandler)
+	end)
 
 	return {
 		Frame = frame,
