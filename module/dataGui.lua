@@ -107,7 +107,8 @@ local chach = {
 		date = os.date(),
 		auth = "Adrian75556435",
 		verdate = "17/09/2025",
-		creat = "15/09/2025"
+		creat = "15/09/2025",
+		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
 
 	
@@ -1167,18 +1168,21 @@ end
 function chach.CreditsUi(Scroll, list, callback)
 	local Mod = chach.Mod_UI
 	local Name = list.Name or "Adrian75556435"
+	local alignment = list.Alignment or "Left" -- string: "Left", "Center", "Right"
+	local textsAlignment = list.Alignment_Texts or "Left"
+
+
+
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0, 220, 0, 160)
+	frame.Size = UDim2.new(1, 0, 0, 300)
 	frame.BackgroundColor3 = chach.Colors.Secondary
 	frame.BorderSizePixel = 0
 	frame.Parent = Scroll
 	frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	frame.Position = UDim2.new(0.5, 0, 0.5, 0)
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 10)
-	corner.Parent = frame
+	
+    chach.applyCorner(frame)
 
 	local title = Instance.new("TextLabel")
 	title.Size = UDim2.new(1, -20, 0, 30)
@@ -1188,7 +1192,7 @@ function chach.CreditsUi(Scroll, list, callback)
 	title.Font = Enum.Font.SourceSansBold
 	title.TextSize = 18
 	title.TextColor3 = chach.Colors.Accent
-	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.TextXAlignment = Enum.TextXAlignment[alignment]
 	title.Parent = frame
 
 	local info = Instance.new("TextLabel")
@@ -1199,14 +1203,14 @@ function chach.CreditsUi(Scroll, list, callback)
 	info.TextColor3 = chach.Colors.Text
 	info.Font = Enum.Font.SourceSans
 	info.TextSize = 14
-	info.TextXAlignment = Enum.TextXAlignment.Left
+	info.TextXAlignment = Enum.TextXAlignment[textsAlignment]
 	info.Parent = frame
 
 	-- Função para atualizar os textos dinamicamente
 	local function UpdateCredits()
 		info.Text = string.format(
-			"Mod Name: %s\nDescription: %s\nVersion: %s\nAuthor: %s\nDate: %s\nCreated: %s\nLast Update: %s\nSpecial Thanks: %s",
-			Mod.name, Mod.desc, Mod.ver, Mod.by, os.date("%d/%m/%Y %H:%M:%S"), Mod.creat, Mod.verdate, Name
+			"Mod Name: %s\nDescription: %s\nVersion: %s\nAuthor: %s\nDate: %s\nCreated: %s\nLast Update: %s\nSpecial Thanks: %s \nNotes: %s",
+			Mod.name, Mod.desc, Mod.ver, Mod.by, os.date("%d/%m/%Y %H:%M:%S"), Mod.creat, Mod.verdate, Name, Mod.text_obs
 		)
 	end
 
