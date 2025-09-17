@@ -293,7 +293,7 @@ function chach.TabsWindow(list)
 	title.Size = UDim2.new(1, -40, 1, 0) -- espaço para botão
 	title.AnchorPoint = Vector2.new(0.5, 0.5)
 	title.Position = UDim2.new(0.5, 0, 0.5, 0)
-	title.Text = list.Title or "TabsWindow"
+	title.Text = list.Text or "TabsWindow"
 	title.TextColor3 = Color3.fromRGB(255, 255, 255)
 	title.BackgroundTransparency = 1
 	title.Parent = top_frame
