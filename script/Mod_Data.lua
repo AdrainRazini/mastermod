@@ -71,7 +71,7 @@ local Check_Farme = Regui.CreateCheckboxe(FarmTab, {Text = "Checkboxe", Color = 
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert",
 			Text = "Checkbox clicada! Estado: " .. tostring(Test_.Button_Box),
-			Icon = "fa_rr_information",
+			Icon = "fa_envelope",
 			Tempo = 10,
 			Casch = {},
 			Sound = ""
@@ -86,7 +86,21 @@ end)
 local Toggle_Farme = Regui.CreateToggleboxe(FarmTab, {Text = "Toggle", Color = "Blue"}, function(state)
 	
 	Test_.Toggle_Test = state
-	print("Toggle clicada! Estado:", Test_.Toggle_Test)
+	--print("Toggle clicada! Estado:", Test_.Toggle_Test)
+	
+	if Test_.Toggle_Test  then
+		-- Notificação se for Verdadeiro
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert",
+			Text = "Toggle clicada! Estado: " .. tostring(Test_.Toggle_Test),
+			Icon = "fa_envelope",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
 end)
 
 local SliderFloat = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot", Color = "Blue", Value = 0.1, Minumum = 0, Maximum = 1}, function(state)
