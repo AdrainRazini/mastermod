@@ -88,7 +88,7 @@ Regui.CreateSliderInt(SubWin["Main"], {
 }, function(val)  end)
 
 
-local Tab_F_Logs = Regui.CreateSubTab(FarmTab, { Text = "Alert", Table= {"Logs", "Player", "Main"}, Color = "Blue"})
+local Tab_F_Logs = Regui.CreateSubTab(FarmTab, { Text = "Alert", Table= {"Logs: Null", "Player: " .. game.Players.LocalPlayer.Name, "Main: Null"}, Color = "Blue"})
 -- SubTab
 local SliderInt = Regui.CreateSliderInt(Tab_F_Logs, {Text = "Timer Int", Color = "Blue", Value = 1, Minumum = 0, Maximum = 100}, function(state) end) 
 
