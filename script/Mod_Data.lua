@@ -49,18 +49,43 @@ local Test_ = {
 
 local Window = Regui.TabsWindow({Title = GuiName, Text = "Mod Menu", Size = UDim2.new(0, 300, 0, 200)})
 
-local Test_notification = Regui.NotificationPerson(Window.Frame.Parent, {
+--[[ 
+
+
+local function Notify(text, icon, tempo)
+	Regui.NotificationPerson(Window.Frame.Parent, {
+		Title = "Alert",
+		Text = text,
+		Icon = icon or "fa_rr_information",
+		Tempo = tempo or 5,
+		Casch = {}
+	})
+end
+
+local function CreateSlider(tab, text, color, value, min, max, callback)
+	return Regui.CreateSliderInt(tab, {Text=text, Color=color, Value=value, Minimum=min, Maximum=max}, callback)
+end
+
+local function CreateToggle(tab, text, color, callback)
+	return Regui.CreateToggleboxe(tab, {Text=text, Color=color}, callback)
+end
+
+
+local Hello = Regui.Notifications(Window.Frame.Parent, {
 	Title = "Alert",
-	Text = "Hello World!",
-	Icon = "fa_rr_information",
-	Tempo = 10,
-	Casch = {}
-}, function()
-	print("Notificação fechada!")
+	Text = "Hello " .. game.Players.LocalPlayer.Name,
+	Icon = "fa_bx_config", -- pode passar assetid ou string
+	Tempo = 10
+}, function(val)
+	print("Notificação enviada!", val)
 end)
 
-local FarmTab = Regui.CreateTab(Window, {Name = "Farm"})
-local Label_Farme = Regui.CreateLabel(FarmTab, {Text = "Farm", Color = "White", Alignment = "Center"})
+
+]]
+
+
+local FarmTab = Regui.CreateTab(Window, {Name = "Example"})
+local Label_Farme = Regui.CreateLabel(FarmTab, {Text = "Example", Color = "White", Alignment = "Center"})
 
 local Check_Farme = Regui.CreateCheckboxe(FarmTab, {Text = "Checkboxe", Color = "Blue"}, function(state)
 	Test_.Button_Box = state
@@ -103,13 +128,15 @@ local Toggle_Farme = Regui.CreateToggleboxe(FarmTab, {Text = "Toggle", Color = "
 	end
 end)
 
-local SliderFloat = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot", Color = "Blue", Value = 0.1, Minumum = 0, Maximum = 1}, function(state)
+-- Principais sliders
+
+local SliderFloat = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
 	Test_.Float_Value = state
 	print("Slider Float clicada! Estado:", Test_.Float_Value)
 	
 end)
 
-local SliderInt = Regui.CreateSliderInt(FarmTab, {Text = "Timer Int", Color = "Blue", Value = 1, Minumum = 0, Maximum = 100}, function(state)
+local SliderInt = Regui.CreateSliderInt(FarmTab, {Text = "Timer Int", Color = "Blue", Value = 1, Minimum = 0, Maximum = 100}, function(state)
 Test_.Int_Value = state
 	print("Slider Int clicada! Estado:", Test_.Int_Value)
 
@@ -155,10 +182,7 @@ Regui.CreateSliderInt(SubWin["Main"], {
 
 
 local Tab_F_Logs = Regui.CreateSubTab(FarmTab, { Text = "Alert", Table= {"Logs: Null", "Player: " .. game.Players.LocalPlayer.Name, "Main: Null"}, Color = "Blue"})
-
-
--- SubTab
-local SliderInt = Regui.CreateSliderInt(Tab_F_Logs, {Text = "Timer Int", Color = "Blue", Value = 1, Minumum = 0, Maximum = 100}, function(state) end) 
+local SliderInt = Regui.CreateSliderInt(Tab_F_Logs, {Text = "Timer Int", Color = "Blue", Value = 1, Minimum = 0, Maximum = 100}, function(state) end) 
 
 local PlayerTab = Regui.CreateTab(Window, {Name = "Player"})
 
@@ -175,15 +199,5 @@ local Readme_Lb = Regui.CreateLabel(ReadmeTab, {
 	Color = "White",
 	Alignment = "Left"
 })
-
-
-local Hello = Regui.Notifications(Window.Frame.Parent, {
-	Title = "Alert",
-	Text = "Hello " .. game.Players.LocalPlayer.Name,
-	Icon = "fa_bx_config", -- pode passar assetid ou string
-	Tempo = 10
-}, function(val)
-	print("Notificação enviada!", val)
-end)
 
 
