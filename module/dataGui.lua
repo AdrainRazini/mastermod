@@ -104,9 +104,10 @@ local chach = {
 		by = "Adrian75556435",
 		ver = "1.0.0",
 		desc = "Mod Gui",
-		date = "17/09/2025",
+		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "15/09/2025"
+		verdate = "17/09/2025",
+		creat = "15/09/2025"
 	}
 
 	
@@ -1163,25 +1164,22 @@ function chach.Notifications(Gui, list, callback)
 end
 
 
-function chach.CreditsUi(Scroll)
+function chach.CreditsUi(Scroll, list, callback)
 	local Mod = chach.Mod_UI
-	local Name = "Adrian75556435"
+	local Name = list.Name or "Adrian75556435"
 
-	-- Frame base da mini janela
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0, 220, 0, 140)
+	frame.Size = UDim2.new(0, 220, 0, 160)
 	frame.BackgroundColor3 = chach.Colors.Secondary
 	frame.BorderSizePixel = 0
 	frame.Parent = Scroll
 	frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 
-	-- Bordas arredondadas
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 10)
 	corner.Parent = frame
 
-	-- Título
 	local title = Instance.new("TextLabel")
 	title.Size = UDim2.new(1, -20, 0, 30)
 	title.Position = UDim2.new(0, 10, 0, 10)
@@ -1193,15 +1191,10 @@ function chach.CreditsUi(Scroll)
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Parent = frame
 
-	-- Texto de créditos
 	local info = Instance.new("TextLabel")
 	info.Size = UDim2.new(1, -20, 1, -50)
 	info.Position = UDim2.new(0, 10, 0, 40)
 	info.BackgroundTransparency = 1
-	info.Text = string.format(
-		"Mod Name: %s\nVersion: %s\nAuthor: %s\nDate: %s\nLast Update: %s\nSpecial Thanks: %s",
-		Mod.name, Mod.ver, Mod.by, Mod.date, Mod.verdate, Name
-	)
 	info.TextWrapped = true
 	info.TextColor3 = chach.Colors.Text
 	info.Font = Enum.Font.SourceSans
@@ -1209,7 +1202,27 @@ function chach.CreditsUi(Scroll)
 	info.TextXAlignment = Enum.TextXAlignment.Left
 	info.Parent = frame
 
-	-- Botão de fechar
+	-- Função para atualizar os textos dinamicamente
+	local function UpdateCredits()
+		info.Text = string.format(
+			"Mod Name: %s\nDescription: %s\nVersion: %s\nAuthor: %s\nDate: %s\nCreated: %s\nLast Update: %s\nSpecial Thanks: %s",
+			Mod.name, Mod.desc, Mod.ver, Mod.by, os.date("%d/%m/%Y %H:%M:%S"), Mod.creat, Mod.verdate, Name
+		)
+	end
+
+	-- Atualiza ao criar
+	UpdateCredits()
+
+	-- Mantém sempre atualizado a cada 1 segundo
+	local RunService = game:GetService("RunService")
+	local conn
+	conn = RunService.RenderStepped:Connect(function()
+		UpdateCredits()
+		if not frame.Parent then
+			conn:Disconnect()
+		end
+	end)
+
 	local closeButton = Instance.new("TextButton")
 	closeButton.Size = UDim2.new(0, 25, 0, 25)
 	closeButton.Position = UDim2.new(1, -30, 0, 5)
@@ -1222,10 +1235,13 @@ function chach.CreditsUi(Scroll)
 
 	closeButton.MouseButton1Click:Connect(function()
 		frame:Destroy()
+		if callback then callback() end
 	end)
 
 	return frame
 end
+
+
 
 
 
