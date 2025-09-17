@@ -200,6 +200,7 @@ local Readme_Lb = Regui.CreateLabel(ReadmeTab, {
 	Alignment = "Left"
 })
 
-local Credits = Regui.CreditsUi(ReadmeTab)
+local Credits = Regui.CreditsUi(ReadmeTab, {}, function() end)
+
 
 
