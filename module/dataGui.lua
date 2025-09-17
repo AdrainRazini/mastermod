@@ -651,11 +651,13 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 	local text = list.Text or "Checkbox"
 	local color = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
 
+	-- Container
 	local frame = Instance.new("Frame")
 	frame.Size = UDim2.new(1,0,0,25)
 	frame.BackgroundTransparency = 1
 	frame.Parent = Scroll
 
+	-- Caixa da checkbox (contorno)
 	local box = Instance.new("Frame")
 	box.Size = UDim2.new(0,20,0,20)
 	box.Position = UDim2.new(0,5,0.5,0)
@@ -665,16 +667,17 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 	box.Parent = frame
 	chach.applyCorner(box)
 
-	local check = Instance.new("TextLabel")
-	check.Size = UDim2.new(1,0,1,0)
-	check.BackgroundTransparency = 1
-	check.Text = "✔"
-	check.TextColor3 = Color3.fromRGB(0,170,255)
-	check.Visible = false
-	check.Font = Enum.Font.SourceSansBold
-	check.TextSize = 18
-	check.Parent = box
+	-- Bolinha interna
+	local dot = Instance.new("Frame")
+	dot.Size = UDim2.new(0,12,0,12)
+	dot.Position = UDim2.new(0.5,0,0.5,0)
+	dot.AnchorPoint = Vector2.new(0.5,0.5)
+	dot.BackgroundColor3 = Color3.fromRGB(0,170,255)
+	dot.Visible = false
+	dot.Parent = box
+	chach.applyCorner(dot)
 
+	-- Label
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.new(1,-30,1,0)
 	label.Position = UDim2.new(0,30,0,0)
@@ -689,11 +692,11 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 	local checked = false
 	local function toggle()
 		checked = not checked
-		check.Visible = checked
+		dot.Visible = checked
 		if callback then callback(checked) end
 	end
 
-	-- INPUT APENAS NO BOX
+	-- Clique apenas no box
 	box.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			toggle()
@@ -707,10 +710,11 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 		Get = function() return checked end,
 		Set = function(val)
 			checked = val
-			check.Visible = checked
+			dot.Visible = checked
 		end
 	}
 end
+
 
 -- Togglebox
 function chach.CreateToggleboxe(Scroll, list, callback)
