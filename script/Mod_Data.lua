@@ -37,22 +37,74 @@ if PlayerGui:FindFirstChild(GuiName) then
 	return
 end
 
+
+local Test_ = {
+	Button_Box = false,
+	Toggle_Test = false,
+	Int_Value = 0,
+	Float_Value = 0,
+	Type_Name = "Null"
+	
+}
+
 local Window = Regui.TabsWindow({Title = GuiName, Text = "Mod Menu", Size = UDim2.new(0, 300, 0, 200)})
+
+local Test_notification = Regui.NotificationPerson(Window.Frame.Parent, {
+	Title = "Alert",
+	Text = "Hello World!",
+	Icon = "fa_rr_information",
+	Tempo = 10,
+	Casch = {}
+}, function()
+	print("Notificação fechada!")
+end)
 
 local FarmTab = Regui.CreateTab(Window, {Name = "Farm"})
 local Label_Farme = Regui.CreateLabel(FarmTab, {Text = "Farm", Color = "White", Alignment = "Center"})
 
 local Check_Farme = Regui.CreateCheckboxe(FarmTab, {Text = "Checkboxe", Color = "Blue"}, function(state)
-	print("Checkbox clicada! Estado:", state)
+	Test_.Button_Box = state
+	--print("Checkbox clicada! Estado:", Test_.Button_Box)
+	
+	if Test_.Button_Box  then
+		-- Notificação se for Verdadeiro
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert",
+			Text = "Checkbox clicada! Estado: " .. tostring(Test_.Button_Box),
+			Icon = "fa_rr_information",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
+	
+
 end)
 
 local Toggle_Farme = Regui.CreateToggleboxe(FarmTab, {Text = "Toggle", Color = "Blue"}, function(state)
-	print("Toggle clicada! Estado:", state)
+	
+	Test_.Toggle_Test = state
+	print("Toggle clicada! Estado:", Test_.Toggle_Test)
 end)
 
-local SliderFloat = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot", Color = "Blue", Value = 0.1, Minumum = 0, Maximum = 1}, function(state) end)
+local SliderFloat = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot", Color = "Blue", Value = 0.1, Minumum = 0, Maximum = 1}, function(state)
+	Test_.Float_Value = state
+	print("Slider Float clicada! Estado:", Test_.Float_Value)
+	
+end)
 
-local SliderInt = Regui.CreateSliderInt(FarmTab, {Text = "Timer Int", Color = "Blue", Value = 1, Minumum = 0, Maximum = 100}, function(state) end)
+local SliderInt = Regui.CreateSliderInt(FarmTab, {Text = "Timer Int", Color = "Blue", Value = 1, Minumum = 0, Maximum = 100}, function(state)
+Test_.Int_Value = state
+	print("Slider Int clicada! Estado:", Test_.Int_Value)
+
+end)
+
+local SliderOption = Regui.CreateSliderOption(FarmTab, {Text = "Timer Option", Color = "White", Background = "Blue" , Value = 1, Table = {"Melle","Fire","Aura"}}, function(state)
+	Test_.Type_Name = state
+	print("Slider Int clicada! Estado:", Test_.Type_Name)
+end)
 
 
 -- Cria SubWindow 
@@ -89,9 +141,10 @@ Regui.CreateSliderInt(SubWin["Main"], {
 
 
 local Tab_F_Logs = Regui.CreateSubTab(FarmTab, { Text = "Alert", Table= {"Logs: Null", "Player: " .. game.Players.LocalPlayer.Name, "Main: Null"}, Color = "Blue"})
+
+
 -- SubTab
 local SliderInt = Regui.CreateSliderInt(Tab_F_Logs, {Text = "Timer Int", Color = "Blue", Value = 1, Minumum = 0, Maximum = 100}, function(state) end) 
-
 
 local PlayerTab = Regui.CreateTab(Window, {Name = "Player"})
 
