@@ -639,42 +639,38 @@ function chach.CreateLabel(Scroll, list)
 	return label
 end
 
+-- Checkbox
 function chach.CreateCheckboxe(Scroll, list, callback)
 	local text = list.Text or "Checkbox"
-	local c = chach.Colors
-	local color = c[list.Color] or Color3.fromRGB(255, 255, 255)
+	local color = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
 
-	-- Container da checkbox
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, 0, 0, 25)
+	frame.Size = UDim2.new(1,0,0,25)
 	frame.BackgroundTransparency = 1
 	frame.Parent = Scroll
 
-	-- Caixa da checkbox
 	local box = Instance.new("Frame")
-	box.Size = UDim2.new(0, 20, 0, 20)
-	box.Position = UDim2.new(0, 5, 0.5, 0)
-	box.AnchorPoint = Vector2.new(0, 0.5)
-	box.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	box.Size = UDim2.new(0,20,0,20)
+	box.Position = UDim2.new(0,5,0.5,0)
+	box.AnchorPoint = Vector2.new(0,0.5)
+	box.BackgroundColor3 = Color3.fromRGB(50,50,50)
 	box.BorderSizePixel = 0
 	box.Parent = frame
 	chach.applyCorner(box)
 
-	-- Indicador de check
 	local check = Instance.new("TextLabel")
-	check.Size = UDim2.new(1, 0, 1, 0)
+	check.Size = UDim2.new(1,0,1,0)
 	check.BackgroundTransparency = 1
 	check.Text = "✔"
-	check.TextColor3 = Color3.fromRGB(0, 170, 255)
+	check.TextColor3 = Color3.fromRGB(0,170,255)
 	check.Visible = false
 	check.Font = Enum.Font.SourceSansBold
 	check.TextSize = 18
 	check.Parent = box
 
-	-- Label do texto
 	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, -30, 1, 0)
-	label.Position = UDim2.new(0, 30, 0, 0)
+	label.Size = UDim2.new(1,-30,1,0)
+	label.Position = UDim2.new(0,30,0,0)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = color
 	label.Text = text
@@ -683,59 +679,55 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.Parent = frame
 
-	-- Estado da checkbox
 	local checked = false
-
 	local function toggle()
 		checked = not checked
 		check.Visible = checked
-		if callback then
-			callback(checked)
+		if callback then callback(checked) end
+	end
+
+	local function inputHandler(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			toggle()
 		end
 	end
 
-	box.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			toggle()
-		end
-	end)
+	box.InputBegan:Connect(inputHandler)
+	label.InputBegan:Connect(inputHandler)
 
-	label.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			toggle()
+	return {
+		Frame = frame,
+		Box = box,
+		Label = label,
+		Get = function() return checked end,
+		Set = function(val)
+			checked = val
+			check.Visible = checked
 		end
-	end)
-
-	return {Frame = frame, Box = box, Label = label, Get = function() return checked end, Set = function(val)
-		checked = val
-		check.Visible = checked
-	end}
+	}
 end
 
+-- Togglebox
 function chach.CreateToggleboxe(Scroll, list, callback)
 	local text = list.Text or "Toggle"
-	local c = chach.Colors
-	local color = c[list.Color] or Color3.fromRGB(255, 255, 255)
+	local color = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
 
-	-- Container do toggle
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, 0, 0, 25)
+	frame.Size = UDim2.new(1,0,0,25)
 	frame.BackgroundTransparency = 1
 	frame.Parent = Scroll
 
-	-- Ícone de toggle
 	local toggleIcon = Instance.new("ImageLabel")
-	toggleIcon.Size = UDim2.new(0, 20, 0, 20)
-	toggleIcon.Position = UDim2.new(0, 5, 0.5, 0)
-	toggleIcon.AnchorPoint = Vector2.new(0, 0.5)
+	toggleIcon.Size = UDim2.new(0,20,0,20)
+	toggleIcon.Position = UDim2.new(0,5,0.5,0)
+	toggleIcon.AnchorPoint = Vector2.new(0,0.5)
 	toggleIcon.BackgroundTransparency = 1
 	toggleIcon.Image = chach.Icons.fa_rr_toggle_left
 	toggleIcon.Parent = frame
 
-	-- Label do texto
 	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, -30, 1, 0)
-	label.Position = UDim2.new(0, 30, 0, 0)
+	label.Size = UDim2.new(1,-30,1,0)
+	label.Position = UDim2.new(0,30,0,0)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = color
 	label.Text = text
@@ -744,9 +736,7 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.Parent = frame
 
-	-- Estado do toggle
 	local toggled = false
-
 	local function updateIcon()
 		toggleIcon.Image = toggled and chach.Icons.fa_rr_toggle_right or chach.Icons.fa_rr_toggle_left
 	end
@@ -754,23 +744,17 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 	local function toggle()
 		toggled = not toggled
 		updateIcon()
-		if callback then
-			callback(toggled)
+		if callback then callback(toggled) end
+	end
+
+	local function inputHandler(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			toggle()
 		end
 	end
 
-	-- Input do mouse
-	toggleIcon.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			toggle()
-		end
-	end)
-
-	label.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			toggle()
-		end
-	end)
+	toggleIcon.InputBegan:Connect(inputHandler)
+	label.InputBegan:Connect(inputHandler)
 
 	return {
 		Frame = frame,
@@ -784,25 +768,22 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 	}
 end
 
-
+-- Slider (Float)
 function chach.CreateSliderFloat(Scroll, list, callback)
 	local text = list.Text or "Slider"
-	local c = chach.Colors
-	local color = c[list.Color] or Color3.fromRGB(255, 255, 255)
+	local color = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
 
 	local min = list.Minimum or 0
 	local max = list.Maximum or 1
 	local value = list.Value or min
 
-	-- Container
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, 0, 0, 45)
+	frame.Size = UDim2.new(1,0,0,45)
 	frame.BackgroundTransparency = 1
 	frame.Parent = Scroll
 
-	-- Label
 	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, 0, 0, 20)
+	label.Size = UDim2.new(1,0,0,20)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = color
 	label.Text = text .. ": " .. tostring(value)
@@ -811,198 +792,85 @@ function chach.CreateSliderFloat(Scroll, list, callback)
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.Parent = frame
 
-	-- Barra
 	local bar = Instance.new("Frame")
-	bar.Size = UDim2.new(1, -20, 0, 8)
-	bar.Position = UDim2.new(0, 10, 0, 30)
-	bar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	bar.Size = UDim2.new(1,-20,0,8)
+	bar.Position = UDim2.new(0,10,0,30)
+	bar.BackgroundColor3 = Color3.fromRGB(60,60,60)
 	bar.BorderSizePixel = 0
 	bar.Parent = frame
 	chach.applyCorner(bar)
 
-	-- Preenchimento
 	local fill = Instance.new("Frame")
-	fill.Size = UDim2.new((value - min) / (max - min), 0, 1, 0)
-	fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+	fill.Size = UDim2.new((value-min)/(max-min),0,1,0)
+	fill.BackgroundColor3 = Color3.fromRGB(0,170,255)
 	fill.BorderSizePixel = 0
 	fill.Parent = bar
 	chach.applyCorner(fill)
 
-	-- Knob (botão arrastável)
-	-- Knob (botão arrastável)
 	local knob = Instance.new("Frame")
-	knob.Size = UDim2.new(0, 12, 0, 12)
-	knob.Position = UDim2.new((value - min) / (max - min), 0, 0.5, 0) -- ✅ sem -6
-	knob.AnchorPoint = Vector2.new(0.5, 0.5)
-	knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	knob.Size = UDim2.new(0,12,0,12)
+	knob.Position = UDim2.new((value-min)/(max-min),0,0.5,0)
+	knob.AnchorPoint = Vector2.new(0.5,0.5)
+	knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
 	knob.BorderSizePixel = 0
 	knob.Parent = bar
 	chach.applyCorner(knob)
 
-	
-
-	-- Atualizar slider
-	local function update(inputX)
-		local relative = math.clamp((inputX - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
-		value = math.floor((min + (max - min) * relative) * 100) / 100 -- arredondar p/ 2 casas
-		fill.Size = UDim2.new(relative, 0, 1, 0)
-		knob.Position = UDim2.new(relative, 0, 0.5, 0)
-		label.Text = text .. ": " .. tostring(value)
-		if callback then
-			callback(value)
-		end
-	end
-
-	-- Arrastar com mouse
 	local uis = game:GetService("UserInputService")
 	local dragging = false
 
-	knob.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	local function update(inputX)
+		local relative = math.clamp((inputX - bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
+		value = math.floor((min + (max-min)*relative)*100)/100
+		fill.Size = UDim2.new(relative,0,1,0)
+		knob.Position = UDim2.new(relative,0,0.5,0)
+		label.Text = text .. ": " .. tostring(value)
+		if callback then callback(value) end
+	end
+
+	local function dragStart(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 		end
-	end)
+	end
 
-	uis.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	local function dragEnd(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = false
 		end
-	end)
+	end
 
-	uis.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+	local function dragMove(input)
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 			update(input.Position.X)
 		end
-	end)
+	end
 
-	-- Clique direto na barra
-	bar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			update(input.Position.X)
-		end
-	end)
+	knob.InputBegan:Connect(dragStart)
+	uis.InputEnded:Connect(dragEnd)
+	uis.InputChanged:Connect(dragMove)
+	bar.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then update(input.Position.X) end end)
 
 	return {
 		Frame = frame,
 		Label = label,
 		Get = function() return value end,
 		Set = function(val)
-			value = math.clamp(val, min, max)
-			local relative = (value - min) / (max - min)
-			fill.Size = UDim2.new(relative, 0, 1, 0)
-			knob.Position = UDim2.new(relative, -6, 0.5, -6)
+			value = math.clamp(val,min,max)
+			local relative = (value-min)/(max-min)
+			fill.Size = UDim2.new(relative,0,1,0)
+			knob.Position = UDim2.new(relative,0,0.5,0)
 			label.Text = text .. ": " .. tostring(value)
 		end
 	}
 end
 
+-- Slider (Int)
 function chach.CreateSliderInt(Scroll, list, callback)
-	local text = list.Text or "Slider"
-	local c = chach.Colors
-	local color = c[list.Color] or Color3.fromRGB(255, 255, 255)
-
-	local min = list.Minimum or 0
-	local max = list.Maximum or 10
-	local value = list.Value or min
-
-	-- Container
-	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, 0, 0, 45)
-	frame.BackgroundTransparency = 1
-	frame.Parent = Scroll
-
-	-- Label
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, 0, 0, 20)
-	label.BackgroundTransparency = 1
-	label.TextColor3 = color
-	label.Text = text .. ": " .. tostring(value)
-	label.Font = Enum.Font.SourceSans
-	label.TextSize = 18
-	label.TextXAlignment = Enum.TextXAlignment.Left
-	label.Parent = frame
-
-	-- Barra
-	local bar = Instance.new("Frame")
-	bar.Size = UDim2.new(1, -20, 0, 8)
-	bar.Position = UDim2.new(0, 10, 0, 30)
-	bar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-	bar.BorderSizePixel = 0
-	bar.Parent = frame
-	chach.applyCorner(bar)
-
-	-- Preenchimento
-	local fill = Instance.new("Frame")
-	fill.Size = UDim2.new((value - min) / (max - min), 0, 1, 0)
-	fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-	fill.BorderSizePixel = 0
-	fill.Parent = bar
-	chach.applyCorner(fill)
-
-	-- Knob
-	local knob = Instance.new("Frame")
-	knob.Size = UDim2.new(0, 12, 0, 12)
-	knob.Position = UDim2.new((value - min) / (max - min), 0, 0.5, 0)
-	knob.AnchorPoint = Vector2.new(0.5, 0.5)
-	knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	knob.BorderSizePixel = 0
-	knob.Parent = bar
-	chach.applyCorner(knob)
-
-	-- Atualizar slider
-	local function update(inputX)
-		local relative = math.clamp((inputX - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
-		value = math.floor(min + (max - min) * relative + 0.5) -- ✅ arredonda para int
-		local ratio = (value - min) / (max - min)
-		fill.Size = UDim2.new(ratio, 0, 1, 0)
-		knob.Position = UDim2.new(ratio, 0, 0.5, 0)
-		label.Text = text .. ": " .. tostring(value)
-		if callback then
-			callback(value)
-		end
-	end
-
-	-- Arrastar com mouse
-	local uis = game:GetService("UserInputService")
-	local dragging = false
-
-	knob.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-		end
+	local slider = chach.CreateSliderFloat(Scroll, list, function(v)
+		if callback then callback(math.floor(v+0.5)) end
 	end)
-
-	uis.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = false
-		end
-	end)
-
-	uis.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-			update(input.Position.X)
-		end
-	end)
-
-	-- Clique direto na barra
-	bar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			update(input.Position.X)
-		end
-	end)
-
-	return {
-		Frame = frame,
-		Label = label,
-		Get = function() return value end,
-		Set = function(val)
-			value = math.clamp(math.floor(val), min, max) -- ✅ força int
-			local relative = (value - min) / (max - min)
-			fill.Size = UDim2.new(relative, 0, 1, 0)
-			knob.Position = UDim2.new(relative, 0, 0.5, 0)
-			label.Text = text .. ": " .. tostring(value)
-		end
-	}
+	return slider
 end
 
 function chach.Notifications(Gui, list, callback)
