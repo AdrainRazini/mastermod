@@ -27,6 +27,7 @@ local chach = {
 	Checkboxes_Dt = {"Enable Notifications", "Remember Me", "Auto Save", "Dark Mode", "Male", "Female", "Option 1", "Option 2", "Option 3"},
 	Sliders_Dt = {"Volume", "Brightness", "Speed", "Size", "Zoom", "Opacity", "Timer", "Intensity"},
 	Menus_Dt = {"File", "Edit", "View", "Tools", "Options", "Help", "Language", "Theme", "Sort By", "Filter"},
+	ActiveNotifications = {},
 	Icons = {
 		fa_bx_mastermods = "rbxassetid://102637810511338", -- Logo do meu mod
 		fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
@@ -99,6 +100,7 @@ local chach = {
 		Slate = Color3.fromRGB(112, 128, 144),
 		Chocolate = Color3.fromRGB(210, 105, 30)
 	}
+
 	
 }
 
@@ -879,6 +881,243 @@ function chach.CreateSliderInt(Scroll, list, callback)
 	end)
 	return slider
 end
+
+
+function chach.CreateSliderOption(Scroll, list, callback)
+	local text = list.Text or "Option Slider"
+	local color = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
+	local options = list.Table or {"Option1", "Option2"}
+	local background = list.Background or "White"
+	local index = list.Value or 1
+	local current = options[index]
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1,0,0,45)
+	frame.BackgroundTransparency = 1
+	frame.Parent = Scroll
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1,0,0,20)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = color
+	label.Text = text
+	label.Font = Enum.Font.SourceSansBold
+	label.TextSize = 18
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Parent = frame
+
+	-- container dos textos de opções
+	local container = Instance.new("Frame")
+	container.Size = UDim2.new(1,0,0,20)
+	container.Position = UDim2.new(0,0,0,22)
+	container.BackgroundTransparency = 1
+	container.Parent = frame
+
+	local optionLabels = {}
+
+	local function refresh()
+		for i, lbl in ipairs(optionLabels) do
+			if i == index then
+				lbl.TextColor3 = Color3.fromRGB(0,170,255) -- aceso
+				lbl.Font = Enum.Font.SourceSansBold
+			else
+				lbl.TextColor3 = Color3.fromRGB(150,150,150) -- apagado
+				lbl.Font = Enum.Font.SourceSans
+			end
+		end
+	end
+
+	-- criar textos das opções
+	for i, opt in ipairs(options) do
+		local optLbl = Instance.new("TextButton")
+		optLbl.AutoButtonColor = false
+		optLbl.Size = UDim2.new(1/#options,0,1,0)
+		optLbl.Position = UDim2.new((i-1)/#options,0,0,0)
+		optLbl.BackgroundColor3 = chach.Colors[background] or Color3.fromRGB(255,255,255)
+		optLbl.BackgroundTransparency = 0
+		optLbl.Text = opt
+		optLbl.Font = Enum.Font.SourceSans
+		optLbl.TextSize = 18
+		optLbl.TextColor3 = Color3.fromRGB(150,150,150)
+		optLbl.Parent = container
+
+		-- adiciona divisória antes de cada botão (menos o primeiro)
+		if i > 1 then
+			local divider = Instance.new("Frame")
+			divider.Size = UDim2.new(0,2,1,0)
+			divider.Position = UDim2.new(0,0,0,0)
+			divider.BackgroundColor3 = Color3.fromRGB(80,80,80)
+			divider.BorderSizePixel = 0
+			divider.Parent = optLbl
+		end
+
+		optLbl.MouseButton1Click:Connect(function()
+			index = i
+			current = opt
+			refresh()
+			if callback then callback(current) end
+		end)
+
+		table.insert(optionLabels, optLbl)
+	end
+
+	refresh()
+
+	return {
+		Frame = frame,
+		Label = label,
+		Get = function() return current, index end,
+		Set = function(i)
+			index = math.clamp(i,1,#options)
+			current = options[index]
+			refresh()
+		end
+	}
+end
+
+-- Guardar notificações ativas para empilhamento
+chach.ActiveNotifications = chach.ActiveNotifications or {}
+
+function chach.NotificationPerson(Gui, list, callback)
+	local title = list.Title or "Aviso"
+	local text = list.Text or ""
+	local tempo = list.Tempo or 5
+	local dt_Icons = chach.Icons or {}
+	local icon = dt_Icons[list.Icon] or list.Icon or ""
+	local memory = list.Casch or {}
+	local sound = list.Sound or ""
+	
+
+	chach.ActiveNotifications = chach.ActiveNotifications or {}
+	local baseY = -120
+	local offsetY = (#chach.ActiveNotifications * -90)
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 260, 0, 80)
+	frame.Position = UDim2.new(1, 300, 1, baseY + offsetY)
+	frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	frame.BorderSizePixel = 0
+	frame.Parent = Gui
+	chach.applyCorner(frame)
+
+	local TweenService = game:GetService("TweenService")
+	-- Animação de entrada
+	TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Position = UDim2.new(1, -270, 1, baseY + offsetY)
+	}):Play()
+
+	-- Ícone
+	if icon ~= "" then
+		local iconLabel
+		if string.find(icon, "rbxassetid://") then
+			iconLabel = Instance.new("ImageLabel")
+			iconLabel.Image = icon
+		else
+			iconLabel = Instance.new("TextLabel")
+			iconLabel.Text = icon
+			iconLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			iconLabel.Font = Enum.Font.SourceSansBold
+			iconLabel.TextSize = 24
+		end
+		iconLabel.Size = UDim2.new(0, 40, 0, 40)
+		iconLabel.Position = UDim2.new(0, 10, 0, 20)
+		iconLabel.BackgroundTransparency = 1
+		iconLabel.Parent = frame
+	end
+
+	-- Título
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, -90, 0, 20)
+	titleLabel.Position = UDim2.new(0, 60, 0, 10)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Text = title
+	titleLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
+	titleLabel.Font = Enum.Font.SourceSansBold
+	titleLabel.TextSize = 20
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	titleLabel.Parent = frame
+
+	-- Texto
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, -60, 0, 40)
+	textLabel.Position = UDim2.new(0, 60, 0, 35)
+	textLabel.BackgroundTransparency = 1
+	textLabel.Text = text
+	textLabel.TextWrapped = true
+	textLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+	textLabel.Font = Enum.Font.SourceSans
+	textLabel.TextSize = 16
+	textLabel.TextXAlignment = Enum.TextXAlignment.Left
+	textLabel.Parent = frame
+
+	-- Botão de fechar
+	local closeButton = Instance.new("TextButton")
+	closeButton.Size = UDim2.new(0, 20, 0, 20)
+	closeButton.Position = UDim2.new(1, -25, 0, 5)
+	closeButton.BackgroundTransparency = 1
+	closeButton.Text = "✖"
+	closeButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+	closeButton.Font = Enum.Font.SourceSansBold
+	closeButton.TextSize = 18
+	closeButton.Parent = frame
+
+	-- Barra de tempo
+	local timeBar = Instance.new("Frame")
+	timeBar.Size = UDim2.new(1, 0, 0, 4)
+	timeBar.Position = UDim2.new(0, 0, 1, -4)
+	timeBar.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+	timeBar.BorderSizePixel = 0
+	timeBar.Parent = frame
+
+	-- Função para destruir notificação
+	local function destroyNotification()
+		local tweenOut = TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Position = UDim2.new(1, 300, 1, baseY + offsetY) -- pode trocar 300 por 270 ou outro valor consistente
+		})
+		tweenOut:Play()
+		tweenOut.Completed:Wait()
+
+		for i, v in ipairs(chach.ActiveNotifications) do
+			if v == frame then
+				table.remove(chach.ActiveNotifications, i)
+				break
+			end
+		end
+
+		frame:Destroy()
+
+		-- reposicionar notificações restantes
+		for i, notif in ipairs(chach.ActiveNotifications) do
+			local newOffset = (i-1) * -90
+			TweenService:Create(notif, TweenInfo.new(0.3), {
+				Position = UDim2.new(1, -270, 1, baseY + newOffset)
+			}):Play()
+		end
+
+		if callback then callback() end
+	end
+
+	closeButton.MouseButton1Click:Connect(destroyNotification)
+
+	table.insert(chach.ActiveNotifications, frame)
+
+	-- Tween da barra de tempo
+	TweenService:Create(timeBar, TweenInfo.new(tempo, Enum.EasingStyle.Linear), {
+		Size = UDim2.new(0, 0, 0, 4)
+	}):Play()
+
+	-- Destruir automaticamente depois do tempo
+	task.delay(tempo, function()
+		if frame and frame.Parent then
+			destroyNotification()
+		end
+	end)
+
+	return frame
+end
+
+
+
 
 function chach.Notifications(Gui, list, callback)
 	local StarterGui = game:GetService("StarterGui")
