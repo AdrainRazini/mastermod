@@ -191,6 +191,7 @@ local GameTab = Regui.CreateTab(Window, {Name = "Game"})
 local ToolsTab = Regui.CreateTab(Window, {Name = "Tools"})
 
 local ReadmeTab = Regui.CreateTab(Window, {Name = "Readme"})
+--[[
 
 local Readme_Lb = Regui.CreateLabel(ReadmeTab, {
 	Text = "\n• This UI library was created by @Adrian75556435 Thanks."
@@ -200,7 +201,9 @@ local Readme_Lb = Regui.CreateLabel(ReadmeTab, {
 	Alignment = "Left"
 })
 
-local Credits = Regui.CreditsUi(ReadmeTab, {}, function() end)
+]]
+
+local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 
 
 
