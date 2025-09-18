@@ -8,12 +8,33 @@ local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
-local Regui = require(script.Parent:WaitForChild("Mod_UI"))
+local Regui
+local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local GuiName = "Mod_Animal_Simulator"..game.Players.LocalPlayer.Name
+
+-- Tenta carregar localmente
+local success, module = pcall(function()
+	return require(script.Parent:FindFirstChild("Mod_UI"))
+end)
+
+if success and module then
+	Regui = module
+else
+	-- Tenta baixar remoto
+	local HttpService = game:GetService("HttpService")
+	local ok, err = pcall(function()
+		local code = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/dataGui.lua")
+		Regui = loadstring(code)()
+	end)
+
+	if not ok then
+		warn("Não foi possível carregar Mod_UI nem local nem remoto!", err)
+	end
+end
+
 assert(Regui, "Regui não foi carregado!")
 
--- Evita múltiplas GUIs
-local PlayerGui = player:WaitForChild("PlayerGui")
-local GuiName = "Mod_"..player.Name
+
 if PlayerGui:FindFirstChild(GuiName) then
     Regui.Notifications(PlayerGui, {Title="Alert", Text="Neutralized Code", Icon="fa_rr_information", Tempo=10})
     return
