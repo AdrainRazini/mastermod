@@ -324,7 +324,7 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 
 end)
 
-local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
+local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies", Color = "Blue", Value = 1, Minimum = 0, Maximum = 1}, function(state)
 	AF_Timer.Dummies_Speed = state
 	print("Slider Float clicada! Estado:", AF_Timer.Dummies_Speed)
 
