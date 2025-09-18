@@ -186,6 +186,56 @@ local function giveTool(name, skill)
 	end)
 end
 
+
+-- TOOLS AUTO-ALVO
+local function giveToolAuto(name, skill)
+	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
+
+	local tool = Instance.new("Tool")
+	tool.Name = name
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.Parent = player.Backpack
+
+	local mouse = player:GetMouse()
+	local maxRange = 200 -- alcance para buscar jogadores
+
+	tool.Activated:Connect(function()
+		if not skillsRemote then return end
+
+		local character = player.Character
+		if not character then return end
+		local hrp = character:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
+
+		local closestPlayer = nil
+		local shortestDist = maxRange
+
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local hrpTarget = p.Character.HumanoidRootPart
+				local dist = (hrp.Position - hrpTarget.Position).Magnitude
+				if dist < shortestDist then
+					shortestDist = dist
+					closestPlayer = p
+				end
+			end
+		end
+
+		-- Se encontrou jogador perto, mira nele
+		if closestPlayer and closestPlayer.Character then
+			skillsRemote:FireServer(closestPlayer.Character.HumanoidRootPart.Position, skill)
+		else
+			-- Senão, usa posição do mouse
+			skillsRemote:FireServer(mouse.Hit.Position, skill)
+		end
+	end)
+end
+
+-- Exemplo de uso:
+giveToolAuto("FireballAuto", "NewFireball")
+giveToolAuto("LightningAuto", "NewLightningball")
+
 -- PVP LOOPS
 local function PVP_Loop(kind)
 	task.spawn(function()
