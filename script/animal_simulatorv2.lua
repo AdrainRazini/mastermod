@@ -311,7 +311,7 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 		-- Notificação se for Verdadeiro
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert",
-			Text = "Checkbox clicada! Estado: " .. tostring(AF.dummies5k),
+			Text = "Checkbox dummies5k! Estado: " .. tostring(AF.dummies5k),
 			Icon = "fa_envelope",
 			Tempo = 10,
 			Casch = {},
