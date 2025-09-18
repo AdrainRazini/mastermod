@@ -2,7 +2,36 @@
 -- Integração GUI + MastermodModule
 -- ==========================================
 
-local Mastermod = require(script:WaitForChild("MastermodModule"))
+local Mastermod
+local Regui
+local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local GuiName = "Mod_"..game.Players.LocalPlayer.Name
+
+-- Tenta carregar localmente
+local success, module = pcall(function()
+	return require(script.Parent:FindFirstChild("Mod_UI"))
+end)
+
+if success and module then
+	Regui = module
+else
+	-- Tenta baixar remoto
+	local HttpService = game:GetService("HttpService")
+	local ok, err = pcall(function()
+		local code = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/dataGui.lua")
+		code_Mod = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/MastermodModule.lua")
+        Regui = loadstring(code)()
+        Mastermod = loadstring(code_Mod)()
+	end)
+
+	if not ok then
+		warn("Não foi possível carregar Mod_UI nem local nem remoto!", err)
+	end
+end
+
+assert(Regui, "Regui não foi carregado!")
+
+
 local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local GuiName = "Mod_Animal_Simulator"..game.Players.LocalPlayer.Name
 
