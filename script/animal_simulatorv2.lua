@@ -178,6 +178,7 @@ local PlayerTab = Regui.CreateTab(Window,{Name="Player"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
+local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 
 -- Exemplo de Toggle
 local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Blue"},function(state)
