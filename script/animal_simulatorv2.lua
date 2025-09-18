@@ -190,7 +190,9 @@ local SliderFloat_Coins = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot"
 	AF_Timer.Coins_Speed = state
 	print("Slider Float clicada! Estado:", AF_Timer.Coins_Speed)
 	
-end)
+end) 
+
+--maxRange
 
 
 local ToggleBosses = Regui.CreateToggleboxe(FarmTab,{Text="Auto Bosses",Color="Red"},function(state)
@@ -198,6 +200,12 @@ local ToggleBosses = Regui.CreateToggleboxe(FarmTab,{Text="Auto Bosses",Color="R
     if state then farmBosses() end
 end)
 
+
+local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {Text = "Timer Int", Color = "Blue", Value = 100, Minimum = 100, Maximum = 500}, function(state)
+maxRange = state
+	print("Slider Int clicada! Estado:", maxRange)
+
+end)
 -- Exemplo de PVP
 local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Blue"},function(state)
     PVP.killAura=state
