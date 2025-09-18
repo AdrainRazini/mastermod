@@ -172,7 +172,7 @@ local function PVP_Loop(kind)
 end
 
 -- GUI
-local Window = Regui.TabsWindow({Title=GuiName, Text="Mod Menu", Size=UDim2.new(0,300,0,200)})
+local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
 local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 local PlayerTab = Regui.CreateTab(Window,{Name="Player"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
