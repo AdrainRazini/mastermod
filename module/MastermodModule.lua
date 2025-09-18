@@ -156,20 +156,22 @@ end
 
 RunService.RenderStepped:Connect(function()
     local _, _, hrp = getCharacter()
-    if AF.tpDummy then
+    
+    if AF.tpDummy and dummiesFolder then
         local dummy, _ = findDummy(dummiesFolder)
         if dummy and dummy:FindFirstChild("HumanoidRootPart") then
             hrp.CFrame = dummy.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
         end
     end
 
-    if AF.tpDummy5k then
+    if AF.tpDummy5k and folder5k then
         local dummy, _ = findDummy(folder5k)
         if dummy and dummy:FindFirstChild("HumanoidRootPart") then
             hrp.CFrame = dummy.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
         end
     end
 end)
+
 
 --====================================================================--
 return Mastermod
