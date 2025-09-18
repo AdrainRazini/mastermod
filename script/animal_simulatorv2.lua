@@ -232,15 +232,11 @@ local function giveToolAuto(name, skill)
 	end)
 end
 
--- Exemplo de uso:
-giveToolAuto("FireballAuto", "NewFireball")
-giveToolAuto("LightningAuto", "NewLightningball")
+
 
 -- PVP LOOPS
 local function PVP_Loop(kind)
 	task.spawn(function()
-		giveTool("Fireball","NewFireball")
-		giveTool("FireballEletric","NewLightningball")
 		while PVP[kind] do
 			local _, _, hrp = getCharacter()
 			local closest, shortest = nil, maxRange
@@ -401,6 +397,49 @@ end)
 local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",Color="Cyan"},function(state)
 	PVP.AutoEletric=state
 	if state then PVP_Loop("AutoEletric") end
+end)
+
+--Game Tab
+
+
+-- Botão para pegar a Fireball manual
+local GiveAutoFire1 = Regui.CreateButton(GameTab, {
+	Text = "Get Fireball Tool",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	giveTool("Fireball", "NewFireball")
+end)
+
+-- Botão para pegar a Lightning manual
+local GiveAutoFire2 = Regui.CreateButton(GameTab, {
+	Text = "Get Lightning Tool",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	giveTool("FireballEletric", "NewLightningball")
+end)
+
+-- Botão para pegar a Fireball automática
+local GiveAutoFire3 = Regui.CreateButton(GameTab, {
+	Text = "Get Auto Fireball Tool",
+	Color = "White",
+	BGColor = "Green",
+	TextSize = 16
+}, function()
+	giveToolAuto("FireballAuto", "NewFireball")
+end)
+
+-- Botão para pegar a Lightning automática
+local GiveAutoFire4 = Regui.CreateButton(GameTab, {
+	Text = "Get Auto Lightning Tool",
+	Color = "White",
+	BGColor = "Green",
+	TextSize = 16
+}, function()
+	giveToolAuto("LightningAuto", "NewLightningball")
 end)
 
 
