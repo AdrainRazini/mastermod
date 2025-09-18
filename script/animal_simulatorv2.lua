@@ -2,10 +2,14 @@
 -- Integração GUI + MastermodModule
 -- ==========================================
 
+-- ==========================================
+-- Integração GUI + MastermodModule
+-- ==========================================
+
 local Mastermod
 local Regui
 local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-local GuiName = "Mod_"..game.Players.LocalPlayer.Name
+local GuiName = "Mod_Animal_Simulator_"..game.Players.LocalPlayer.Name  -- nome único e consistente
 
 -- Tenta carregar localmente
 local success, module = pcall(function()
@@ -18,22 +22,19 @@ else
 	-- Tenta baixar remoto
 	local HttpService = game:GetService("HttpService")
 	local ok, err = pcall(function()
-		local code = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/dataGui.lua")
-		code_Mod = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/MastermodModule.lua")
-        Regui = loadstring(code)()
-        Mastermod = loadstring(code_Mod)()
+		local codeGui = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/dataGui.lua")
+		local codeMod = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/MastermodModule.lua")
+        Regui = loadstring(codeGui)()
+        Mastermod = loadstring(codeMod)()
 	end)
 
 	if not ok then
-		warn("Não foi possível carregar Mod_UI nem local nem remoto!", err)
+		warn("Não foi possível carregar Mod_UI nem MastermodModule remoto!", err)
 	end
 end
 
 assert(Regui, "Regui não foi carregado!")
-
-
-local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-local GuiName = "Mod_Animal_Simulator"..game.Players.LocalPlayer.Name
+assert(Mastermod, "MastermodModule não foi carregado!")
 
 -- Evita múltiplas GUIs
 if PlayerGui:FindFirstChild(GuiName) then
@@ -45,6 +46,7 @@ if PlayerGui:FindFirstChild(GuiName) then
 	})
 	return
 end
+
 
 -- Janela principal
 local Window = Regui.TabsWindow({
