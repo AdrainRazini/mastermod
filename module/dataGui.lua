@@ -273,7 +273,6 @@ function chach.applyDraggable(frame, dragButton)
 end
 
 
--- Criar a janela principal com abas
 function chach.TabsWindow(list)
 	local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
@@ -281,35 +280,33 @@ function chach.TabsWindow(list)
 	screenGui.Name = list.Title or "TabsWindow"
 	screenGui.Parent = PlayerGui
 
+	-- Mantém a GUI mesmo quando o personagem morrer
+	screenGui.ResetOnSpawn = false  -- <--- essencial!
+
 	local frame = Instance.new("Frame")
 	frame.Size = list.Size or UDim2.new(0, 400, 0, 300)
-	frame.AnchorPoint = Vector2.new(0.5, 0.5) -- centralizado
+	frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	frame.BackgroundTransparency = 0.2
 	frame.Parent = screenGui
-	
-	
 
-	-- Top bar (Título + Botão)
+	-- Top bar
 	local top_frame = Instance.new("Frame")
 	top_frame.Size = UDim2.new(1, 0, 0, 30)
 	top_frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 	top_frame.Parent = frame
 	chach.applyCorner(top_frame)
-	
+
 	local imput_btn = Instance.new("TextButton")
 	imput_btn.Size = UDim2.new(1, 0, 1, 0)
 	imput_btn.BackgroundTransparency = 1
 	imput_btn.Text = ""
 	imput_btn.Parent = top_frame
-
-	-- Aplicar drag de verdade
 	chach.applyDraggable(frame, imput_btn)
 
-	
 	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, -40, 1, 0) -- espaço para botão
+	title.Size = UDim2.new(1, -40, 1, 0)
 	title.AnchorPoint = Vector2.new(0.5, 0.5)
 	title.Position = UDim2.new(0.5, 0, 0.5, 0)
 	title.Text = list.Text or "TabsWindow"
@@ -327,7 +324,7 @@ function chach.TabsWindow(list)
 	Btn_On_Off.Parent = top_frame
 	chach.applyCorner(Btn_On_Off)
 
-	-- Barra das abas (TopTabs) abaixo do TopBar
+	-- Top Tabs
 	local top_Tabs = Instance.new("ScrollingFrame")
 	top_Tabs.Size = UDim2.new(1, 0, 0, 30)
 	top_Tabs.Position = UDim2.new(0, 0, 0, 30)
@@ -341,12 +338,10 @@ function chach.TabsWindow(list)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	layout.Parent = top_Tabs
-
 	layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		top_Tabs.CanvasSize = UDim2.new(0, layout.AbsoluteContentSize.X + 10, 0, 0)
 	end)
 
-	-- Container para conteúdo das abas
 	local tabContainer = Instance.new("Frame")
 	tabContainer.Size = UDim2.new(1, 0, 1, -60)
 	tabContainer.Position = UDim2.new(0, 0, 0, 60)
@@ -363,8 +358,9 @@ function chach.TabsWindow(list)
 		Btn_On_Off.Rotation = minimized and 0 or 90
 	end)
 
-	return {Frame = frame, TopBar = top_frame, TopTabs = top_Tabs, TabContainer = tabContainer, Tabs = {}}
+	return {Frame=frame, TopBar=top_frame, TopTabs=top_Tabs, TabContainer=tabContainer, Tabs={}}
 end
+
 
 function chach.SubTabsWindow(Scroll, list)
 	local text = list.Text or "SubWindow"
