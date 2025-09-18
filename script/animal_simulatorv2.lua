@@ -36,8 +36,8 @@ assert(Regui, "Regui não foi carregado!")
 
 
 if PlayerGui:FindFirstChild(GuiName) then
-    Regui.Notifications(PlayerGui, {Title="Alert", Text="Neutralized Code", Icon="fa_rr_information", Tempo=10})
-    return
+	Regui.Notifications(PlayerGui, {Title="Alert", Text="Neutralized Code", Icon="fa_rr_information", Tempo=10})
+	return
 end
 
 -- REMOTES
@@ -45,10 +45,36 @@ local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiII
 local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
 
 -- FOLDERS
-local map = Workspace:WaitForChild("MAP")
-local dummiesFolder = map:WaitForChild("dummies")
+local map = Workspace:FindFirstChild("MAP")
+if not map then
+	map = Instance.new("Folder")
+	map.Name = "MAP"
+	map.Parent = Workspace
+end
+
+local dummiesFolder = map:FindFirstChild("dummies")
+if not dummiesFolder then
+	dummiesFolder = Instance.new("Folder")
+	dummiesFolder.Name = "dummies"
+	dummiesFolder.Parent = map
+end
+
 local folder5k = map:FindFirstChild("5k_dummies")
+if not folder5k then
+	folder5k = Instance.new("Folder")
+	folder5k.Name = "5k_dummies"
+	folder5k.Parent = map
+end
+
+	
+
+
+
 local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla" }
+-- Valor selecionado no selector
+local selectedBoss = "All" -- padrão: todos
+
+
 
 -- FLAGS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
@@ -58,117 +84,140 @@ local maxRange = 100
 
 -- UTILS
 local function getCharacter()
-    local c = player.Character or player.CharacterAdded:Wait()
-    return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
+	local c = player.Character or player.CharacterAdded:Wait()
+	return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
 end
 
 local function getAliveHumanoid(model)
-    local hum = model and model:FindFirstChildOfClass("Humanoid")
-    if hum and hum.Health > 0 then return hum end
+	local hum = model and model:FindFirstChildOfClass("Humanoid")
+	if hum and hum.Health > 0 then return hum end
 end
 
 local function findDummy(folder)
-    for _, d in ipairs(folder:GetChildren()) do
-        local hum = getAliveHumanoid(d)
-        if hum then return d, hum end
-    end
+	for _, d in ipairs(folder:GetChildren()) do
+		local hum = getAliveHumanoid(d)
+		if hum then return d, hum end
+	end
 end
 
 -- AUTO FARM
 local function autoCoins()
-    task.spawn(function()
-        while AF.coins do
-            local events = ReplicatedStorage:FindFirstChild("Events")
-            local coinEvent = events and events:FindFirstChild("CoinEvent")
-            if coinEvent then coinEvent:FireServer() end
-            task.wait(AF_Timer.Coins_Speed)
-        end
-    end)
+	task.spawn(function()
+		while AF.coins do
+			local events = ReplicatedStorage:FindFirstChild("Events")
+			local coinEvent = events and events:FindFirstChild("CoinEvent")
+			if coinEvent then coinEvent:FireServer() end
+			task.wait(AF_Timer.Coins_Speed)
+		end
+	end)
 end
 
 local function attackLoop(flag, folder)
-    task.spawn(function()
-        while AF[flag] do
-            local dummy, hum = findDummy(folder)
-            if dummy and hum and dummy:FindFirstChild("HumanoidRootPart") then
-                local pos = dummy.HumanoidRootPart.Position
-                attackRemote:FireServer(hum, 2)
-                skillsRemote:FireServer(pos, "NewFireball")
-                skillsRemote:FireServer(pos, "NewLightningball")
-            end
-            task.wait(0.05)
-        end
-    end)
+	task.spawn(function()
+		while AF[flag] do
+			local dummy, hum = findDummy(folder)
+			if dummy and hum and dummy:FindFirstChild("HumanoidRootPart") then
+				local pos = dummy.HumanoidRootPart.Position
+				attackRemote:FireServer(hum, 2)
+				skillsRemote:FireServer(pos, "NewFireball")
+				skillsRemote:FireServer(pos, "NewLightningball")
+			end
+			task.wait(0.05)
+		end
+	end)
 end
 
+-- Função de farm boss 
+
 local function farmBosses()
-    task.spawn(function()
-        while AF.bosses do
-            local npcFolder = Workspace:FindFirstChild("NPC")
-            if npcFolder then
-                for _, name in ipairs(bossesList) do
-                    local boss = npcFolder:FindFirstChild(name)
-                    local hum = getAliveHumanoid(boss)
-                    if hum then attackRemote:FireServer(hum, 5) end
-                end
-            end
-            task.wait(1)
-        end
-    end)
+	while AF.bosses do
+		local npcFolder = Workspace:FindFirstChild("NPC")
+		if npcFolder then
+			for _, name in ipairs(bossesList) do
+				local boss = npcFolder:FindFirstChild(name)
+				local hum = getAliveHumanoid(boss)
+				if hum then attackRemote:FireServer(hum, 5) end
+			end
+		end
+		task.wait(AF_Timer.Bosses_Speed)
+	end
 end
+
+-- Função de farm fixa (com verificação do boss selecionado)
+local function farmBossesFix()
+	task.spawn(function()
+		while AF.bosses do
+			local npcFolder = Workspace:FindFirstChild("NPC")
+			if npcFolder then
+				for _, name in ipairs(bossesList) do
+					-- Verifica se deve atacar esse boss
+					if selectedBoss == "All" or selectedBoss == name then
+						local boss = npcFolder:FindFirstChild(name)
+						local hum = getAliveHumanoid(boss)
+						if hum then
+							attackRemote:FireServer(hum, 5)
+						end
+					end
+				end
+			end
+			task.wait(AF_Timer.Bosses_Speed)
+		end
+	end)
+end
+
 
 -- TOOLS
 local function giveTool(name, skill)
-    if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
-    local tool = Instance.new("Tool")
-    tool.Name = name
-    tool.RequiresHandle = false
-    tool.CanBeDropped = false
-    tool.Parent = player.Backpack
-    local mouse = player:GetMouse()
-    tool.Activated:Connect(function()
-        if skillsRemote then
-            skillsRemote:FireServer(mouse.Hit.Position, skill)
-        end
-    end)
+	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
+	local tool = Instance.new("Tool")
+	tool.Name = name
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.Parent = player.Backpack
+	local mouse = player:GetMouse()
+	tool.Activated:Connect(function()
+		if skillsRemote then
+			skillsRemote:FireServer(mouse.Hit.Position, skill)
+		end
+	end)
 end
 
 -- PVP LOOPS
 local function PVP_Loop(kind)
-    task.spawn(function()
-        giveTool("Fireball","NewFireball")
-        giveTool("FireballEletric","NewLightningball")
-        while PVP[kind] do
-            local _, _, hrp = getCharacter()
-            local closest, shortest = nil, maxRange
-            for _, p in ipairs(Players:GetPlayers()) do
-                if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                    if hum and hum.Health>0 then
-                        local dist = (p.Character.HumanoidRootPart.Position-hrp.Position).Magnitude
-                        if dist<shortest then
-                            shortest=dist
-                            closest=p
-                        end
-                    end
-                end
-            end
-            if closest then
-                local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-                local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
-                if hum and hrpTarget then
-                    if kind=="killAura" then
-                        pcall(function() attackRemote:FireServer(hum,1) end)
-                    elseif kind=="AutoFire" then
-                        pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewFireball") end)
-                    elseif kind=="AutoEletric" then
-                        pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewLightningball") end)
-                    end
-                end
-            end
-            task.wait(0.3)
-        end
-    end)
+	task.spawn(function()
+		giveTool("Fireball","NewFireball")
+		giveTool("FireballEletric","NewLightningball")
+		while PVP[kind] do
+			local _, _, hrp = getCharacter()
+			local closest, shortest = nil, maxRange
+			for _, p in ipairs(Players:GetPlayers()) do
+				if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+					local hum = p.Character:FindFirstChildOfClass("Humanoid")
+					if hum and hum.Health>0 then
+						local dist = (p.Character.HumanoidRootPart.Position-hrp.Position).Magnitude
+						if dist<shortest then
+							shortest=dist
+							closest=p
+						end
+					end
+				end
+			end
+			if closest then
+				local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+				local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+				if hum and hrpTarget then
+					if kind=="killAura" then
+						pcall(function() attackRemote:FireServer(hum,1) end)
+					elseif kind=="AutoFire" then
+						pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewFireball") end)
+					elseif kind=="AutoEletric" then
+						pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewLightningball") end)
+					end
+				end
+			end
+			task.wait(0.3)
+		end
+	end)
 end
 
 -- GUI
@@ -182,69 +231,140 @@ local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Tex
 
 -- Exemplo de Toggle
 local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Blue"},function(state)
-    AF.coins=state
-    if state then autoCoins() end
+	AF.coins=state
+	if state then autoCoins() end
 end)
 
 local SliderFloat_Coins = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
 	AF_Timer.Coins_Speed = state
 	print("Slider Float clicada! Estado:", AF_Timer.Coins_Speed)
-	
+
 end) 
 
---maxRange
+
+-- Selector de boss
+local selectorFrame = Regui.CreateSelectorOpitions(FarmTab, {
+	Name = "Selecionar Alvo Boss",
+	Options = {"All", unpack(bossesList)}, -- cria lista: All + bosses
+	Type = "String",
+	Size_Frame = UDim2.new(1, -20, 0, 50)
+}, function(val)
+	print("Npc Boss selecionado:", val)
+	selectedBoss = val
+end)
 
 
+
+
+-- Toggle de Auto Boss
 local ToggleBosses = Regui.CreateToggleboxe(FarmTab,{Text="Auto Bosses",Color="Red"},function(state)
-    AF.bosses=state
-    if state then farmBosses() end
+	AF.bosses = state
+	if state then 
+		if selectedBoss == "All" then
+			farmBosses() 
+		else
+			farmBossesFix(selectedBoss)
+		end
+	end
+end)
+
+local SliderFloat_Boosses = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Bosses", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
+	AF_Timer.Bosses_Speed = state
+	print("Slider Float clicada! Estado:", AF_Timer.Bosses_Speed)
+
+end) 
+
+
+
+local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies", Color = "Blue"}, function(state)
+	AF.dummies = state
+	--print("Checkbox clicada! Estado:", Test_.Button_Box)
+
+	if AF.dummies  then
+		attackLoop("dummies", dummiesFolder)
+		-- Notificação se for Verdadeiro
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert",
+			Text = "Checkbox clicada! Estado: " .. tostring(AF.dummies),
+			Icon = "fa_envelope",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
+
+
+end)
+
+local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies 5K", Color = "Blue"}, function(state)
+	AF.dummies5k = state
+	--print("Checkbox clicada! Estado:", Test_.Button_Box)
+
+	if AF.dummies5k  then
+		attackLoop("dummies5k", folder5k)
+		-- Notificação se for Verdadeiro
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert",
+			Text = "Checkbox clicada! Estado: " .. tostring(AF.dummies5k),
+			Icon = "fa_envelope",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
+
+
 end)
 
 
 local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {Text = "Timer Int", Color = "Blue", Value = 100, Minimum = 100, Maximum = 500}, function(state)
-maxRange = state
+	maxRange = state
 	print("Slider Int clicada! Estado:", maxRange)
 
 end)
 -- Exemplo de PVP
 local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Blue"},function(state)
-    PVP.killAura=state
-    if state then PVP_Loop("killAura") end
+	PVP.killAura=state
+	if state then PVP_Loop("killAura") end
 end)
 
 local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball",Color="Yellow"},function(state)
-    PVP.AutoFire=state
-    if state then PVP_Loop("AutoFire") end
+	PVP.AutoFire=state
+	if state then PVP_Loop("AutoFire") end
 end)
 
 local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",Color="Cyan"},function(state)
-    PVP.AutoEletric=state
-    if state then PVP_Loop("AutoEletric") end
+	PVP.AutoEletric=state
+	if state then PVP_Loop("AutoEletric") end
 end)
 
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
-    {name="Main_Frame", Obj=Window.Frame},
-    {name="Top_Bar", Obj=Window.TopBar},
-    {name="Tabs_Container", Obj=Window.Tabs}
+	{name="Main_Frame", Obj=Window.Frame},
+	{name="Top_Bar", Obj=Window.TopBar},
+	{name="Tabs_Container", Obj=Window.Tabs}
 },function(color,name,obj)
-    print("Cor aplicada em:", name,color)
+	print("Cor aplicada em:", name,color)
 end)
 
 -- Safe TP
 RunService.RenderStepped:Connect(function()
-    if AF.tpDummy then
-        local dummy,_=findDummy(dummiesFolder)
-        if dummy and dummy:FindFirstChild("HumanoidRootPart") then
-            local _,_,hrp=getCharacter()
-            hrp.CFrame=dummy.HumanoidRootPart.CFrame+Vector3.new(0,5,0)
-        end
-    end
-    if AF.tpDummy5k then
-        local dummy,_=findDummy(folder5k)
-        if dummy and dummy:FindFirstChild("HumanoidRootPart") then
-            local _,_,hrp=getCharacter()
-            hrp.CFrame=dummy.HumanoidRootPart.CFrame+Vector3.new(0,5,0)
-        end
-    end
+	if AF.tpDummy then
+		local dummy,_=findDummy(dummiesFolder)
+		if dummy and dummy:FindFirstChild("HumanoidRootPart") then
+			local _,_,hrp=getCharacter()
+			hrp.CFrame=dummy.HumanoidRootPart.CFrame+Vector3.new(0,5,0)
+		end
+	end
+	if AF.tpDummy5k then
+		local dummy,_=findDummy(folder5k)
+		if dummy and dummy:FindFirstChild("HumanoidRootPart") then
+			local _,_,hrp=getCharacter()
+			hrp.CFrame=dummy.HumanoidRootPart.CFrame+Vector3.new(0,5,0)
+		end
+	end
 end)
