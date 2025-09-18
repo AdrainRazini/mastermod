@@ -82,6 +82,8 @@ local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummi
 local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee" }
 local maxRange = 100
 
+
+-- Buscar De Dados
 -- UTILS
 local function getCharacter()
 	local c = player.Character or player.CharacterAdded:Wait()
@@ -99,6 +101,8 @@ local function findDummy(folder)
 		if hum then return d, hum end
 	end
 end
+
+--===================================================--
 
 -- AUTO FARM
 local function autoCoins()
@@ -122,7 +126,7 @@ local function attackLoop(flag, folder)
 				skillsRemote:FireServer(pos, "NewFireball")
 				skillsRemote:FireServer(pos, "NewLightningball")
 			end
-			task.wait(0.05)
+			task.wait(AF_Timer.Dummies_Speed)
 		end
 	end)
 end
@@ -285,7 +289,7 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 		-- Notificação se for Verdadeiro
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert",
-			Text = "Checkbox clicada! Estado: " .. tostring(AF.dummies),
+			Text = "Checkbox dummies! Estado: " .. tostring(AF.dummies),
 			Icon = "fa_envelope",
 			Tempo = 10,
 			Casch = {},
@@ -320,7 +324,14 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 
 end)
 
+local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
+	AF_Timer.Dummies_Speed = state
+	print("Slider Float clicada! Estado:", AF_Timer.Dummies_Speed)
 
+end) 
+
+
+-- PVP Player
 local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {Text = "Timer Int", Color = "Blue", Value = 100, Minimum = 100, Maximum = 500}, function(state)
 	maxRange = state
 	print("Slider Int clicada! Estado:", maxRange)
@@ -341,6 +352,7 @@ local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",
 	PVP.AutoEletric=state
 	if state then PVP_Loop("AutoEletric") end
 end)
+
 
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
