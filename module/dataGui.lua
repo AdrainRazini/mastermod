@@ -654,6 +654,55 @@ function chach.CreateLabel(Scroll, list)
 	return label
 end
 
+
+
+function chach.CreateButton(Scroll, list, callback)
+	local text = list.Text or "Button"
+	local color = chach.Colors[list.Color] or Color3.fromRGB(255, 255, 255)
+	local bgColor = chach.Colors[list.BGColor] or Color3.fromRGB(50, 50, 50)
+
+	-- Container do botão
+	local button = Instance.new("TextButton")
+	button.Size = list.Size or UDim2.new(1, 0, 0, 30)
+	button.BackgroundColor3 = bgColor
+	button.BorderSizePixel = 0
+	button.Text = text
+	button.TextColor3 = color
+	button.Font = Enum.Font.SourceSans
+	button.TextSize = list.TextSize or 18
+	button.Parent = Scroll
+	chach.applyCorner(button, UDim.new(0, 8))
+
+	-- Sombra sutil
+	local stroke = Instance.new("UIStroke")
+	stroke.Parent = button
+	stroke.Thickness = 2
+	stroke.Color = bgColor:lerp(Color3.new(1,1,1), 0.1)
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+
+	-- Hover efeito com Tween
+	local function hoverTween(isEnter)
+		local goal = {BackgroundColor3 = isEnter and bgColor:Lerp(Color3.fromRGB(70,70,70),0.5) or bgColor}
+		local tween = TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), goal)
+		tween:Play()
+	end
+	button.MouseEnter:Connect(function() hoverTween(true) end)
+	button.MouseLeave:Connect(function() hoverTween(false) end)
+
+	-- Clique com efeito de pressão
+	button.MouseButton1Click:Connect(function()
+		local pressTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = button.Size - UDim2.new(0,2,0,2)})
+		local releaseTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = button.Size})
+		pressTween:Play()
+		pressTween.Completed:Wait()
+		releaseTween:Play()
+
+		if callback then callback() end
+	end)
+
+	return button
+end
+
 -- Checkbox
 function chach.CreateCheckboxe(Scroll, list, callback)
 	local text = list.Text or "Checkbox"
