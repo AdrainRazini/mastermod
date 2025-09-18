@@ -985,6 +985,211 @@ function chach.CreateSliderOption(Scroll, list, callback)
 	}
 end
 
+-- ==========================================
+-- Selector Aprimorado
+-- ==========================================
+
+function chach.CreateSelectorOpitions(Scroll, list, callback)
+	local type_lb = list.Type or "Nil"
+
+	-- Frame principal
+	local frame = Instance.new("Frame")
+	frame.Size = list.Size_Frame or UDim2.new(1,-10,0,30)
+	frame.BackgroundColor3 = chach.Colors.Secondary or Color3.fromRGB(50,50,50)
+	frame.BorderSizePixel = 0
+	frame.Name = list.Name or "Selector"
+	frame.Parent = Scroll
+	chach.applyCorner(frame, UDim.new(0,8))
+	chach.applyUIStroke(frame, "Primary", 2)
+
+	-- Título
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1,0,0,30)
+	title.BackgroundTransparency = 1
+	title.Text = list.Name .. " " .. type_lb
+	title.TextColor3 = Color3.fromRGB(255,255,255)
+	title.TextScaled = true
+	title.Font = Enum.Font.SourceSansBold
+	title.Parent = frame
+
+	-- Número de opções
+	local count = #list.Options
+
+
+	-- Altura do ScrollingFrame
+	local maxHeight = list.Frame_Max or 50
+	local scrollHeight = math.min(count*30, maxHeight)
+
+	-- Ajusta frame principal para caber título + scroll
+	frame.Size = UDim2.new(1, -10, 0, 30 + scrollHeight)
+
+	-- ScrollingFrame
+	local list_bt = Instance.new("ScrollingFrame")
+	list_bt.Size = UDim2.new(1,0,0, scrollHeight)
+	list_bt.Position = UDim2.new(0,0,0,30)
+	list_bt.ScrollBarThickness = 6
+	list_bt.BackgroundTransparency = 1
+	list_bt.BorderSizePixel = 0
+	list_bt.Parent = frame
+
+	-- Layout automático
+	local layout = chach.applyAutoScrolling(list_bt, UDim.new(0,5), Enum.HorizontalAlignment.Center)
+	layout.Padding = UDim.new(0,5)
+
+	-- Botões
+	local selectedBtn = nil
+	local TweenService = game:GetService("TweenService")
+
+	for _, option in ipairs(list.Options) do
+		if list.Type == "Instance" and (type(option) ~= "table" or not option.name or not option.Obj) then
+			warn("Opção inválida no selector:", option)
+		else
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,25)
+			btn.BackgroundColor3 = chach.Colors.Primary or Color3.fromRGB(70,70,70)
+			btn.TextColor3 = Color3.fromRGB(255,255,255)
+			btn.TextScaled = true
+			btn.Font = Enum.Font.SourceSans
+			btn.Parent = list_bt
+			chach.applyCorner(btn, UDim.new(0,6))
+			chach.applyUIStroke(btn, "White", 1)
+
+			-- Variáveis locais para closure correta
+			local displayText = (list.Type == "Instance") and option.name or tostring(option)
+			local returnValue = (list.Type == "Instance") and option.Obj or option
+			btn.Text = displayText
+
+			-- Hover animado
+			btn.MouseEnter:Connect(function()
+				TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(100,100,100)}):Play()
+			end)
+			btn.MouseLeave:Connect(function()
+				local bgColor = (btn == selectedBtn) and btn.BackgroundColor3 or chach.Colors.Primary
+				TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = bgColor}):Play()
+			end)
+
+			-- Clique
+			btn.MouseButton1Click:Connect(function()
+				callback(returnValue)
+				title.Text = displayText
+				if selectedBtn then
+					selectedBtn.BorderSizePixel = 1
+				end
+				selectedBtn = btn
+				btn.BorderSizePixel = 2
+				btn.BorderColor3 = chach.Colors.Accent
+			end)
+		end
+	end
+
+	return frame
+end
+
+function chach.CreatePainterPanel(Scroll, painterMain, callback)
+	local Colors_Dt = chach.Colors
+	local targetObj = painterMain[1].Obj -- alvo inicial
+
+
+	-- 🔹 Selector de alvo no topo
+	local selectorFrame = chach.CreateSelectorOpitions(Scroll, {
+		Name = "Selecionar Alvo",
+		Options = painterMain,
+		Type = "Instance",
+		Size_Frame = UDim2.new(1, -20, 0, 50)
+	}, function(selectedObj)
+		targetObj = selectedObj
+	end)
+	selectorFrame.Position = UDim2.new(0, 10, 0, 40)
+
+	-- Frame principal
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1,-10,0,300) -- aumentei altura para caber selector + cores
+	frame.BackgroundColor3 = chach.Colors.Secondary
+	frame.BorderSizePixel = 0
+	frame.Parent = Scroll
+	chach.applyCorner(frame)
+	chach.applyUIStroke(frame, "Primary", 2)
+
+	-- Título principal
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1,-20,0,30)
+	title.Position = UDim2.new(0,10,0,10)
+	title.BackgroundTransparency = 1
+	title.Text = "Painter"
+	title.Font = Enum.Font.SourceSansBold
+	title.TextSize = 18
+	title.TextColor3 = chach.Colors.Accent
+	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.Parent = frame
+
+	-- ScrollingFrame de cores, abaixo do selector
+	local scroll = Instance.new("ScrollingFrame")
+	scroll.Size = UDim2.new(1,-20,0,200) -- ajusta altura disponível
+	scroll.Position = UDim2.new(0,10,0,100) -- começa abaixo do selector
+	scroll.BackgroundTransparency = 1
+	scroll.BorderSizePixel = 0
+	scroll.ScrollBarThickness = 6
+	scroll.Parent = frame
+
+	local gridLayout = Instance.new("UIGridLayout")
+	gridLayout.CellSize = UDim2.new(0,40,0,40)
+	gridLayout.CellPadding = UDim2.new(0,10,0,10)
+	gridLayout.Parent = scroll
+
+	local selectedBtn = nil
+	for colorName, colorValue in pairs(Colors_Dt) do
+		local btn = Instance.new("TextButton")
+		btn.Size = UDim2.new(0,40,0,40)
+		btn.BackgroundColor3 = colorValue
+		btn.BorderSizePixel = 0
+		btn.Text = ""
+		btn.Parent = scroll
+		chach.applyCorner(btn)
+
+		local localColorValue = colorValue
+		btn.MouseEnter:Connect(function()
+			btn.BackgroundColor3 = btn.BackgroundColor3:Lerp(Color3.fromRGB(255,255,255),0.2)
+		end)
+		btn.MouseLeave:Connect(function()
+			if btn ~= selectedBtn then
+				btn.BackgroundColor3 = localColorValue
+			end
+		end)
+
+		btn.MouseButton1Click:Connect(function()
+			if selectedBtn then
+				selectedBtn.BorderSizePixel = 0
+			end
+			selectedBtn = btn
+			btn.BorderSizePixel = 2
+			btn.BorderColor3 = chach.Colors.Accent
+
+			-- Aplica cor no alvo
+			if targetObj then
+				if targetObj:IsA("Frame") or targetObj:IsA("TextButton") or targetObj:IsA("TextBox") then
+					targetObj.BackgroundColor3 = localColorValue
+				elseif targetObj:IsA("TextLabel") then
+					targetObj.TextColor3 = localColorValue
+				elseif targetObj:IsA("ImageLabel") or targetObj:IsA("ImageButton") then
+					targetObj.ImageColor3 = localColorValue
+				elseif targetObj:IsA("ScrollingFrame") then
+					targetObj.ScrollBarImageColor3 = localColorValue
+				end
+			end
+
+			if callback then callback(localColorValue, colorName, targetObj) end
+		end)
+	end
+
+	gridLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		scroll.CanvasSize = UDim2.new(0,0,0,gridLayout.AbsoluteContentSize.Y)
+	end)
+
+	return frame
+end
+
+
+
 -- Guardar notificações ativas para empilhamento
 chach.ActiveNotifications = chach.ActiveNotifications or {}
 
@@ -1244,6 +1449,7 @@ function chach.CreditsUi(Scroll, list, callback)
 
 	return frame
 end
+
 
 
 
