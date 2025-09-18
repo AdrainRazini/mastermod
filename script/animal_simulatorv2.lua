@@ -234,6 +234,65 @@ end
 
 
 
+-- TOOLS
+local function giveToolFake(name, skill)
+	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
+
+	local tool = Instance.new("Tool")
+	tool.Name = name
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.Parent = player.Backpack
+
+	local mouse = player:GetMouse()
+	local rot
+	local connection
+
+	tool.Equipped:Connect(function()
+		local char = player.Character or player.CharacterAdded:Wait()
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			-- Cria o "Rot" não ancorado
+			rot = Instance.new("Part")
+			rot.Name = "HumanoidRootPart"
+			rot.Size = Vector3.new(1,1,1)
+			rot.Anchored = false -- desancorado
+			rot.CanCollide = false
+			rot.Color = Color3.fromRGB(0, 0, 255)
+			rot.Position = hrp.Position + hrp.CFrame.RightVector * 3
+			rot.Parent = hrp.Parent
+			
+
+			-- Conecta para mover o rot junto do jogador
+			connection = RunService.Heartbeat:Connect(function()
+				if hrp and rot then
+					local targetPos = hrp.Position + hrp.CFrame.RightVector * 3
+					-- Move suavemente
+					rot.Velocity = (targetPos - rot.Position) * 10
+				end
+			end)
+		end
+	end)
+
+	tool.Unequipped:Connect(function()
+		if connection then
+			connection:Disconnect()
+		end
+		if rot then
+			rot:Destroy()
+		end
+	end)
+
+	tool.Activated:Connect(function()
+		if skillsRemote then
+			skillsRemote:FireServer(mouse.Hit.Position, skill)
+		end
+	end)
+end
+
+
+
+
 -- PVP LOOPS
 local function PVP_Loop(kind)
 	task.spawn(function()
@@ -441,6 +500,17 @@ local GiveAutoFire4 = Regui.CreateButton(GameTab, {
 }, function()
 	giveToolAuto("LightningAuto", "NewLightningball")
 end)
+
+-- Botão para pegar a Lightning automática
+local GiveAutoFire5 = Regui.CreateButton(GameTab, {
+	Text = "Get Fake Tool",
+	Color = "White",
+	BGColor = "Green",
+	TextSize = 16
+}, function()
+	giveToolFake("FakePoss", "NewLightningball")
+end)
+
 
 
 -- Configs Painter
