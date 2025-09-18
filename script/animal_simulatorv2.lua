@@ -186,6 +186,13 @@ local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Blu
     if state then autoCoins() end
 end)
 
+local SliderFloat_Coins = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
+	AF_Timer.Coins_Speed = state
+	print("Slider Float clicada! Estado:", AF_Timer.Coins_Speed)
+	
+end)
+
+
 local ToggleBosses = Regui.CreateToggleboxe(FarmTab,{Text="Auto Bosses",Color="Red"},function(state)
     AF.bosses=state
     if state then farmBosses() end
