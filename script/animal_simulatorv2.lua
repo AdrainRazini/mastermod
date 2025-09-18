@@ -1,168 +1,213 @@
 -- ==========================================
--- Integração GUI + MastermodModule
+-- MastermodV2: Mod Menu
 -- ==========================================
 
--- ==========================================
--- Integração GUI + MastermodModule
--- ==========================================
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
 
-local Mastermod
-local Regui
-local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-local GuiName = "Mod_Animal_Simulator_"..game.Players.LocalPlayer.Name  -- nome único e consistente
-
--- Tenta carregar localmente
-local success, module = pcall(function()
-	return require(script.Parent:FindFirstChild("Mod_UI"))
-end)
-
-if success and module then
-	Regui = module
-else
-	-- Tenta baixar remoto
-	local HttpService = game:GetService("HttpService")
-	local ok, err = pcall(function()
-		local codeGui = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/dataGui.lua")
-		local codeMod = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/MastermodModule.lua")
-        Regui = loadstring(codeGui)()
-        Mastermod = loadstring(codeMod)()
-	end)
-
-	if not ok then
-		warn("Não foi possível carregar Mod_UI nem MastermodModule remoto!", err)
-	end
-end
-
+local Regui = require(script.Parent:WaitForChild("Mod_UI"))
 assert(Regui, "Regui não foi carregado!")
-assert(Mastermod, "MastermodModule não foi carregado!")
 
 -- Evita múltiplas GUIs
+local PlayerGui = player:WaitForChild("PlayerGui")
+local GuiName = "Mod_"..player.Name
 if PlayerGui:FindFirstChild(GuiName) then
-	Regui.Notifications(PlayerGui, {
-		Title = "Alert",
-		Text = "Neutralized Code",
-		Icon = "fa_rr_information",
-		Tempo = 10
-	})
-	return
+    Regui.Notifications(PlayerGui, {Title="Alert", Text="Neutralized Code", Icon="fa_rr_information", Tempo=10})
+    return
 end
 
+-- REMOTES
+local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
+local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
 
--- Janela principal
-local Window = Regui.TabsWindow({
-	Title = GuiName,
-	Text = "Mod Menu",
-	Size = UDim2.new(0, 350, 0, 250)
-})
+-- FOLDERS
+local map = Workspace:WaitForChild("MAP")
+local dummiesFolder = map:WaitForChild("dummies")
+local folder5k = map:FindFirstChild("5k_dummies")
+local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla" }
 
--- ==========================================
--- Aba Farm
--- ==========================================
-local FarmTab = Regui.CreateTab(Window, {Name = "Farm"})
-Regui.CreateLabel(FarmTab, {Text = "Configurações de Farm", Color = "White", Alignment = "Center"})
+-- FLAGS
+local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
+local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
+local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee" }
+local maxRange = 100
 
--- Auto Coins
-Regui.CreateCheckboxe(FarmTab, {Text = "Auto Coins", Color = "Blue"}, function(state)
-	Mastermod.AF.coins = state
-	if state then Mastermod.StartAutoCoins() end
+-- UTILS
+local function getCharacter()
+    local c = player.Character or player.CharacterAdded:Wait()
+    return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
+end
+
+local function getAliveHumanoid(model)
+    local hum = model and model:FindFirstChildOfClass("Humanoid")
+    if hum and hum.Health > 0 then return hum end
+end
+
+local function findDummy(folder)
+    for _, d in ipairs(folder:GetChildren()) do
+        local hum = getAliveHumanoid(d)
+        if hum then return d, hum end
+    end
+end
+
+-- AUTO FARM
+local function autoCoins()
+    task.spawn(function()
+        while AF.coins do
+            local events = ReplicatedStorage:FindFirstChild("Events")
+            local coinEvent = events and events:FindFirstChild("CoinEvent")
+            if coinEvent then coinEvent:FireServer() end
+            task.wait(AF_Timer.Coins_Speed)
+        end
+    end)
+end
+
+local function attackLoop(flag, folder)
+    task.spawn(function()
+        while AF[flag] do
+            local dummy, hum = findDummy(folder)
+            if dummy and hum and dummy:FindFirstChild("HumanoidRootPart") then
+                local pos = dummy.HumanoidRootPart.Position
+                attackRemote:FireServer(hum, 2)
+                skillsRemote:FireServer(pos, "NewFireball")
+                skillsRemote:FireServer(pos, "NewLightningball")
+            end
+            task.wait(0.05)
+        end
+    end)
+end
+
+local function farmBosses()
+    task.spawn(function()
+        while AF.bosses do
+            local npcFolder = Workspace:FindFirstChild("NPC")
+            if npcFolder then
+                for _, name in ipairs(bossesList) do
+                    local boss = npcFolder:FindFirstChild(name)
+                    local hum = getAliveHumanoid(boss)
+                    if hum then attackRemote:FireServer(hum, 5) end
+                end
+            end
+            task.wait(1)
+        end
+    end)
+end
+
+-- TOOLS
+local function giveTool(name, skill)
+    if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
+    local tool = Instance.new("Tool")
+    tool.Name = name
+    tool.RequiresHandle = false
+    tool.CanBeDropped = false
+    tool.Parent = player.Backpack
+    local mouse = player:GetMouse()
+    tool.Activated:Connect(function()
+        if skillsRemote then
+            skillsRemote:FireServer(mouse.Hit.Position, skill)
+        end
+    end)
+end
+
+-- PVP LOOPS
+local function PVP_Loop(kind)
+    task.spawn(function()
+        giveTool("Fireball","NewFireball")
+        giveTool("FireballEletric","NewLightningball")
+        while PVP[kind] do
+            local _, _, hrp = getCharacter()
+            local closest, shortest = nil, maxRange
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                    if hum and hum.Health>0 then
+                        local dist = (p.Character.HumanoidRootPart.Position-hrp.Position).Magnitude
+                        if dist<shortest then
+                            shortest=dist
+                            closest=p
+                        end
+                    end
+                end
+            end
+            if closest then
+                local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+                local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+                if hum and hrpTarget then
+                    if kind=="killAura" then
+                        pcall(function() attackRemote:FireServer(hum,1) end)
+                    elseif kind=="AutoFire" then
+                        pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewFireball") end)
+                    elseif kind=="AutoEletric" then
+                        pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewLightningball") end)
+                    end
+                end
+            end
+            task.wait(0.3)
+        end
+    end)
+end
+
+-- GUI
+local Window = Regui.TabsWindow({Title=GuiName, Text="Mod Menu", Size=UDim2.new(0,300,0,200)})
+local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
+local PlayerTab = Regui.CreateTab(Window,{Name="Player"})
+local GameTab = Regui.CreateTab(Window,{Name="Game"})
+local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
+local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
+
+-- Exemplo de Toggle
+local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Blue"},function(state)
+    AF.coins=state
+    if state then autoCoins() end
 end)
 
--- Auto Dummies
-Regui.CreateCheckboxe(FarmTab, {Text = "Auto Dummies", Color = "Blue"}, function(state)
-	Mastermod.AF.dummies = state
-	if state then Mastermod.StartAutoDummy("dummies", workspace.MAP.dummies) end
+local ToggleBosses = Regui.CreateToggleboxe(FarmTab,{Text="Auto Bosses",Color="Red"},function(state)
+    AF.bosses=state
+    if state then farmBosses() end
 end)
 
--- Auto Bosses
-Regui.CreateCheckboxe(FarmTab, {Text = "Auto Bosses", Color = "Blue"}, function(state)
-	Mastermod.AF.bosses = state
-	if state then Mastermod.StartAutoBosses() end
+-- Exemplo de PVP
+local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Blue"},function(state)
+    PVP.killAura=state
+    if state then PVP_Loop("killAura") end
 end)
 
--- Teleport Dummy
-Regui.CreateCheckboxe(FarmTab, {Text = "TP Dummy", Color = "Blue"}, function(state)
-	Mastermod.AF.tpDummy = state
+local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball",Color="Yellow"},function(state)
+    PVP.AutoFire=state
+    if state then PVP_Loop("AutoFire") end
 end)
 
--- Teleport Dummy 5k
-Regui.CreateCheckboxe(FarmTab, {Text = "TP Dummy 5k", Color = "Blue"}, function(state)
-	Mastermod.AF.tpDummy5k = state
+local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",Color="Cyan"},function(state)
+    PVP.AutoEletric=state
+    if state then PVP_Loop("AutoEletric") end
 end)
 
--- Slider Float Timer
-Regui.CreateSliderFloat(FarmTab, {Text = "Timer Float", Color = "Blue", Value = Mastermod.AF_Timer.Dummies_Speed, Minimum = 0.05, Maximum = 1}, function(val)
-	Mastermod.AF_Timer.Dummies_Speed = val
+-- Configs Painter
+Regui.CreatePainterPanel(ConfigsTab,{
+    {name="Main_Frame", Obj=Window.Frame},
+    {name="Top_Bar", Obj=Window.TopBar},
+    {name="Tabs_Container", Obj=Window.Tabs}
+},function(color,name,obj)
+    print("Cor aplicada em:", name,color)
 end)
 
--- Slider Int Timer
-Regui.CreateSliderInt(FarmTab, {Text = "Timer Int", Color = "Blue", Value = 1, Minimum = 0, Maximum = 100}, function(val)
-	-- Aqui poderia controlar outro timer do módulo
+-- Safe TP
+RunService.RenderStepped:Connect(function()
+    if AF.tpDummy then
+        local dummy,_=findDummy(dummiesFolder)
+        if dummy and dummy:FindFirstChild("HumanoidRootPart") then
+            local _,_,hrp=getCharacter()
+            hrp.CFrame=dummy.HumanoidRootPart.CFrame+Vector3.new(0,5,0)
+        end
+    end
+    if AF.tpDummy5k then
+        local dummy,_=findDummy(folder5k)
+        if dummy and dummy:FindFirstChild("HumanoidRootPart") then
+            local _,_,hrp=getCharacter()
+            hrp.CFrame=dummy.HumanoidRootPart.CFrame+Vector3.new(0,5,0)
+        end
+    end
 end)
-
--- Selector Tipo de Ataque
-Regui.CreateSliderOption(FarmTab, {Text = "Tipo de Ataque", Color = "White", Background = "Blue", Value = 1, Table = {"Melee", "Fire", "Aura"}}, function(val)
-	Mastermod.PVP.AttackType = val
-end)
-
--- ==========================================
--- Aba PvP
--- ==========================================
-local PvPTab = Regui.CreateTab(Window, {Name = "PvP"})
-Regui.CreateLabel(PvPTab, {Text = "Configurações PvP", Color = "White", Alignment = "Center"})
-
--- Kill Aura
-Regui.CreateToggleboxe(PvPTab, {Text = "Kill Aura", Color = "Red"}, function(state)
-	Mastermod.PVP.killAura = state
-	if state then Mastermod.StartKillAura() end
-end)
-
--- Auto Fireball
-Regui.CreateToggleboxe(PvPTab, {Text = "Auto Fireball", Color = "Red"}, function(state)
-	Mastermod.PVP.AutoFire = state
-	if state then Mastermod.StartAutoFireball() end
-end)
-
--- Selector Tipo de Ataque PvP
-Regui.CreateSliderOption(PvPTab, {Text = "Tipo de Ataque", Color = "White", Background = "Red", Value = 1, Table = {"Melee", "Fireball", "Lightning"}}, function(val)
-	Mastermod.PVP.AttackType = val
-end)
-
--- ==========================================
--- Aba Configs + PainterPanel
--- ==========================================
-local ConfigsTab = Regui.CreateTab(Window, {Name = "Configs"})
-Regui.CreateLabel(ConfigsTab, {Text = "Configurações de UI", Color = "White", Alignment = "Center"})
-
-Regui.CreatePainterPanel(ConfigsTab, {
-	{name="Main_Frame", Obj=Window.Frame},
-	{name="Top_Bar", Obj=Window.TopBar},
-	{name="Tabs_Container", Obj=Window.Tabs},
-	{name="Tab_Content", Obj=Window.TabContainer},
-	{name="Top_Tabs_Bar", Obj=Window.TopTabs}
-}, function(color, name, obj)
-	print("Cor aplicada em:", name, color)
-end)
-
--- Selector Instâncias UI
-Regui.CreateSelectorOpitions(ConfigsTab, {
-	Name = "Selecionar Instância",
-	Alignment = "Center",
-	Size_Frame = UDim2.new(1,-10,0,50),
-	Frame_Max = 50,
-	Options = {
-		{name="Main_Frame", Obj=Window.Frame},
-		{name="Top_Bar", Obj=Window.TopBar},
-		{name="Tabs_Container", Obj=Window.Tabs},
-		{name="Tab_Content", Obj=Window.TabContainer},
-		{name="Top_Tabs_Bar", Obj=Window.TopTabs}
-	},
-	Type = "Instance"
-}, function(val)
-	print("Você escolheu:", val)
-end)
-
--- ==========================================
--- Aba Readme / Credits
--- ==========================================
-local ReadmeTab = Regui.CreateTab(Window, {Name = "Readme"})
-Regui.CreditsUi(ReadmeTab, {Alignment="Center", Alignment_Texts="Left"}, function() end)
