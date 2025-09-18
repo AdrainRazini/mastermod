@@ -187,8 +187,60 @@ local SliderInt = Regui.CreateSliderInt(Tab_F_Logs, {Text = "Timer Int", Color =
 local PlayerTab = Regui.CreateTab(Window, {Name = "Player"})
 
 local GameTab = Regui.CreateTab(Window, {Name = "Game"})
+-- Configs 
+local ConfigsTab = Regui.CreateTab(Window, {Name = "Configs"})
 
-local ToolsTab = Regui.CreateTab(Window, {Name = "Tools"})
+local Label_Farme2 = Regui.CreateLabel(ConfigsTab, {Text = "Example", Color = "White", Alignment = "Center"})
+
+-- Exemplo de uso:
+local Painter = Regui.CreatePainterPanel(ConfigsTab, {
+	{name = "Main_Frame", Obj = Window.Frame},
+	{name = "Top_Bar", Obj = Window.TopBar},
+	{name = "Tabs_Container", Obj = Window.Tabs},
+	{name = "Tab_Content", Obj = Window.TabContainer},
+	{name = "Top_Tabs_Bar", Obj = Window.TopTabs},
+	{name = "Config_Bar", Obj = ConfigsTab},
+	{name = "Label_Display", Obj = Label_Farme2}
+}, function(color, name, obj)
+	print("Cor aplicada em:", name, color)
+end)
+
+
+-- Exemplo de uso
+local OptionsStrings = Regui.CreateSelectorOpitions(ConfigsTab, {
+	Name = "Selector",
+	Alignment = "Center",
+	Size_Frame = UDim2.new(1,-10,0,50),
+	Options = {"Nil", "UI", "Nil", "UI","Nil", "UI","Nil", "UI","Nil", "UI"},
+	Frame_Max = 50,
+	Type = "String"
+}, function(val)
+	print("Você escolheu:", val)
+end)
+
+
+
+local OptionsInstance = Regui.CreateSelectorOpitions(ConfigsTab, {
+	Name = "Selector",
+	Alignment = "Center",
+	Size_Frame = UDim2.new(1,-10,0,50),
+	Frame_Max = 50,
+	Options = {
+
+		{name = "Main_Frame", Obj = Window.Frame},
+		{name = "Top_Bar", Obj = Window.TopBar},
+		{name = "Tabs_Container", Obj = Window.Tabs},
+		{name = "Tab_Content", Obj = Window.TabContainer},
+		{name = "Top_Tabs_Bar", Obj = Window.TopTabs},
+		{name = "Config_Bar", Obj = ConfigsTab},
+		{name = "Label_Display", Obj = Label_Farme2}
+
+	},
+
+	Type = "Instance"
+}, function(val)
+	print("Você escolheu:", val)
+end)
 
 local ReadmeTab = Regui.CreateTab(Window, {Name = "Readme"})
 --[[
