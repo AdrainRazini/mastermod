@@ -557,7 +557,7 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 end)
 
 
-local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies 5K", Color = "Blue"}, function(state)
+local Check_Farme_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies 5K", Color = "Blue"}, function(state)
 	AF.dummies5k = state
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
 
@@ -858,5 +858,4 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 end)
-
 
