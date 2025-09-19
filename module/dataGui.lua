@@ -1156,7 +1156,7 @@ function chach.CreatePainterPanel(Scroll, painterMain, callback)
 		Name = "Selecionar Alvo",
 		Options = painterMain,
 		Type = "Instance",
-		Size_Frame = UDim2.new(1, -20, 0, 50)
+		Size_Frame = UDim2.new(1, -20, 0, 100)
 	}, function(selectedObj)
 		targetObj = selectedObj
 	end)
