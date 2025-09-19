@@ -66,13 +66,16 @@ if not folder5k then
 	folder5k.Parent = map
 end
 
-	
+
 
 
 
 local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla" }
 -- Valor selecionado no selector
 local selectedBoss = "All" -- padrão: todos
+
+local selectedPlayer = nil
+
 
 
 
@@ -85,6 +88,8 @@ local maxRange = 100
 
 -- Buscar De Dados
 -- UTILS
+--[[
+
 local function getCharacter()
 	local c = player.Character or player.CharacterAdded:Wait()
 	return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
@@ -101,6 +106,74 @@ local function findDummy(folder)
 		if hum then return d, hum end
 	end
 end
+
+]]
+-------------------------
+
+-- Buscar De Dados
+-- UTILS
+local function getCharacter()
+	local c = player.Character or player.CharacterAdded:Wait()
+	return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
+end
+
+local function getAliveHumanoid(model)
+	local hum = model and model:FindFirstChildOfClass("Humanoid")
+	if hum and hum.Health > 0 then 
+		return hum 
+	end
+end
+
+local function findDummy(folder)
+	for _, d in ipairs(folder:GetChildren()) do
+		local hum = getAliveHumanoid(d)
+		if hum then 
+			return d, hum 
+		end
+	end
+end
+
+-- Retorna apenas as subpastas dentro de um folder
+local function getFolders(folder)
+	local folders = {}
+	for _, child in ipairs(folder:GetChildren()) do
+		if child:IsA("Folder") then
+			table.insert(folders, child)
+		end
+	end
+	return folders
+end
+
+-- Retorna uma lista de jogadores vivos (com Humanoid válido)
+local function getPlayers()
+	local alivePlayers = {}
+	for _, plr in ipairs(game.Players:GetPlayers()) do
+		local char = plr.Character
+		if char then
+			local hum = getAliveHumanoid(char)
+			if hum then
+				table.insert(alivePlayers, {Player = plr, Character = char, Humanoid = hum})
+			end
+		end
+	end
+	
+	return alivePlayers
+	
+end
+
+
+
+-- pega só os nomes dos jogadores vivos
+local function getPlayerNames()
+	local names = {}
+	for _, data in ipairs(getPlayers()) do
+		table.insert(names, data.Player.Name)
+	end
+	return names
+end
+
+
+
 
 --===================================================--
 
@@ -261,7 +334,7 @@ local function giveToolFake(name, skill)
 			rot.Color = Color3.fromRGB(0, 0, 255)
 			rot.Position = hrp.Position + hrp.CFrame.RightVector * 3
 			rot.Parent = hrp.Parent
-			
+
 
 			-- Conecta para mover o rot junto do jogador
 			connection = RunService.Heartbeat:Connect(function()
@@ -329,6 +402,62 @@ local function PVP_Loop(kind)
 	end)
 end
 
+--[[
+local function PVP_Loop(kind, fixed)
+	task.spawn(function()
+		while PVP[kind] do
+			local _, _, hrp = getCharacter()
+			local target = nil
+
+			-- Se tiver alvo fixo (do selector)
+			if fixed and fixed ~= "All" then
+				for _, p in ipairs(Players:GetPlayers()) do
+					if p ~= player and p.Name == fixed and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+						local hum = p.Character:FindFirstChildOfClass("Humanoid")
+						if hum and hum.Health > 0 then
+							target = p
+						end
+						break
+					end
+				end
+			else
+				-- Modo normal: pega o mais próximo
+				local shortest = maxRange
+				for _, p in ipairs(Players:GetPlayers()) do
+					if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+						local hum = p.Character:FindFirstChildOfClass("Humanoid")
+						if hum and hum.Health > 0 then
+							local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+							if dist < shortest then
+								shortest = dist
+								target = p
+							end
+						end
+					end
+				end
+			end
+
+			-- Se achou alvo válido
+			if target then
+				local hum = target.Character:FindFirstChildOfClass("Humanoid")
+				local hrpTarget = target.Character:FindFirstChild("HumanoidRootPart")
+				if hum and hrpTarget then
+					if kind == "killAura" then
+						pcall(function() attackRemote:FireServer(hum,1) end)
+					elseif kind == "AutoFire" then
+						pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewFireball") end)
+					elseif kind == "AutoEletric" then
+						pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewLightningball") end)
+					end
+				end
+			end
+			task.wait(0.3)
+		end
+	end)
+end
+
+]]
+
 -- GUI
 local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
 local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
@@ -382,6 +511,7 @@ local SliderFloat_Boosses = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Boss
 	print("Slider Float clicada! Estado:", AF_Timer.Bosses_Speed)
 
 end) 
+
 
 
 
@@ -458,7 +588,52 @@ local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",
 	if state then PVP_Loop("AutoEletric") end
 end)
 
+-- Selector de boss
+local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
+	Name = "Selecionar Alvo",
+	Options = {"All", unpack(getPlayerNames())}, -- lista de nomes
+	Type = "String",
+	Size_Frame = UDim2.new(1, -20, 0, 50)
+}, function(val)
+
+	print("Jogador: ", val)
+	selectedPlayer = val
+
+end)
+
+task.spawn(function()
+	wait(60)
+	local opts = { "All" }
+	for _, name in ipairs(getPlayerNames()) do
+		table.insert(opts, name)
+	end
+	selectorPlayer.Reset(opts)
+end)
+
+
+
+--[[
+
+-- Exemplo de PVP
+local ToggleKillAura_Fix = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura Fix",Color="Blue"},function(state)
+	PVP.killAura=state
+	if state then PVP_Loop("killAura", selectedPlayer) end
+end)
+
+local ToggleFireball_Fix = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball",Color="Yellow"},function(state)
+	PVP.AutoFire=state
+	if state then PVP_Loop("AutoFire") end
+end)
+
+local ToggleLightning_Fix = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",Color="Cyan"},function(state)
+	PVP.AutoEletric=state
+	if state then PVP_Loop("AutoEletric", selectedPlayer) end
+end)
+
+]]
+
 --Game Tab
+
 
 
 -- Botão para pegar a Fireball manual
