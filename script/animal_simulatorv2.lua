@@ -754,9 +754,10 @@ end)
 
 local selectedPlayerTp = "All"
 
--- Função de Auto TP
+-- Função de Auto TP Sequencial
 local function AutoTp_Loop()
 	task.spawn(function()
+		local index = 1
 		while PVP.AutoTp do
 			local _, _, hrp = getCharacter()
 			if not hrp then
@@ -764,10 +765,8 @@ local function AutoTp_Loop()
 				continue
 			end
 
-			local closest, shortest = nil, math.huge
-			local targets = {}
-
 			-- Seleciona lista de alvos
+			local targets = {}
 			if selectedPlayerTp == nil or selectedPlayerTp == "All" then
 				targets = Players:GetPlayers()
 			else
@@ -781,23 +780,30 @@ local function AutoTp_Loop()
 				end
 			end
 
-			-- Busca o mais próximo
-			for _, p in ipairs(targets) do
-				if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-					local hum = p.Character:FindFirstChildOfClass("Humanoid")
-					if hum and hum.Health > 0 then
-						local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-						if dist < shortest then
-							shortest = dist
-							closest = p
-						end
-					end
+			-- Remove o próprio player da lista
+			for i = #targets, 1, -1 do
+				if targets[i] == player or not (targets[i].Character and targets[i].Character:FindFirstChild("HumanoidRootPart")) then
+					table.remove(targets, i)
 				end
 			end
 
-			-- Teleporta até o alvo
-			if closest and closest.Character and closest.Character:FindFirstChild("HumanoidRootPart") then
-				hrp.CFrame = closest.Character.HumanoidRootPart.CFrame * CFrame.new(0, 2, 0) -- tp um pouco acima
+			if #targets > 0 then
+				-- Controla o índice sequencial
+				if index > #targets then
+					index = 1
+				end
+
+				local target = targets[index]
+				index += 1
+
+				-- Verifica se o alvo é válido
+				if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+					local hum = target.Character:FindFirstChildOfClass("Humanoid")
+					if hum and hum.Health > 0 then
+						-- Teleporta até o alvo
+						hrp.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 2, 0)
+					end
+				end
 			end
 
 			task.wait(PVP_Timer.AutoTp_Speed or 0.3)
@@ -814,11 +820,13 @@ local AutoAttackTp = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Tp",Color="Cya
 		AutoTp_Loop()
 	end
 end)
-local SliderFloat_Tp = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Tp Players", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
+local SliderFloat_Tp = Regui.CreateSliderFloat(PlayerTab, {Text = "Timer Tp Players", Color = "Blue", Value = 0.05, Minimum = 0, Maximum = 1}, function(state)
 	PVP_Timer.AutoTp_Speed = state
 	print("Slider Float clicada! Estado:", PVP_Timer.AutoTp_Speed)
 
 end) 
+
+
 -- Criação do selector de players
 local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 	Name = "Selecionar Alvo",
@@ -833,7 +841,7 @@ end)
 -- Atualiza a lista de jogadores a cada 60s
 task.spawn(function()
 	while true do
-		task.wait(60)
+		task.wait(10)
 		local opts = {"All"}
 		for _, name in ipairs(getPlayerNames()) do
 			table.insert(opts, name)
@@ -856,7 +864,7 @@ task.spawn(function()
 		end
 
 		-- Atualiza o título do selector para refletir a escolha atual
-		selectorPlayerTp.SetName(selectedPlayer)
+		selectedPlayerTp.SetName(selectedPlayerTp)
 	end
 end)
 
