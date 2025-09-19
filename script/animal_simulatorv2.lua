@@ -74,15 +74,13 @@ local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS
 -- Valor selecionado no selector
 local selectedBoss = "All" -- padrão: todos
 
-local selectedPlayer = nil
-
-
 
 
 -- FLAGS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
 local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
 local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee" }
+local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Speed = 0.05, AutoAttack_Speed = 0.05, AutoFlyAttack_Speed = 0.05}
 local maxRange = 100
 
 
@@ -366,6 +364,63 @@ end
 
 
 
+
+local selectedPlayer = nil -- caso seja nil ou "All", usa todos os jogadores
+
+local function PVP_Loop(kind)
+	task.spawn(function()
+		while PVP[kind] do
+			local _, _, hrp = getCharacter()
+			local closest, shortest = nil, maxRange
+
+			-- Determinar lista de alvos
+			local targets = {}
+			if selectedPlayer == nil or selectedPlayer == "All" then
+				targets = Players:GetPlayers()
+			else
+				local plr = Players:FindFirstChild(selectedPlayer)
+				if plr then
+					table.insert(targets, plr)
+				end
+			end
+
+			-- Buscar jogador mais próximo
+			for _, p in ipairs(targets) do
+				if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+					local hum = p.Character:FindFirstChildOfClass("Humanoid")
+					if hum and hum.Health > 0 then
+						local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+						if dist < shortest then
+							shortest = dist
+							closest = p
+						end
+					end
+				end
+			end
+
+			-- Atacar
+			if closest then
+				local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+				local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+				if hum and hrpTarget then
+					if kind == "killAura" then
+						pcall(function() attackRemote:FireServer(hum, 1) end)
+					elseif kind == "AutoFire" then
+						pcall(function() skillsRemote:FireServer(hrpTarget.Position, "NewFireball") end)
+					elseif kind == "AutoEletric" then
+						pcall(function() skillsRemote:FireServer(hrpTarget.Position, "NewLightningball") end)
+					end
+				end
+			end
+
+			-- Espera de acordo com timer
+			local waitTime = PVP_Timer[kind .. "_Speed"] or 0.3
+			task.wait(waitTime)
+		end
+	end)
+end
+
+--[[
 -- PVP LOOPS
 local function PVP_Loop(kind)
 	task.spawn(function()
@@ -402,61 +457,10 @@ local function PVP_Loop(kind)
 	end)
 end
 
---[[
-local function PVP_Loop(kind, fixed)
-	task.spawn(function()
-		while PVP[kind] do
-			local _, _, hrp = getCharacter()
-			local target = nil
-
-			-- Se tiver alvo fixo (do selector)
-			if fixed and fixed ~= "All" then
-				for _, p in ipairs(Players:GetPlayers()) do
-					if p ~= player and p.Name == fixed and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-						local hum = p.Character:FindFirstChildOfClass("Humanoid")
-						if hum and hum.Health > 0 then
-							target = p
-						end
-						break
-					end
-				end
-			else
-				-- Modo normal: pega o mais próximo
-				local shortest = maxRange
-				for _, p in ipairs(Players:GetPlayers()) do
-					if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-						local hum = p.Character:FindFirstChildOfClass("Humanoid")
-						if hum and hum.Health > 0 then
-							local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-							if dist < shortest then
-								shortest = dist
-								target = p
-							end
-						end
-					end
-				end
-			end
-
-			-- Se achou alvo válido
-			if target then
-				local hum = target.Character:FindFirstChildOfClass("Humanoid")
-				local hrpTarget = target.Character:FindFirstChild("HumanoidRootPart")
-				if hum and hrpTarget then
-					if kind == "killAura" then
-						pcall(function() attackRemote:FireServer(hum,1) end)
-					elseif kind == "AutoFire" then
-						pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewFireball") end)
-					elseif kind == "AutoEletric" then
-						pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewLightningball") end)
-					end
-				end
-			end
-			task.wait(0.3)
-		end
-	end)
-end
 
 ]]
+
+
 
 -- GUI
 local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
@@ -566,29 +570,73 @@ local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dumm
 end) 
 
 
--- PVP Player
-local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {Text = "Timer Int", Color = "Blue", Value = 100, Minimum = 100, Maximum = 500}, function(state)
-	maxRange = state
-	print("Slider Int clicada! Estado:", maxRange)
 
+--- TAB PLAYERS
+
+local Label_Farme = Regui.CreateLabel(PlayerTab, {Text = "PVP Player", Color = "Red", Alignment = "Center"})
+
+-- RANGE GLOBAL
+local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {
+	Text = "Max Range", 
+	Color = "Blue", 
+	Value = 100, Minimum = 100, Maximum = 500
+}, function(state)
+	maxRange = state
+	print("Range atualizado:", maxRange)
 end)
+
 -- Exemplo de PVP
 local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Blue"},function(state)
 	PVP.killAura=state
 	if state then PVP_Loop("killAura") end
 end)
 
+
+-- TIMER KillAura
+local SliderInt_KillAura = Regui.CreateSliderInt(PlayerTab, {
+	Text = "KillAura Speed", 
+	Color = "Blue", 
+	Value = 0.3, Minimum = 0.05, Maximum = 1
+}, function(state)
+	PVP_Timer.KillAura_Speed = state
+	print("KillAura Speed:", state)
+end)
+
+
 local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball",Color="Yellow"},function(state)
 	PVP.AutoFire=state
 	if state then PVP_Loop("AutoFire") end
 end)
+
+
+-- TIMER AutoFire
+local SliderInt_AutoFire = Regui.CreateSliderInt(PlayerTab, {
+	Text = "AutoFire Speed", 
+	Color = "Yellow", 
+	Value = 0.3, Minimum = 0.05, Maximum = 1
+}, function(state)
+	PVP_Timer.AutoFire_Speed = state
+	print("AutoFire Speed:", state)
+end)
+
 
 local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",Color="Cyan"},function(state)
 	PVP.AutoEletric=state
 	if state then PVP_Loop("AutoEletric") end
 end)
 
--- Selector de boss
+-- TIMER AutoEletric
+local SliderInt_AutoEletric = Regui.CreateSliderInt(PlayerTab, {
+	Text = "AutoLightning Speed", 
+	Color = "Cyan", 
+	Value = 0.3, Minimum = 0.05, Maximum = 1
+}, function(state)
+	PVP_Timer.AutoEletric_Speed = state
+	print("AutoLightning Speed:", state)
+end)
+
+-- Em Breve ...
+
 local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
 	Name = "Selecionar Alvo",
 	Options = {"All", unpack(getPlayerNames())}, -- lista de nomes
@@ -611,26 +659,6 @@ task.spawn(function()
 end)
 
 
-
---[[
-
--- Exemplo de PVP
-local ToggleKillAura_Fix = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura Fix",Color="Blue"},function(state)
-	PVP.killAura=state
-	if state then PVP_Loop("killAura", selectedPlayer) end
-end)
-
-local ToggleFireball_Fix = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball",Color="Yellow"},function(state)
-	PVP.AutoFire=state
-	if state then PVP_Loop("AutoFire") end
-end)
-
-local ToggleLightning_Fix = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",Color="Cyan"},function(state)
-	PVP.AutoEletric=state
-	if state then PVP_Loop("AutoEletric", selectedPlayer) end
-end)
-
-]]
 
 --Game Tab
 
