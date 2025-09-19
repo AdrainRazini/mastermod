@@ -106,7 +106,7 @@ local chach = {
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "17/09/2025",
+		verdate = "19/09/2025",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
@@ -1057,54 +1057,48 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 	title.Font = Enum.Font.SourceSansBold
 	title.Parent = frame
 
-	-- Número de opções
-	local count = #list.Options
-
-
-	-- Altura do ScrollingFrame
-	local maxHeight = list.Frame_Max or 50
-	local scrollHeight = math.min(count*30, maxHeight)
-
-	-- Ajusta frame principal para caber título + scroll
-	frame.Size = UDim2.new(1, -10, 0, 30 + scrollHeight)
-
-	-- ScrollingFrame
+	-- Container com scroll
 	local list_bt = Instance.new("ScrollingFrame")
-	list_bt.Size = UDim2.new(1,0,0, scrollHeight)
+	list_bt.Size = UDim2.new(1,0,1,-30)
 	list_bt.Position = UDim2.new(0,0,0,30)
 	list_bt.ScrollBarThickness = 6
 	list_bt.BackgroundTransparency = 1
 	list_bt.BorderSizePixel = 0
 	list_bt.Parent = frame
 
-	-- Layout automático
 	local layout = chach.applyAutoScrolling(list_bt, UDim.new(0,5), Enum.HorizontalAlignment.Center)
 	layout.Padding = UDim.new(0,5)
 
-	-- Botões
 	local selectedBtn = nil
 	local TweenService = game:GetService("TweenService")
 
-	for _, option in ipairs(list.Options) do
-		if list.Type == "Instance" and (type(option) ~= "table" or not option.name or not option.Obj) then
-			warn("Opção inválida no selector:", option)
-		else
+	-- Função auxiliar para criar botões
+	local function createButtons(options)
+		list_bt:ClearAllChildren()
+		layout = chach.applyAutoScrolling(list_bt, UDim.new(0,5), Enum.HorizontalAlignment.Center)
+		layout.Padding = UDim.new(0,5)
+
+		for _, option in ipairs(options) do
+			local displayText, returnValue
+			if list.Type == "Instance" then
+				displayText = option.name
+				returnValue = option.Obj
+			else
+				displayText = tostring(option)
+				returnValue = option
+			end
+
 			local btn = Instance.new("TextButton")
 			btn.Size = UDim2.new(1,0,0,25)
 			btn.BackgroundColor3 = chach.Colors.Primary or Color3.fromRGB(70,70,70)
 			btn.TextColor3 = Color3.fromRGB(255,255,255)
 			btn.TextScaled = true
 			btn.Font = Enum.Font.SourceSans
+			btn.Text = displayText
 			btn.Parent = list_bt
 			chach.applyCorner(btn, UDim.new(0,6))
 			chach.applyUIStroke(btn, "White", 1)
 
-			-- Variáveis locais para closure correta
-			local displayText = (list.Type == "Instance") and option.name or tostring(option)
-			local returnValue = (list.Type == "Instance") and option.Obj or option
-			btn.Text = displayText
-
-			-- Hover animado
 			btn.MouseEnter:Connect(function()
 				TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(100,100,100)}):Play()
 			end)
@@ -1113,7 +1107,6 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 				TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = bgColor}):Play()
 			end)
 
-			-- Clique
 			btn.MouseButton1Click:Connect(function()
 				callback(returnValue)
 				title.Text = displayText
@@ -1127,8 +1120,26 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 		end
 	end
 
-	return frame
+	-- Cria a lista inicial
+	createButtons(list.Options)
+
+	-- Função Reset para recriar os botões com novos valores
+	local function Reset(newOptions)
+		if typeof(newOptions) ~= "table" then
+			warn("Reset espera uma tabela de opções!")
+			return
+		end
+		createButtons(newOptions)
+	end
+
+	return {
+		Opitions_Frame = frame,
+		Opitions_Title = title,
+		Opitions_List = list_bt,
+		Reset = Reset -- aqui retorna a função, não a execução
+	}
 end
+
 
 function chach.CreatePainterPanel(Scroll, painterMain, callback)
 	local Colors_Dt = chach.Colors
