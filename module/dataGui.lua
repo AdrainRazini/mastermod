@@ -654,6 +654,33 @@ function chach.CreateLabel(Scroll, list)
 	return label
 end
 
+function chach.CreateImage(Scroll, list)
+	-- Cria o ImageLabel
+	local imageLabel = Instance.new("ImageLabel")
+	imageLabel.Name = list.Name or "ImageLabel"
+	imageLabel.Size = list.Size_Image or UDim2.new(0, 50, 0, 50)
+	imageLabel.Position = list.Position or UDim2.new(0.5, 0, 0.5, 0)
+	imageLabel.AnchorPoint = list.AnchorPoint or Vector2.new(0.5, 0.5)
+	imageLabel.BackgroundTransparency = list.Transparence or 1
+	imageLabel.Image = list.Id_Image or ""
+	imageLabel.Parent = Scroll
+
+	-- Centraliza se Alignment for passado
+	if list.Alignment == "Center" then
+		imageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+		imageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
+	end
+
+	-- Aplica cantos arredondados se desejar
+	if list.Corner then
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = list.Corner
+		corner.Parent = imageLabel
+	end
+
+	return imageLabel
+end
+
 
 
 function chach.CreateButton(Scroll, list, callback)
