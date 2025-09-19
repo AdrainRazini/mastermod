@@ -585,25 +585,6 @@ local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dumm
 end) 
 
 
-local Check_TP_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "TP dummies", Color = "Blue"}, function(state)
-	AF.tpDummy = state
-	--print("Checkbox clicada! Estado:", Test_.Button_Box)
-
-	if AF.tpDummy  then
-		-- Notificação se for Verdadeiro
-		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Alert",
-			Text = "Checkbox TP dummies! Estado: " .. tostring(AF.tpDummy),
-			Icon = "fa_envelope",
-			Tempo = 10,
-			Casch = {},
-			Sound = ""
-		}, function()
-			print("Notificação fechada!")
-		end)
-	end
-
-
 
 --- TAB PLAYERS
 
