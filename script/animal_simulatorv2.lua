@@ -485,6 +485,7 @@ local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
+local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 -- Exemplo de Toggle
 local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Blue"},function(state)
@@ -635,7 +636,9 @@ end)
 
 --- TAB PLAYERS
 
+
 local Label_Farme_PVP = Regui.CreateLabel(PlayerTab, {Text = "PVP Player", Color = "Red", Alignment = "Center"})
+
 
 -- RANGE GLOBAL
 local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {
@@ -858,4 +861,5 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 end)
+
 
