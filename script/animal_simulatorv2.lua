@@ -644,7 +644,50 @@ end)
 
 -- Em Breve ...
 
+-- Criação do selector de players
 local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
+	Name = "Selecionar Alvo",
+	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
+	Type = "String",
+	Size_Frame = UDim2.new(1, -20, 0, 50)
+}, function(val)
+	print("Jogador selecionado:", val)
+	selectedPlayer = val
+end)
+
+-- Atualiza a lista de jogadores a cada 60s
+task.spawn(function()
+	while true do
+		task.wait(60)
+		local opts = {"All"}
+		for _, name in ipairs(getPlayerNames()) do
+			table.insert(opts, name)
+		end
+
+		-- Atualiza os botões do selector
+		selectorPlayer.Reset(opts)
+
+		-- Se o jogador selecionado não existir mais, muda para "All"
+		local valid = false
+		for _, name in ipairs(opts) do
+			if name == selectedPlayer then
+				valid = true
+				break
+			end
+		end
+
+		if not valid then
+			selectedPlayer = "All"
+		end
+
+		-- Atualiza o título do selector para refletir a escolha atual
+		selectorPlayer.SetName(selectedPlayer)
+	end
+end)
+
+
+
+--[[local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
 	Name = "Selecionar Alvo",
 	Options = {"All", unpack(getPlayerNames())}, -- lista de nomes
 	Type = "String",
@@ -665,7 +708,7 @@ task.spawn(function()
 	selectorPlayer.Reset(opts)
 	selectorPlayer.SetName(selectedPlayer)
 end)
-
+]]
 
 
 --Game Tab
