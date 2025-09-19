@@ -835,7 +835,7 @@ local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 	Size_Frame = UDim2.new(1, -20, 0, 100)
 }, function(val)
 	print("Jogador selecionado:", val)
-	selectedPlayer = val
+	selectedPlayerTp = val
 end)
 
 -- Atualiza a lista de jogadores a cada 60s
