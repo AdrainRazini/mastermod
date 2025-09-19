@@ -556,6 +556,7 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 
 end)
 
+
 local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies 5K", Color = "Blue"}, function(state)
 	AF.dummies5k = state
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
@@ -578,12 +579,58 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 
 end)
 
+
 local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies", Color = "Blue", Value = 1, Minimum = 0, Maximum = 1}, function(state)
 	AF_Timer.Dummies_Speed = state
 	print("Slider Float clicada! Estado:", AF_Timer.Dummies_Speed)
 
 end) 
 
+
+local Check_Tp_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummies", Color = "White"}, function(state)
+	AF.tpDummy = state
+	--print("Checkbox clicada! Estado:", Test_.Button_Box)
+
+	if AF.tpDummy  then
+		attackLoop("tpDummy", dummiesFolder)
+		-- Notificação se for Verdadeiro
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert",
+			Text = "Tp dummies! Estado: " .. tostring(AF.tpDummy),
+			Icon = "fa_envelope",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
+
+
+end)
+
+
+local Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummies 5K", Color = "White"}, function(state)
+	AF.tpDummy5k = state
+	--print("Checkbox clicada! Estado:", Test_.Button_Box)
+
+	if AF.tpDummy5k  then
+		attackLoop("tpDummy5k", folder5k)
+		-- Notificação se for Verdadeiro
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert",
+			Text = "Tp dummies5k! Estado: " .. tostring(AF.tpDummy5k),
+			Icon = "fa_envelope",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
+
+
+end)
 
 
 --- TAB PLAYERS
@@ -811,3 +858,5 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 end)
+
+
