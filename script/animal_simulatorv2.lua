@@ -375,12 +375,18 @@ local function PVP_Loop(kind)
 
 			-- Determinar lista de alvos
 			local targets = {}
+
+			-- Se selectedPlayer for nil ou "All", usamos todos
 			if selectedPlayer == nil or selectedPlayer == "All" then
 				targets = Players:GetPlayers()
 			else
 				local plr = Players:FindFirstChild(selectedPlayer)
 				if plr then
 					table.insert(targets, plr)
+				else
+					-- Se o player não existir mais, mudar para All
+					selectedPlayer = "All"
+					targets = Players:GetPlayers()
 				end
 			end
 
@@ -398,7 +404,7 @@ local function PVP_Loop(kind)
 				end
 			end
 
-			-- Atacar
+			-- Atacar se houver alvo
 			if closest then
 				local hum = closest.Character:FindFirstChildOfClass("Humanoid")
 				local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
@@ -413,12 +419,13 @@ local function PVP_Loop(kind)
 				end
 			end
 
-			-- Espera de acordo com timer
+			-- Espera de acordo com timer configurado
 			local waitTime = PVP_Timer[kind .. "_Speed"] or 0.3
 			task.wait(waitTime)
 		end
 	end)
 end
+
 
 --[[
 -- PVP LOOPS
@@ -656,6 +663,7 @@ task.spawn(function()
 		table.insert(opts, name)
 	end
 	selectorPlayer.Reset(opts)
+	selectorPlayer.SetName(selectedPlayer)
 end)
 
 

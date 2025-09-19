@@ -1131,11 +1131,16 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 		end
 		createButtons(newOptions)
 	end
+	
+	local function SetName(input)
+		title.Text = input
+	end
 
 	return {
 		Opitions_Frame = frame,
 		Opitions_Title = title,
 		Opitions_List = list_bt,
+		SetName = SetName,
 		Reset = Reset -- aqui retorna a função, não a execução
 	}
 end
