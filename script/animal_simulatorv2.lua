@@ -79,8 +79,8 @@ local selectedBoss = "All" -- padrão: todos
 -- FLAGS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
 local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
-local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee" }
-local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Speed = 0.05, AutoAttack_Speed = 0.05, AutoFlyAttack_Speed = 0.05}
+local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee", AutoTp = false }
+local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Speed = 0.05, AutoAttack_Speed = 0.05, AutoFlyAttack_Speed = 0.05, AutoTp_Speed = 1}
 local maxRange = 100
 
 
@@ -750,6 +750,114 @@ local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player IA", Col
 local ToggleAutoAttack = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Attack",Color="Cyan"},function(state)
 	PVP.AutoAttack=state
 	if state then PVP_Loop("AutoAttack") end
+end)
+
+local selectedPlayerTp = "All"
+
+-- Função de Auto TP
+local function AutoTp_Loop()
+	task.spawn(function()
+		while PVP.AutoTp do
+			local _, _, hrp = getCharacter()
+			if not hrp then
+				task.wait(0.2)
+				continue
+			end
+
+			local closest, shortest = nil, math.huge
+			local targets = {}
+
+			-- Seleciona lista de alvos
+			if selectedPlayerTp == nil or selectedPlayerTp == "All" then
+				targets = Players:GetPlayers()
+			else
+				local plr = Players:FindFirstChild(selectedPlayerTp)
+				if plr then
+					table.insert(targets, plr)
+				else
+					-- Se o player sumiu, volta para All
+					selectedPlayerTp = "All"
+					targets = Players:GetPlayers()
+				end
+			end
+
+			-- Busca o mais próximo
+			for _, p in ipairs(targets) do
+				if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+					local hum = p.Character:FindFirstChildOfClass("Humanoid")
+					if hum and hum.Health > 0 then
+						local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+						if dist < shortest then
+							shortest = dist
+							closest = p
+						end
+					end
+				end
+			end
+
+			-- Teleporta até o alvo
+			if closest and closest.Character and closest.Character:FindFirstChild("HumanoidRootPart") then
+				hrp.CFrame = closest.Character.HumanoidRootPart.CFrame * CFrame.new(0, 2, 0) -- tp um pouco acima
+			end
+
+			task.wait(PVP_Timer.AutoTp_Speed or 0.3)
+		end
+	end)
+end
+
+-- Ativar o loop quando marcar o toggle
+
+
+local AutoAttackTp = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Tp",Color="Cyan"},function(state)
+	PVP.AutoTp = state
+	if state then
+		AutoTp_Loop()
+	end
+end)
+local SliderFloat_Tp = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Tp Players", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
+	PVP_Timer.AutoTp_Speed = state
+	print("Slider Float clicada! Estado:", PVP_Timer.AutoTp_Speed)
+
+end) 
+-- Criação do selector de players
+local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
+	Name = "Selecionar Alvo",
+	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
+	Type = "String",
+	Size_Frame = UDim2.new(1, -20, 0, 100)
+}, function(val)
+	print("Jogador selecionado:", val)
+	selectedPlayer = val
+end)
+
+-- Atualiza a lista de jogadores a cada 60s
+task.spawn(function()
+	while true do
+		task.wait(60)
+		local opts = {"All"}
+		for _, name in ipairs(getPlayerNames()) do
+			table.insert(opts, name)
+		end
+
+		-- Atualiza os botões do selector
+		selectorPlayerTp.Reset(opts)
+
+		-- Se o jogador selecionado não existir mais, muda para "All"
+		local valid = false
+		for _, name in ipairs(opts) do
+			if name == selectedPlayerTp then
+				valid = true
+				break
+			end
+		end
+
+		if not valid then
+			selectedPlayerTp = "All"
+		end
+
+		-- Atualiza o título do selector para refletir a escolha atual
+		selectorPlayerTp.SetName(selectedPlayer)
+	end
 end)
 
 
