@@ -367,6 +367,8 @@ end
 
 local selectedPlayer = nil -- caso seja nil ou "All", usa todos os jogadores
 
+local autoAttackIndex = 1 -- controla o ciclo 1-5
+
 local function PVP_Loop(kind)
 	task.spawn(function()
 		while PVP[kind] do
@@ -375,8 +377,6 @@ local function PVP_Loop(kind)
 
 			-- Determinar lista de alvos
 			local targets = {}
-
-			-- Se selectedPlayer for nil ou "All", usamos todos
 			if selectedPlayer == nil or selectedPlayer == "All" then
 				targets = Players:GetPlayers()
 			else
@@ -384,7 +384,6 @@ local function PVP_Loop(kind)
 				if plr then
 					table.insert(targets, plr)
 				else
-					-- Se o player não existir mais, mudar para All
 					selectedPlayer = "All"
 					targets = Players:GetPlayers()
 				end
@@ -404,7 +403,7 @@ local function PVP_Loop(kind)
 				end
 			end
 
-			-- Atacar se houver alvo
+			-- Atacar
 			if closest then
 				local hum = closest.Character:FindFirstChildOfClass("Humanoid")
 				local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
@@ -415,16 +414,25 @@ local function PVP_Loop(kind)
 						pcall(function() skillsRemote:FireServer(hrpTarget.Position, "NewFireball") end)
 					elseif kind == "AutoEletric" then
 						pcall(function() skillsRemote:FireServer(hrpTarget.Position, "NewLightningball") end)
+					elseif kind == "AutoAttack" then
+						pcall(function()
+							attackRemote:FireServer(hum, autoAttackIndex)
+							autoAttackIndex = autoAttackIndex + 1
+							if autoAttackIndex > 5 then
+								autoAttackIndex = 1
+							end
+						end)
 					end
 				end
 			end
 
-			-- Espera de acordo com timer configurado
+			-- Espera
 			local waitTime = PVP_Timer[kind .. "_Speed"] or 0.3
 			task.wait(waitTime)
 		end
 	end)
 end
+
 
 
 --[[
@@ -496,7 +504,7 @@ local selectorFrame = Regui.CreateSelectorOpitions(FarmTab, {
 	Name = "Selecionar Alvo Boss",
 	Options = {"All", unpack(bossesList)}, -- cria lista: All + bosses
 	Type = "String",
-	Size_Frame = UDim2.new(1, -20, 0, 50)
+	Size_Frame = UDim2.new(1, -20, 0, 100)
 }, function(val)
 	print("Npc Boss selecionado:", val)
 	selectedBoss = val
@@ -577,10 +585,29 @@ local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dumm
 end) 
 
 
+local Check_TP_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "TP dummies", Color = "Blue"}, function(state)
+	AF.tpDummy = state
+	--print("Checkbox clicada! Estado:", Test_.Button_Box)
+
+	if AF.tpDummy  then
+		-- Notificação se for Verdadeiro
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert",
+			Text = "Checkbox TP dummies! Estado: " .. tostring(AF.tpDummy),
+			Icon = "fa_envelope",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
+
+
 
 --- TAB PLAYERS
 
-local Label_Farme = Regui.CreateLabel(PlayerTab, {Text = "PVP Player", Color = "Red", Alignment = "Center"})
+local Label_Farme_PVP = Regui.CreateLabel(PlayerTab, {Text = "PVP Player", Color = "Red", Alignment = "Center"})
 
 -- RANGE GLOBAL
 local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {
@@ -649,7 +676,7 @@ local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
 	Name = "Selecionar Alvo",
 	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
 	Type = "String",
-	Size_Frame = UDim2.new(1, -20, 0, 50)
+	Size_Frame = UDim2.new(1, -20, 0, 100)
 }, function(val)
 	print("Jogador selecionado:", val)
 	selectedPlayer = val
@@ -684,6 +711,16 @@ task.spawn(function()
 		selectorPlayer.SetName(selectedPlayer)
 	end
 end)
+
+
+
+local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player IA", Color = "Red", Alignment = "Center"})
+
+local ToggleAutoAttack = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Attack",Color="Cyan"},function(state)
+	PVP.AutoAttack=state
+	if state then PVP_Loop("AutoAttack") end
+end)
+
 
 
 
