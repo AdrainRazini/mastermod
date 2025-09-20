@@ -810,66 +810,45 @@ local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 end)
 
 
--- Atualiza a lista de jogadores a cada 10s
-task.spawn(function()
-	while true do
-		task.wait(10)
-		local opts = {"All"}
-		for _, name in ipairs(getPlayerNames()) do
-			table.insert(opts, name)
-		end
+-- Função genérica para atualizar selectors de players
+local function updateSelector(selector, selectedVarName)
+	task.spawn(function()
+		while true do
+			task.wait(10)
 
-		-- Atualiza os botões do selector
-		selectorPlayerTp.Reset(opts)
-
-		-- Se o jogador selecionado não existir mais, muda para "All"
-		local valid = false
-		for _, name in ipairs(opts) do
-			if name == selectedPlayerTp then
-				valid = true
-				break
+			local opts = {"All"}
+			for _, name in ipairs(getPlayerNames()) do
+				table.insert(opts, name)
 			end
-		end
 
-		if not valid then
-			selectedPlayerTp = "All"
-		end
+			-- Atualiza os botões do selector
+			selector.Reset(opts)
 
-		-- Atualiza o título do selector para refletir a escolha atual
-		selectorPlayerTp.SetName(selectedPlayerTp)
-	end
-end)
+			-- Recupera valor atual
+			local current = _G[selectedVarName]
 
--- Atualiza a lista de jogadores a cada 60s
-task.spawn(function()
-	while true do
-		task.wait(10)
-		local opts = {"All"}
-		for _, name in ipairs(getPlayerNames()) do
-			table.insert(opts, name)
-		end
-
-		-- Atualiza os botões do selector
-		selectorPlayer.Reset(opts)
-
-		-- Se o jogador selecionado não existir mais, muda para "All"
-		local valid = false
-		for _, name in ipairs(opts) do
-			if name == selectedPlayer then
-				valid = true
-				break
+			-- Se o jogador selecionado não existir mais, muda para "All"
+			local valid = false
+			for _, name in ipairs(opts) do
+				if name == current then
+					valid = true
+					break
+				end
 			end
+
+			if not valid then
+				_G[selectedVarName] = "All"
+			end
+
+			-- Atualiza o título do selector para refletir a escolha atual
+			selector.SetName(_G[selectedVarName])
 		end
+	end)
+end
 
-		if not valid then
-			selectedPlayer = "All"
-		end
-
-		-- Atualiza o título do selector para refletir a escolha atual
-		selectorPlayer.SetName(selectedPlayer)
-	end
-end)
-
+-- Usa a função genérica para cada selector
+updateSelector(selectorPlayer, "selectedPlayer")
+updateSelector(selectorPlayerTp, "selectedPlayerTp")
 
 
 
