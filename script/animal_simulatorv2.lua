@@ -576,6 +576,29 @@ end)
 
 local Label_Farme_PVP = Regui.CreateLabel(PlayerTab, {Text = "PVP Player", Color = "Red", Alignment = "Center"})
 
+-- Criação do selector de players
+local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
+	Name = "Selecionar Alvo",
+	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
+	Type = "String",
+	Size_Frame = UDim2.new(1, -20, 0, 100)
+}, function(val)
+	print("Jogador selecionado:", val)
+	selectedPlayer = val
+
+	Regui.NotificationPerson(Window.Frame.Parent, {
+		Title = "Alert: PVP Player",
+		Text = "Auto Attack Player! State: " .. tostring(selectedPlayer),
+		Icon = "rbxassetid://93478350885441",
+		Tempo = 10,
+		Casch = {},
+		Sound = ""
+	}, function()
+		print("Notificação fechada!")
+	end)		
+
+end)
+
 
 -- RANGE GLOBAL
 local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {
@@ -700,9 +723,7 @@ local SliderInt_AutoEletric = Regui.CreateSliderInt(PlayerTab, {
 end)
 
 -- Em Breve ...
-
-local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player IA", Color = "Red", Alignment = "Center"})
-
+local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player Tp", Color = "Red", Alignment = "Center"})
 -- Função de Auto TP Sequencial
 local function AutoTp_Loop()
 	task.spawn(function()
@@ -761,30 +782,6 @@ local function AutoTp_Loop()
 end
 
 
-
-
--- Criação do selector de players
-local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
-	Name = "Selecionar Alvo",
-	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
-	Type = "String",
-	Size_Frame = UDim2.new(1, -20, 0, 100)
-}, function(val)
-	print("Jogador selecionado:", val)
-	selectedPlayer = val
-	
-	Regui.NotificationPerson(Window.Frame.Parent, {
-		Title = "Alert: PVP Player",
-		Text = "Auto Attack Player! State: " .. tostring(selectedPlayer),
-		Icon = "rbxassetid://93478350885441",
-		Tempo = 10,
-		Casch = {},
-		Sound = ""
-	}, function()
-		print("Notificação fechada!")
-	end)		
-	
-end)
 
 -- Atualiza a lista de jogadores a cada 60s
 task.spawn(function()
