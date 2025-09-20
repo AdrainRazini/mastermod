@@ -969,6 +969,7 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 }, function()
 	idmusicRemote:FireServer("106732317934236")
 end)
+
 --=====--
 local invitationEvent_upvr = game.ReplicatedStorage:WaitForChild("invitationEvent")
 -- Lista de jogadores
@@ -977,7 +978,7 @@ for _, p in ipairs(game.Players:GetPlayers()) do
 	table.insert(playersList, p.Name)
 end
 
-local selectorPlayers = Regui.CreateSelectorOpitions(MusicTab, {
+local selectorPlayers_upvr = Regui.CreateSelectorOpitions(MusicTab, {
 	Name = "Selecionar Jogador",
 	Options = playersList,
 	Type = "string", -- ou "Instance" se quiser enviar o objeto Player
@@ -1000,6 +1001,14 @@ local selectorPlayers = Regui.CreateSelectorOpitions(MusicTab, {
 				oplr = targetPlayer
 			})
 		end
+	end
+end)
+
+-- reset da lista de jogadores a cada 10 segundos
+task.spawn(function()
+	while true do
+		task.wait(10)
+		selectorPlayers_upvr.Reset(playersList)
 	end
 end)
 
