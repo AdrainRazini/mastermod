@@ -422,7 +422,7 @@ local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
-
+local Memedemonslayer= Regui.CreateImage(ReadmeTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
 -- Exemplo de Toggle
 local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Blue"},function(state)
 	AF.coins=state
@@ -479,8 +479,8 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 		attackLoop("dummies", dummiesFolder)
 		-- Notificação se for Verdadeiro
 		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Alert",
-			Text = "Checkbox dummies! Estado: " .. tostring(AF.dummies),
+			Title = "Alert: Farme dummies",
+			Text = "Checkbox dummies! State: " .. tostring(AF.dummies),
 			Icon = "fa_envelope",
 			Tempo = 10,
 			Casch = {},
@@ -493,6 +493,7 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 
 end)
 
+-- rbxassetid://93478350885441
 
 local Check_Farme_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies 5K", Color = "Blue"}, function(state)
 	AF.dummies5k = state
@@ -502,8 +503,8 @@ local Check_Farme_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummi
 		attackLoop("dummies5k", folder5k)
 		-- Notificação se for Verdadeiro
 		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Alert",
-			Text = "Checkbox dummies5k! Estado: " .. tostring(AF.dummies5k),
+			Title = "Alert: Farme dummies5k",
+			Text = "Checkbox dummies5k! State: " .. tostring(AF.dummies5k),
 			Icon = "fa_envelope",
 			Tempo = 10,
 			Casch = {},
@@ -532,8 +533,8 @@ local Check_Tp_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummi
 		attackLoop("tpDummy", dummiesFolder)
 		-- Notificação se for Verdadeiro
 		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Alert",
-			Text = "Tp dummies! Estado: " .. tostring(AF.tpDummy),
+			Title = "Alert: Tp dummies",
+			Text = "Tp dummies! State: " .. tostring(AF.tpDummy),
 			Icon = "fa_envelope",
 			Tempo = 10,
 			Casch = {},
@@ -555,8 +556,8 @@ local Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dum
 		attackLoop("tpDummy5k", folder5k)
 		-- Notificação se for Verdadeiro
 		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Alert",
-			Text = "Tp dummies5k! Estado: " .. tostring(AF.tpDummy5k),
+			Title = "Alert: Tp dummies5k",
+			Text = "Tp dummies5k! State: " .. tostring(AF.tpDummy5k),
 			Icon = "fa_envelope",
 			Tempo = 10,
 			Casch = {},
@@ -589,12 +590,40 @@ end)
 -- Exemplo de PVP
 local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Blue"},function(state)
 	PVP.killAura=state
-	if state then PVP_Loop("killAura") end
+	
+	
+	if state then PVP_Loop("killAura")
+		
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert: Aura Kill",
+			Text = "Aura Kill! State: " .. tostring(PVP.killAura),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)	
+		
+	end
 end)
 
 local ToggleAutoAttack = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Attack",Color="Cyan"},function(state)
 	PVP.AutoAttack=state
-	if state then PVP_Loop("AutoAttack") end
+	if state then PVP_Loop("AutoAttack")
+		
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert: Auto Attack",
+			Text = "Auto Attack! State: " .. tostring(PVP.AutoAttack),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)		
+		
+	end
 end)
 
 
@@ -613,7 +642,20 @@ end)
 
 local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball",Color="Yellow"},function(state)
 	PVP.AutoFire=state
-	if state then PVP_Loop("AutoFire") end
+	if state then PVP_Loop("AutoFire")
+		
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert: AutoFire",
+			Text = "Auto Fire! State: " .. tostring(PVP.AutoFire),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)		
+
+	end
 end)
 
 
@@ -630,7 +672,21 @@ end)
 
 local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",Color="Cyan"},function(state)
 	PVP.AutoEletric=state
-	if state then PVP_Loop("AutoEletric") end
+	if state then PVP_Loop("AutoEletric")
+	
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert: Auto Eletric",
+			Text = "Auto Eletric! State: " .. tostring(PVP.AutoEletric),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)		
+
+		
+	end
 end)
 
 -- TIMER AutoEletric
@@ -658,6 +714,18 @@ local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
 }, function(val)
 	print("Jogador selecionado:", val)
 	selectedPlayer = val
+	
+	Regui.NotificationPerson(Window.Frame.Parent, {
+		Title = "Alert: PVP Player",
+		Text = "Auto Attack Player! State: " .. tostring(selectedPlayer),
+		Icon = "rbxassetid://93478350885441",
+		Tempo = 10,
+		Casch = {},
+		Sound = ""
+	}, function()
+		print("Notificação fechada!")
+	end)		
+	
 end)
 
 -- Atualiza a lista de jogadores a cada 60s
@@ -756,6 +824,20 @@ local AutoAttackTp = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Tp",Color="Cya
 	PVP.AutoTp = state
 	if state then
 		AutoTp_Loop()
+		
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert: Teleporte",
+			Text = "Auto Tp! State: " .. tostring(PVP.AutoTp),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)		
+
+	
+		
 	end
 end)
 local SliderFloat_Tp = Regui.CreateSliderFloat(PlayerTab, {Text = "Timer Tp Players", Color = "Blue", Value = 0.05, Minimum = 0, Maximum = 1}, function(state)
@@ -774,6 +856,19 @@ local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 }, function(val)
 	print("Jogador selecionado:", val)
 	selectedPlayerTp = val
+	
+	Regui.NotificationPerson(Window.Frame.Parent, {
+		Title = "Alert",
+		Text = "Auto Tp Player! State: " .. tostring(selectedPlayerTp),
+		Icon = "rbxassetid://93478350885441",
+		Tempo = 10,
+		Casch = {},
+		Sound = ""
+	}, function()
+		print("Notificação fechada!")
+	end)		
+
+	
 end)
 
 -- Atualiza a lista de jogadores a cada 60s
