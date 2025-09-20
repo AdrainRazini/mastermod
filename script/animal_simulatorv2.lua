@@ -73,6 +73,7 @@ end
 local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla" }
 -- Valor selecionado no selector
 local selectedBoss = "All" -- padrão: todos
+local selectedPlayerTp = "All"
 
 
 
@@ -84,29 +85,6 @@ local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Spe
 local maxRange = 100
 
 
--- Buscar De Dados
--- UTILS
---[[
-
-local function getCharacter()
-	local c = player.Character or player.CharacterAdded:Wait()
-	return c, c:WaitForChild("Humanoid"), c:WaitForChild("HumanoidRootPart")
-end
-
-local function getAliveHumanoid(model)
-	local hum = model and model:FindFirstChildOfClass("Humanoid")
-	if hum and hum.Health > 0 then return hum end
-end
-
-local function findDummy(folder)
-	for _, d in ipairs(folder:GetChildren()) do
-		local hum = getAliveHumanoid(d)
-		if hum then return d, hum end
-	end
-end
-
-]]
--------------------------
 
 -- Buscar De Dados
 -- UTILS
@@ -435,48 +413,6 @@ end
 
 
 
---[[
--- PVP LOOPS
-local function PVP_Loop(kind)
-	task.spawn(function()
-		while PVP[kind] do
-			local _, _, hrp = getCharacter()
-			local closest, shortest = nil, maxRange
-			for _, p in ipairs(Players:GetPlayers()) do
-				if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-					local hum = p.Character:FindFirstChildOfClass("Humanoid")
-					if hum and hum.Health>0 then
-						local dist = (p.Character.HumanoidRootPart.Position-hrp.Position).Magnitude
-						if dist<shortest then
-							shortest=dist
-							closest=p
-						end
-					end
-				end
-			end
-			if closest then
-				local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-				local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
-				if hum and hrpTarget then
-					if kind=="killAura" then
-						pcall(function() attackRemote:FireServer(hum,1) end)
-					elseif kind=="AutoFire" then
-						pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewFireball") end)
-					elseif kind=="AutoEletric" then
-						pcall(function() skillsRemote:FireServer(hrpTarget.Position,"NewLightningball") end)
-					end
-				end
-			end
-			task.wait(0.3)
-		end
-	end)
-end
-
-
-]]
-
-
-
 -- GUI
 local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
 local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
@@ -656,6 +592,13 @@ local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color=
 	if state then PVP_Loop("killAura") end
 end)
 
+local ToggleAutoAttack = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Attack",Color="Cyan"},function(state)
+	PVP.AutoAttack=state
+	if state then PVP_Loop("AutoAttack") end
+end)
+
+
+
 
 -- TIMER KillAura
 local SliderInt_KillAura = Regui.CreateSliderInt(PlayerTab, {
@@ -702,6 +645,10 @@ end)
 
 -- Em Breve ...
 
+local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player IA", Color = "Red", Alignment = "Center"})
+
+
+
 -- Criação do selector de players
 local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
 	Name = "Selecionar Alvo",
@@ -744,15 +691,6 @@ task.spawn(function()
 end)
 
 
-
-local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player IA", Color = "Red", Alignment = "Center"})
-
-local ToggleAutoAttack = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Attack",Color="Cyan"},function(state)
-	PVP.AutoAttack=state
-	if state then PVP_Loop("AutoAttack") end
-end)
-
-local selectedPlayerTp = "All"
 
 -- Função de Auto TP Sequencial
 local function AutoTp_Loop()
@@ -869,30 +807,6 @@ task.spawn(function()
 end)
 
 
-
-
---[[local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
-	Name = "Selecionar Alvo",
-	Options = {"All", unpack(getPlayerNames())}, -- lista de nomes
-	Type = "String",
-	Size_Frame = UDim2.new(1, -20, 0, 50)
-}, function(val)
-
-	print("Jogador: ", val)
-	selectedPlayer = val
-
-end)
-
-task.spawn(function()
-	wait(60)
-	local opts = { "All" }
-	for _, name in ipairs(getPlayerNames()) do
-		table.insert(opts, name)
-	end
-	selectorPlayer.Reset(opts)
-	selectorPlayer.SetName(selectedPlayer)
-end)
-]]
 
 
 --Game Tab
