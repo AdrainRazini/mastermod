@@ -491,6 +491,7 @@ local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 local Memedemonslayer= Regui.CreateImage(ReadmeTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
+local Ohyya = Regui.CreateImage(ReadmeTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://75961890646911", Size_Image = UDim2.new(0, 50, 0, 50)  })
 --=============-
 
 -- Exemplo de Toggle
