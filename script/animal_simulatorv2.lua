@@ -703,63 +703,6 @@ end)
 
 local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player IA", Color = "Red", Alignment = "Center"})
 
-
-
--- Criação do selector de players
-local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
-	Name = "Selecionar Alvo",
-	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
-	Type = "String",
-	Size_Frame = UDim2.new(1, -20, 0, 100)
-}, function(val)
-	print("Jogador selecionado:", val)
-	selectedPlayer = val
-	
-	Regui.NotificationPerson(Window.Frame.Parent, {
-		Title = "Alert: PVP Player",
-		Text = "Auto Attack Player! State: " .. tostring(selectedPlayer),
-		Icon = "rbxassetid://93478350885441",
-		Tempo = 10,
-		Casch = {},
-		Sound = ""
-	}, function()
-		print("Notificação fechada!")
-	end)		
-	
-end)
-
--- Atualiza a lista de jogadores a cada 60s
-task.spawn(function()
-	while true do
-		task.wait(60)
-		local opts = {"All"}
-		for _, name in ipairs(getPlayerNames()) do
-			table.insert(opts, name)
-		end
-
-		-- Atualiza os botões do selector
-		selectorPlayer.Reset(opts)
-
-		-- Se o jogador selecionado não existir mais, muda para "All"
-		local valid = false
-		for _, name in ipairs(opts) do
-			if name == selectedPlayer then
-				valid = true
-				break
-			end
-		end
-
-		if not valid then
-			selectedPlayer = "All"
-		end
-
-		-- Atualiza o título do selector para refletir a escolha atual
-		selectorPlayer.SetName(selectedPlayer)
-	end
-end)
-
-
-
 -- Função de Auto TP Sequencial
 local function AutoTp_Loop()
 	task.spawn(function()
@@ -817,34 +760,61 @@ local function AutoTp_Loop()
 	end)
 end
 
--- Ativar o loop quando marcar o toggle
 
 
-local AutoAttackTp = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Tp",Color="Cyan"},function(state)
-	PVP.AutoTp = state
-	if state then
-		AutoTp_Loop()
-		
-		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Alert: Teleporte",
-			Text = "Auto Tp! State: " .. tostring(PVP.AutoTp),
-			Icon = "rbxassetid://93478350885441",
-			Tempo = 10,
-			Casch = {},
-			Sound = ""
-		}, function()
-			print("Notificação fechada!")
-		end)		
 
+-- Criação do selector de players
+local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
+	Name = "Selecionar Alvo",
+	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
+	Type = "String",
+	Size_Frame = UDim2.new(1, -20, 0, 100)
+}, function(val)
+	print("Jogador selecionado:", val)
+	selectedPlayer = val
 	
-		
+	Regui.NotificationPerson(Window.Frame.Parent, {
+		Title = "Alert: PVP Player",
+		Text = "Auto Attack Player! State: " .. tostring(selectedPlayer),
+		Icon = "rbxassetid://93478350885441",
+		Tempo = 10,
+		Casch = {},
+		Sound = ""
+	}, function()
+		print("Notificação fechada!")
+	end)		
+	
+end)
+
+-- Atualiza a lista de jogadores a cada 60s
+task.spawn(function()
+	while true do
+		task.wait(60)
+		local opts = {"All"}
+		for _, name in ipairs(getPlayerNames()) do
+			table.insert(opts, name)
+		end
+
+		-- Atualiza os botões do selector
+		selectorPlayer.Reset(opts)
+
+		-- Se o jogador selecionado não existir mais, muda para "All"
+		local valid = false
+		for _, name in ipairs(opts) do
+			if name == selectedPlayer then
+				valid = true
+				break
+			end
+		end
+
+		if not valid then
+			selectedPlayer = "All"
+		end
+
+		-- Atualiza o título do selector para refletir a escolha atual
+		selectorPlayer.SetName(selectedPlayer)
 	end
 end)
-local SliderFloat_Tp = Regui.CreateSliderFloat(PlayerTab, {Text = "Timer Tp Players", Color = "Blue", Value = 0.05, Minimum = 0, Maximum = 1}, function(state)
-	PVP_Timer.AutoTp_Speed = state
-	print("Slider Float clicada! Estado:", PVP_Timer.AutoTp_Speed)
-
-end) 
 
 
 -- Criação do selector de players
@@ -871,7 +841,8 @@ local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 	
 end)
 
--- Atualiza a lista de jogadores a cada 60s
+
+-- Atualiza a lista de jogadores a cada 10s
 task.spawn(function()
 	while true do
 		task.wait(10)
@@ -897,11 +868,40 @@ task.spawn(function()
 		end
 
 		-- Atualiza o título do selector para refletir a escolha atual
-		selectedPlayerTp.SetName(selectedPlayerTp)
+		selectorPlayerTp.SetName(selectedPlayerTp)
 	end
 end)
 
 
+
+-- Ativar o loop quando marcar o toggle
+
+
+local AutoAttackTp = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Tp",Color="Cyan"},function(state)
+	PVP.AutoTp = state
+	if state then
+		AutoTp_Loop()
+
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert: Teleporte",
+			Text = "Auto Tp! State: " .. tostring(PVP.AutoTp),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)		
+
+
+
+	end
+end)
+local SliderFloat_Tp = Regui.CreateSliderFloat(PlayerTab, {Text = "Timer Tp Players", Color = "Blue", Value = 0.05, Minimum = 0, Maximum = 1}, function(state)
+	PVP_Timer.AutoTp_Speed = state
+	print("Slider Float clicada! Estado:", PVP_Timer.AutoTp_Speed)
+
+end) 
 
 
 --Game Tab
