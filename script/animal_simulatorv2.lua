@@ -948,7 +948,9 @@ end)
 -- Music Tab
 local listMusics = {
 	{name = "Nill", Obj = "0"},
-	{name = "Hip Hop", Obj = "106732317934236"}
+	{name = "Hip Hop", Obj = "106732317934236"},
+	{name = "Kerosene", Obj = "17647322226"},
+	{name = "Crystal Castle", Obj = "5950527670"}
 }
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
