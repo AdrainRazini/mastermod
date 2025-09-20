@@ -43,6 +43,8 @@ end
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
 local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
+local idmusicRemote = ReplicatedStorage:WaitForChild("Events"):WaitForChild("PLAYEvent")
+
 
 -- FOLDERS
 local map = Workspace:FindFirstChild("MAP")
@@ -219,129 +221,6 @@ local function farmBossesFix()
 end
 
 
--- TOOLS
-local function giveTool(name, skill)
-	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
-	local tool = Instance.new("Tool")
-	tool.Name = name
-	tool.RequiresHandle = false
-	tool.CanBeDropped = false
-	tool.Parent = player.Backpack
-	local mouse = player:GetMouse()
-	tool.Activated:Connect(function()
-		if skillsRemote then
-			skillsRemote:FireServer(mouse.Hit.Position, skill)
-		end
-	end)
-end
-
-
--- TOOLS AUTO-ALVO
-local function giveToolAuto(name, skill)
-	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
-
-	local tool = Instance.new("Tool")
-	tool.Name = name
-	tool.RequiresHandle = false
-	tool.CanBeDropped = false
-	tool.Parent = player.Backpack
-
-	local mouse = player:GetMouse()
-	local maxRange = 200 -- alcance para buscar jogadores
-
-	tool.Activated:Connect(function()
-		if not skillsRemote then return end
-
-		local character = player.Character
-		if not character then return end
-		local hrp = character:FindFirstChild("HumanoidRootPart")
-		if not hrp then return end
-
-		local closestPlayer = nil
-		local shortestDist = maxRange
-
-		for _, p in ipairs(Players:GetPlayers()) do
-			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-				local hrpTarget = p.Character.HumanoidRootPart
-				local dist = (hrp.Position - hrpTarget.Position).Magnitude
-				if dist < shortestDist then
-					shortestDist = dist
-					closestPlayer = p
-				end
-			end
-		end
-
-		-- Se encontrou jogador perto, mira nele
-		if closestPlayer and closestPlayer.Character then
-			skillsRemote:FireServer(closestPlayer.Character.HumanoidRootPart.Position, skill)
-		else
-			-- Senão, usa posição do mouse
-			skillsRemote:FireServer(mouse.Hit.Position, skill)
-		end
-	end)
-end
-
-
-
--- TOOLS
-local function giveToolFake(name, skill)
-	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
-
-	local tool = Instance.new("Tool")
-	tool.Name = name
-	tool.RequiresHandle = false
-	tool.CanBeDropped = false
-	tool.Parent = player.Backpack
-
-	local mouse = player:GetMouse()
-	local rot
-	local connection
-
-	tool.Equipped:Connect(function()
-		local char = player.Character or player.CharacterAdded:Wait()
-		local hrp = char:FindFirstChild("HumanoidRootPart")
-		if hrp then
-			-- Cria o "Rot" não ancorado
-			rot = Instance.new("Part")
-			rot.Name = "HumanoidRootPart"
-			rot.Size = Vector3.new(1,1,1)
-			rot.Anchored = false -- desancorado
-			rot.CanCollide = false
-			rot.Color = Color3.fromRGB(0, 0, 255)
-			rot.Position = hrp.Position + hrp.CFrame.RightVector * 3
-			rot.Parent = hrp.Parent
-
-
-			-- Conecta para mover o rot junto do jogador
-			connection = RunService.Heartbeat:Connect(function()
-				if hrp and rot then
-					local targetPos = hrp.Position + hrp.CFrame.RightVector * 3
-					-- Move suavemente
-					rot.Velocity = (targetPos - rot.Position) * 10
-				end
-			end)
-		end
-	end)
-
-	tool.Unequipped:Connect(function()
-		if connection then
-			connection:Disconnect()
-		end
-		if rot then
-			rot:Destroy()
-		end
-	end)
-
-	tool.Activated:Connect(function()
-		if skillsRemote then
-			skillsRemote:FireServer(mouse.Hit.Position, skill)
-		end
-	end)
-end
-
-
-
-
 
 local selectedPlayer = nil -- caso seja nil ou "All", usa todos os jogadores
 
@@ -467,7 +346,134 @@ local function AutoTp_Loop()
 		end
 	end)
 end
+
+
+--  Tools
 --====================================================================================================================--
+
+
+-- TOOLS
+local function giveTool(name, skill)
+	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
+	local tool = Instance.new("Tool")
+	tool.Name = name
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.Parent = player.Backpack
+	local mouse = player:GetMouse()
+	tool.Activated:Connect(function()
+		if skillsRemote then
+			skillsRemote:FireServer(mouse.Hit.Position, skill)
+		end
+	end)
+end
+
+
+-- TOOLS AUTO-ALVO
+local function giveToolAuto(name, skill)
+	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
+
+	local tool = Instance.new("Tool")
+	tool.Name = name
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.Parent = player.Backpack
+
+	local mouse = player:GetMouse()
+	local maxRange = 200 -- alcance para buscar jogadores
+
+	tool.Activated:Connect(function()
+		if not skillsRemote then return end
+
+		local character = player.Character
+		if not character then return end
+		local hrp = character:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
+
+		local closestPlayer = nil
+		local shortestDist = maxRange
+
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+				local hrpTarget = p.Character.HumanoidRootPart
+				local dist = (hrp.Position - hrpTarget.Position).Magnitude
+				if dist < shortestDist then
+					shortestDist = dist
+					closestPlayer = p
+				end
+			end
+		end
+
+		-- Se encontrou jogador perto, mira nele
+		if closestPlayer and closestPlayer.Character then
+			skillsRemote:FireServer(closestPlayer.Character.HumanoidRootPart.Position, skill)
+		else
+			-- Senão, usa posição do mouse
+			skillsRemote:FireServer(mouse.Hit.Position, skill)
+		end
+	end)
+end
+
+
+
+-- TOOLS
+local function giveToolFake(name, skill)
+	if player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name) then return end
+
+	local tool = Instance.new("Tool")
+	tool.Name = name
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+	tool.Parent = player.Backpack
+
+	local mouse = player:GetMouse()
+	local rot
+	local connection
+
+	tool.Equipped:Connect(function()
+		local char = player.Character or player.CharacterAdded:Wait()
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			-- Cria o "Rot" não ancorado
+			rot = Instance.new("Part")
+			rot.Name = "HumanoidRootPart"
+			rot.Size = Vector3.new(1,1,1)
+			rot.Anchored = false -- desancorado
+			rot.CanCollide = false
+			rot.Color = Color3.fromRGB(0, 0, 255)
+			rot.Position = hrp.Position + hrp.CFrame.RightVector * 3
+			rot.Parent = hrp.Parent
+
+
+			-- Conecta para mover o rot junto do jogador
+			connection = RunService.Heartbeat:Connect(function()
+				if hrp and rot then
+					local targetPos = hrp.Position + hrp.CFrame.RightVector * 3
+					-- Move suavemente
+					rot.Velocity = (targetPos - rot.Position) * 10
+				end
+			end)
+		end
+	end)
+
+	tool.Unequipped:Connect(function()
+		if connection then
+			connection:Disconnect()
+		end
+		if rot then
+			rot:Destroy()
+		end
+	end)
+
+	tool.Activated:Connect(function()
+		if skillsRemote then
+			skillsRemote:FireServer(mouse.Hit.Position, skill)
+		end
+	end)
+end
+
+
+
 
 
 --====================================================================================================================--
@@ -884,6 +890,17 @@ end)
 
 --Game Tab
 
+
+
+-- Botão para pegar a Fireball manual
+local MusicButton = Regui.CreateButton(GameTab, {
+	Text = "Playe: Music Test",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	idmusicRemote:FireServer("106732317934236")
+end)
 
 
 -- Botão para pegar a Fireball manual
