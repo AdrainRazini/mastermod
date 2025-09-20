@@ -969,6 +969,42 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 }, function()
 	idmusicRemote:FireServer("106732317934236")
 end)
+--=====--
+local invitationEvent_upvr = game.ReplicatedStorage:WaitForChild("invitationEvent")
+-- Lista de jogadores
+local playersList = {"All"}
+for _, p in ipairs(game.Players:GetPlayers()) do
+	table.insert(playersList, p.Name)
+end
+
+local selectorPlayers = Regui.CreateSelectorOpitions(MusicTab, {
+	Name = "Selecionar Jogador",
+	Options = playersList,
+	Type = "string", -- ou "Instance" se quiser enviar o objeto Player
+	Size_Frame = UDim2.new(1, -20, 0, 100)
+}, function(selectedName)
+	if selectedName == "All" then
+		-- Envia convite para todos
+		for _, p in ipairs(game.Players:GetPlayers()) do
+			invitationEvent_upvr:FireServer({
+				action = "invite_clan",
+				oplr = p
+			})
+		end
+	else
+		-- Envia convite para jogador específico
+		local targetPlayer = game.Players:FindFirstChild(selectedName)
+		if targetPlayer then
+			invitationEvent_upvr:FireServer({
+				action = "invite_clan",
+				oplr = targetPlayer
+			})
+		end
+	end
+end)
+
+
+
 
 --===========================================--
 
