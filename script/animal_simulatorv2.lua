@@ -630,13 +630,13 @@ end)
 
 
 -- TIMER KillAura
-local SliderInt_KillAura = Regui.CreateSliderInt(PlayerTab, {
+local SliderInt_KillAura = Regui.CreateSliderFloat(PlayerTab, {
 	Text = "KillAura Speed", 
 	Color = "Blue", 
-	Value = 0.3, Minimum = 0.05, Maximum = 1
+	Value = 0.3, Minimum = 0, Maximum = 1
 }, function(state)
 	PVP_Timer.KillAura_Speed = state
-	print("KillAura Speed:", state)
+	print("KillAura Speed:", PVP_Timer.KillAura_Speed)
 end)
 
 
