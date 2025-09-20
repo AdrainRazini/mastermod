@@ -484,11 +484,15 @@ local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UD
 local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 local PlayerTab = Regui.CreateTab(Window,{Name="Player"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
+local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
+--=============-
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 local Memedemonslayer= Regui.CreateImage(ReadmeTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
+--=============-
+
 -- Exemplo de Toggle
 local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Blue"},function(state)
 	AF.coins=state
@@ -889,20 +893,6 @@ end)
 
 
 --Game Tab
-
-
-
--- Botão para pegar a Fireball manual
-local MusicButton = Regui.CreateButton(GameTab, {
-	Text = "Playe: Music Test",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function()
-	idmusicRemote:FireServer("106732317934236")
-end)
-
-
 -- Botão para pegar a Fireball manual
 local GiveAutoFire1 = Regui.CreateButton(GameTab, {
 	Text = "Get Fireball Tool",
@@ -952,8 +942,35 @@ local GiveAutoFire5 = Regui.CreateButton(GameTab, {
 }, function()
 	giveToolFake("FakePoss", "NewLightningball")
 end)
+---=======================================--
 
+-- Music Tab
+local listMusics = {
+	{name = "Nill", Obj = "0"},
+	{name = "Hip Hop", Obj = "106732317934236"}
+}
+-- 🔹 Selector de alvo no topo
+local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
+	Name = "Selecionar Alvo",
+	Options = listMusics,
+	Type = "Instance",
+	Size_Frame = UDim2.new(1, -20, 0, 100)
+}, function(selectedObj)
+	print("Set: ", selectedObj)
+	idmusicRemote:FireServer(selectedObj)
+end)
 
+-- Botão para pegar a Musica
+local MusicButton = Regui.CreateButton(MusicTab, {
+	Text = "Playe: Music Test",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	idmusicRemote:FireServer("106732317934236")
+end)
+
+--===========================================--
 
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
