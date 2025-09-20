@@ -412,6 +412,66 @@ local function PVP_Loop(kind)
 end
 
 
+local function AutoTp_Loop()
+	task.spawn(function()
+		local index = 1
+		while PVP.AutoTp do
+			local _, _, hrp = getCharacter()
+			if not hrp then
+				task.wait(0.2)
+				continue
+			end
+
+			-- Seleciona lista de alvos
+			local targets = {}
+			if selectedPlayerTp == nil or selectedPlayerTp == "All" then
+				targets = Players:GetPlayers()
+			else
+				local plr = Players:FindFirstChild(selectedPlayerTp)
+				if plr then
+					table.insert(targets, plr)
+				else
+					-- Se o player sumiu, volta para All
+					selectedPlayerTp = "All"
+					targets = Players:GetPlayers()
+				end
+			end
+
+			-- Remove o próprio player da lista
+			for i = #targets, 1, -1 do
+				if targets[i] == player or not (targets[i].Character and targets[i].Character:FindFirstChild("HumanoidRootPart")) then
+					table.remove(targets, i)
+				end
+			end
+
+			if #targets > 0 then
+				-- Controla o índice sequencial
+				if index > #targets then
+					index = 1
+				end
+
+				local target = targets[index]
+				index += 1
+
+				-- Verifica se o alvo é válido
+				if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+					local hum = target.Character:FindFirstChildOfClass("Humanoid")
+					if hum and hum.Health > 0 then
+						-- Teleporta até o alvo
+						hrp.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 2, 0)
+					end
+				end
+			end
+
+			task.wait(PVP_Timer.AutoTp_Speed or 0.3)
+		end
+	end)
+end
+--====================================================================================================================--
+
+
+--====================================================================================================================--
+
 
 -- GUI
 local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
@@ -725,95 +785,6 @@ end)
 -- Em Breve ...
 local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player Tp", Color = "Red", Alignment = "Center"})
 -- Função de Auto TP Sequencial
-local function AutoTp_Loop()
-	task.spawn(function()
-		local index = 1
-		while PVP.AutoTp do
-			local _, _, hrp = getCharacter()
-			if not hrp then
-				task.wait(0.2)
-				continue
-			end
-
-			-- Seleciona lista de alvos
-			local targets = {}
-			if selectedPlayerTp == nil or selectedPlayerTp == "All" then
-				targets = Players:GetPlayers()
-			else
-				local plr = Players:FindFirstChild(selectedPlayerTp)
-				if plr then
-					table.insert(targets, plr)
-				else
-					-- Se o player sumiu, volta para All
-					selectedPlayerTp = "All"
-					targets = Players:GetPlayers()
-				end
-			end
-
-			-- Remove o próprio player da lista
-			for i = #targets, 1, -1 do
-				if targets[i] == player or not (targets[i].Character and targets[i].Character:FindFirstChild("HumanoidRootPart")) then
-					table.remove(targets, i)
-				end
-			end
-
-			if #targets > 0 then
-				-- Controla o índice sequencial
-				if index > #targets then
-					index = 1
-				end
-
-				local target = targets[index]
-				index += 1
-
-				-- Verifica se o alvo é válido
-				if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-					local hum = target.Character:FindFirstChildOfClass("Humanoid")
-					if hum and hum.Health > 0 then
-						-- Teleporta até o alvo
-						hrp.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 2, 0)
-					end
-				end
-			end
-
-			task.wait(PVP_Timer.AutoTp_Speed or 0.3)
-		end
-	end)
-end
-
-
-
--- Atualiza a lista de jogadores a cada 60s
-task.spawn(function()
-	while true do
-		task.wait(60)
-		local opts = {"All"}
-		for _, name in ipairs(getPlayerNames()) do
-			table.insert(opts, name)
-		end
-
-		-- Atualiza os botões do selector
-		selectorPlayer.Reset(opts)
-
-		-- Se o jogador selecionado não existir mais, muda para "All"
-		local valid = false
-		for _, name in ipairs(opts) do
-			if name == selectedPlayer then
-				valid = true
-				break
-			end
-		end
-
-		if not valid then
-			selectedPlayer = "All"
-		end
-
-		-- Atualiza o título do selector para refletir a escolha atual
-		selectorPlayer.SetName(selectedPlayer)
-	end
-end)
-
-
 -- Criação do selector de players
 local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 	Name = "Selecionar Alvo",
@@ -868,6 +839,37 @@ task.spawn(function()
 		selectorPlayerTp.SetName(selectedPlayerTp)
 	end
 end)
+
+-- Atualiza a lista de jogadores a cada 60s
+task.spawn(function()
+	while true do
+		task.wait(10)
+		local opts = {"All"}
+		for _, name in ipairs(getPlayerNames()) do
+			table.insert(opts, name)
+		end
+
+		-- Atualiza os botões do selector
+		selectorPlayer.Reset(opts)
+
+		-- Se o jogador selecionado não existir mais, muda para "All"
+		local valid = false
+		for _, name in ipairs(opts) do
+			if name == selectedPlayer then
+				valid = true
+				break
+			end
+		end
+
+		if not valid then
+			selectedPlayer = "All"
+		end
+
+		-- Atualiza o título do selector para refletir a escolha atual
+		selectorPlayer.SetName(selectedPlayer)
+	end
+end)
+
 
 
 
