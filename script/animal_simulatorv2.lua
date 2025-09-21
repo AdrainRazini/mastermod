@@ -134,9 +134,9 @@ local function getPlayers()
 			end
 		end
 	end
-	
+
 	return alivePlayers
-	
+
 end
 
 
@@ -688,10 +688,10 @@ local Label_Farme_PVP_UI = Regui.CreateLabel(PlayerTab, {Text = "PVP Player UI",
 -- Exemplo de PVP
 local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Blue"},function(state)
 	PVP.killAura=state
-	
-	
+
+
 	if state then PVP_Loop("killAura")
-		
+
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert: Aura Kill",
 			Text = "Aura Kill! State: " .. tostring(PVP.killAura),
@@ -702,14 +702,14 @@ local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color=
 		}, function()
 			print("Notificação fechada!")
 		end)	
-		
+
 	end
 end)
 
 local ToggleAutoAttack = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Attack",Color="Cyan"},function(state)
 	PVP.AutoAttack=state
 	if state then PVP_Loop("AutoAttack")
-		
+
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert: Auto Attack",
 			Text = "Auto Attack! State: " .. tostring(PVP.AutoAttack),
@@ -720,7 +720,7 @@ local ToggleAutoAttack = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Attack",Co
 		}, function()
 			print("Notificação fechada!")
 		end)		
-		
+
 	end
 end)
 
@@ -741,7 +741,7 @@ end)
 local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball",Color="Yellow"},function(state)
 	PVP.AutoFire=state
 	if state then PVP_Loop("AutoFire")
-		
+
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert: AutoFire",
 			Text = "Auto Fire! State: " .. tostring(PVP.AutoFire),
@@ -771,7 +771,7 @@ end)
 local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",Color="Cyan"},function(state)
 	PVP.AutoEletric=state
 	if state then PVP_Loop("AutoEletric")
-	
+
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert: Auto Eletric",
 			Text = "Auto Eletric! State: " .. tostring(PVP.AutoEletric),
@@ -783,7 +783,7 @@ local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",
 			print("Notificação fechada!")
 		end)		
 
-		
+
 	end
 end)
 
@@ -809,7 +809,7 @@ local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 }, function(val)
 	print("Jogador selecionado:", val)
 	selectedPlayerTp = val
-	
+
 	Regui.NotificationPerson(Window.Frame.Parent, {
 		Title = "Alert",
 		Text = "Auto Tp Player! State: " .. tostring(selectedPlayerTp),
@@ -821,7 +821,7 @@ local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 		print("Notificação fechada!")
 	end)		
 
-	
+
 end)
 
 
@@ -901,88 +901,88 @@ end)
 --=====================================================================================================================--
 local Label_Farme_PVP_IA = Regui.CreateLabel(PlayerTab, {Text = "PVP Test IA", Color = "Red", Alignment = "Center"})
 
-
 -- Guardar últimas posições para prever movimento
 local lastPositions = {}
+local TimerlastPositions = 0.1 -- padrão, pode mudar para 0.005
 
 local function PVP_LoopIA(kind)
 	task.spawn(function()
+		local accumulatedTime = 0
+		local lastTick = tick()
+
 		while PVP[kind] do
-			local _, _, hrp = getCharacter()
-			local closest, shortest = nil, maxRange
+			local now = tick()
+			local delta = now - lastTick
+			lastTick = now
+			accumulatedTime = accumulatedTime + delta
 
-			-- Determinar lista de alvos
-			local targets = {}
-			if selectedPlayer == nil or selectedPlayer == "All" then
-				targets = Players:GetPlayers()
-			else
-				local plr = Players:FindFirstChild(selectedPlayer)
-				if plr then
-					table.insert(targets, plr)
-				else
-					selectedPlayer = "All"
+			-- Atualiza posição apenas se passou o timer definido
+			if accumulatedTime >= TimerlastPositions then
+				accumulatedTime = 0 -- reset
+
+				local _, _, hrp = getCharacter()
+				if not hrp then task.wait() continue end
+
+				local closest, shortest = nil, maxRange
+
+				-- Determinar lista de alvos
+				local targets = {}
+				if selectedPlayer == nil or selectedPlayer == "All" then
 					targets = Players:GetPlayers()
+				else
+					local plr = Players:FindFirstChild(selectedPlayer)
+					if plr then
+						table.insert(targets, plr)
+					else
+						selectedPlayer = "All"
+						targets = Players:GetPlayers()
+					end
 				end
-			end
 
-			-- Buscar jogador mais próximo
-			for _, p in ipairs(targets) do
-				if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-					local hum = p.Character:FindFirstChildOfClass("Humanoid")
-					if hum and hum.Health > 0 then
-						local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-						if dist < shortest then
-							shortest = dist
-							closest = p
+				-- Buscar jogador mais próximo
+				for _, p in ipairs(targets) do
+					if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+						local hum = p.Character:FindFirstChildOfClass("Humanoid")
+						if hum and hum.Health > 0 then
+							local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+							if dist < shortest then
+								shortest = dist
+								closest = p
+							end
+						end
+					end
+				end
+
+				-- Atacar com previsão 3D
+				if closest then
+					local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+					local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+					if hum and hrpTarget then
+						local currentPos = hrpTarget.Position
+						local lastPos = lastPositions[closest] or currentPos
+						local deltaTime = PVP_Timer[kind .. "_Speed"] or 0.3
+						local velocity = (currentPos - lastPos) / deltaTime
+						local distance = (currentPos - hrp.Position).Magnitude
+						local projectileSpeed = 80
+						local travelTime = distance / projectileSpeed
+						local predictedPos = currentPos + (velocity * travelTime)
+
+						lastPositions[closest] = currentPos
+
+						if kind == "AutoFireIA" then
+							pcall(function() skillsRemote:FireServer(predictedPos, "NewFireball") end)
+						elseif kind == "AutoEletricIA" then
+							pcall(function() skillsRemote:FireServer(predictedPos, "NewLightningball") end)
 						end
 					end
 				end
 			end
 
-			-- Atacar com previsão 3D
-			if closest then
-				local hum = closest.Character:FindFirstChildOfClass("Humanoid")
-				local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
-				if hum and hrpTarget then
-
-					-- Posição atual
-					local currentPos = hrpTarget.Position
-
-					-- Última posição registrada
-					local lastPos = lastPositions[closest] or currentPos
-
-					-- Velocidade aproximada (X, Y, Z)
-					local deltaTime = PVP_Timer[kind .. "_Speed"] or 0.3
-					local velocity = (currentPos - lastPos) / deltaTime
-
-					-- Distância até o alvo
-					local distance = (currentPos - hrp.Position).Magnitude
-
-					-- Velocidade do projétil (ajuste para cada skill)
-					local projectileSpeed = 80 -- studs/s
-					local travelTime = distance / projectileSpeed
-
-					-- Posição prevista (considerando também saltos e quedas)
-					local predictedPos = currentPos + (velocity * travelTime)
-
-					-- Atualiza posição anterior
-					lastPositions[closest] = currentPos
-
-					-- Disparo
-					if kind == "AutoFireIA" then
-						pcall(function() skillsRemote:FireServer(predictedPos, "NewFireball") end)
-					elseif kind == "AutoEletricIA" then
-						pcall(function() skillsRemote:FireServer(predictedPos, "NewLightningball") end)
-					end
-				end
-			end
-
-			-- Delay configurável
-			local waitTime = PVP_Timer[kind .. "_Speed"] or 0.3
-			task.wait(waitTime)
+			task.wait(0.001) -- wait mínimo para evitar travar o Roblox
 		end
 	end)
 end
+
 
 
 local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball IA",Color="Yellow"},function(state)
