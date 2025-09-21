@@ -1251,6 +1251,8 @@ local SliderOption_Bombox = Regui.CreateSliderOption(MusicTab, {Text = "Music", 
 	
 	if SetBombox == "Play"  then
 		idmusicRemote:FireServer(IdBombox)
+	elseif SetBombox == "Stop" then
+		idmusicRemote:FireServer("0")
 	end
 	
 	print("Slider Int clicada! Estado:", SetBombox)
