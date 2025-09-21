@@ -1228,77 +1228,43 @@ local Memedemonslayer= Regui.CreateImage(GameTab, {Name = "Meme (demon slayer)",
 ---=======================================--
 
 
-
--- ==== Music Tab ==== --
-
--- Label
-local Label_Music_Info = Regui.CreateLabel(MusicTab, {
-	Text = "Boombox",
-	Color = "White",
-	Alignment = "Center"
-})
-
--- Variáveis de controle
-local SetBombox = "Stop"
+--============================--
+local Label_Music_Info = Regui.CreateLabel(MusicTab, {Text = "Boombox", Color = "White", Alignment = "Center"})
+local SetBombox= "Stop"
 local IdBombox = "0"
 
-function SetMusic(Id,Box)
-	if Box == "Play" then
-		idmusicRemote:FireServer(Id)
-	elseif Box == "Stop" then
-		idmusicRemote:FireServer("0")
-	end
-end
-
--- TextBox para ID do Boombox
 local Input_Text = Regui.CreateTextBox(MusicTab, {
-	Placeholder = "ID Boombox",
-	Color = "White",
-	BGColor = "DarkGray",
+	Placeholder = "ID Bombox",
+	Color = "White", -- cor do texto
+	BGColor = "DarkGray", -- cor de fundo
 	Size = UDim2.new(1, -10, 0, 30)
 }, function(val)
+	print("ID digitado:", val) -- aqui você recebe o valor digitado
 	IdBombox = val
 end)
 
--- Slider/Toggle para Play/Stop
-local SliderOption_Bombox = Regui.CreateSliderOption(MusicTab, {
-	Text = "Music",
-	Color = "White",
-	Background = "Blue",
-	Value = 1,
-	Table = {"Play","Stop"}
-}, function(state)
+local SliderOption_Bombox = Regui.CreateSliderOption(MusicTab, {Text = "Music", Color = "White", Background = "Blue" , Value = 1, Table = {"Play","Stop"}}, function(state)
 	SetBombox = state
-if state == "Stop" then
-	SetMusic("0", "Stop")
-elseif state == "Play" then
-	SetMusic(IdBombox, "Play")
-end
-
+	print("Slider Int clicada! Estado:", SetBombox)
 end)
 
--- Lista de músicas
+-- Music Tab
 local listMusics = {
 	{name = "Nill", Obj = "0"},
 	{name = "Hip Hop", Obj = "106732317934236"},
 	{name = "Kerosene", Obj = "17647322226"}
 }
-
--- Selector de músicas
+-- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	Name = "Selecionar Musica",
 	Options = listMusics,
 	Type = "Instance",
 	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(selectedObj)
-	-- Define o ID final: se digitou no TextBox, usa ele; senão usa a seleção
-	local musicId = (IdBombox ~= "0" and IdBombox) or selectedObj.Obj
-	print("Enviando ID para Boombox:", musicId, "Estado:", SetBombox)
-	SetMusic(musicId, SetBombox)
-
+	print("Set: ", selectedObj)
+	idmusicRemote:FireServer(selectedObj)
 end)
-
-
+--=======================--
 
 local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
 -- Botão para pegar a Musica
