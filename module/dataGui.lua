@@ -730,6 +730,50 @@ function chach.CreateButton(Scroll, list, callback)
 	return button
 end
 
+function chach.CreateTextBox(Scroll, list, callback)
+	local placeholder = list.Placeholder or "Type here..."
+	local textColor = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
+	local bgColor = chach.Colors[list.BGColor] or Color3.fromRGB(50,50,50)
+
+	-- Container do TextBox
+	local textBox = Instance.new("TextBox")
+	textBox.Size = list.Size or UDim2.new(1, -10, 0, 30)
+	textBox.BackgroundColor3 = bgColor
+	textBox.BorderSizePixel = 0
+	textBox.Text = ""
+	textBox.PlaceholderText = placeholder
+	textBox.TextColor3 = textColor
+	textBox.Font = Enum.Font.SourceSans
+	textBox.TextSize = list.TextSize or 18
+	textBox.ClearTextOnFocus = false
+	textBox.Parent = Scroll
+	chach.applyCorner(textBox, UDim.new(0, 8))
+
+	-- Sombra sutil
+	local stroke = Instance.new("UIStroke")
+	stroke.Parent = textBox
+	stroke.Thickness = 2
+	stroke.Color = bgColor:lerp(Color3.new(1,1,1), 0.1)
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+
+	-- Hover efeito com Tween
+	local function hoverTween(isEnter)
+		local goal = {BackgroundColor3 = isEnter and bgColor:Lerp(Color3.fromRGB(70,70,70),0.5) or bgColor}
+		local tween = TweenService:Create(textBox, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), goal)
+		tween:Play()
+	end
+	textBox.MouseEnter:Connect(function() hoverTween(true) end)
+	textBox.MouseLeave:Connect(function() hoverTween(false) end)
+
+	-- Callback ao alterar texto
+	textBox:GetPropertyChangedSignal("Text"):Connect(function()
+		if callback then callback(textBox.Text) end
+	end)
+
+	return textBox
+end
+
+
 -- Checkbox
 function chach.CreateCheckboxe(Scroll, list, callback)
 	local text = list.Text or "Checkbox"
@@ -1183,7 +1227,7 @@ function chach.CreatePainterPanel(Scroll, painterMain, callback)
 		Name = "Selecionar Alvo",
 		Options = painterMain,
 		Type = "Instance",
-		Size_Frame = UDim2.new(1, -20, 0, 100)
+		Size_Frame = UDim2.new(1, -10, 0, 100)
 	}, function(selectedObj)
 		targetObj = selectedObj
 	end)
@@ -1468,7 +1512,7 @@ function chach.CreditsUi(Scroll, list, callback)
 
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, 0, 0, 300)
+	frame.Size = UDim2.new(1, -10, 0, 300)
 	frame.BackgroundColor3 = chach.Colors.Secondary
 	frame.BorderSizePixel = 0
 	frame.Parent = Scroll

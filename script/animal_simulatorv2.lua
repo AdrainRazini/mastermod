@@ -506,6 +506,8 @@ local SliderFloat_Coins = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Auto C
 end) 
 
 
+
+local Label_Seletor_Info = Regui.CreateLabel(FarmTab, {Text = "Selector de boss", Color = "White", Alignment = "Center"})
 -- Selector de boss
 local selectorFrame = Regui.CreateSelectorOpitions(FarmTab, {
 	Name = "Selector Boss",
@@ -520,6 +522,7 @@ end)
 
 
 
+local Label_Seletor_Info = Regui.CreateLabel(FarmTab, {Text = "Ativar Farm", Color = "White", Alignment = "Center"})
 -- Toggle de Auto Boss
 local ToggleBosses = Regui.CreateToggleboxe(FarmTab,{Text="Auto Bosses",Color="Red"},function(state)
 	AF.bosses = state
@@ -652,7 +655,7 @@ local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
 	Name = "Selecionar Alvo",
 	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
 	Type = "String",
-	Size_Frame = UDim2.new(1, -20, 0, 100)
+	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(val)
 	print("Jogador selecionado:", val)
 	selectedPlayer = val
@@ -810,7 +813,7 @@ local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 	Name = "Selecionar Alvo",
 	Options = {"All", unpack(getPlayerNames())}, -- lista inicial de nomes
 	Type = "String",
-	Size_Frame = UDim2.new(1, -20, 0, 100)
+	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(val)
 	print("Jogador selecionado:", val)
 	selectedPlayerTp = val
@@ -1099,7 +1102,7 @@ local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
 	Name = "Selecionar Jogador",
 	Options = playersList,
 	Type = "string", -- ou "Instance" se quiser enviar o objeto Player
-	Size_Frame = UDim2.new(1, -20, 0, 100)
+	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(selectedName)
 	invitationPlayer = selectedName
 	if Invit_Spaw then
@@ -1226,24 +1229,75 @@ local Memedemonslayer= Regui.CreateImage(GameTab, {Name = "Meme (demon slayer)",
 
 
 
-local Label_Music_Info = Regui.CreateLabel(MusicTab, {Text = "Boombox", Color = "White", Alignment = "Center"})
--- Music Tab
+-- ==== Music Tab ==== --
+
+-- Label
+local Label_Music_Info = Regui.CreateLabel(MusicTab, {
+	Text = "Boombox",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Variáveis de controle
+local SetBombox = "Stop"
+local IdBombox = "0"
+
+function SetMusic(Id,Box)
+	if Box == "Play" then
+		idmusicRemote:FireServer(Id)
+	elseif Box == "Stop" then
+		idmusicRemote:FireServer("0")
+	end
+end
+
+-- TextBox para ID do Boombox
+local Input_Text = Regui.CreateTextBox(MusicTab, {
+	Placeholder = "ID Boombox",
+	Color = "White",
+	BGColor = "DarkGray",
+	Size = UDim2.new(1, -10, 0, 30)
+}, function(val)
+	IdBombox = val
+end)
+
+-- Slider/Toggle para Play/Stop
+local SliderOption_Bombox = Regui.CreateSliderOption(MusicTab, {
+	Text = "Music",
+	Color = "White",
+	Background = "Blue",
+	Value = 1,
+	Table = {"Play","Stop"}
+}, function(state)
+	SetBombox = state
+if state == "Stop" then
+	SetMusic("0", "Stop")
+elseif state == "Play" then
+	SetMusic(IdBombox, "Play")
+end
+
+end)
+
+-- Lista de músicas
 local listMusics = {
 	{name = "Nill", Obj = "0"},
 	{name = "Hip Hop", Obj = "106732317934236"},
-	{name = "Kerosene", Obj = "17647322226"},
-	{name = "Crystal Castle", Obj = "5950527670"}
+	{name = "Kerosene", Obj = "17647322226"}
 }
--- 🔹 Selector de alvo no topo
+
+-- Selector de músicas
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	Name = "Selecionar Musica",
 	Options = listMusics,
 	Type = "Instance",
-	Size_Frame = UDim2.new(1, -20, 0, 100)
+	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(selectedObj)
-	print("Set: ", selectedObj)
-	idmusicRemote:FireServer(selectedObj)
+	-- Define o ID final: se digitou no TextBox, usa ele; senão usa a seleção
+	local musicId = (IdBombox ~= "0" and IdBombox) or selectedObj.Obj
+	print("Enviando ID para Boombox:", musicId, "Estado:", SetBombox)
+	SetMusic(musicId, SetBombox)
+
 end)
+
 
 
 local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
@@ -1259,7 +1313,7 @@ end)
 
 
 
-
+local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
 	{name="Main_Frame", Obj=Window.Frame},
