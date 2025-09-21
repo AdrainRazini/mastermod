@@ -811,7 +811,7 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 	frame.Parent = Scroll
 
 	local toggleIcon = Instance.new("ImageLabel")
-	toggleIcon.Size = UDim2.new(0,20,0,20)
+	toggleIcon.Size = UDim2.new(0,35,0,20)
 	toggleIcon.Position = UDim2.new(0,5,0.5,0)
 	toggleIcon.AnchorPoint = Vector2.new(0,0.5)
 	toggleIcon.BackgroundTransparency = 1
@@ -820,7 +820,7 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.new(1,-30,1,0)
-	label.Position = UDim2.new(0,30,0,0)
+	label.Position = UDim2.new(0,40,0,0)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = color
 	label.Text = text
