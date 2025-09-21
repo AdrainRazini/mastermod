@@ -1224,6 +1224,9 @@ local Memedemonslayer= Regui.CreateImage(GameTab, {Name = "Meme (demon slayer)",
 
 ---=======================================--
 
+
+
+local Label_Music_Info = Regui.CreateLabel(MusicTab, {Text = "Boombox", Color = "White", Alignment = "Center"})
 -- Music Tab
 local listMusics = {
 	{name = "Nill", Obj = "0"},
@@ -1233,7 +1236,7 @@ local listMusics = {
 }
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
-	Name = "Selecionar Alvo",
+	Name = "Selecionar Musica",
 	Options = listMusics,
 	Type = "Instance",
 	Size_Frame = UDim2.new(1, -20, 0, 100)
@@ -1242,6 +1245,8 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	idmusicRemote:FireServer(selectedObj)
 end)
 
+
+local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
 -- Botão para pegar a Musica
 local MusicButton = Regui.CreateButton(MusicTab, {
 	Text = "Playe: Music Test",
