@@ -82,8 +82,8 @@ local selectedPlayerTp = "All"
 -- FLAGS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
 local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
-local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee", AutoTp = false }
-local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Speed = 0.05, AutoAttack_Speed = 0.05, AutoFlyAttack_Speed = 0.05, AutoTp_Speed = 1}
+local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoFireIA=false, AutoEletricIA=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee", AutoTp = false }
+local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Speed = 0.05,AutoFireIA_Speed = 0.05, AutoEletricIA_Speed = 0.05, AutoAttack_Speed = 0.05, AutoFlyAttack_Speed = 0.05, AutoTp_Speed = 1}
 local maxRange = 100
 
 
@@ -681,6 +681,10 @@ local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {
 	print("Range atualizado:", maxRange)
 end)
 
+local Label_Farme_PVP_UI = Regui.CreateLabel(PlayerTab, {Text = "PVP Player UI", Color = "Red", Alignment = "Center"})
+---=====================================================================================================================--
+
+
 -- Exemplo de PVP
 local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Blue"},function(state)
 	PVP.killAura=state
@@ -891,6 +895,155 @@ local SliderFloat_Tp = Regui.CreateSliderFloat(PlayerTab, {Text = "Timer Tp Play
 	print("Slider Float clicada! Estado:", PVP_Timer.AutoTp_Speed)
 
 end) 
+
+
+
+--=====================================================================================================================--
+local Label_Farme_PVP_IA = Regui.CreateLabel(PlayerTab, {Text = "PVP Test IA", Color = "Red", Alignment = "Center"})
+
+
+-- Guardar últimas posições para prever movimento
+local lastPositions = {}
+
+local function PVP_LoopIA(kind)
+	task.spawn(function()
+		while PVP[kind] do
+			local _, _, hrp = getCharacter()
+			local closest, shortest = nil, maxRange
+
+			-- Determinar lista de alvos
+			local targets = {}
+			if selectedPlayer == nil or selectedPlayer == "All" then
+				targets = Players:GetPlayers()
+			else
+				local plr = Players:FindFirstChild(selectedPlayer)
+				if plr then
+					table.insert(targets, plr)
+				else
+					selectedPlayer = "All"
+					targets = Players:GetPlayers()
+				end
+			end
+
+			-- Buscar jogador mais próximo
+			for _, p in ipairs(targets) do
+				if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+					local hum = p.Character:FindFirstChildOfClass("Humanoid")
+					if hum and hum.Health > 0 then
+						local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+						if dist < shortest then
+							shortest = dist
+							closest = p
+						end
+					end
+				end
+			end
+
+			-- Atacar com previsão 3D
+			if closest then
+				local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+				local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+				if hum and hrpTarget then
+
+					-- Posição atual
+					local currentPos = hrpTarget.Position
+
+					-- Última posição registrada
+					local lastPos = lastPositions[closest] or currentPos
+
+					-- Velocidade aproximada (X, Y, Z)
+					local deltaTime = PVP_Timer[kind .. "_Speed"] or 0.3
+					local velocity = (currentPos - lastPos) / deltaTime
+
+					-- Distância até o alvo
+					local distance = (currentPos - hrp.Position).Magnitude
+
+					-- Velocidade do projétil (ajuste para cada skill)
+					local projectileSpeed = 80 -- studs/s
+					local travelTime = distance / projectileSpeed
+
+					-- Posição prevista (considerando também saltos e quedas)
+					local predictedPos = currentPos + (velocity * travelTime)
+
+					-- Atualiza posição anterior
+					lastPositions[closest] = currentPos
+
+					-- Disparo
+					if kind == "AutoFireIA" then
+						pcall(function() skillsRemote:FireServer(predictedPos, "NewFireball") end)
+					elseif kind == "AutoEletricIA" then
+						pcall(function() skillsRemote:FireServer(predictedPos, "NewLightningball") end)
+					end
+				end
+			end
+
+			-- Delay configurável
+			local waitTime = PVP_Timer[kind .. "_Speed"] or 0.3
+			task.wait(waitTime)
+		end
+	end)
+end
+
+
+local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball IA",Color="Yellow"},function(state)
+	PVP.AutoFireIA=state
+	if state then PVP_LoopIA("AutoFireIA")
+
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert: AutoFireIA",
+			Text = "Auto Fire! State: " .. tostring(PVP.AutoFireIA),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)		
+
+	end
+end)
+
+
+-- TIMER AutoFire
+local SliderInt_AutoFire_IA = Regui.CreateSliderInt(PlayerTab, {
+	Text = "AutoFire Speed IA", 
+	Color = "Yellow", 
+	Value = 0.3, Minimum = 0.05, Maximum = 1
+}, function(state)
+	PVP_Timer.AutoFireIA_Speed = state
+	print("AutoFire Speed:", state)
+end)
+
+
+local ToggleLightningIA = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning IA",Color="Cyan"},function(state)
+	PVP.AutoEletricIA=state
+	if state then PVP_LoopIA("AutoEletricIA")
+
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert: Auto Eletric IA",
+			Text = "Auto Eletric! State: " .. tostring(PVP.AutoEletricIA),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)		
+
+
+	end
+end)
+
+-- TIMER AutoEletric
+local SliderInt_AutoEletricIA = Regui.CreateSliderInt(PlayerTab, {
+	Text = "AutoLightning IA Speed", 
+	Color = "Cyan", 
+	Value = 0.3, Minimum = 0.05, Maximum = 1
+}, function(state)
+	PVP_Timer.AutoEletricIA_Speed = state
+	print("AutoLightningIA Speed:", state)
+end)
+--======================================================================--
 
 
 --Game Tab
