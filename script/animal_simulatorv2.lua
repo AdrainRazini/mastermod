@@ -1257,6 +1257,7 @@ local SliderOption_Bombox = Regui.CreateSliderOption(MusicTab, {Text = "Music", 
 	print("Slider Int clicada! Estado:", SetBombox)
 end)
 
+local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 -- Music Tab
 local listMusics = {
 	{name = "Nill", Obj = "0"},
