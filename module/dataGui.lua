@@ -735,7 +735,6 @@ function chach.CreateTextBox(Scroll, list, callback)
 	local textColor = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
 	local bgColor = chach.Colors[list.BGColor] or Color3.fromRGB(50,50,50)
 
-	-- Container do TextBox
 	local textBox = Instance.new("TextBox")
 	textBox.Size = list.Size or UDim2.new(1, -10, 0, 30)
 	textBox.BackgroundColor3 = bgColor
@@ -749,28 +748,39 @@ function chach.CreateTextBox(Scroll, list, callback)
 	textBox.Parent = Scroll
 	chach.applyCorner(textBox, UDim.new(0, 8))
 
-	-- Sombra sutil
+	-- Sombra
 	local stroke = Instance.new("UIStroke")
 	stroke.Parent = textBox
 	stroke.Thickness = 2
 	stroke.Color = bgColor:lerp(Color3.new(1,1,1), 0.1)
 	stroke.LineJoinMode = Enum.LineJoinMode.Round
 
-	-- Hover efeito com Tween
+	-- Hover
 	local function hoverTween(isEnter)
 		local goal = {BackgroundColor3 = isEnter and bgColor:Lerp(Color3.fromRGB(70,70,70),0.5) or bgColor}
-		local tween = TweenService:Create(textBox, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), goal)
+		local tween = TweenService:Create(textBox, TweenInfo.new(0.2), goal)
 		tween:Play()
 	end
 	textBox.MouseEnter:Connect(function() hoverTween(true) end)
 	textBox.MouseLeave:Connect(function() hoverTween(false) end)
 
-	-- Callback ao alterar texto
+	-- Callback ao digitar
 	textBox:GetPropertyChangedSignal("Text"):Connect(function()
 		if callback then callback(textBox.Text) end
 	end)
 
-	return textBox
+	-- Função para setar o texto
+	local function SetVal(val)
+		textBox.Text = val or ""
+		if callback then callback(textBox.Text) end
+	end
+
+	-- Função para pegar o texto
+	local function GetVal()
+		return textBox.Text
+	end
+
+	return {TextBox = textBox, SetVal = SetVal, GetVal = GetVal}
 end
 
 
