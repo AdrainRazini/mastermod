@@ -1055,6 +1055,119 @@ local MemeSucumba= Regui.CreateImage(PlayerTab, {Name = "Meme Suk", Transparence
 
 
 --Game Tab
+local Label_Game_Set_Clan_Invitation = Regui.CreateLabel(GameTab, {
+	Text = "Clan Invitation", 
+	Color = "White", 
+	Alignment = "Center"
+})
+
+--=====--
+local Reset_Timer = 10 
+local Spaw = false
+
+local invitationEvent_upvr = game.ReplicatedStorage:WaitForChild("invitationEvent")
+
+-- Função para montar lista de jogadores atual
+local function getPlayersList()
+	local list = {"All"}
+	for _, p in ipairs(game.Players:GetPlayers()) do
+		table.insert(list, p.Name)
+	end
+	return list
+end
+
+-- Criação do seletor
+local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
+	Name = "Selecionar Jogador",
+	Options = getPlayersList(),
+	Type = "string", -- ou "Instance" se quiser enviar o objeto Player
+	Size_Frame = UDim2.new(1, -20, 0, 100)
+}, function(selectedName)
+	if selectedName == "All" then
+		-- Envia convite para todos
+		for _, p in ipairs(game.Players:GetPlayers()) do
+			invitationEvent_upvr:FireServer({
+				action = "invite_clan",
+				oplr = p
+			})
+		end
+	else
+		-- Envia convite para jogador específico
+		local targetPlayer = game.Players:FindFirstChild(selectedName)
+		if targetPlayer then
+			invitationEvent_upvr:FireServer({
+				action = "invite_clan",
+				oplr = targetPlayer
+			})
+		end
+	end
+end)
+
+-- Toggle Auto Lightning IA
+-- Auto Lightning IA (envio automático)
+local Spaw_Player = Regui.CreateToggleboxe(GameTab, {Text="Auto Spaw: ", Color="Cyan"}, function(state)
+	Spaw = state
+	if state then 
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "",
+			Text = "Auto Spaw: " .. tostring(state),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 2,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)		
+	end
+end)
+
+-- Loop de envio automático
+task.spawn(function()
+	while true do
+		task.wait(Reset_Timer)
+		if Spaw then
+			local selectedName = selectorPlayers_upvr.Value -- valor escolhido no seletor
+
+			if selectedName == "All" then
+				for _, p in ipairs(game.Players:GetPlayers()) do
+					invitationEvent_upvr:FireServer({
+						action = "invite_clan",
+						oplr = p
+					})
+				end
+			else
+				local targetPlayer = game.Players:FindFirstChild(selectedName)
+				if targetPlayer then
+					invitationEvent_upvr:FireServer({
+						action = "invite_clan",
+						oplr = targetPlayer
+					})
+				end
+			end
+
+			print("Convite automático enviado para:", selectedName)
+		end
+	end
+end)
+
+
+-- Slider para controlar tempo de reset da lista
+local SliderInt_AutoEletricIA = Regui.CreateSliderFloat(GameTab, {
+	Text = "Reset List Clan Invitation", 
+	Color = "Cyan", 
+	Value = 10, Minimum = 5, Maximum = 60 -- deixei mínimo = 5 pra ficar mais flexível
+}, function(state)
+	Reset_Timer = state
+	print("Novo tempo de reset da lista:", state)
+end)
+
+
+
+--===========================================--
+
+local Label_Game_Set = Regui.CreateLabel(GameTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
+
+local Label_Game_Info = Regui.CreateLabel(GameTab, {Text = "Get Tools", Color = "White", Alignment = "Center"})
 -- Botão para pegar a Fireball manual
 local GiveAutoFire1 = Regui.CreateButton(GameTab, {
 	Text = "Get Fireball Tool",
@@ -1137,52 +1250,8 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 	idmusicRemote:FireServer("106732317934236")
 end)
 
---=====--
-local invitationEvent_upvr = game.ReplicatedStorage:WaitForChild("invitationEvent")
--- Lista de jogadores
-local playersList = {"All"}
-for _, p in ipairs(game.Players:GetPlayers()) do
-	table.insert(playersList, p.Name)
-end
-
-local selectorPlayers_upvr = Regui.CreateSelectorOpitions(MusicTab, {
-	Name = "Selecionar Jogador",
-	Options = playersList,
-	Type = "string", -- ou "Instance" se quiser enviar o objeto Player
-	Size_Frame = UDim2.new(1, -20, 0, 100)
-}, function(selectedName)
-	if selectedName == "All" then
-		-- Envia convite para todos
-		for _, p in ipairs(game.Players:GetPlayers()) do
-			invitationEvent_upvr:FireServer({
-				action = "invite_clan",
-				oplr = p
-			})
-		end
-	else
-		-- Envia convite para jogador específico
-		local targetPlayer = game.Players:FindFirstChild(selectedName)
-		if targetPlayer then
-			invitationEvent_upvr:FireServer({
-				action = "invite_clan",
-				oplr = targetPlayer
-			})
-		end
-	end
-end)
-
--- reset da lista de jogadores a cada 10 segundos
-task.spawn(function()
-	while true do
-		task.wait(10)
-		selectorPlayers_upvr.Reset(playersList)
-	end
-end)
 
 
-
-
---===========================================--
 
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
