@@ -1262,7 +1262,8 @@ local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "--------------
 local listMusics = {
 	{name = "Nill", Obj = "0"},
 	{name = "Hip Hop", Obj = "106732317934236"},
-	{name = "Kerosene", Obj = "17647322226"}
+	{name = "Kerosene", Obj = "17647322226"},
+	{name= "Novinha Do Bonde", Obj = "132517043416676"}
 }
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
