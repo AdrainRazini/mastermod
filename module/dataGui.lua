@@ -690,7 +690,7 @@ function chach.CreateButton(Scroll, list, callback)
 
 	-- Container do botão
 	local button = Instance.new("TextButton")
-	button.Size = list.Size or UDim2.new(1, 0, 0, 30)
+	button.Size = list.Size or UDim2.new(1, -10, 0, 30)
 	button.BackgroundColor3 = bgColor
 	button.BorderSizePixel = 0
 	button.Text = text
