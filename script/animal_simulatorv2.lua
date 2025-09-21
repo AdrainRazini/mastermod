@@ -1055,143 +1055,113 @@ local MemeSucumba= Regui.CreateImage(PlayerTab, {Name = "Meme Suk", Transparence
 
 
 --Game Tab
--- Game Tab
-local Label_Game_Set_Clan_Invitation = Regui.CreateLabel(GameTab, {
-	Text = "Clan Invitation",
-	Color = "White",
-	Alignment = "Center"
-})
 
-local Reset_Timer = 10
-local Spaw = false
-local invitationEvent_Player = "All"
+
+local Label_Game_Set_Clan_Invitation = Regui.CreateLabel(GameTab, {Text = "Clan Invitation", Color = "White", Alignment = "Center"})
+
+--=====--
+local Reset_Timer = 10 
+local Spaw_Timer = 5
+local Invit_Spaw = false
 
 local invitationEvent_upvr = game.ReplicatedStorage:WaitForChild("invitationEvent")
-
--- monta lista atual de players
-local function getPlayersList()
-	local list = {"All"}
-	for _, p in ipairs(game.Players:GetPlayers()) do
-		table.insert(list, p.Name)
-	end
-	return list
+local invitationPlayer = "All"
+-- Lista de jogadores
+local playersList = {"All"}
+for _, p in ipairs(game.Players:GetPlayers()) do
+	table.insert(playersList, p.Name)
 end
 
--- cria seletor (callback atualiza invitationEvent_Player)
-local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
-	Name = "Selecionar Jogador",
-	Options = getPlayersList(),
-	Type = "string",
-	Size_Frame = UDim2.new(1, -20, 0, 100)
-}, function(selectedName)
-	invitationEvent_Player = selectedName or "All"
-end)
 
--- Função segura para resetar/atualizar o selector (compatível com variações de API)
-local function safeResetSelector(obj, newList)
-	if not obj then return end
-	-- tenta chamar como método: obj:Reset(newList)
-	if type(obj.Reset) == "function" then
-		local ok = pcall(obj.Reset, obj, newList)
-		if not ok then
-			-- tenta como função sem self
-			pcall(obj.Reset, newList)
-		end
-		return
-	end
-	-- alternativas comuns (se a lib usar outro nome)
-	if type(obj.SetOptions) == "function" then
-		pcall(obj.SetOptions, obj, newList)
-		return
-	end
-	if type(obj.UpdateOptions) == "function" then
-		pcall(obj.UpdateOptions, obj, newList)
-		return
-	end
-end
-
--- atualiza automaticamente quando players entram/saem
-game.Players.PlayerAdded:Connect(function()
-	safeResetSelector(selectorPlayers_upvr, getPlayersList())
-end)
-game.Players.PlayerRemoving:Connect(function()
-	safeResetSelector(selectorPlayers_upvr, getPlayersList())
-end)
-
--- função que envia convites (usa invitationEvent_Player)
-local function sendInvitesTo(name)
-	if name == "All" then
+function SetInvit()
+	local selectedName = invitationPlayer
+	if selectedName == "All" then
+		-- Envia convite para todos
 		for _, p in ipairs(game.Players:GetPlayers()) do
-			pcall(function()
-				invitationEvent_upvr:FireServer({
-					action = "invite_clan",
-					oplr = p
-				})
-			end)
+			invitationEvent_upvr:FireServer({
+				action = "invite_clan",
+				oplr = p
+			})
 		end
 	else
-		local target = game.Players:FindFirstChild(name)
-		if target then
-			pcall(function()
-				invitationEvent_upvr:FireServer({
-					action = "invite_clan",
-					oplr = target
-				})
-			end)
+		-- Envia convite para jogador específico
+		local targetPlayer = game.Players:FindFirstChild(selectedName)
+		if targetPlayer then
+			invitationEvent_upvr:FireServer({
+				action = "invite_clan",
+				oplr = targetPlayer
+			})
 		end
 	end
 end
 
--- controla apenas uma thread de spawn automática (evita múltiplos loops)
-local autoSpawnThread = nil
-local function startAutoSpawnLoop()
-	if autoSpawnThread then return end -- já rodando
-	autoSpawnThread = task.spawn(function()
-		-- envia imediato ao ligar
-		sendInvitesTo(invitationEvent_Player)
+local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
+	Name = "Selecionar Jogador",
+	Options = playersList,
+	Type = "string", -- ou "Instance" se quiser enviar o objeto Player
+	Size_Frame = UDim2.new(1, -20, 0, 100)
+}, function(selectedName)
+	invitationPlayer = selectedName
+	if Invit_Spaw then
+		SetInvit()
+	end
 
-		while Spaw do
-			-- aguarda em pequenos passos para continuar responsivo ao desligar
-			local waited = 0
-			while waited < Reset_Timer and Spaw do
-				waited = waited + (task.wait(0.1) or 0.1)
-			end
-			if not Spaw then break end
-			sendInvitesTo(invitationEvent_Player)
-		end
+end)
 
-		autoSpawnThread = nil
-	end)
-end
 
--- Toggle Auto Spaw
-local Spaw_Player = Regui.CreateToggleboxe(GameTab, {Text="Auto Spaw: ", Color="Cyan"}, function(state)
-	Spaw = state
+local SetSpaw = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Clan Invitation",Color="Cyan"},function(state)
+	Invit_Spaw =state
+
 	if state then
 		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Spaw: "..invitationEvent_Player ,
-			Text = "Auto Spaw: " .. tostring(state),
+			Title = "Alert: " .. invitationPlayer,
+			Text = "Auto Spaw State: " .. tostring(Invit_Spaw),
 			Icon = "rbxassetid://93478350885441",
 			Tempo = 2,
 			Casch = {},
 			Sound = ""
-		}, function() end)
-
-		startAutoSpawnLoop()
-	else
-		-- desligando: a thread verá Spaw=false e terminará
-		print("Auto Spaw desativado")
+		}, function()
+			print("Notificação fechada!")
+		end)		
 	end
 end)
 
--- Slider para controlar tempo de reset da lista
-local SliderInt_upvr = Regui.CreateSliderInt(GameTab, {
-	Text = "Reset List Clan Invitation",
-	Color = "Cyan",
-	Value = Reset_Timer, Minimum = 5, Maximum = 60
+
+-- TIMER AutoEletric
+local SliderInt_Spaw = Regui.CreateSliderFloat(GameTab, {
+	Text = "Spaw Timer", 
+	Color = "Cyan", 
+	Value = 1, Minimum = 0, Maximum = 1
+}, function(state)
+	Spaw_Timer = state
+	print("Reset da lista de convites:", state)
+end)
+
+
+-- TIMER AutoEletric
+local SliderInt_Reset_List = Regui.CreateSliderFloat(GameTab, {
+	Text = "Reset List Clan Invitation", 
+	Color = "Cyan", 
+	Value = 10, Minimum = 10, Maximum = 60
 }, function(state)
 	Reset_Timer = state
-	print("Novo tempo de reset:", state)
+	print("Reset da lista de convites:", state)
+end)
+
+-- reset da lista de jogadores a cada 10 segundos
+task.spawn(function()
+	while true do
+		task.wait(Reset_Timer)
+		selectorPlayers_upvr.Reset(playersList)
+	end
+end)
+task.spawn(function()
+	while true do
+		task.wait(Spaw_Timer)
+		if Invit_Spaw then
+			SetInvit()
+		end
+	end
 end)
 
 
