@@ -183,7 +183,6 @@ local function attackLoop(flag, folder)
 end
 
 -- Função de farm boss 
-
 local function farmBosses()
 	while AF.bosses do
 		local npcFolder = Workspace:FindFirstChild("NPC")
@@ -482,7 +481,7 @@ end
 -- GUI
 local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
 local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
-local PlayerTab = Regui.CreateTab(Window,{Name="Player"})
+local PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
@@ -490,17 +489,17 @@ local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 --=============-
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
-local Memedemonslayer= Regui.CreateImage(ReadmeTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
-local Ohyya = Regui.CreateImage(ReadmeTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://75961890646911", Size_Image = UDim2.new(0, 50, 0, 50)  })
 --=============-
 
+
+local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
-local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Blue"},function(state)
+local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Yellow"},function(state)
 	AF.coins=state
 	if state then autoCoins() end
 end)
 
-local SliderFloat_Coins = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Flaot", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
+local SliderFloat_Coins = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Auto Coins", Color = "Yellow", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
 	AF_Timer.Coins_Speed = state
 	print("Slider Float clicada! Estado:", AF_Timer.Coins_Speed)
 
@@ -509,7 +508,7 @@ end)
 
 -- Selector de boss
 local selectorFrame = Regui.CreateSelectorOpitions(FarmTab, {
-	Name = "Selecionar Alvo Boss",
+	Name = "Selector Boss",
 	Options = {"All", unpack(bossesList)}, -- cria lista: All + bosses
 	Type = "String",
 	Size_Frame = UDim2.new(1, -20, 0, 100)
@@ -553,7 +552,7 @@ local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies
 			Title = "Alert: Farme dummies",
 			Text = "Checkbox dummies! State: " .. tostring(AF.dummies),
 			Icon = "fa_envelope",
-			Tempo = 10,
+			Tempo = 5,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -577,7 +576,7 @@ local Check_Farme_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummi
 			Title = "Alert: Farme dummies5k",
 			Text = "Checkbox dummies5k! State: " .. tostring(AF.dummies5k),
 			Icon = "fa_envelope",
-			Tempo = 10,
+			Tempo = 5,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -607,7 +606,7 @@ local Check_Tp_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummi
 			Title = "Alert: Tp dummies",
 			Text = "Tp dummies! State: " .. tostring(AF.tpDummy),
 			Icon = "fa_envelope",
-			Tempo = 10,
+			Tempo = 5,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -630,7 +629,7 @@ local Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dum
 			Title = "Alert: Tp dummies5k",
 			Text = "Tp dummies5k! State: " .. tostring(AF.tpDummy5k),
 			Icon = "fa_envelope",
-			Tempo = 10,
+			Tempo = 5,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -641,11 +640,12 @@ local Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dum
 
 end)
 
+local Ohyya = Regui.CreateImage(FarmTab, {Name = "Meme", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://75961890646911", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 --- TAB PLAYERS
 
 
-local Label_Farme_PVP = Regui.CreateLabel(PlayerTab, {Text = "PVP Player", Color = "Red", Alignment = "Center"})
+local Label_Farme_PVP_Selector = Regui.CreateLabel(PlayerTab, {Text = "PVP Player", Color = "White", Alignment = "Center"})
 
 -- Criação do selector de players
 local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
@@ -661,7 +661,7 @@ local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
 		Title = "Alert: PVP Player",
 		Text = "Auto Attack Player! State: " .. tostring(selectedPlayer),
 		Icon = "rbxassetid://93478350885441",
-		Tempo = 10,
+		Tempo = 2,
 		Casch = {},
 		Sound = ""
 	}, function()
@@ -671,22 +671,11 @@ local selectorPlayer = Regui.CreateSelectorOpitions(PlayerTab, {
 end)
 
 
--- RANGE GLOBAL
-local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {
-	Text = "Max Range", 
-	Color = "Blue", 
-	Value = 100, Minimum = 100, Maximum = 500
-}, function(state)
-	maxRange = state
-	print("Range atualizado:", maxRange)
-end)
-
-local Label_Farme_PVP_UI = Regui.CreateLabel(PlayerTab, {Text = "PVP Player UI", Color = "Red", Alignment = "Center"})
 ---=====================================================================================================================--
 
-
+local Label_Farme_PVP_Aura = Regui.CreateLabel(PlayerTab, {Text = "PVP Player  Aura", Color = "White", Alignment = "Center"})
 -- Exemplo de PVP
-local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Blue"},function(state)
+local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color="Red"},function(state)
 	PVP.killAura=state
 
 
@@ -696,7 +685,7 @@ local ToggleKillAura = Regui.CreateToggleboxe(PlayerTab,{Text="Kill Aura",Color=
 			Title = "Alert: Aura Kill",
 			Text = "Aura Kill! State: " .. tostring(PVP.killAura),
 			Icon = "rbxassetid://93478350885441",
-			Tempo = 10,
+			Tempo = 2,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -714,7 +703,7 @@ local ToggleAutoAttack = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Attack",Co
 			Title = "Alert: Auto Attack",
 			Text = "Auto Attack! State: " .. tostring(PVP.AutoAttack),
 			Icon = "rbxassetid://93478350885441",
-			Tempo = 10,
+			Tempo = 2,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -729,12 +718,26 @@ end)
 
 -- TIMER KillAura
 local SliderInt_KillAura = Regui.CreateSliderFloat(PlayerTab, {
-	Text = "KillAura Speed", 
-	Color = "Blue", 
+	Text = "Kill Aura Speed", 
+	Color = "White", 
 	Value = 0.3, Minimum = 0, Maximum = 1
 }, function(state)
 	PVP_Timer.KillAura_Speed = state
 	print("KillAura Speed:", PVP_Timer.KillAura_Speed)
+end)
+
+--================================================================================================================================--
+local Label_Farme_PVP_Info_Fire = Regui.CreateLabel(PlayerTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
+local Label_Farme_PVP_Fire = Regui.CreateLabel(PlayerTab, {Text = "PVP Player  Fire", Color = "White", Alignment = "Center"})
+
+-- RANGE GLOBAL
+local SliderInt_Range = Regui.CreateSliderInt(PlayerTab, {
+	Text = "Max Range Fire", 
+	Color = "Blue", 
+	Value = 100, Minimum = 100, Maximum = 500
+}, function(state)
+	maxRange = state
+	print("Range atualizado:", maxRange)
 end)
 
 
@@ -746,7 +749,7 @@ local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball",Co
 			Title = "Alert: AutoFire",
 			Text = "Auto Fire! State: " .. tostring(PVP.AutoFire),
 			Icon = "rbxassetid://93478350885441",
-			Tempo = 10,
+			Tempo = 2,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -776,7 +779,7 @@ local ToggleLightning = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning",
 			Title = "Alert: Auto Eletric",
 			Text = "Auto Eletric! State: " .. tostring(PVP.AutoEletric),
 			Icon = "rbxassetid://93478350885441",
-			Tempo = 10,
+			Tempo = 2,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -797,8 +800,10 @@ local SliderInt_AutoEletric = Regui.CreateSliderInt(PlayerTab, {
 	print("AutoLightning Speed:", state)
 end)
 
+
+local Label_Farme_PVP_Info = Regui.CreateLabel(PlayerTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 -- Em Breve ...
-local Label_Farme_Ia = Regui.CreateLabel(PlayerTab, {Text = "PVP Player Tp", Color = "Red", Alignment = "Center"})
+local Label_Farme_PVP_Teleport = Regui.CreateLabel(PlayerTab, {Text = "PVP Player Tp", Color = "Red", Alignment = "Center"})
 -- Função de Auto TP Sequencial
 -- Criação do selector de players
 local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
@@ -814,7 +819,7 @@ local selectorPlayerTp = Regui.CreateSelectorOpitions(PlayerTab, {
 		Title = "Alert",
 		Text = "Auto Tp Player! State: " .. tostring(selectedPlayerTp),
 		Icon = "rbxassetid://93478350885441",
-		Tempo = 10,
+		Tempo = 2,
 		Casch = {},
 		Sound = ""
 	}, function()
@@ -879,7 +884,7 @@ local AutoAttackTp = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Tp",Color="Cya
 			Title = "Alert: Teleporte",
 			Text = "Auto Tp! State: " .. tostring(PVP.AutoTp),
 			Icon = "rbxassetid://93478350885441",
-			Tempo = 10,
+			Tempo = 2,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -896,7 +901,7 @@ local SliderFloat_Tp = Regui.CreateSliderFloat(PlayerTab, {Text = "Timer Tp Play
 
 end) 
 
-
+local Label_Farme_PVP_Info = Regui.CreateLabel(PlayerTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
 --=====================================================================================================================--
 local Label_Farme_PVP_IA = Regui.CreateLabel(PlayerTab, {Text = "PVP Test IA", Color = "Red", Alignment = "Center"})
@@ -993,7 +998,7 @@ local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball IA"
 			Title = "Alert: AutoFireIA",
 			Text = "Auto Fire! State: " .. tostring(PVP.AutoFireIA),
 			Icon = "rbxassetid://93478350885441",
-			Tempo = 10,
+			Tempo = 2,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -1005,7 +1010,7 @@ end)
 
 
 -- TIMER AutoFire
-local SliderInt_AutoFire_IA = Regui.CreateSliderInt(PlayerTab, {
+local SliderInt_AutoFire_IA = Regui.CreateSliderFloat(PlayerTab, {
 	Text = "AutoFire Speed IA", 
 	Color = "Yellow", 
 	Value = 0.3, Minimum = 0.05, Maximum = 1
@@ -1023,7 +1028,7 @@ local ToggleLightningIA = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning
 			Title = "Alert: Auto Eletric IA",
 			Text = "Auto Eletric! State: " .. tostring(PVP.AutoEletricIA),
 			Icon = "rbxassetid://93478350885441",
-			Tempo = 10,
+			Tempo = 2,
 			Casch = {},
 			Sound = ""
 		}, function()
@@ -1035,7 +1040,7 @@ local ToggleLightningIA = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Lightning
 end)
 
 -- TIMER AutoEletric
-local SliderInt_AutoEletricIA = Regui.CreateSliderInt(PlayerTab, {
+local SliderInt_AutoEletricIA = Regui.CreateSliderFloat(PlayerTab, {
 	Text = "AutoLightning IA Speed", 
 	Color = "Cyan", 
 	Value = 0.3, Minimum = 0.05, Maximum = 1
@@ -1043,6 +1048,9 @@ local SliderInt_AutoEletricIA = Regui.CreateSliderInt(PlayerTab, {
 	PVP_Timer.AutoEletricIA_Speed = state
 	print("AutoLightningIA Speed:", state)
 end)
+
+local MemeSucumba= Regui.CreateImage(PlayerTab, {Name = "Meme Suk", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://93478350885441", Size_Image = UDim2.new(0, 50, 0, 50)  })
+
 --======================================================================--
 
 
@@ -1096,6 +1104,9 @@ local GiveAutoFire5 = Regui.CreateButton(GameTab, {
 }, function()
 	giveToolFake("FakePoss", "NewLightningball")
 end)
+
+local Memedemonslayer= Regui.CreateImage(GameTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
+
 ---=======================================--
 
 -- Music Tab
