@@ -1232,6 +1232,9 @@ local Memedemonslayer= Regui.CreateImage(GameTab, {Name = "Meme (demon slayer)",
 local Label_Music_Info = Regui.CreateLabel(MusicTab, {Text = "Boombox", Color = "White", Alignment = "Center"})
 local SetBombox= "Stop"
 local IdBombox = "0"
+function SetMusic(ID,Obj)
+	
+end
 
 local Input_Text = Regui.CreateTextBox(MusicTab, {
 	Placeholder = "ID Bombox",
@@ -1245,6 +1248,11 @@ end)
 
 local SliderOption_Bombox = Regui.CreateSliderOption(MusicTab, {Text = "Music", Color = "White", Background = "Blue" , Value = 1, Table = {"Play","Stop"}}, function(state)
 	SetBombox = state
+	
+	if SetBombox == "Play"  then
+		idmusicRemote:FireServer(IdBombox)
+	end
+	
 	print("Slider Int clicada! Estado:", SetBombox)
 end)
 
@@ -1262,8 +1270,11 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(selectedObj)
 	print("Set: ", selectedObj)
+	Input_Text.SetVal(selectedObj)
 	idmusicRemote:FireServer(selectedObj)
 end)
+
+
 --=======================--
 
 local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
