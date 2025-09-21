@@ -1109,7 +1109,7 @@ local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
 end)
 
 
-local SetSpaw = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Clan Invitation",Color="Cyan"},function(state)
+local SetSpaw = Regui.CreateToggleboxe(GameTab,{Text="Auto Clan Invitation",Color="Cyan"},function(state)
 	Invit_Spaw =state
 
 	if state then
