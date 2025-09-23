@@ -1270,8 +1270,7 @@ local listMusics = {
 	{name = "Giga Chad", Obj = "15689448519"},
 	{name = "Lil Kuudere sukoyomi", Obj = "16190782786"},
 	{name = "You Ain't Hot Enough", Obj = "1837006787"},
-	{name = "Rock", Obj = "1837014531"},
-	{name = "GoofyAhhTate", Obj = "16662827543"}
+	{name = "Rock", Obj = "1837014531"}
 
 }
 -- 🔹 Selector de alvo no topo
