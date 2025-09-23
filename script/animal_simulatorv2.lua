@@ -63,73 +63,11 @@ end)
 ]]
 
 
+
 if PlayerGui:FindFirstChild(GuiName) then
 	Regui.Notifications(PlayerGui, {Title="Alert", Text="Neutralized Code", Icon="fa_rr_information", Tempo=10})
 	return
 end
-
-local HttpService = game:GetService("HttpService")
--- URL para checar a versão remota (JSON no GitHub)
-local versionUrl = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/ver/version.json"
-local scriptUrl  = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"
-
-function Check_Up(Gui, ModInfo)
-	local success, response = pcall(function()
-		return game:HttpGet(versionUrl)
-	end)
-
-	if success and response then
-		local ok, remoteData = pcall(function()
-			return HttpService:JSONDecode(response)
-		end)
-
-		if ok and remoteData and remoteData.Version then
-			-- Só abre se versão for diferente
-			if remoteData.Version ~= ModInfo.Version then
-				Regui.NotificationDialog(Gui, {
-					Title = "Nova Atualização!",
-					Text = "Versão " .. remoteData.Version .. " disponível.\nNotas: " .. (remoteData.Notes or "Sem notas.") .. "\nDeseja aplicar agora?",
-					Icon = "fa_bx_loader",
-					Tempo = 0
-				}, function(result)
-					if result then
-						print("Usuário aceitou o update ✅")
-						-- baixa o script atualizado
-						local ok2, newCode = pcall(function()
-							return game:HttpGet(scriptUrl)
-						end)
-						if ok2 and newCode then
-							loadstring(newCode)()
-						else
-							warn("Erro ao baixar o novo script")
-						end
-					else
-						print("Usuário recusou ❌")
-					end
-				end)
-			else
-				-- já está atualizado
-				Regui.NotificationPerson(Gui, {
-					Title = "Atualização",
-					Text = "Você já está na versão mais recente (" .. ModInfo.Version .. ").",
-					Icon = "fa_rr_information",
-					Tempo = 5
-				})
-			end
-		end
-	else
-		Regui.NotificationPerson(Gui, {
-			Title = "Atualização",
-			Text = "Não foi possível checar atualização.",
-			Icon = "fa_rr_information",
-			Tempo = 5
-		})
-		warn("Não foi possível checar atualização.")
-	end
-end
-
-
-
 
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
@@ -1389,6 +1327,7 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 end)
 
 
+
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
@@ -1398,16 +1337,6 @@ Regui.CreatePainterPanel(ConfigsTab,{
 },function(color,name,obj)
 	print("Cor aplicada em:", name,color)
 end)
-
-local UpdateButton = Regui.CreateButton(ConfigsTab, {
-	Text = "Update",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function()
-	Check_Up(Window.Frame.Parent,ModInfo)
-end)
-
 
 -- Safe TP
 RunService.RenderStepped:Connect(function()
