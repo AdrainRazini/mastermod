@@ -1,5 +1,17 @@
 -- ==========================================
--- MastermodV2: Mod Menu
+-- MastermodV2: Mod Menu + Simulator
+-- ==========================================
+
+local ModInfo = {
+	Name = "Animal Simulator",
+	Version = "2.0.0", -- versão atual
+	Date = "2025-09-23",
+	Notes = "Nil"
+}
+return ModInfo
+
+-- ==========================================
+-- Animal Simulator :)
 -- ==========================================
 
 local Players = game:GetService("Players")
@@ -34,6 +46,21 @@ end
 
 assert(Regui, "Regui não foi carregado!")
 
+
+--[[
+local Send = Regui.NotificationDialog(Window.Frame.Parent, {
+	Title = "Nova Atualização!",
+	Text = "Foi lançada a versão 2.0. Deseja aplicar agora?",
+	Icon = "fa_bx_loader", -- qualquer ícone do seu dicionário
+	Tempo = 0 -- 0 = só fecha no clique
+}, function(result)
+	if result then
+		print("Usuário aceitou o update ✅")
+	else
+		print("Usuário recusou ❌")
+	end
+end)
+]]
 
 if PlayerGui:FindFirstChild(GuiName) then
 	Regui.Notifications(PlayerGui, {Title="Alert", Text="Neutralized Code", Icon="fa_rr_information", Tempo=10})
@@ -76,8 +103,6 @@ local bossesList = { "ROCKY","Griffin","BOOSBEAR","BOSSDEER","CENTAUR","CRABBOSS
 -- Valor selecionado no selector
 local selectedBoss = "All" -- padrão: todos
 local selectedPlayerTp = "All"
-
-
 
 -- FLAGS
 local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
@@ -491,20 +516,6 @@ local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Tex
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 --=============-
 
---[[
-local Send = Regui.NotificationDialog(Window.Frame.Parent, {
-	Title = "Nova Atualização!",
-	Text = "Foi lançada a versão 2.0. Deseja aplicar agora?",
-	Icon = "fa_bx_loader", -- qualquer ícone do seu dicionário
-	Tempo = 0 -- 0 = só fecha no clique
-}, function(result)
-	if result then
-		print("Usuário aceitou o update ✅")
-	else
-		print("Usuário recusou ❌")
-	end
-end)
-]]
 
 local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
