@@ -106,7 +106,7 @@ local chach = {
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "21/09/2025",
+		verdate = "23/09/2025",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
@@ -1469,6 +1469,140 @@ function chach.NotificationPerson(Gui, list, callback)
 			destroyNotification()
 		end
 	end)
+
+	return frame
+end
+
+
+-- Notificação com Sim e Não
+function chach.NotificationDialog(Gui, list, callback)
+	local title = list.Title or "Update Disponível"
+	local text = list.Text or "Deseja aplicar a atualização agora?"
+	local tempo = list.Tempo or 0 -- 0 = não fecha automaticamente
+	local dt_Icons = chach.Icons or {}
+	local icon = dt_Icons[list.Icon] or list.Icon or ""
+
+	-- base para empilhamento
+	chach.ActiveNotifications = chach.ActiveNotifications or {}
+	local baseY = -150
+	local offsetY = (#chach.ActiveNotifications * -140)
+
+	-- Frame base
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 320, 0, 140)
+	frame.Position = UDim2.new(1, 340, 1, baseY + offsetY)
+	frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	frame.BorderSizePixel = 0
+	frame.Parent = Gui
+	chach.applyCorner(frame)
+
+	local TweenService = game:GetService("TweenService")
+	-- Animação de entrada
+	TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Position = UDim2.new(1, -340, 1, baseY + offsetY)
+	}):Play()
+
+	-- Ícone (opcional)
+	if icon ~= "" then
+		local iconLabel = Instance.new("ImageLabel")
+		iconLabel.Image = icon
+		iconLabel.Size = UDim2.new(0, 40, 0, 40)
+		iconLabel.Position = UDim2.new(0, 10, 0, 10)
+		iconLabel.BackgroundTransparency = 1
+		iconLabel.Parent = frame
+	end
+
+	-- Título
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, -60, 0, 20)
+	titleLabel.Position = UDim2.new(0, 60, 0, 10)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Text = title
+	titleLabel.TextColor3 = chach.Colors.Accent
+	titleLabel.Font = Enum.Font.SourceSansBold
+	titleLabel.TextSize = 20
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	titleLabel.Parent = frame
+
+	-- Texto
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, -20, 0, 50)
+	textLabel.Position = UDim2.new(0, 10, 0, 40)
+	textLabel.BackgroundTransparency = 1
+	textLabel.TextWrapped = true
+	textLabel.Text = text
+	textLabel.TextColor3 = Color3.fromRGB(220,220,220)
+	textLabel.Font = Enum.Font.SourceSans
+	textLabel.TextSize = 16
+	textLabel.TextXAlignment = Enum.TextXAlignment.Left
+	textLabel.Parent = frame
+
+	-- Botões
+	local yesBtn = Instance.new("TextButton")
+	yesBtn.Size = UDim2.new(0.5, -15, 0, 30)
+	yesBtn.Position = UDim2.new(0, 10, 1, -40)
+	yesBtn.BackgroundColor3 = chach.Colors.Green
+	yesBtn.Text = "Sim"
+	yesBtn.TextColor3 = Color3.fromRGB(255,255,255)
+	yesBtn.Font = Enum.Font.SourceSansBold
+	yesBtn.TextSize = 18
+	yesBtn.Parent = frame
+	chach.applyCorner(yesBtn)
+
+	local noBtn = Instance.new("TextButton")
+	noBtn.Size = UDim2.new(0.5, -15, 0, 30)
+	noBtn.Position = UDim2.new(0.5, 5, 1, -40)
+	noBtn.BackgroundColor3 = chach.Colors.Red
+	noBtn.Text = "Não"
+	noBtn.TextColor3 = Color3.fromRGB(255,255,255)
+	noBtn.Font = Enum.Font.SourceSansBold
+	noBtn.TextSize = 18
+	noBtn.Parent = frame
+	chach.applyCorner(noBtn)
+
+	-- Função para fechar
+	local function destroy(result)
+		local tweenOut = TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Position = UDim2.new(1, 340, 1, baseY + offsetY)
+		})
+		tweenOut:Play()
+		tweenOut.Completed:Wait()
+
+		for i, v in ipairs(chach.ActiveNotifications) do
+			if v == frame then
+				table.remove(chach.ActiveNotifications, i)
+				break
+			end
+		end
+
+		frame:Destroy()
+
+		-- reposicionar notificações restantes
+		for i, notif in ipairs(chach.ActiveNotifications) do
+			local newOffset = (i-1) * -140
+			TweenService:Create(notif, TweenInfo.new(0.3), {
+				Position = UDim2.new(1, -340, 1, baseY + newOffset)
+			}):Play()
+		end
+
+		if callback then callback(result) end
+	end
+
+	-- Eventos
+	yesBtn.MouseButton1Click:Connect(function() destroy(true) end)
+	noBtn.MouseButton1Click:Connect(function() destroy(false) end)
+
+	-- Fechar automático
+	if tempo > 0 then
+		task.delay(tempo, function()
+			if frame and frame.Parent then
+				destroy(false)
+			end
+		end)
+	end
+
+	-- adicionar na pilha
+	table.insert(chach.ActiveNotifications, frame)
 
 	return frame
 end

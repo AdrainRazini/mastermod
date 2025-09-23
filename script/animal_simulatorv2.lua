@@ -491,6 +491,20 @@ local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Tex
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 --=============-
 
+--[[
+local Send = Regui.NotificationDialog(Window.Frame.Parent, {
+	Title = "Nova Atualização!",
+	Text = "Foi lançada a versão 2.0. Deseja aplicar agora?",
+	Icon = "fa_bx_loader", -- qualquer ícone do seu dicionário
+	Tempo = 0 -- 0 = só fecha no clique
+}, function(result)
+	if result then
+		print("Usuário aceitou o update ✅")
+	else
+		print("Usuário recusou ❌")
+	end
+end)
+]]
 
 local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
