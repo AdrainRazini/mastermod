@@ -1263,7 +1263,12 @@ local listMusics = {
 	{name = "Nill", Obj = "0"},
 	{name = "Hip Hop", Obj = "106732317934236"},
 	{name = "Kerosene", Obj = "17647322226"},
-	{name= "Novinha Do Bonde", Obj = "132517043416676"}
+	{name= "Novinha Do Bonde", Obj = "132517043416676"},
+	{name = "Giga Chad", Obj = "15689448519"},
+	{name = "My lo", Obj = "16190782786"},
+	{name = "?", Obj = "1837006787"},
+	{name = "Rock", Obj = "1837014531"}
+
 }
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
