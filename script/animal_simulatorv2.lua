@@ -101,7 +101,7 @@ end
 
 
 
-local bossesList = { "ROCKY","Griffin","BOSSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla" }
+local bossesList = {"Griffin","BOSSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla" }
 -- Valor selecionado no selector
 local selectedBoss = "All" -- padrão: todos
 local ModBoss = "Indexs"
@@ -234,6 +234,21 @@ function movCameraPlr(npc, followBoss)
 	end
 end
 
+
+-- Função de farm boss
+local function farmBossesNormal()
+	while AF.bosses and ModBoss == "Normal" do 
+		local npcFolder = Workspace:FindFirstChild("NPC") 
+		if npcFolder then for _, name in ipairs(bossesList) do 
+				local boss = npcFolder:FindFirstChild(name) 
+				local hum = getAliveHumanoid(boss) 
+				if hum then attackRemote:FireServer(hum, 5) 
+				end 
+			end 
+		end
+		task.wait(AF_Timer.Bosses_Speed) 
+	end 
+end
 
 -- Função principal de farm bosses (cobre ALL e específicos)
 local selectedIndexes = {} -- [] = todos, {1,3} = apenas bosses específicos
@@ -660,19 +675,24 @@ end)
 
 local Label_Seletor_Info = Regui.CreateLabel(FarmTab, {Text = "Ativar Farm", Color = "White", Alignment = "Center"})
 -- Toggle de Auto Boss
--- Toggle de Auto Boss
 local ToggleBosses = Regui.CreateToggleboxe(FarmTab, {Text="Auto Bosses", Color="Red"}, function(state)
-	AF.bosses = state
+	AF.bosses = state  -- Armazena o estado do toggle
+
 	if state then 
-		-- Se ALL → usa o sistema dinâmico (Foco / Indexs)
+		-- Se ativar → inicia farmBosses ou farmBossesNormal
 		if selectedBoss == "All" then
-			farmBosses()
+			if ModBoss == "Normal" then
+				farmBossesNormal()
+			else
+				farmBosses()
+			end
 		else
-			-- Se boss específico → força o fixo
 			farmBossesFix()
 		end
+
 	end
 end)
+
 
 -- Toggle de AFK Camera
 local ToggleBosses_AFK = Regui.CreateToggleboxe(FarmTab, {Text="AFK Camera Bosses", Color="Red"}, function(state)
@@ -692,7 +712,7 @@ local BossOption_Bombox = Regui.CreateSliderOption(FarmTab, {
 	Color = "White",
 	Background = "Blue",
 	Value = 2,
-	Table = {"Foco","Indexs"}
+	Table = {"Foco","Indexs", "Normal"}
 }, function(state)
 	ModBoss = state
 	
