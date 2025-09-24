@@ -312,6 +312,11 @@ end
 -- Função de farm fixa (com verificação do boss selecionado)
 local function farmBossesFix()
 	task.spawn(function()
+		
+		if not AF.afkmod then
+			movCameraPlr(nil, false)
+		end
+		
 		while AF.bosses do
 			local npcFolder = Workspace:FindFirstChild("NPC")
 			local bossFound = false
@@ -345,6 +350,7 @@ local function farmBossesFix()
 		movCameraPlr(nil, false)
 	end)
 end
+
 
 
 
