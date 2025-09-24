@@ -677,6 +677,13 @@ end)
 -- Toggle de AFK Camera
 local ToggleBosses_AFK = Regui.CreateToggleboxe(FarmTab, {Text="AFK Camera Bosses", Color="Red"}, function(state)
 	AF.afkmod = state
+	
+	if state == false then
+		-- Se desativar → restaura câmera normal
+		game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+		game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
+		movCameraPlr(nil, false)
+	end
 end)
 
 -- SliderOption para escolher o modo (afeta apenas farmBosses)
@@ -688,6 +695,7 @@ local BossOption_Bombox = Regui.CreateSliderOption(FarmTab, {
 	Table = {"Foco","Indexs"}
 }, function(state)
 	ModBoss = state
+	
 end)
 
 -- Timer dos bosses
