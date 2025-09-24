@@ -1110,16 +1110,20 @@ local function PVP_LoopIA(kind)
 			local now = tick()
 			local delta = now - lastTick
 			lastTick = now
-			accumulatedTime += delta
+			accumulatedTime = accumulatedTime + delta
 
+			-- Atualiza posição apenas se passou o timer definido
 			if accumulatedTime >= TimerlastPositions then
+				accumulatedTime = 0 -- reset
+
 				local _, _, hrp = getCharacter()
-				if not hrp then accumulatedTime = 0; continue end
+				if not hrp then task.wait() continue end
 
 				local closest, shortest = nil, maxRange
-				local targets = {}
 
-				if not selectedPlayer or selectedPlayer == "All" then
+				-- Determinar lista de alvos
+				local targets = {}
+				if selectedPlayer == nil or selectedPlayer == "All" then
 					targets = Players:GetPlayers()
 				else
 					local plr = Players:FindFirstChild(selectedPlayer)
@@ -1131,6 +1135,7 @@ local function PVP_LoopIA(kind)
 					end
 				end
 
+				-- Buscar jogador mais próximo
 				for _, p in ipairs(targets) do
 					if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
 						local hum = p.Character:FindFirstChildOfClass("Humanoid")
@@ -1144,22 +1149,21 @@ local function PVP_LoopIA(kind)
 					end
 				end
 
+				-- Atacar com previsão 3D
 				if closest then
+					local hum = closest.Character:FindFirstChildOfClass("Humanoid")
 					local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
-					if hrpTarget then
+					if hum and hrpTarget then
 						local currentPos = hrpTarget.Position
 						local lastPos = lastPositions[closest] or currentPos
-
-						-- velocidade baseada no tempo real acumulado
-						local velocity = (currentPos - lastPos) / accumulatedTime
-
+						local deltaTime = PVP_Timer[kind .. "_Speed"] or 0.3
+						local velocity = (currentPos - lastPos) / deltaTime
 						local distance = (currentPos - hrp.Position).Magnitude
-						local projectileSpeed = 140 -- ajustado p/ sua fireball real
+						local projectileSpeed = 80
 						local travelTime = distance / projectileSpeed
 						local predictedPos = currentPos + (velocity * travelTime)
 
 						lastPositions[closest] = currentPos
-						accumulatedTime = 0 -- reset
 
 						if kind == "AutoFireIA" then
 							pcall(function() skillsRemote:FireServer(predictedPos, "NewFireball") end)
@@ -1167,16 +1171,13 @@ local function PVP_LoopIA(kind)
 							pcall(function() skillsRemote:FireServer(predictedPos, "NewLightningball") end)
 						end
 					end
-				else
-					accumulatedTime = 0
 				end
 			end
 
-			task.wait(0.001)
+			task.wait(0.001) -- wait mínimo para evitar travar o Roblox
 		end
 	end)
 end
-
 
 
 
