@@ -236,6 +236,8 @@ end
 
 
 -- Função principal de farm bosses (cobre ALL e específicos)
+local selectedIndexes = {} -- [] = todos, {1,3} = apenas bosses específicos
+
 local function farmBosses()
 	task.spawn(function()
 		while AF.bosses do
@@ -243,10 +245,9 @@ local function farmBosses()
 			local bossFound = false
 
 			if npcFolder then
-				-- === CASO ALL ===
 				if selectedBoss == "All" then
 					if ModBoss == "Foco" then
-						-- Ataca só o primeiro boss válido encontrado
+						-- Ataca só o primeiro boss vivo
 						for _, name in ipairs(bossesList) do
 							local boss = npcFolder:FindFirstChild(name)
 							local hum = getAliveHumanoid(boss)
@@ -258,24 +259,31 @@ local function farmBosses()
 									if AF.afkmod then movCameraPlr(boss, true) end
 									task.wait(AF_Timer.Bosses_Speed)
 								until hum.Health <= 0 or not hum.Parent
-								break -- foco = só 1 boss por vez
+								break -- Foco = apenas 1 boss
 							end
 						end
 					else
-						-- Indexs → percorre todos bosses da lista
-						for _, name in ipairs(bossesList) do
+						-- Indexs → percorre os selecionados ou todos
+						local indexes = #selectedIndexes > 0 and selectedIndexes or (function()
+							local t = {}
+							for i = 1, #bossesList do table.insert(t, i) end
+							return t
+						end)()
+
+						for _, i in ipairs(indexes) do
+							local name = bossesList[i]
 							local boss = npcFolder:FindFirstChild(name)
 							local hum = getAliveHumanoid(boss)
 							if hum then
 								bossFound = true
 								attackRemote:FireServer(hum, 5)
 								if AF.afkmod then movCameraPlr(boss, true) end
+								task.wait(AF_Timer.Bosses_Speed) -- espera antes do próximo boss
 							end
 						end
 					end
-
-					-- === CASO BOSS ESPECÍFICO ===
 				else
+					-- Caso boss específico
 					local boss = npcFolder:FindFirstChild(selectedBoss)
 					local hum = getAliveHumanoid(boss)
 					if hum then
@@ -286,7 +294,6 @@ local function farmBosses()
 				end
 			end
 
-			-- Se nenhum boss válido OU câmera desligada, volta pro player
 			if not bossFound or not AF.afkmod then
 				movCameraPlr(nil, false)
 			end
@@ -294,10 +301,10 @@ local function farmBosses()
 			task.wait(AF_Timer.Bosses_Speed)
 		end
 
-		-- Saiu do loop → reseta câmera
 		movCameraPlr(nil, false)
 	end)
 end
+
 
 
 
@@ -656,8 +663,7 @@ local ToggleBosses = Regui.CreateToggleboxe(FarmTab, {Text="Auto Bosses", Color=
 			farmBosses()
 		else
 			-- Se boss específico → força o fixo
-			farmBosses()
-			--farmBossesFix()
+			farmBossesFix()
 		end
 	end
 end)
