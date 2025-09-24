@@ -1096,7 +1096,7 @@ local Label_Farme_PVP_Info = Regui.CreateLabel(PlayerTab, {Text = "-------------
 
 --=====================================================================================================================--
 local Label_Farme_PVP_IA = Regui.CreateLabel(PlayerTab, {Text = "PVP Test IA", Color = "Red", Alignment = "Center"})
-
+--[[
 -- Guardar últimas posições para prever movimento
 local lastPositions = {}
 local TimerlastPositions = 0.1 -- padrão, pode mudar para 0.005
@@ -1178,7 +1178,110 @@ local function PVP_LoopIA(kind)
 		end
 	end)
 end
+]]
 
+local lastPositions = {} -- Armazena posições anteriores para suavizar a velocidade
+local TimerlastPositions = 0.1 -- intervalo de atualização
+
+-- Função para calcular intercepto exato
+local function PredictIntercept(playerPos, targetPos, targetVelocity, projectileSpeed)
+	local D = targetPos - playerPos
+	local a = targetVelocity.Magnitude^2 - projectileSpeed^2
+	local b = 2 * D:Dot(targetVelocity)
+	local c = D.Magnitude^2
+
+	local discriminant = b^2 - 4*a*c
+	if discriminant < 0 then return nil end -- não há solução real
+
+	local sqrtDisc = math.sqrt(discriminant)
+	local t1 = (-b + sqrtDisc) / (2*a)
+	local t2 = (-b - sqrtDisc) / (2*a)
+
+	local t = math.min(t1, t2)
+	if t < 0 then t = math.max(t1, t2) end
+	if t < 0 then return nil end -- tempo negativo, não válido
+
+	return targetPos + targetVelocity * t
+end
+
+-- Loop de PVP/IA
+local function PVP_LoopIA(kind, selectedPlayer)
+	task.spawn(function()
+		local accumulatedTime = 0
+		local lastTick = tick()
+
+		while PVP[kind] do
+			local now = tick()
+			local delta = now - lastTick
+			lastTick = now
+			accumulatedTime = accumulatedTime + delta
+
+			if accumulatedTime >= TimerlastPositions then
+				accumulatedTime = 0
+
+				local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+				if not hrp then task.wait() continue end
+
+				-- Determinar lista de alvos
+				local targets = {}
+				if not selectedPlayer or selectedPlayer == "All" then
+					targets = Players:GetPlayers()
+				else
+					local plr = Players:FindFirstChild(selectedPlayer)
+					if plr then
+						table.insert(targets, plr)
+					else
+						selectedPlayer = "All"
+						targets = Players:GetPlayers()
+					end
+				end
+
+				-- Encontrar jogador mais próximo
+				local closest, shortest = nil, maxRange
+				for _, p in ipairs(targets) do
+					if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+						local hum = p.Character:FindFirstChildOfClass("Humanoid")
+						if hum and hum.Health > 0 then
+							local dist = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+							if dist < shortest then
+								shortest = dist
+								closest = p
+							end
+						end
+					end
+				end
+
+				-- Atacar com intercepto quadrático
+				if closest then
+					local hum = closest.Character:FindFirstChildOfClass("Humanoid")
+					local hrpTarget = closest.Character:FindFirstChild("HumanoidRootPart")
+					if hum and hrpTarget then
+						local currentPos = hrpTarget.Position
+						local lastPos = lastPositions[closest] or currentPos
+						local deltaTime = TimerlastPositions
+						local velocity = (currentPos - lastPos) / deltaTime
+
+						lastPositions[closest] = currentPos
+
+						local projectileSpeed = kind == "AutoFireIA" and 80 or 100
+						local predictedPos = PredictIntercept(hrp.Position, currentPos, velocity, projectileSpeed)
+
+						if predictedPos then
+							pcall(function()
+								if kind == "AutoFireIA" then
+									skillsRemote:FireServer(predictedPos, "NewFireball")
+								elseif kind == "AutoEletricIA" then
+									skillsRemote:FireServer(predictedPos, "NewLightningball")
+								end
+							end)
+						end
+					end
+				end
+			end
+			task.wait(0.001)
+		end
+	end)
+end
 
 
 local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball IA",Color="Yellow"},function(state)
