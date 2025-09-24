@@ -107,7 +107,7 @@ local selectedBoss = "All" -- padrão: todos
 local selectedPlayerTp = "All"
 
 -- FLAGS
-local AF = { coins=false, bosses=false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
+local AF = { coins=false, bosses=false, afkmod = false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
 local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
 local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoFireIA=false, AutoEletricIA=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee", AutoTp = false }
 local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Speed = 0.05,AutoFireIA_Speed = 0.05, AutoEletricIA_Speed = 0.05, AutoAttack_Speed = 0.05, AutoFlyAttack_Speed = 0.05, AutoTp_Speed = 1}
@@ -209,19 +209,55 @@ local function attackLoop(flag, folder)
 	end)
 end
 
--- Função de farm boss 
+-- Função para mover a câmera do player ou do boss
+function movCameraPlr(npc, followBoss)
+	local cam = Workspace.CurrentCamera
+	local char = player.Character
+
+	-- Se for seguir boss e tudo estiver válido
+	if followBoss and AF.afkmod and npc and npc:FindFirstChild("Humanoid") then
+		cam.CameraSubject = npc:FindFirstChild("Humanoid")
+		cam.CameraType = Enum.CameraType.Custom
+	else
+		-- Volta para o player
+		if char and char:FindFirstChild("Humanoid") then
+			cam.CameraSubject = char.Humanoid
+			cam.CameraType = Enum.CameraType.Custom
+		end
+	end
+end
+
+-- Função de farm boss
 local function farmBosses()
 	while AF.bosses do
 		local npcFolder = Workspace:FindFirstChild("NPC")
+		local bossFound = false
+
 		if npcFolder then
 			for _, name in ipairs(bossesList) do
 				local boss = npcFolder:FindFirstChild(name)
 				local hum = getAliveHumanoid(boss)
-				if hum then attackRemote:FireServer(hum, 5) end
+				if hum then
+					bossFound = true
+					attackRemote:FireServer(hum, 5)
+
+					if AF.afkmod then
+						movCameraPlr(boss, true)  -- segue boss vivo
+					end
+				end
 			end
 		end
+
+		-- Se nenhum boss válido encontrado OU afkmod desligado, volta para player
+		if not bossFound or not AF.afkmod then
+			movCameraPlr(nil, false)
+		end
+
 		task.wait(AF_Timer.Bosses_Speed)
 	end
+
+	-- Saiu do loop => sempre volta a câmera para o player
+	movCameraPlr(nil, false)
 end
 
 -- Função de farm fixa (com verificação do boss selecionado)
@@ -229,20 +265,35 @@ local function farmBossesFix()
 	task.spawn(function()
 		while AF.bosses do
 			local npcFolder = Workspace:FindFirstChild("NPC")
+			local bossFound = false
+
 			if npcFolder then
 				for _, name in ipairs(bossesList) do
-					-- Verifica se deve atacar esse boss
 					if selectedBoss == "All" or selectedBoss == name then
 						local boss = npcFolder:FindFirstChild(name)
 						local hum = getAliveHumanoid(boss)
 						if hum then
+							bossFound = true
 							attackRemote:FireServer(hum, 5)
+
+							if AF.afkmod then
+								movCameraPlr(boss, true)
+							end
 						end
 					end
 				end
 			end
+
+			-- Se nenhum boss válido encontrado OU afkmod desligado, volta para player
+			if not bossFound or not AF.afkmod then
+				movCameraPlr(nil, false)
+			end
+
 			task.wait(AF_Timer.Bosses_Speed)
 		end
+
+		-- Saiu do loop => sempre volta a câmera para o player
+		movCameraPlr(nil, false)
 	end)
 end
 
@@ -560,6 +611,10 @@ local ToggleBosses = Regui.CreateToggleboxe(FarmTab,{Text="Auto Bosses",Color="R
 			farmBossesFix(selectedBoss)
 		end
 	end
+end)
+
+local ToggleBosses_AFK = Regui.CreateToggleboxe(FarmTab,{Text="AFK Camera Bosses",Color="Red"},function(state)
+	AF.afkmod = state
 end)
 
 local SliderFloat_Boosses = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Bosses", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
