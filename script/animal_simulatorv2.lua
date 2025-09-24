@@ -278,7 +278,7 @@ local function farmBosses()
 								bossFound = true
 								attackRemote:FireServer(hum, 5)
 								if AF.afkmod then movCameraPlr(boss, true) end
-								task.wait(AF_Timer.Bosses_Speed) -- espera antes do próximo boss
+								--task.wait(AF_Timer.Bosses_Speed) -- espera antes do próximo boss
 							end
 						end
 					end
