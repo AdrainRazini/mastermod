@@ -684,7 +684,7 @@ local BossOption_Bombox = Regui.CreateSliderOption(FarmTab, {
 	Text = "Modo De Ataque",
 	Color = "White",
 	Background = "Blue",
-	Value = 1,
+	Value = 2,
 	Table = {"Foco","Indexs"}
 }, function(state)
 	ModBoss = state
