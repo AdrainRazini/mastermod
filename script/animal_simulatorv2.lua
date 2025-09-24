@@ -215,17 +215,18 @@ end
 
 
 
+
 -- Função para mover a câmera do player ou do boss
 function movCameraPlr(npc, followBoss)
 	local cam = Workspace.CurrentCamera
 	local char = player.Character
 
-	-- Se for seguir boss e tudo estiver válido
 	if followBoss and AF.afkmod and npc and npc:FindFirstChild("Humanoid") then
-		cam.CameraSubject = npc:FindFirstChild("Humanoid")
+		-- Câmera segue o boss
+		cam.CameraSubject = npc.Humanoid
 		cam.CameraType = Enum.CameraType.Custom
 	else
-		-- Volta para o player
+		-- Câmera volta pro player
 		if char and char:FindFirstChild("Humanoid") then
 			cam.CameraSubject = char.Humanoid
 			cam.CameraType = Enum.CameraType.Custom
@@ -233,8 +234,9 @@ function movCameraPlr(npc, followBoss)
 	end
 end
 
+
 -- Função principal de farm bosses
--- Função principal de farm bosses
+-- Função principal de farm bosses (cobre ALL e específicos)
 local function farmBosses()
 	task.spawn(function()
 		while AF.bosses do
@@ -242,53 +244,50 @@ local function farmBosses()
 			local bossFound = false
 
 			if npcFolder then
-				-- ==== MODO FOCO ====
-				if ModBoss == "Foco" then
-					for _, name in ipairs(bossesList) do
-						if selectedBoss == "All" or selectedBoss == name then
+				-- === CASO ALL ===
+				if selectedBoss == "All" then
+					if ModBoss == "Foco" then
+						-- Ataca só o primeiro boss válido encontrado
+						for _, name in ipairs(bossesList) do
 							local boss = npcFolder:FindFirstChild(name)
 							local hum = getAliveHumanoid(boss)
-
 							if hum then
 								bossFound = true
-								-- Ataca o boss até morrer
 								repeat
 									if not AF.bosses then break end
 									attackRemote:FireServer(hum, 5)
-
-									if AF.afkmod then
-										movCameraPlr(boss, true)
-									end
-
+									if AF.afkmod then movCameraPlr(boss, true) end
 									task.wait(AF_Timer.Bosses_Speed)
 								until hum.Health <= 0 or not hum.Parent
-
-								-- Saiu do repeat → volta pra procurar novamente
-								break
+								break -- foco = só 1 boss por vez
 							end
 						end
-					end
-
-					-- ==== MODO INDEXS ====
-				elseif ModBoss == "Indexs" then
-					for _, name in ipairs(bossesList) do
-						if selectedBoss == "All" or selectedBoss == name then
+					else
+						-- Indexs → percorre todos bosses da lista
+						for _, name in ipairs(bossesList) do
 							local boss = npcFolder:FindFirstChild(name)
 							local hum = getAliveHumanoid(boss)
 							if hum then
 								bossFound = true
 								attackRemote:FireServer(hum, 5)
-
-								if AF.afkmod then
-									movCameraPlr(boss, true)
-								end
+								if AF.afkmod then movCameraPlr(boss, true) end
 							end
 						end
+					end
+
+					-- === CASO BOSS ESPECÍFICO ===
+				else
+					local boss = npcFolder:FindFirstChild(selectedBoss)
+					local hum = getAliveHumanoid(boss)
+					if hum then
+						bossFound = true
+						attackRemote:FireServer(hum, 5)
+						if AF.afkmod then movCameraPlr(boss, true) end
 					end
 				end
 			end
 
-			-- Se não achou boss OU câmera desligada → volta pro player
+			-- Se nenhum boss válido OU câmera desligada, volta pro player
 			if not bossFound or not AF.afkmod then
 				movCameraPlr(nil, false)
 			end
@@ -300,6 +299,7 @@ local function farmBosses()
 		movCameraPlr(nil, false)
 	end)
 end
+
 
 
 
@@ -339,6 +339,9 @@ local function farmBossesFix()
 		movCameraPlr(nil, false)
 	end)
 end
+
+
+
 
 
 
@@ -645,28 +648,49 @@ end)
 
 local Label_Seletor_Info = Regui.CreateLabel(FarmTab, {Text = "Ativar Farm", Color = "White", Alignment = "Center"})
 -- Toggle de Auto Boss
-local ToggleBosses = Regui.CreateToggleboxe(FarmTab,{Text="Auto Bosses",Color="Red"},function(state)
+-- Toggle de Auto Boss
+local ToggleBosses = Regui.CreateToggleboxe(FarmTab, {Text="Auto Bosses", Color="Red"}, function(state)
 	AF.bosses = state
 	if state then 
+		-- Se ALL → usa o sistema dinâmico (Foco / Indexs)
 		if selectedBoss == "All" then
-			farmBosses() 
+			farmBosses()
 		else
-			farmBossesFix(selectedBoss)
+			-- Se boss específico → força o fixo
+			farmBosses()
+			--farmBossesFix()
 		end
 	end
 end)
 
-local ToggleBosses_AFK = Regui.CreateToggleboxe(FarmTab,{Text="AFK Camera Bosses",Color="Red"},function(state)
+-- Toggle de AFK Camera
+local ToggleBosses_AFK = Regui.CreateToggleboxe(FarmTab, {Text="AFK Camera Bosses", Color="Red"}, function(state)
 	AF.afkmod = state
 end)
-local BossOption_Bombox = Regui.CreateSliderOption(MusicTab, {Text = "Modo De Ataque", Color = "White", Background = "Blue" , Value = 1, Table = {"Foco","Indexs"}}, function(state)
+
+-- SliderOption para escolher o modo (afeta apenas farmBosses)
+local BossOption_Bombox = Regui.CreateSliderOption(FarmTab, {
+	Text = "Modo De Ataque",
+	Color = "White",
+	Background = "Blue",
+	Value = 1,
+	Table = {"Foco","Indexs"}
+}, function(state)
 	ModBoss = state
 end)
-local SliderFloat_Boosses = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Bosses", Color = "Blue", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
-	AF_Timer.Bosses_Speed = state
-	print("Slider Float clicada! Estado:", AF_Timer.Bosses_Speed)
 
-end) 
+-- Timer dos bosses
+local SliderFloat_Boosses = Regui.CreateSliderFloat(FarmTab, {
+	Text = "Timer Bosses",
+	Color = "Blue",
+	Value = 0.1,
+	Minimum = 0,
+	Maximum = 1
+}, function(state)
+	AF_Timer.Bosses_Speed = state
+	print("Timer atualizado:", AF_Timer.Bosses_Speed)
+end)
+
 
 
 local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies", Color = "Blue"}, function(state)
