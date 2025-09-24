@@ -236,7 +236,6 @@ end
 
 
 -- Função principal de farm bosses
--- Função principal de farm bosses (cobre ALL e específicos)
 local function farmBosses()
 	task.spawn(function()
 		while AF.bosses do
@@ -247,7 +246,7 @@ local function farmBosses()
 				-- === CASO ALL ===
 				if selectedBoss == "All" then
 					if ModBoss == "Foco" then
-						-- Ataca só o primeiro boss válido encontrado
+						-- Ataca só o primeiro boss válido até morrer
 						for _, name in ipairs(bossesList) do
 							local boss = npcFolder:FindFirstChild(name)
 							local hum = getAliveHumanoid(boss)
@@ -255,7 +254,7 @@ local function farmBosses()
 								bossFound = true
 								repeat
 									if not AF.bosses then break end
-									attackRemote:FireServer(hum, 5)
+									attackRemote:FireServer(hum, 5) -- ataca 5 de cada vez
 									if AF.afkmod then movCameraPlr(boss, true) end
 									task.wait(AF_Timer.Bosses_Speed)
 								until hum.Health <= 0 or not hum.Parent
@@ -263,14 +262,15 @@ local function farmBosses()
 							end
 						end
 					else
-						-- Indexs → percorre todos bosses da lista
+						-- === MODO INDEXS ===
 						for _, name in ipairs(bossesList) do
 							local boss = npcFolder:FindFirstChild(name)
 							local hum = getAliveHumanoid(boss)
 							if hum then
 								bossFound = true
-								attackRemote:FireServer(hum, 5)
+								attackRemote:FireServer(hum, 5) -- apenas 1 dano
 								if AF.afkmod then movCameraPlr(boss, true) end
+								task.wait(AF_Timer.Bosses_Speed) -- espera antes de ir para o próximo
 							end
 						end
 					end
@@ -291,14 +291,13 @@ local function farmBosses()
 			if not bossFound or not AF.afkmod then
 				movCameraPlr(nil, false)
 			end
-
-			task.wait(AF_Timer.Bosses_Speed)
 		end
 
 		-- Saiu do loop → reseta câmera
 		movCameraPlr(nil, false)
 	end)
 end
+
 
 
 
