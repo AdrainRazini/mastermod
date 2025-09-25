@@ -1174,7 +1174,7 @@ local function PVP_LoopIA(kind)
 						local travelTime = distance / projectileSpeed
 						local predictedPos = PredictPosition(hrpTarget, projectileSpeed)
 						--local predictedPos = currentPos + (velocity * travelTime)
-
+						
 						lastPositions[closest] = currentPos
 
 						if kind == "AutoFireIA" then
@@ -1184,6 +1184,11 @@ local function PVP_LoopIA(kind)
 						end
 					end
 				end
+				
+				if not closest then
+					lastPositions[closest] = nil
+				end
+				
 			end
 
 			task.wait(0.001) -- wait mínimo para evitar travar o Roblox
