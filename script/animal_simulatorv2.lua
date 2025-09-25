@@ -1185,10 +1185,7 @@ local function PVP_LoopIA(kind)
 					end
 				end
 				
-				if not closest then
-					lastPositions[closest] = nil
-				end
-				
+	
 			end
 
 			task.wait(0.001) -- wait mínimo para evitar travar o Roblox
