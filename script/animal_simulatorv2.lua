@@ -1101,6 +1101,17 @@ local Label_Farme_PVP_IA = Regui.CreateLabel(PlayerTab, {Text = "PVP Test IA", C
 local lastPositions = {}
 local TimerlastPositions = 0.1 -- padrão, pode mudar para 0.005
 
+function PredictPosition(targetRoot, projectileSpeed, iterations)
+	iterations = iterations or 5
+	local predictedPos = targetRoot.Position
+	for i = 1, iterations do
+		local distance = (predictedPos - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+		local travelTime = distance / projectileSpeed
+		predictedPos = targetRoot.Position + targetRoot.Velocity * travelTime
+	end
+	return predictedPos
+end 
+
 local function PVP_LoopIA(kind)
 	task.spawn(function()
 		local accumulatedTime = 0
@@ -1161,7 +1172,8 @@ local function PVP_LoopIA(kind)
 						local distance = (currentPos - hrp.Position).Magnitude
 						local projectileSpeed = 80
 						local travelTime = distance / projectileSpeed
-						local predictedPos = currentPos + (velocity * travelTime)
+						local predictedPos = PredictPosition(hrpTarget, projectileSpeed)
+						--local predictedPos = currentPos + (velocity * travelTime)
 
 						lastPositions[closest] = currentPos
 
