@@ -1172,11 +1172,20 @@ local function PVP_LoopIA(kind)
 						local distance = (currentPos - hrp.Position).Magnitude
 						local projectileSpeed = 80
 						local travelTime = distance / projectileSpeed
-						local predictedPos = PredictPosition(hrpTarget, projectileSpeed)
-						--local predictedPos = currentPos + (velocity * travelTime)
-						
+
+						-- tenta predição, se falhar usa linear
+						local predictedPos
+						local success, result = pcall(PredictPosition, hrpTarget, projectileSpeed)
+						if success and result then
+							predictedPos = result
+						else
+							predictedPos = currentPos + (velocity * travelTime)
+						end
+
+						-- atualiza memória
 						lastPositions[closest] = currentPos
 
+						-- dispara skill
 						if kind == "AutoFireIA" then
 							pcall(function() skillsRemote:FireServer(predictedPos, "NewFireball") end)
 						elseif kind == "AutoEletricIA" then
@@ -1184,8 +1193,7 @@ local function PVP_LoopIA(kind)
 						end
 					end
 				end
-				
-	
+
 			end
 
 			task.wait(0.001) -- wait mínimo para evitar travar o Roblox
