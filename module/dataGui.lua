@@ -358,7 +358,7 @@ function chach.TabsWindow(list)
 		Btn_On_Off.Rotation = minimized and 0 or 90
 	end)
 
-	return {Frame=frame, TopBar=top_frame, TopTabs=top_Tabs, TabContainer=tabContainer, Tabs={}}
+	return {screenGui = screenGui, Frame=frame, TopBar=top_frame, TopTabs=top_Tabs, TabContainer=tabContainer, Tabs={}}
 end
 
 

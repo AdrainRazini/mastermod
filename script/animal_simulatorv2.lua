@@ -1521,6 +1521,18 @@ Regui.CreatePainterPanel(ConfigsTab,{
 	print("Cor aplicada em:", name,color)
 end)
 
+
+local DeleteGui = Regui.CreateButton(ConfigsTab, {
+	Text = "Delete GUI",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function(val)
+	local Scren = Window.screenGui
+	Scren:Destroy()
+	script:Destroy()
+end)
+
 -- Safe TP
 RunService.RenderStepped:Connect(function()
 	if AF.tpDummy then
