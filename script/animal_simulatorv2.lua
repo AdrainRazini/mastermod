@@ -1528,9 +1528,22 @@ local DeleteGui = Regui.CreateButton(ConfigsTab, {
 	BGColor = "Blue",
 	TextSize = 16
 }, function(val)
-	local Scren = Window.screenGui
-	Scren:Destroy()
-	script:Destroy()
+	print("Delete GUI")
+	Regui.NotificationDialog(Window.Frame.Parent, {
+		Title = "Deletar Gui !",
+		Text = "Deseja Deletar agora?",
+		Icon = "fa_envelope", -- qualquer ícone do seu dicionário
+		Tempo = 0 -- 0 = só fecha no clique
+	}, function(result)
+		if result then
+			local Scren = Window.screenGui
+			Scren:Destroy()
+			script:Destroy()
+		else
+			--print("Usuário recusou ❌")
+		end
+	end)
+	
 end)
 
 -- Safe TP
