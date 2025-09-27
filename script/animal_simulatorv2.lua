@@ -1598,17 +1598,6 @@ end)
 
 
 
-local TestFirework = Regui.CreateButton(MusicTab, {
-	Text = "Playe: TestFirework",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function()
-	local Firework_upvr = ReplicatedStorage:WaitForChild("Firework")
-	Firework_upvr:FireServer()
-end)
-
-
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
