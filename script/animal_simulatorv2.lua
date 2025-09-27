@@ -72,6 +72,7 @@ end
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
 local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
+local damageInd = ReplicatedStorage:WaitForChild("SkillsInRS"):FindFirstChild("DamageIndicatorEvent")
 local idmusicRemote = ReplicatedStorage:WaitForChild("Events"):WaitForChild("PLAYEvent")
 
 
@@ -103,10 +104,18 @@ end
 
 local bossesList = {"Griffin","BOSSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla" }
 -- Valor selecionado no selector
+
 local selectedBoss = "All" -- padrão: todos
 local ModBoss = "Indexs"
+local ModtpDummy = "Foco"
 
 local selectedPlayerTp = "All"
+-- Função principal de farm bosses (cobre ALL e específicos)
+local selectedIndexes = {} -- [] = todos, {1,3} = apenas bosses específicos
+
+local selectedPlayer = nil -- caso seja nil ou "All", usa todos os jogadores
+
+local autoAttackIndex = 1 -- controla o ciclo 1-5
 
 -- FLAGS
 local AF = { coins=false, bosses=false, afkmod = false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
@@ -116,7 +125,7 @@ local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Spe
 local maxRange = 100
 
 
-
+--=============================================--
 -- Buscar De Dados
 -- UTILS
 local function getCharacter()
@@ -196,6 +205,7 @@ local function autoCoins()
 	end)
 end
 
+-- PVP + Dummy
 local function attackLoop(flag, folder)
 	task.spawn(function()
 		while AF[flag] do
@@ -215,7 +225,7 @@ end
 
 
 
-
+-- AUTO FARM BOSSES
 -- Função para mover a câmera do player ou do boss
 function movCameraPlr(npc, followBoss)
 	local cam = Workspace.CurrentCamera
@@ -234,7 +244,7 @@ function movCameraPlr(npc, followBoss)
 	end
 end
 
-
+-- AUTO FARM BOSSES Original
 -- Função de farm boss
 local function farmBossesNormal()
 	while AF.bosses and ModBoss == "Normal" do 
@@ -250,8 +260,6 @@ local function farmBossesNormal()
 	end 
 end
 
--- Função principal de farm bosses (cobre ALL e específicos)
-local selectedIndexes = {} -- [] = todos, {1,3} = apenas bosses específicos
 
 local function farmBosses()
 	task.spawn(function()
@@ -367,14 +375,11 @@ local function farmBossesFix()
 end
 
 
+--===================================================--
 
+--===================================================--
 
-
-
-
-local selectedPlayer = nil -- caso seja nil ou "All", usa todos os jogadores
-
-local autoAttackIndex = 1 -- controla o ciclo 1-5
+-- PVP LOOP Auras + PVP + Fire
 
 local function PVP_Loop(kind)
 	task.spawn(function()
@@ -440,6 +445,7 @@ local function PVP_Loop(kind)
 	end)
 end
 
+-- PVP LOOP + PVP + Teleport
 
 local function AutoTp_Loop()
 	task.spawn(function()
@@ -786,6 +792,7 @@ local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dumm
 end) 
 
 
+
 local Check_Tp_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummies", Color = "White"}, function(state)
 	AF.tpDummy = state
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
@@ -830,6 +837,20 @@ local Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dum
 
 
 end)
+
+-- SliderOption para escolher o modo (afeta apenas farmBosses)
+local DummyOption_Bombox = Regui.CreateSliderOption(FarmTab, {
+	Text = "Modo De Ataque tpDummy ",
+	Color = "White",
+	Background = "Blue",
+	Value = 1,
+	Table = {"Foco","Indexs", "Normal"}
+}, function(state)
+	ModtpDummy = state
+
+end)
+
+
 
 local Ohyya = Regui.CreateImage(FarmTab, {Name = "Meme", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://75961890646911", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
@@ -1509,6 +1530,14 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 	idmusicRemote:FireServer("106732317934236")
 end)
 
+local Test_Indicator = Regui.CreateButton(MusicTab, {
+	Text = "Test_Indicator",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	damageInd:FireServer()
+end)
 
 
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
