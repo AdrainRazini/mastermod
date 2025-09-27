@@ -72,7 +72,7 @@ end
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
 local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
-local damageInd = ReplicatedStorage:WaitForChild("SkillsInRS"):FindFirstChild("DamageIndicatorEvent")
+
 local idmusicRemote = ReplicatedStorage:WaitForChild("Events"):WaitForChild("PLAYEvent")
 
 
@@ -106,7 +106,7 @@ local bossesList = {"Griffin","BOSSBEAR","BOSSDEER","CENTAUR","CRABBOSS","Dragon
 -- Valor selecionado no selector
 
 local selectedBoss = "All" -- padrão: todos
-local ModBoss = "Indexs"
+
 local ModtpDummy = "Foco"
 
 local selectedPlayerTp = "All"
@@ -206,10 +206,35 @@ local function autoCoins()
 end
 
 -- PVP + Dummy
+
+
+-- Controle Indexs separado para cada pasta
+local tpIndexes = {
+	dummiesFolder = { index = 1, lastHit = 0 },
+	folder5k = { index = 1, lastHit = 0 }
+}
+local hitCooldown = 0.5 -- tempo entre troca no modo Indexs
+
+-- Função genérica para pegar o alvo dependendo do modo
+local function getTarget(folder, mode)
+	local dummies = folder:GetChildren()
+	if #dummies == 0 then return end
+
+	if mode == "Foco" then
+		local dummy, hum = findDummy(folder)
+		if dummy and hum then return dummy, hum end
+
+	elseif mode == "Normal" then
+		local dummy = dummies[math.random(1, #dummies)]
+		local hum = getAliveHumanoid(dummy)
+		if dummy and hum then return dummy, hum end
+	end
+end
+
 local function attackLoop(flag, folder)
 	task.spawn(function()
 		while AF[flag] do
-			local dummy, hum = findDummy(folder)
+			local dummy, hum = getTarget(folder, ModtpDummy)
 			if dummy and hum and dummy:FindFirstChild("HumanoidRootPart") then
 				local pos = dummy.HumanoidRootPart.Position
 				attackRemote:FireServer(hum, 2)
@@ -220,8 +245,6 @@ local function attackLoop(flag, folder)
 		end
 	end)
 end
-
-
 
 
 
@@ -738,6 +761,12 @@ end)
 
 
 
+local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies", Color = "Blue", Value = 1, Minimum = 0, Maximum = 1}, function(state)
+	AF_Timer.Dummies_Speed = state
+	print("Slider Float clicada! Estado:", AF_Timer.Dummies_Speed)
+
+end) 
+
 local Check_Farme_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies", Color = "Blue"}, function(state)
 	AF.dummies = state
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
@@ -785,7 +814,8 @@ local Check_Farme_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummi
 end)
 
 
-local SliderFloat_dummies = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies", Color = "Blue", Value = 1, Minimum = 0, Maximum = 1}, function(state)
+
+local SliderFloat_dummies_Tp = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies + Tp", Color = "Blue", Value = 1, Minimum = 0, Maximum = 1}, function(state)
 	AF_Timer.Dummies_Speed = state
 	print("Slider Float clicada! Estado:", AF_Timer.Dummies_Speed)
 
@@ -844,10 +874,31 @@ local DummyOption_Bombox = Regui.CreateSliderOption(FarmTab, {
 	Color = "White",
 	Background = "Blue",
 	Value = 1,
-	Table = {"Foco","Indexs", "Normal"}
+	Table = {"Foco", "Normal"}
 }, function(state)
 	ModtpDummy = state
 
+end)
+
+-- Safe TP
+RunService.RenderStepped:Connect(function()
+	local _,_,hrp = getCharacter()
+	if not hrp then return end
+
+	if AF.tpDummy then
+		local dummy, hum = getTarget(dummiesFolder, ModtpDummy)
+		if dummy and hum and dummy:FindFirstChild("HumanoidRootPart") then
+			hrp.CFrame = dummy.HumanoidRootPart.CFrame + Vector3.new(0,5,0)
+		end
+	end
+
+	if AF.tpDummy5k then
+		local dummy, hum = getTarget(folder5k, ModtpDummy)
+		if dummy and hum and dummy:FindFirstChild("HumanoidRootPart") then
+			hrp.CFrame = dummy.HumanoidRootPart.CFrame + Vector3.new(0,5,0)
+		end
+	end
+	
 end)
 
 
@@ -1530,14 +1581,6 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 	idmusicRemote:FireServer("106732317934236")
 end)
 
-local Test_Indicator = Regui.CreateButton(MusicTab, {
-	Text = "Test_Indicator",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function()
-	damageInd:FireServer()
-end)
 
 
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
@@ -1573,24 +1616,6 @@ local DeleteGui = Regui.CreateButton(ConfigsTab, {
 		end
 	end)
 	
-end)
-
--- Safe TP
-RunService.RenderStepped:Connect(function()
-	if AF.tpDummy then
-		local dummy,_=findDummy(dummiesFolder)
-		if dummy and dummy:FindFirstChild("HumanoidRootPart") then
-			local _,_,hrp=getCharacter()
-			hrp.CFrame=dummy.HumanoidRootPart.CFrame+Vector3.new(0,5,0)
-		end
-	end
-	if AF.tpDummy5k then
-		local dummy,_=findDummy(folder5k)
-		if dummy and dummy:FindFirstChild("HumanoidRootPart") then
-			local _,_,hrp=getCharacter()
-			hrp.CFrame=dummy.HumanoidRootPart.CFrame+Vector3.new(0,5,0)
-		end
-	end
 end)
 
 
