@@ -119,7 +119,7 @@ local autoAttackIndex = 1 -- controla o ciclo 1-5
 
 -- FLAGS
 local AF = { coins=false, bosses=false, afkmod = false, dummies=false, dummies5k=false, tpDummy=false, tpDummy5k=false }
-local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, Dummies5k_Speed = 1}
+local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, DummiesTp_Speed = 1}
 local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoFireIA=false, AutoEletricIA=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee", AutoTp = false }
 local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Speed = 0.05,AutoFireIA_Speed = 0.05, AutoEletricIA_Speed = 0.05, AutoAttack_Speed = 0.05, AutoFlyAttack_Speed = 0.05, AutoTp_Speed = 1}
 local maxRange = 100
@@ -246,6 +246,20 @@ local function attackLoop(flag, folder)
 	end)
 end
 
+local function attackLoopTp(flag, folder)
+	task.spawn(function()
+		while AF[flag] do
+			local dummy, hum = getTarget(folder, ModtpDummy)
+			if dummy and hum and dummy:FindFirstChild("HumanoidRootPart") then
+				local pos = dummy.HumanoidRootPart.Position
+				attackRemote:FireServer(hum, 2)
+				skillsRemote:FireServer(pos, "NewFireball")
+				skillsRemote:FireServer(pos, "NewLightningball")
+			end
+			task.wait(AF_Timer.DummiesTp_Speed)
+		end
+	end)
+end
 
 
 -- AUTO FARM BOSSES
@@ -358,11 +372,11 @@ end
 -- Função de farm fixa (com verificação do boss selecionado)
 local function farmBossesFix()
 	task.spawn(function()
-		
+
 		if not AF.afkmod then
 			movCameraPlr(nil, false)
 		end
-		
+
 		while AF.bosses do
 			local npcFolder = Workspace:FindFirstChild("NPC")
 			local bossFound = false
@@ -726,7 +740,7 @@ end)
 -- Toggle de AFK Camera
 local ToggleBosses_AFK = Regui.CreateToggleboxe(FarmTab, {Text="AFK Camera Bosses", Color="Red"}, function(state)
 	AF.afkmod = state
-	
+
 	if state == false then
 		-- Se desativar → restaura câmera normal
 		game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
@@ -744,7 +758,7 @@ local BossOption_Bombox = Regui.CreateSliderOption(FarmTab, {
 	Table = {"Foco","Indexs", "Normal"}
 }, function(state)
 	ModBoss = state
-	
+
 end)
 
 -- Timer dos bosses
@@ -816,8 +830,8 @@ end)
 
 
 local SliderFloat_dummies_Tp = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies + Tp", Color = "Blue", Value = 1, Minimum = 0, Maximum = 1}, function(state)
-	AF_Timer.Dummies_Speed = state
-	print("Slider Float clicada! Estado:", AF_Timer.Dummies_Speed)
+	AF_Timer.DummiesTp_Speed = state
+	print("Slider Float clicada! Estado:", AF_Timer.DummiesTp_Speed)
 
 end) 
 
@@ -828,7 +842,7 @@ local Check_Tp_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummi
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
 
 	if AF.tpDummy  then
-		attackLoop("tpDummy", dummiesFolder)
+		attackLoopTp("tpDummy", dummiesFolder)
 		-- Notificação se for Verdadeiro
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert: Tp dummies",
@@ -851,7 +865,7 @@ local Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dum
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
 
 	if AF.tpDummy5k  then
-		attackLoop("tpDummy5k", folder5k)
+		attackLoopTp("tpDummy5k", folder5k)
 		-- Notificação se for Verdadeiro
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Alert: Tp dummies5k",
@@ -881,6 +895,7 @@ local DummyOption_Bombox = Regui.CreateSliderOption(FarmTab, {
 end)
 
 -- Safe TP
+
 RunService.RenderStepped:Connect(function()
 	local _,_,hrp = getCharacter()
 	if not hrp then return end
@@ -898,7 +913,7 @@ RunService.RenderStepped:Connect(function()
 			hrp.CFrame = dummy.HumanoidRootPart.CFrame + Vector3.new(0,5,0)
 		end
 	end
-	
+
 end)
 
 
@@ -1615,7 +1630,7 @@ local DeleteGui = Regui.CreateButton(ConfigsTab, {
 			--print("Usuário recusou ❌")
 		end
 	end)
-	
+
 end)
 
 
