@@ -1597,7 +1597,6 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 end)
 
 
-
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
@@ -1631,6 +1630,30 @@ local DeleteGui = Regui.CreateButton(ConfigsTab, {
 		end
 	end)
 
+end)
+
+local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
+	Text = "Simple Spy",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	
+	print("Delete GUI")
+	Regui.NotificationDialog(Window.Frame.Parent, {
+		Title = "Função Avançada!",
+		Text = "Deseja Usar agora?",
+		Icon = "fa_envelope", -- qualquer ícone do seu dicionário
+		Tempo = 0 -- 0 = só fecha no clique
+	}, function(result)
+		if result then
+			loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
+		else
+			--print("Usuário recusou ❌")
+		end
+	end)
+	
+	
 end)
 
 
