@@ -1556,6 +1556,8 @@ end)
 
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 -- Music Tab
+--[[
+-- Original Music List
 local listMusics = {
 	{name = "Nill", Obj = "0"},
 	{name = "DJ Raimundo", Obj = "92295159623916"},
@@ -1570,6 +1572,54 @@ local listMusics = {
 	{name = "Rock", Obj = "1837014531"}
 
 }
+]]
+local listMusics = {
+	{name = "Nill", Obj = "0"},
+	{name = "100℅ Forrozin De Vaquejada Tema Dj Raimundo Pedras", Obj = "92295159623916"},
+	{name = "MONTAGEM PODER IV (SLOWED)", Obj = "91233243522140"},
+	{name = "BRAZILIAN DRIFT MUSIC", Obj = "116874163291138"},
+	{name = "Montagem Tomada", Obj = "114727662968481"},
+	{name = "Mente ma", Obj = "98337901681441"},
+	{name = "Red Chains", Obj = "102402883551679"},
+	{name = "SHADOWS", Obj = "122761529841977"},
+	{name = "Cool", Obj = "87909146687252"},
+	{name = "BAD", Obj = "127512475318182"},
+	{name = "BEM SOLTO BRAZIL!", Obj = "119936139925486"},
+	{name = "AMOGUS.BABOBOI JUMPSTYLE", Obj = "105854178411388"},
+	{name = "Winter", Obj = "87233041213837"},
+	{name = "Montagem Primo", Obj = "121516877792091"},
+	{name = "jumpstyle", Obj = "85833437298815"},
+	{name = "A Engimatical Encounter", Obj = "115656438192853"},
+	{name = "stronger than ya chara response", Obj = "96357207714662"},
+	{name = "ASGORE", Obj = "107986977620509"},
+	{name = "the skeletons last breath", Obj = "101378669026310"},
+	{name = "Hammer of Justice", Obj = "109606503605402"},
+	{name = "LIT!", Obj = "112512564227744"},
+	{name = "Empina na onda (feito por keven)", Obj = "104621031886653"},
+	{name = "MTG MIND GAME", Obj = "83914052148279"},
+	{name = "The World Between Us", Obj = "117236780703437"},
+	{name = "Toque Phonk", Obj = "81552567379452"},
+	{name = "FUNK ALL THE TIME", Obj = "123809083385992"},
+	{name = "No Era Amor", Obj = "112748273890049"},
+	{name = "unleaked bypassed song", Obj = "137155874195108"},
+	{name = "crazy-lol (XL & NGI)", Obj = "106958630419629"},
+	{name = "SAD!", Obj = "72320758533508"},
+	{name = "shawty", Obj = "127063071194532"},
+	{name = "KATANAZ!", Obj = "139667113842953"},
+	{name = "Montagem Mysterious", Obj = "90627119202018"},
+	{name = "melodia de verão (tiktok edit)", Obj = "118507373399694"},
+	{name = "MONTAGEM ECLIPSE ESTELAR", Obj = "93058983119992"},
+	{name = "aw YEA", Obj = "139218946376655"},
+	{name = "pisada XL 2", Obj = "97567416166163"},
+	{name = "Fat Rat", Obj = "106732317934236"},
+	{name = "Kerosene", Obj = "17647322226"},
+	{name = "MONTAGEM ELECTRONICA - Mega slowed", Obj = "132517043416676"},
+	{name = "Din1c - can you", Obj = "15689448519"},
+	{name = "Lil Kuudere, sukoyomi - Alone", Obj = "16190782786"},
+	{name = "You Ain't Hot Enough", Obj = "1837006787"},
+	{name = "Tired Of You", Obj = "1837014531"},
+}
+
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	Name = "Selecionar Musica",
