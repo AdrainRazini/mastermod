@@ -1601,6 +1601,7 @@ local listMusics = {
 	{name = "Lil Kuudere, sukoyomi - Alone", Obj = "16190782786"},
 	{name = "You Ain't Hot Enough", Obj = "1837006787"},
 	{name = "Tired Of You", Obj = "1837014531"},
+	{name = "Ghost Fight (Hard Bounce Flip)", Obj = "94494416095572"}
 }
 
 -- 🔹 Selector de alvo no topo
