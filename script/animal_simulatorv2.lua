@@ -1656,15 +1656,37 @@ local DeleteGui = Regui.CreateButton(ConfigsTab, {
 		Tempo = 0 -- 0 = só fecha no clique
 	}, function(result)
 		if result then
+			-- Resetar todas as flags do AF
+			for k, _ in pairs(AF) do
+				AF[k] = false
+			end
+
+			-- Resetar todas as flags do PVP
+			for k, _ in pairs(PVP) do
+				if type(PVP[k]) == "boolean" then
+					PVP[k] = false
+				end
+			end
+
+			-- Resetar timers para 0 ou padrão
+			for k, _ in pairs(AF_Timer) do
+				AF_Timer[k] = 0
+			end
+
+			for k, _ in pairs(PVP_Timer) do
+				PVP_Timer[k] = 0
+			end
+
+			-- Destruir GUI e script
 			local Scren = Window.screenGui
 			Scren:Destroy()
 			script:Destroy()
 		else
-			--print("Usuário recusou ❌")
+			-- Usuário cancelou ❌
 		end
 	end)
-
 end)
+
 
 local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
 	Text = "Simple Spy",
