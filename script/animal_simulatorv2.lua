@@ -1555,24 +1555,7 @@ local SliderOption_Bombox = Regui.CreateSliderOption(MusicTab, {Text = "Music", 
 end)
 
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
--- Music Tab
---[[
--- Original Music List
-local listMusics = {
-	{name = "Nill", Obj = "0"},
-	{name = "DJ Raimundo", Obj = "92295159623916"},
-	{name = "Rat Dance", Obj = "139218946376655"},
-	{name = "Sus", Obj = "97567416166163"},
-	{name = "Hip Hop", Obj = "106732317934236"},
-	{name = "Kerosene", Obj = "17647322226"},
-	{name= "Novinha Do Bonde", Obj = "132517043416676"},
-	{name = "Giga Chad", Obj = "15689448519"},
-	{name = "Lil Kuudere sukoyomi", Obj = "16190782786"},
-	{name = "You Ain't Hot Enough", Obj = "1837006787"},
-	{name = "Rock", Obj = "1837014531"}
 
-}
-]]
 local listMusics = {
 	{name = "Nill", Obj = "0"},
 	{name = "100℅ Forrozin De Vaquejada Tema Dj Raimundo Pedras", Obj = "92295159623916"},
