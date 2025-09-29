@@ -1526,6 +1526,9 @@ local Memedemonslayer= Regui.CreateImage(GameTab, {Name = "Meme (demon slayer)",
 
 
 --============================--
+
+local MarketplaceService = game:GetService("MarketplaceService")
+
 local Label_Music_Info = Regui.CreateLabel(MusicTab, {Text = "Boombox", Color = "White", Alignment = "Center"})
 local SetBombox= "Stop"
 local IdBombox = "0"
@@ -1614,22 +1617,90 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	print("Set: ", selectedObj)
 	--Input_Text.SetVal(selectedObj)
 	idmusicRemote:FireServer(selectedObj)
+	
+	--[[
+	local idname = ""
+	local success, info = pcall(function()
+		return MarketplaceService:GetProductInfo(selectedObj)
+	end)
+
+	if success and info then
+		idname = info.Name or "_Music_"
+	else
+		idname = "ID inválido!"
+	end
+	
+	Regui.NotificationPerson(Window.Frame.Parent, {
+		Title = "Name: " .. idname ,
+		Text = "Id Music: " .. selectedObj  ,
+		Icon = "fa_rr_paper_plane",
+		Tempo = 5,
+		Casch = {},
+		Sound = ""
+	}, function()
+		print("Notificação fechada!")
+	end)	
+	]]
+	
 end)
 
 
 --=======================--
-
+--[[
 local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
 -- Botão para pegar a Musica
+-- Test De Salvamento do ID da musica
+
+local Save_Id = "0"
+
+-- Label que mostra info da música
+local Label_Music_Info_Save = Regui.CreateLabel(MusicTab, {
+	Text = "_Music_",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Função segura para atualizar info da música
+local function updateMusicInfo()
+	if not Save_Id or Save_Id == "" then
+		Label_Music_Info_Save.Text = "_Music_"
+		return
+	end
+
+	local success, info = pcall(function()
+		return MarketplaceService:GetProductInfo(Save_Id)
+	end)
+
+	if success and info then
+		Label_Music_Info_Save.Text = info.Name or "_Music_"
+	else
+		Label_Music_Info_Save.Text = "ID inválido!"
+	end
+end
+
+-- Input de ID
+local Input_Text_Save = Regui.CreateTextBox(MusicTab, {
+	Placeholder = "ID Bombox",
+	Color = "White",
+	BGColor = "DarkGray",
+	Size = UDim2.new(1, -10, 0, 30)
+}, function(val)
+	Save_Id = val
+	updateMusicInfo() -- Atualiza automaticamente ao digitar
+end)
+
+-- Botão de salvar
 local MusicButton = Regui.CreateButton(MusicTab, {
-	Text = "Playe: Music Test",
+	Text = "Save ID",
 	Color = "White",
 	BGColor = "Blue",
 	TextSize = 16
 }, function()
-	idmusicRemote:FireServer("106732317934236")
+	print("ID salvo:", Save_Id)
+	updateMusicInfo() -- Também atualiza o label ao clicar
 end)
-
+]]
+--=================================--
 
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
@@ -1694,7 +1765,7 @@ local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
 	BGColor = "Blue",
 	TextSize = 16
 }, function()
-	
+
 	print("Delete GUI")
 	Regui.NotificationDialog(Window.Frame.Parent, {
 		Title = "Função Avançada!",
@@ -1708,8 +1779,8 @@ local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
 			--print("Usuário recusou ❌")
 		end
 	end)
-	
-	
+
+
 end)
 
 
