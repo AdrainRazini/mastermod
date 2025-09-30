@@ -887,8 +887,8 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 
 	local toggled = false
 	local function updateIcon()
-		--toggleIcon.Image = toggled and chach.Icons.fa_rr_toggle_right or chach.Icons.fa_rr_toggle_left
-		toggleIcon.Image = toggled and chach.Icons.fa_rr_toggle_white_right or chach.Icons.fa_rr_toggle_left
+		toggleIcon.Image = toggled and chach.Icons.fa_rr_toggle_right or chach.Icons.fa_rr_toggle_left
+		--toggleIcon.Image = toggled and chach.Icons.fa_rr_toggle_white_right or chach.Icons.fa_rr_toggle_left
 	end
 
 	local function toggle()
