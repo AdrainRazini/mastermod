@@ -31,6 +31,8 @@ local chach = {
 		fa_bx_mastermods = "rbxassetid://102637810511338", -- Logo do meu mod
 		fa_rr_toggle_left = "rbxassetid://118353432570896", -- Off
 		fa_rr_toggle_right = "rbxassetid://136961682267523", -- On
+		fa_rr_toggle_white_left = "rbxassetid://104180406494114", -- Off 2
+		fa_rr_toggle_white_right = "rbxassetid://134306309440149", -- On 2
 		fa_rr_information = "rbxassetid://99073088081563", -- Info
 		fa_bx_code_start = "rbxassetid://107895739450188", -- <>
 		fa_bx_code_end = "rbxassetid://106185292775972", -- </>
@@ -106,7 +108,7 @@ local chach = {
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "26/09/2025",
+		verdate = "30/09/2025",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
@@ -885,7 +887,8 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 
 	local toggled = false
 	local function updateIcon()
-		toggleIcon.Image = toggled and chach.Icons.fa_rr_toggle_right or chach.Icons.fa_rr_toggle_left
+		--toggleIcon.Image = toggled and chach.Icons.fa_rr_toggle_right or chach.Icons.fa_rr_toggle_left
+		toggleIcon.Image = toggled and chach.Icons.fa_rr_toggle_white_right or chach.Icons.fa_rr_toggle_left
 	end
 
 	local function toggle()
