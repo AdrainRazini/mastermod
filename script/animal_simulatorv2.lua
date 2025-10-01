@@ -681,7 +681,6 @@ local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 local PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
---local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 --=============-
@@ -1707,9 +1706,94 @@ end)
 
 --=================================--
 --=================================--
---[[
--- GUI (Regui) Afk
 
+local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
+-- Configs Painter
+Regui.CreatePainterPanel(ConfigsTab,{
+	{name="Main_Frame", Obj=Window.Frame},
+	{name="Top_Bar", Obj=Window.TopBar},
+	{name="Tabs_Container", Obj=Window.Tabs}
+},function(color,name,obj)
+	print("Cor aplicada em:", name,color)
+end)
+
+
+local DeleteGui = Regui.CreateButton(ConfigsTab, {
+	Text = "Delete GUI",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function(val)
+	print("Delete GUI")
+	Regui.NotificationDialog(Window.Frame.Parent, {
+		Title = "Deletar Gui !",
+		Text = "Deseja Deletar agora?",
+		Icon = "fa_envelope", -- qualquer ícone do seu dicionário
+		Tempo = 0 -- 0 = só fecha no clique
+	}, function(result)
+		if result then
+			-- Resetar todas as flags do AF
+			for k, _ in pairs(AF) do
+				AF[k] = false
+			end
+
+			-- Resetar todas as flags do PVP
+			for k, _ in pairs(PVP) do
+				if type(PVP[k]) == "boolean" then
+					PVP[k] = false
+				end
+			end
+
+			-- Resetar timers para 0 ou padrão
+			for k, _ in pairs(AF_Timer) do
+				AF_Timer[k] = 0
+			end
+
+			for k, _ in pairs(PVP_Timer) do
+				PVP_Timer[k] = 0
+			end
+
+			-- Destruir GUI e script
+			local Scren = Window.screenGui
+			Scren:Destroy()
+			script:Destroy()
+		else
+			-- Usuário cancelou ❌
+		end
+	end)
+end)
+
+
+local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
+	Text = "Simple Spy",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+
+	print("Delete GUI")
+	Regui.NotificationDialog(Window.Frame.Parent, {
+		Title = "Função Avançada!",
+		Text = "Deseja Usar agora?",
+		Icon = "fa_envelope", -- qualquer ícone do seu dicionário
+		Tempo = 0 -- 0 = só fecha no clique
+	}, function(result)
+		if result then
+			loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
+		else
+			--print("Usuário recusou ❌")
+		end
+	end)
+
+
+end)
+
+
+
+--=================================--
+
+-- GUI (Regui) Afk_Mod
+local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local TeleportService = game:GetService("TeleportService")
 
 -- FLAGS
@@ -1751,7 +1835,7 @@ function getData()
 	return data
 end
 
--- Função de teleporte com dados + auto reload
+-- Função de teleporte com dados
 function teleport(selectedTimer)
 	TeleportService:Teleport(game.PlaceId, player, {
 		AF = AF,
@@ -1759,26 +1843,21 @@ function teleport(selectedTimer)
 		PVP_Timer = PVP_Timer,
 		AF_Timer = AF_Timer,
 		selectedTimer = selectedTimer,
-		reload = true -- flag pra saber que é retorno
+		reload = true
 	})
 end
 
--- Detecta retorno do Teleport
-player.OnTeleport:Connect(function(state)
-	if state == Enum.TeleportState.Started then return end -- apenas ignora "saindo"
-	local data = TeleportService:GetLocalPlayerTeleportData()
-	if data and data.reload then
-		-- Aqui você recarrega a GUI/script
-		print("Recarregando Mod GUI após teleport...")
+-- Recupera dados do Teleport (quando entrar no jogo de novo via AutoExec)
+local data = TeleportService:GetLocalPlayerTeleportData()
+if data and data.reload then
+	print("🔄 Recarregando Mod após Teleport...")
 
-		-- se quiser sempre via GitHub:
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"))()
-
-		-- ou, se quiser usar versão local:
-		-- loadstring(yourScriptAqui)()
-	end
-end)
-
+	if data.AF then AF = data.AF end
+	if data.PVP then PVP = data.PVP end
+	if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
+	if data.AF_Timer then AF_Timer = data.AF_Timer end
+	if data.selectedTimer then selectedTimer = data.selectedTimer end
+end
 
 local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
 	Text = "AFK MOD (Beta Test)",
@@ -1875,7 +1954,7 @@ task.spawn(function()
 					Regui.NotificationPerson(Window.Frame.Parent, {
 						Title = "AntiAFK",
 						Text = "Você estava AFK por " .. selectedTimer .. "s, teleportando...",
-						Icon = "fa_clock",
+						Icon = "fa_envelope",
 						Tempo = 8,
 						Casch = {},
 						Sound = ""
@@ -1897,92 +1976,5 @@ task.spawn(function()
 	end
 end)
 
-]]
 
 --=================================--
---=================================--
-
-
-
-local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
--- Configs Painter
-Regui.CreatePainterPanel(ConfigsTab,{
-	{name="Main_Frame", Obj=Window.Frame},
-	{name="Top_Bar", Obj=Window.TopBar},
-	{name="Tabs_Container", Obj=Window.Tabs}
-},function(color,name,obj)
-	print("Cor aplicada em:", name,color)
-end)
-
-
-local DeleteGui = Regui.CreateButton(ConfigsTab, {
-	Text = "Delete GUI",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function(val)
-	print("Delete GUI")
-	Regui.NotificationDialog(Window.Frame.Parent, {
-		Title = "Deletar Gui !",
-		Text = "Deseja Deletar agora?",
-		Icon = "fa_envelope", -- qualquer ícone do seu dicionário
-		Tempo = 0 -- 0 = só fecha no clique
-	}, function(result)
-		if result then
-			-- Resetar todas as flags do AF
-			for k, _ in pairs(AF) do
-				AF[k] = false
-			end
-
-			-- Resetar todas as flags do PVP
-			for k, _ in pairs(PVP) do
-				if type(PVP[k]) == "boolean" then
-					PVP[k] = false
-				end
-			end
-
-			-- Resetar timers para 0 ou padrão
-			for k, _ in pairs(AF_Timer) do
-				AF_Timer[k] = 0
-			end
-
-			for k, _ in pairs(PVP_Timer) do
-				PVP_Timer[k] = 0
-			end
-
-			-- Destruir GUI e script
-			local Scren = Window.screenGui
-			Scren:Destroy()
-			script:Destroy()
-		else
-			-- Usuário cancelou ❌
-		end
-	end)
-end)
-
-
-local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
-	Text = "Simple Spy",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function()
-
-	print("Delete GUI")
-	Regui.NotificationDialog(Window.Frame.Parent, {
-		Title = "Função Avançada!",
-		Text = "Deseja Usar agora?",
-		Icon = "fa_envelope", -- qualquer ícone do seu dicionário
-		Tempo = 0 -- 0 = só fecha no clique
-	}, function(result)
-		if result then
-			loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
-		else
-			--print("Usuário recusou ❌")
-		end
-	end)
-
-
-end)
-
-
