@@ -18,11 +18,14 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
 local Regui
 local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local GuiName = "Mod_Animal_Simulator"..game.Players.LocalPlayer.Name
+
+
 
 -- Tenta carregar localmente
 local success, module = pcall(function()
@@ -678,6 +681,7 @@ local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 local PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
+local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 --=============-
@@ -1700,7 +1704,217 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 	updateMusicInfo() -- Também atualiza o label ao clicar
 end)
 ]]
+
 --=================================--
+--=================================--
+
+-- GUI (Regui) Afk
+
+local TeleportService = game:GetService("TeleportService")
+
+-- FLAGS
+local AntiAFK = false
+local selectedTimer = 60
+
+-- Timers
+local Afk_Timer = 0
+local Game_Timer = 0
+
+-- Função auxiliar para merge de tabelas
+local function mergeTable(base, newData)
+	if not newData then return end
+	for k,v in pairs(newData) do
+		if type(v) == "table" and type(base[k]) == "table" then
+			mergeTable(base[k], v)
+		else
+			base[k] = v
+		end
+	end
+end
+
+-- Função para pegar e setar dados
+function getData()
+	local data = {
+		AF = AF,
+		PVP = PVP,
+		PVP_Timer = PVP_Timer,
+		AF_Timer = AF_Timer
+	}
+
+	function data:set(newData)
+		if newData.AF then mergeTable(AF, newData.AF) end
+		if newData.PVP then mergeTable(PVP, newData.PVP) end
+		if newData.PVP_Timer then mergeTable(PVP_Timer, newData.PVP_Timer) end
+		if newData.AF_Timer then mergeTable(AF_Timer, newData.AF_Timer) end
+	end
+
+	return data
+end
+--[[
+-- Função de teleporte com dados
+function teleport(selectedTimer)
+	TeleportService:Teleport(game.PlaceId, game.Players.LocalPlayer, {
+		AF = AF,
+		PVP = PVP,
+		PVP_Timer = PVP_Timer,
+		AF_Timer = AF_Timer,
+		selectedTimer = selectedTimer
+	})
+end
+]]
+
+-- Função de teleporte com dados + auto reload
+function teleport(selectedTimer)
+	TeleportService:Teleport(game.PlaceId, player, {
+		AF = AF,
+		PVP = PVP,
+		PVP_Timer = PVP_Timer,
+		AF_Timer = AF_Timer,
+		selectedTimer = selectedTimer,
+		reload = true -- flag pra saber que é retorno
+	})
+end
+
+-- Detecta retorno do Teleport
+player.OnTeleport:Connect(function(state)
+	if state == Enum.TeleportState.Started then return end -- apenas ignora "saindo"
+	local data = TeleportService:GetLocalPlayerTeleportData()
+	if data and data.reload then
+		-- Aqui você recarrega a GUI/script
+		print("Recarregando Mod GUI após teleport...")
+
+		-- se quiser sempre via GitHub:
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"))()
+
+		-- ou, se quiser usar versão local:
+		-- loadstring(yourScriptAqui)()
+	end
+end)
+
+
+local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
+	Text = "AFK MOD (Beta Test)",
+	Color = "White",
+	Alignment = "Center"
+})
+
+local selectorTimer = Regui.CreateSelectorOpitions(AfkTab, {
+	Name = "Selector Tempo",
+	Options = {
+		{name = "1 Min", Obj = 60 * 1},
+		{name = "5 Min", Obj = 60 * 5},
+		{name = "10 Min", Obj = 60 * 10},
+		{name = "15 Min", Obj = 60 * 15},
+		{name = "19 Min", Obj = 60 * 19},
+	},
+	Type = "Instance",
+	Size_Frame = UDim2.new(1, -20, 0, 100)
+}, function(val)
+	print("Novo tempo selecionado:", val)
+	selectedTimer = val
+end)
+
+local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
+	Text = "Ativar AntiAFK",
+	Color = "Blue"
+}, function(state)
+	AntiAFK = state
+
+	if AntiAFK then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Alert",
+			Text = "AntiAFK ativado!",
+			Icon = "fa_envelope",
+			Tempo = 10,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
+end)
+
+local SubWin = Regui.SubTabsWindow(AfkTab, {
+	Text = "Afk Player",
+	Table = {"Logs"},
+	Color = "Blue"
+})
+
+local LabelLogs_Timer_Afk = Regui.CreateLabel(SubWin["Logs"], {
+	Text = "AFK timer: 0",
+	Color = "White",
+	Alignment = "Center"
+})
+
+local LabelLogs_Timer_Game = Regui.CreateLabel(SubWin["Logs"], {
+	Text = "Tempo de jogo: 0",
+	Color = "White",
+	Alignment = "Center"
+})
+
+function update_timers()
+	LabelLogs_Timer_Afk.Text = "AFK timer: " .. Afk_Timer
+	LabelLogs_Timer_Game.Text = "Tempo de jogo: " .. Game_Timer
+end
+
+
+-- Última vez que o player mexeu
+local lastInputTime = tick()
+
+-- Detecta qualquer input (tecla, clique, movimento de mouse)
+UserInputService.InputBegan:Connect(function()
+	lastInputTime = tick()
+end)
+
+UserInputService.InputChanged:Connect(function()
+	lastInputTime = tick()
+end)
+
+-- Loop de contagem
+task.spawn(function()
+	while task.wait(1) do
+		-- Tempo total de jogo
+		Game_Timer += 1  
+
+		if AntiAFK then
+			-- Verifica se está parado (sem input por mais que selectedTimer)
+			if tick() - lastInputTime > selectedTimer then
+				Afk_Timer += 1
+
+				-- Teleporta assim que atingir o limite AFK
+				if Afk_Timer >= selectedTimer then
+					-- Notificação visual
+					Regui.NotificationPerson(Window.Frame.Parent, {
+						Title = "AntiAFK",
+						Text = "Você estava AFK por " .. selectedTimer .. "s, teleportando...",
+						Icon = "fa_clock",
+						Tempo = 8,
+						Casch = {},
+						Sound = ""
+					})
+
+					print("Anti-AFK ativado, teleportando...")
+					teleport(selectedTimer)
+
+					Afk_Timer = 0 -- reseta para evitar loop infinito
+					lastInputTime = tick() -- reseta para não repetir logo em seguida
+				end
+			else
+				Afk_Timer = 0 -- reset caso o jogador volte a mexer
+			end
+		end
+
+		-- Atualiza os labels
+		update_timers()
+	end
+end)
+
+
+
+--=================================--
+--=================================--
+
+
 
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
