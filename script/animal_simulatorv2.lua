@@ -689,7 +689,7 @@ local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Tex
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 --=============-
 
-
+--[[
 --=================================--
 
 -- GUI (Regui) Afk_Mod
@@ -890,7 +890,7 @@ task.spawn(function()
 end)
 
 --=================================--
-
+]]
 
 local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
