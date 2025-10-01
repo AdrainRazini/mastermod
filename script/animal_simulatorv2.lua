@@ -681,7 +681,7 @@ local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 local PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
-local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
+--local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 --=============-
@@ -1707,7 +1707,7 @@ end)
 
 --=================================--
 --=================================--
-
+--[[
 -- GUI (Regui) Afk
 
 local TeleportService = game:GetService("TeleportService")
@@ -1750,18 +1750,6 @@ function getData()
 
 	return data
 end
---[[
--- Função de teleporte com dados
-function teleport(selectedTimer)
-	TeleportService:Teleport(game.PlaceId, game.Players.LocalPlayer, {
-		AF = AF,
-		PVP = PVP,
-		PVP_Timer = PVP_Timer,
-		AF_Timer = AF_Timer,
-		selectedTimer = selectedTimer
-	})
-end
-]]
 
 -- Função de teleporte com dados + auto reload
 function teleport(selectedTimer)
@@ -1909,7 +1897,7 @@ task.spawn(function()
 	end
 end)
 
-
+]]
 
 --=================================--
 --=================================--
