@@ -747,18 +747,38 @@ function teleport(selectedTimer)
 	})
 end
 
--- Recupera dados do Teleport (quando entrar no jogo de novo via AutoExec)
-local data = TeleportService:GetLocalPlayerTeleportData()
-if data and data.reload then
-	print("🔄 Recarregando Mod após Teleport...")
+-- Função para esperar e recuperar dados do Teleport
+local function waitForTeleportData(timeout)
+	timeout = timeout or 5
+	local startTime = tick()
 
-	if data.AF then AF = data.AF end
-	if data.PVP then PVP = data.PVP end
-	if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
-	if data.AF_Timer then AF_Timer = data.AF_Timer end
-	if data.selectedTimer then selectedTimer = data.selectedTimer end
+	repeat
+		task.wait(0.1)
+		local data = TeleportService:GetLocalPlayerTeleportData()
+		if data and data.reload then
+			return data
+		end
+	until tick() - startTime > timeout
+
+	return nil
 end
 
+-- Recupera dados do Teleport (AutoExec seguro)
+task.spawn(function()
+	local data = waitForTeleportData(5) -- espera até 5 segundos
+
+	if data and data.reload then
+		print("🔄 Recarregando Mod após Teleport...")
+
+		if data.AF then AF = data.AF end
+		if data.PVP then PVP = data.PVP end
+		if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
+		if data.AF_Timer then AF_Timer = data.AF_Timer end
+		if data.selectedTimer then selectedTimer = data.selectedTimer end
+	end
+end)
+
+-- Labels e UI
 local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
 	Text = "AFK MOD (Beta Test)",
 	Color = "White",
@@ -824,11 +844,9 @@ function update_timers()
 	LabelLogs_Timer_Game.Text = "Tempo de jogo: " .. Game_Timer
 end
 
-
 -- Última vez que o player mexeu
 local lastInputTime = tick()
 
--- Detecta qualquer input (tecla, clique, movimento de mouse)
 UserInputService.InputBegan:Connect(function()
 	lastInputTime = tick()
 end)
@@ -840,17 +858,13 @@ end)
 -- Loop de contagem
 task.spawn(function()
 	while task.wait(1) do
-		-- Tempo total de jogo
 		Game_Timer += 1  
 
 		if AntiAFK then
-			-- Verifica se está parado (sem input por mais que selectedTimer)
 			if tick() - lastInputTime > selectedTimer then
 				Afk_Timer += 1
 
-				-- Teleporta assim que atingir o limite AFK
 				if Afk_Timer >= selectedTimer then
-					-- Notificação visual
 					Regui.NotificationPerson(Window.Frame.Parent, {
 						Title = "AntiAFK",
 						Text = "Você estava AFK por " .. selectedTimer .. "s, teleportando...",
@@ -863,21 +877,20 @@ task.spawn(function()
 					print("Anti-AFK ativado, teleportando...")
 					teleport(selectedTimer)
 
-					Afk_Timer = 0 -- reseta para evitar loop infinito
-					lastInputTime = tick() -- reseta para não repetir logo em seguida
+					Afk_Timer = 0
+					lastInputTime = tick()
 				end
 			else
-				Afk_Timer = 0 -- reset caso o jogador volte a mexer
+				Afk_Timer = 0
 			end
 		end
 
-		-- Atualiza os labels
 		update_timers()
 	end
 end)
 
-
 --=================================--
+
 
 local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
