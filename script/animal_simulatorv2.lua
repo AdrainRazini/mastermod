@@ -804,7 +804,12 @@ local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 		end)
 	end
 end)
-Check_AntiAFK.Set(AntiAFK)
+
+if AntiAFK then
+	Check_AntiAFK.Set(AntiAFK)
+	Check_AntiAFK.OnToggle()
+end
+
 
 local SubWin = Regui.SubTabsWindow(AfkTab, {
 	Text = "Afk Player",
@@ -1115,17 +1120,22 @@ end)
 
 local Ohyya = Regui.CreateImage(FarmTab, {Name = "Meme", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://75961890646911", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
+
 --=====--
-ToggleCoins.Set(AF.coins)
-ToggleBosses.Set(AF.bosses)
-Check_Farme_dummies.Set(AF.dummies)
-Check_Farme_dummies5k.Set(AF.dummies5k)
-Check_Tp_dummies.Set(AF.tpDummy)
-Check_Tp_dummies5k.Set(AF.tpDummy5k)
+function verific(toggle, val)
+		if val then
+		toggle.Set(val)
+		toggle.OnToggle()
+	end
+end
+
+verific(ToggleCoins, AF.coins) 
+verific(ToggleBosses, AF.bosses)
+verific(Check_Farme_dummies, AF.dummies)
+verific(Check_Farme_dummies5k, AF.dummies5k)
+verific(Check_Tp_dummies, AF.tpDummy)
+verific(Check_Tp_dummies5k, AF.tpDummy5k)
 --=====--
-
-
-
 
 
 --- TAB PLAYERS
