@@ -882,7 +882,7 @@ local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "Whit
 -- Exemplo de Toggle
 local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Yellow"},function(state)
 	AF.coins=state
-	if state then autoCoins() end
+	if AF.coins then autoCoins() end
 end)
 
 
@@ -916,7 +916,7 @@ local Label_Seletor_Info = Regui.CreateLabel(FarmTab, {Text = "Ativar Farm", Col
 local ToggleBosses = Regui.CreateToggleboxe(FarmTab, {Text="Auto Bosses", Color="Red"}, function(state)
 	AF.bosses = state  -- Armazena o estado do toggle
 
-	if state then 
+	if AF.bosses then 
 		-- Se ativar → inicia farmBosses ou farmBossesNormal
 		if selectedBoss == "All" then
 			if ModBoss == "Normal" then
@@ -936,7 +936,7 @@ end)
 local ToggleBosses_AFK = Regui.CreateToggleboxe(FarmTab, {Text="AFK Camera Bosses", Color="Red"}, function(state)
 	AF.afkmod = state
 
-	if state == false then
+	if AF.afkmod == false then
 		-- Se desativar → restaura câmera normal
 		game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 		game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
@@ -1122,7 +1122,6 @@ Check_Farme_dummies.Set(AF.dummies)
 Check_Farme_dummies5k.Set(AF.dummies5k)
 Check_Tp_dummies.Set(AF.tpDummy)
 Check_Tp_dummies5k.Set(AF.tpDummy5k)
-
 --=====--
 
 
