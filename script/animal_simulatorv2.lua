@@ -749,8 +749,9 @@ end
 
 -- Recebe dados ao iniciar o script
 task.spawn(function()
-	receiveTeleportData(1)
+	receiveTeleportData(5) -- espera até 10 segundos
 end)
+
 
 -- Labels e UI
 local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
