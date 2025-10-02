@@ -689,7 +689,8 @@ local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Tex
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 --=============-
 
---[[
+
+--=================================--
 --=================================--
 
 -- GUI (Regui) Afk_Mod
@@ -704,51 +705,23 @@ local selectedTimer = 60
 local Afk_Timer = 0
 local Game_Timer = 0
 
--- Função auxiliar para merge de tabelas
-local function mergeTable(base, newData)
-	if not newData then return end
-	for k,v in pairs(newData) do
-		if type(v) == "table" and type(base[k]) == "table" then
-			mergeTable(base[k], v)
-		else
-			base[k] = v
-		end
-	end
-end
-
--- Função para pegar e setar dados
-function getData()
+-- Função para enviar dados no teleport
+function sendTeleportData()
 	local data = {
-		AF = AF,
-		PVP = PVP,
-		PVP_Timer = PVP_Timer,
-		AF_Timer = AF_Timer
-	}
-
-	function data:set(newData)
-		if newData.AF then mergeTable(AF, newData.AF) end
-		if newData.PVP then mergeTable(PVP, newData.PVP) end
-		if newData.PVP_Timer then mergeTable(PVP_Timer, newData.PVP_Timer) end
-		if newData.AF_Timer then mergeTable(AF_Timer, newData.AF_Timer) end
-	end
-
-	return data
-end
-
--- Função de teleporte com dados
-function teleport(selectedTimer)
-	TeleportService:Teleport(game.PlaceId, player, {
 		AF = AF,
 		PVP = PVP,
 		PVP_Timer = PVP_Timer,
 		AF_Timer = AF_Timer,
 		selectedTimer = selectedTimer,
 		reload = true
-	})
+	}
+    print(data)
+	TeleportService:Teleport(game.PlaceId, player, data)
+	
 end
 
--- Função para esperar e recuperar dados do Teleport
-local function waitForTeleportData(timeout)
+-- Função para receber dados após teleport
+function receiveTeleportData(timeout)
 	timeout = timeout or 5
 	local startTime = tick()
 
@@ -756,26 +729,23 @@ local function waitForTeleportData(timeout)
 		task.wait(0.1)
 		local data = TeleportService:GetLocalPlayerTeleportData()
 		if data and data.reload then
-			return data
+			if data.AF then AF = data.AF end
+			if data.PVP then PVP = data.PVP end
+			if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
+			if data.AF_Timer then AF_Timer = data.AF_Timer end
+			if data.selectedTimer then selectedTimer = data.selectedTimer end
+
+			print("🔄 Dados recebidos após teleport.")
+			return true
 		end
 	until tick() - startTime > timeout
 
-	return nil
+	return false
 end
 
--- Recupera dados do Teleport (AutoExec seguro)
+-- Recebe dados ao iniciar o script
 task.spawn(function()
-	local data = waitForTeleportData(5) -- espera até 5 segundos
-
-	if data and data.reload then
-		print("🔄 Recarregando Mod após Teleport...")
-
-		if data.AF then AF = data.AF end
-		if data.PVP then PVP = data.PVP end
-		if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
-		if data.AF_Timer then AF_Timer = data.AF_Timer end
-		if data.selectedTimer then selectedTimer = data.selectedTimer end
-	end
+	receiveTeleportData(5)
 end)
 
 -- Labels e UI
@@ -875,7 +845,7 @@ task.spawn(function()
 					})
 
 					print("Anti-AFK ativado, teleportando...")
-					teleport(selectedTimer)
+					sendTeleportData()
 
 					Afk_Timer = 0
 					lastInputTime = tick()
@@ -890,7 +860,7 @@ task.spawn(function()
 end)
 
 --=================================--
-]]
+
 
 local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
