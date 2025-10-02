@@ -707,18 +707,21 @@ local Game_Timer = 0
 
 -- Função para enviar dados no teleport
 function sendTeleportData()
+	local player = game.Players.LocalPlayer
 	local data = {
 		AF = AF,
 		PVP = PVP,
 		PVP_Timer = PVP_Timer,
 		AF_Timer = AF_Timer,
 		selectedTimer = selectedTimer,
+		AntiAFK = AntiAFK,
 		reload = true
 	}
-    print(data)
+
+	print("📤 Enviando dados no teleporte:", data)
 	TeleportService:Teleport(game.PlaceId, player, data)
-	
 end
+
 
 -- Função para receber dados após teleport
 function receiveTeleportData(timeout)
@@ -734,6 +737,7 @@ function receiveTeleportData(timeout)
 			if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
 			if data.AF_Timer then AF_Timer = data.AF_Timer end
 			if data.selectedTimer then selectedTimer = data.selectedTimer end
+			if data.AntiAFK  then AntiAFK = data.AntiAFK end
 
 			print("🔄 Dados recebidos após teleport.")
 			return true
@@ -745,7 +749,7 @@ end
 
 -- Recebe dados ao iniciar o script
 task.spawn(function()
-	receiveTeleportData(5)
+	receiveTeleportData(1)
 end)
 
 -- Labels e UI
