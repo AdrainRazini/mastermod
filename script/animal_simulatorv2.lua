@@ -724,6 +724,7 @@ end
 
 
 -- Função para receber dados após teleport
+-- Função para receber dados após teleport (bloqueante)
 function receiveTeleportData(timeout)
 	timeout = timeout or 5
 	local startTime = tick()
@@ -737,20 +738,27 @@ function receiveTeleportData(timeout)
 			if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
 			if data.AF_Timer then AF_Timer = data.AF_Timer end
 			if data.selectedTimer then selectedTimer = data.selectedTimer end
-			if data.AntiAFK  then AntiAFK = data.AntiAFK end
+			if data.AntiAFK then AntiAFK = data.AntiAFK end
 
 			print("🔄 Dados recebidos após teleport.")
 			return true
 		end
 	until tick() - startTime > timeout
 
+	print("⚠️ Nenhum dado recebido após teleport (timeout).")
 	return false
 end
 
--- Recebe dados ao iniciar o script
-task.spawn(function()
-	receiveTeleportData(5) -- espera até 10 segundos
-end)
+
+-- =================================
+-- Espera até receber antes de continuar
+-- =================================
+print("⏳ Aguardando dados de teleport...")
+local ok = receiveTeleportData(10)  -- espera até 10s
+if not ok then
+	print("⚠️ Continuando sem dados de teleport (vai usar valores padrão).")
+end
+
 
 
 -- Labels e UI
