@@ -108,7 +108,7 @@ local chach = {
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "30/09/2025",
+		verdate = "02/10/2025",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
@@ -851,8 +851,10 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 		Set = function(val)
 			checked = val
 			dot.Visible = checked
-		end
+		end,
+		OnToggle = toggle -- opcional, chamar manualmente
 	}
+	
 end
 
 
@@ -912,7 +914,9 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 		Set = function(val)
 			toggled = val
 			updateIcon()
-		end
+		end,
+		OnToggle = toggle -- opcional, chamar manualmente
+		
 	}
 end
 
