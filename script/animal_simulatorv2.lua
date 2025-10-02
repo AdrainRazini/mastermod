@@ -690,9 +690,9 @@ local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence 
 --=============-
 
 
+
 --=================================--
 --=================================--
---[[
 
 -- GUI (Regui) Afk_Mod
 local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
@@ -804,6 +804,7 @@ local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 		end)
 	end
 end)
+Check_AntiAFK.Set(AntiAFK)
 
 local SubWin = Regui.SubTabsWindow(AfkTab, {
 	Text = "Afk Player",
@@ -874,14 +875,18 @@ task.spawn(function()
 end)
 
 --=================================--
-]]
 
+--============--
+-- Farm
 local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
 local ToggleCoins = Regui.CreateToggleboxe(FarmTab,{Text="Auto Coins",Color="Yellow"},function(state)
 	AF.coins=state
 	if state then autoCoins() end
 end)
+
+
+
 
 local SliderFloat_Coins = Regui.CreateSliderFloat(FarmTab, {Text = "Timer Auto Coins", Color = "Yellow", Value = 0.1, Minimum = 0, Maximum = 1}, function(state)
 	AF_Timer.Coins_Speed = state
@@ -1109,6 +1114,20 @@ end)
 
 
 local Ohyya = Regui.CreateImage(FarmTab, {Name = "Meme", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://75961890646911", Size_Image = UDim2.new(0, 50, 0, 50)  })
+
+--=====--
+ToggleCoins.Set(AF.coins)
+ToggleBosses.Set(AF.bosses)
+Check_Farme_dummies.Set(AF.dummies)
+Check_Farme_dummies5k.Set(AF.dummies5k)
+Check_Tp_dummies.Set(AF.tpDummy)
+Check_Tp_dummies5k.Set(AF.tpDummy5k)
+
+--=====--
+
+
+
+
 
 --- TAB PLAYERS
 
@@ -1363,6 +1382,9 @@ local AutoAttackTp = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Tp",Color="Cya
 
 	end
 end)
+
+
+
 local SliderFloat_Tp = Regui.CreateSliderFloat(PlayerTab, {Text = "Timer Tp Players", Color = "Blue", Value = 0.05, Minimum = 0, Maximum = 1}, function(state)
 	PVP_Timer.AutoTp_Speed = state
 	print("Slider Float clicada! Estado:", PVP_Timer.AutoTp_Speed)
@@ -1974,6 +1996,4 @@ local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
 
 
 end)
-
-
 
