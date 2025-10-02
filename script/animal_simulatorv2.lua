@@ -806,7 +806,7 @@ local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 end)
 
 if AntiAFK then
-	Check_AntiAFK.Set(AntiAFK)
+	--Check_AntiAFK.Set(AntiAFK)
 	Check_AntiAFK.OnToggle()
 end
 
@@ -1124,7 +1124,7 @@ local Ohyya = Regui.CreateImage(FarmTab, {Name = "Meme", Transparence = 1, Align
 --=====--
 function verific(toggle, val)
 		if val then
-		toggle.Set(val)
+		--toggle.Set(val)
 		toggle.OnToggle()
 	end
 end
