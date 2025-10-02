@@ -692,6 +692,7 @@ local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence 
 
 --=================================--
 --=================================--
+--[[
 
 -- GUI (Regui) Afk_Mod
 local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
@@ -873,7 +874,7 @@ task.spawn(function()
 end)
 
 --=================================--
-
+]]
 
 local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
