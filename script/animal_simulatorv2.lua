@@ -752,7 +752,7 @@ function receiveTeleportData(timeout)
 			if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
 			if data.AF_Timer then AF_Timer = data.AF_Timer end
 			if data.selectedTimer then selectedTimer = data.selectedTimer end
-			if data.AntiAFK ~= nil then AntiAFK = data.AntiAFK end
+			if data.AntiAFK then AntiAFK = data.AntiAFK end
 			if data.Teleports_Accumulated then
 				Teleports_Accumulated = tonumber(data.Teleports_Accumulated) or Teleports_Accumulated
 			end
@@ -878,7 +878,7 @@ end
 
 -- Update timers com formatação
 function update_timers()
-	
+
 	LabelLogs_Timer_Afk_Selector.Text = "➡  Tempo: " .. TimerClock(selectedTimer)
 	LabelLogs_Timer_Afk_Acumulador.Text = "Teleports: " .. Teleports_Accumulated
 	LabelLogs_Timer_Afk.Text = "➡  AFK timer: " .. TimerClock(Afk_Timer)
@@ -1989,7 +1989,7 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	print("Set: ", selectedObj)
 	--Input_Text.SetVal(selectedObj)
 	idmusicRemote:FireServer(selectedObj)
-	
+
 	--[[
 	local idname = ""
 	local success, info = pcall(function()
@@ -2013,7 +2013,7 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 		print("Notificação fechada!")
 	end)	
 	]]
-	
+
 end)
 
 
