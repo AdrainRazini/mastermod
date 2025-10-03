@@ -817,7 +817,7 @@ end
 
 local SubWin = Regui.SubTabsWindow(AfkTab, {
 	Text = "Afk Player",
-	Table = {"Logs"},
+	Table = {"Logs", "Data"},
 	Color = "Blue"
 })
 
@@ -866,6 +866,43 @@ function update_timers()
 		.. "\n→ Teleporte + Data(Dados)"
 end
 
+local LabelData_Afk_Mod= Regui.CreateLabel(SubWin["Data"], {
+	Text = "Loads...",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Função para atualizar o label com todas as infos
+function updateLabelData()
+	local dataText = 
+		"➡ AF:\n" ..
+		"  Coins: " .. tostring(AF.coins) .. "\n" ..
+		"  Bosses: " .. tostring(AF.bosses) .. "\n" ..
+		"  AfkMod: " .. tostring(AF.afkmod) .. "\n" ..
+		"  Dummies: " .. tostring(AF.dummies) .. "\n" ..
+		"  Dummies5k: " .. tostring(AF.dummies5k) .. "\n" ..
+		"  TpDummy: " .. tostring(AF.tpDummy) .. "\n" ..
+		"  TpDummy5k: " .. tostring(AF.tpDummy5k) .. "\n\n" ..
+
+		"➡ AF_Timer:\n" ..
+		"  Coins_Speed: " .. AF_Timer.Coins_Speed .. "\n" ..
+		"  Bosses_Speed: " .. AF_Timer.Bosses_Speed .. "\n" ..
+		"  Dummies_Speed: " .. AF_Timer.Dummies_Speed .. "\n" ..
+		"  DummiesTp_Speed: " .. AF_Timer.DummiesTp_Speed .. "\n\n" ..
+
+		"➡ PVP:\n" ..
+		"  KillAura: " .. tostring(PVP.killAura) .. "\n" ..
+		"  AutoFire: " .. tostring(PVP.AutoFire) .. "\n" ..
+		"  AutoEletric: " .. tostring(PVP.AutoEletric) .. "\n" ..
+		"  AutoAttackType: " .. tostring(PVP.AttackType) .. "\n\n" ..
+
+		"➡ PVP_Timer:\n" ..
+		"  KillAura_Speed: " .. PVP_Timer.KillAura_Speed .. "\n" ..
+		"  AutoFire_Speed: " .. PVP_Timer.AutoFire_Speed .. "\n" ..
+		"  AutoEletric_Speed: " .. PVP_Timer.AutoEletric_Speed
+
+	LabelData_Afk_Mod.Text = dataText
+end
 
 
 -- Última vez que o player mexeu
@@ -913,6 +950,7 @@ task.spawn(function()
 		end
 
 		update_timers()
+		updateLabelData()
 	end
 end)
 
