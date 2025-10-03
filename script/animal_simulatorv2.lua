@@ -754,13 +754,17 @@ end
 -- =================================
 -- Espera até receber antes de continuar
 -- =================================
+--[[
 print("⏳ Aguardando dados de teleport...")
 local ok = receiveTeleportData(5) 
 if not ok then
 	print("⚠️ Continuando sem dados de teleport (vai usar valores padrão).")
 end
+]]
 
-
+task.spawn(function()
+	receiveTeleportData(5)
+end)
 
 -- Labels e UI
 local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
@@ -817,6 +821,12 @@ local SubWin = Regui.SubTabsWindow(AfkTab, {
 	Color = "Blue"
 })
 
+local LabelLogs_Timer_Afk_Selector = Regui.CreateLabel(SubWin["Logs"], {
+	Text = "AFK Selector timer: 0",
+	Color = "White",
+	Alignment = "Center"
+})
+
 local LabelLogs_Timer_Afk = Regui.CreateLabel(SubWin["Logs"], {
 	Text = "AFK timer: 0",
 	Color = "White",
@@ -829,11 +839,20 @@ local LabelLogs_Timer_Game = Regui.CreateLabel(SubWin["Logs"], {
 	Alignment = "Center"
 })
 
-function update_timers()
-	LabelLogs_Timer_Afk.Text = "AFK timer: " .. Afk_Timer
-	LabelLogs_Timer_Game.Text = "Tempo de jogo: " .. Game_Timer
+function TimerClock(val)
+	local hours = math.floor(val / 3600)
+	local minutes = math.floor((val % 3600) / 60)
+	local seconds = math.floor(val % 60)
+	return string.format("%02d:%02d:%02d", hours, minutes, seconds)
 end
 
+
+-- Update timers com formatação
+function update_timers()
+	LabelLogs_Timer_Afk_Selector.Text = "Tempo: " .. TimerClock(selectedTimer)
+	LabelLogs_Timer_Afk.Text = "AFK timer: " .. TimerClock(Afk_Timer)
+	LabelLogs_Timer_Game.Text = "Tempo de jogo: " .. TimerClock(Game_Timer)
+end
 -- Última vez que o player mexeu
 local lastInputTime = tick()
 
