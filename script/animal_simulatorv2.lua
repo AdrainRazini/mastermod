@@ -754,17 +754,13 @@ end
 -- =================================
 -- Espera até receber antes de continuar
 -- =================================
---[[
+
 print("⏳ Aguardando dados de teleport...")
 local ok = receiveTeleportData(5) 
 if not ok then
 	print("⚠️ Continuando sem dados de teleport (vai usar valores padrão).")
 end
-]]
 
-task.spawn(function()
-	receiveTeleportData(5)
-end)
 
 -- Labels e UI
 local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
