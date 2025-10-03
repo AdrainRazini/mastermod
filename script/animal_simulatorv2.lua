@@ -839,6 +839,13 @@ local LabelLogs_Timer_Game = Regui.CreateLabel(SubWin["Logs"], {
 	Alignment = "Center"
 })
 
+-- Label para observação do tempo de jogo
+local LabelLogs_Timer_Game_Observation = Regui.CreateLabel(SubWin["Logs"], {
+	Text = "➡ Tempo total de jogo (não inclui tempo AFK)",
+	Color = "White",
+	Alignment = "Center"
+})
+
 function TimerClock(val)
 	local hours = math.floor(val / 3600)
 	local minutes = math.floor((val % 3600) / 60)
@@ -847,12 +854,20 @@ function TimerClock(val)
 end
 
 
+
+
 -- Update timers com formatação
 function update_timers()
-	LabelLogs_Timer_Afk_Selector.Text = "Tempo: " .. TimerClock(selectedTimer)
-	LabelLogs_Timer_Afk.Text = "AFK timer: " .. TimerClock(Afk_Timer)
-	LabelLogs_Timer_Game.Text = "Tempo de jogo: " .. TimerClock(Game_Timer)
+	LabelLogs_Timer_Afk_Selector.Text = "➡  Tempo: " .. TimerClock(selectedTimer)
+	LabelLogs_Timer_Afk.Text = "➡  AFK timer: " .. TimerClock(Afk_Timer)
+	LabelLogs_Timer_Game.Text = "➡  Tempo de jogo: " .. TimerClock(Game_Timer)
+	LabelLogs_Timer_Game_Observation.Text = "➡ Tempo AFK: " .. TimerClock(Afk_Timer) 
+		.. "\n>= Tempo Escolhido: " .. TimerClock(selectedTimer) 
+		.. "\n→ Teleporte + Data(Dados)"
 end
+
+
+
 -- Última vez que o player mexeu
 local lastInputTime = tick()
 
@@ -870,13 +885,16 @@ task.spawn(function()
 		Game_Timer += 1  
 
 		if AntiAFK then
-			if tick() - lastInputTime > selectedTimer then
+			local idleTime = tick() - lastInputTime
+
+			-- Só começa a contar o AFK depois de 60s parado
+			if idleTime >= 60 then
 				Afk_Timer += 1
 
 				if Afk_Timer >= selectedTimer then
 					Regui.NotificationPerson(Window.Frame.Parent, {
 						Title = "AntiAFK",
-						Text = "Você estava AFK por " .. selectedTimer .. "s, teleportando...",
+						Text = "Você estava AFK por " .. TimerClock(Afk_Timer) .. ", teleportando...",
 						Icon = "fa_envelope",
 						Tempo = 8,
 						Casch = {},
@@ -890,7 +908,7 @@ task.spawn(function()
 					lastInputTime = tick()
 				end
 			else
-				Afk_Timer = 0
+				Afk_Timer = 0 -- ainda não chegou em 60s, então não conta
 			end
 		end
 
