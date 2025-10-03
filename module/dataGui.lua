@@ -851,8 +851,16 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 		Set = function(val)
 			checked = val
 			dot.Visible = checked
+			-- opcional: chamar callback se quiser reagir ao set
+			if callback then callback(checked) end
 		end,
-		OnToggle = toggle -- opcional, chamar manualmente
+
+		OnToggle = function()
+			checked = not checked
+			dot.Visible = checked
+			if callback then callback(checked) end
+		end
+
 	}
 	
 end
@@ -914,8 +922,16 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 		Set = function(val)
 			toggled = val
 			updateIcon()
+			-- opcional: chamar callback se quiser reagir ao set
+			if callback then callback(toggled) end
 		end,
-		OnToggle = toggle -- opcional, chamar manualmente
+
+		OnToggle = function()
+			toggled = not toggled
+			updateIcon()
+			if callback then callback(toggled) end
+		end
+
 		
 	}
 end
