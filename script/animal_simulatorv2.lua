@@ -759,9 +759,6 @@ function receiveTeleportData(timeout)
 
 			print("🔄 Dados recebidos após teleport. Teleports acumulados:", Teleports_Accumulated)
 
-			-- Atualiza a UI/logs imediatamente
-			if updateLabelData then updateLabelData() end
-
 			return true
 		end
 	until tick() - startTime > timeout
