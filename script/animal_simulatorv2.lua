@@ -675,7 +675,10 @@ end
 
 --====================================================================================================================--
 
-
+--===================--
+-- Window Guis Tabs --
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
 -- GUI
 local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
 local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
@@ -694,6 +697,11 @@ local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence 
 --=================================--
 --=================================--
 
+--===================--
+-- Window Afk Tab
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
+
 -- GUI (Regui) Afk_Mod
 local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local TeleportService = game:GetService("TeleportService")
@@ -706,9 +714,13 @@ local selectedTimer = 60
 local Afk_Timer = 0
 local Game_Timer = 0
 
+local Teleports_Accumulated = 0
+
 -- Função para enviar dados no teleport
 function sendTeleportData()
 	local player = game.Players.LocalPlayer
+	Teleports_Accumulated += 1
+
 	local data = {
 		AF = AF,
 		PVP = PVP,
@@ -716,6 +728,7 @@ function sendTeleportData()
 		AF_Timer = AF_Timer,
 		selectedTimer = selectedTimer,
 		AntiAFK = AntiAFK,
+		Teleports_Accumulated = Teleports_Accumulated,
 		reload = true
 	}
 
@@ -823,6 +836,12 @@ local LabelLogs_Timer_Afk_Selector = Regui.CreateLabel(SubWin["Logs"], {
 	Alignment = "Center"
 })
 
+local LabelLogs_Timer_Afk_Acumulador = Regui.CreateLabel(SubWin["Logs"], {
+	Text = "Loding...",
+	Color = "White",
+	Alignment = "Center"
+})
+
 local LabelLogs_Timer_Afk = Regui.CreateLabel(SubWin["Logs"], {
 	Text = "AFK timer: 0",
 	Color = "White",
@@ -854,7 +873,9 @@ end
 
 -- Update timers com formatação
 function update_timers()
+	
 	LabelLogs_Timer_Afk_Selector.Text = "➡  Tempo: " .. TimerClock(selectedTimer)
+	LabelLogs_Timer_Afk_Acumulador.Text = "Teleports: " .. Teleports_Accumulated
 	LabelLogs_Timer_Afk.Text = "➡  AFK timer: " .. TimerClock(Afk_Timer)
 	LabelLogs_Timer_Game.Text = "➡  Tempo de jogo: " .. TimerClock(Game_Timer)
 	LabelLogs_Timer_Game_Observation.Text = "➡ Tempo AFK: " .. TimerClock(Afk_Timer) 
@@ -955,6 +976,11 @@ end)
 --=================================--
 
 --============--
+
+--===================--
+-- Window Farm Tab   --
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
 -- Farm
 local Label_Farme_AF = Regui.CreateLabel(FarmTab, {Text = "Farme", Color = "White", Alignment = "Center"})
 -- Exemplo de Toggle
@@ -1194,25 +1220,13 @@ end)
 local Ohyya = Regui.CreateImage(FarmTab, {Name = "Meme", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://75961890646911", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 
---=====--
-function verific(toggle, val)
-		if val then
-		toggle.Set(val)
-		--toggle.OnToggle()
-	end
-end
 
-verific(ToggleCoins, AF.coins) 
-verific(ToggleBosses, AF.bosses)
-verific(Check_Farme_dummies, AF.dummies)
-verific(Check_Farme_dummies5k, AF.dummies5k)
-verific(Check_Tp_dummies, AF.tpDummy)
-verific(Check_Tp_dummies5k, AF.tpDummy5k)
---=====--
-
+--===================--
+-- Window PVP Tab   --
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
 
 --- TAB PLAYERS
-
 
 local Label_Farme_PVP_Selector = Regui.CreateLabel(PlayerTab, {Text = "PVP Player", Color = "White", Alignment = "Center"})
 
@@ -1584,7 +1598,7 @@ end
 
 
 
-local ToggleFireball = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball IA",Color="Yellow"},function(state)
+local ToggleFireballIA = Regui.CreateToggleboxe(PlayerTab,{Text="Auto Fireball IA",Color="Yellow"},function(state)
 	PVP.AutoFireIA=state
 	if state then PVP_LoopIA("AutoFireIA")
 
@@ -1645,11 +1659,64 @@ end)
 
 local MemeSucumba= Regui.CreateImage(PlayerTab, {Name = "Meme Suk", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://93478350885441", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
+
+
 --======================================================================--
 
 
---Game Tab
+--=====--
+--===================--
+-- Verific Function --
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
 
+function verific(toggle, val)
+	if val then
+		toggle.Set(val)
+		--toggle.OnToggle()
+	end
+end
+
+--=====--
+
+--===================--
+-- Verific Locals
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
+--=====--
+-- AF Farmes
+verific(ToggleCoins, AF.coins) 
+verific(ToggleBosses, AF.bosses)
+verific(Check_Farme_dummies, AF.dummies)
+verific(Check_Farme_dummies5k, AF.dummies5k)
+verific(Check_Tp_dummies, AF.tpDummy)
+verific(Check_Tp_dummies5k, AF.tpDummy5k)
+--=====--
+
+--=====--
+-- PVP: Player
+verific(ToggleKillAura, PVP.killAura)
+verific(ToggleAutoAttack, PVP.AutoAttack)
+verific(ToggleFireball, PVP.AutoFire)
+verific(ToggleLightning, PVP.AutoEletric)
+verific(AutoAttackTp, PVP.AutoTp)
+--=====--
+
+--=====--
+-- PVP: IA
+verific(ToggleFireballIA, PVP.AutoFireIA)
+verific(ToggleLightningIA, PVP.AutoEletricIA)
+--=====--
+
+
+--======================================================================--
+
+
+
+--===================--
+-- Window Game Tab
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
 
 local Label_Game_Set_Clan_Invitation = Regui.CreateLabel(GameTab, {Text = "Clan Invitation", Color = "White", Alignment = "Center"})
 
@@ -1721,7 +1788,7 @@ local SetSpaw = Regui.CreateToggleboxe(GameTab,{Text="Auto Clan Invitation",Colo
 end)
 
 
--- TIMER AutoEletric
+-- TIMER Auto Spaw
 local SliderInt_Spaw = Regui.CreateSliderFloat(GameTab, {
 	Text = "Spaw Timer", 
 	Color = "Cyan", 
@@ -1732,7 +1799,7 @@ local SliderInt_Spaw = Regui.CreateSliderFloat(GameTab, {
 end)
 
 
--- TIMER AutoEletric
+-- TIMER Auto Reset da lista de jogadores
 local SliderInt_Reset_List = Regui.CreateSliderFloat(GameTab, {
 	Text = "Reset List Clan Invitation", 
 	Color = "Cyan", 
@@ -1821,9 +1888,15 @@ local Memedemonslayer= Regui.CreateImage(GameTab, {Name = "Meme (demon slayer)",
 
 --============================--
 
+--===================--
+-- Window Music Tab   
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
+
 local MarketplaceService = game:GetService("MarketplaceService")
 
 local Label_Music_Info = Regui.CreateLabel(MusicTab, {Text = "Boombox", Color = "White", Alignment = "Center"})
+
 local SetBombox= "Stop"
 local IdBombox = "0"
 
@@ -1997,6 +2070,11 @@ end)
 
 --=================================--
 --=================================--
+
+--===================--
+-- Window Configs Tab
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
 
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
