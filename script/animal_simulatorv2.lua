@@ -806,8 +806,8 @@ local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 end)
 
 if AntiAFK then
-	--Check_AntiAFK.Set(AntiAFK)
-	Check_AntiAFK.OnToggle()
+	Check_AntiAFK.Set(AntiAFK)
+	--Check_AntiAFK.OnToggle()
 end
 
 
@@ -871,6 +871,8 @@ local LabelData_Afk_Mod= Regui.CreateLabel(SubWin["Data"], {
 -- Função para atualizar o label com todas as infos
 function updateLabelData()
 	local dataText = 
+		"➡ AFK Mod:\n" ..
+		"➡ Anti AFK: " .. tostring(AntiAFK) .. "\n" ..
 		"➡ AF:\n" ..
 		"  Coins: " .. tostring(AF.coins) .. "\n" ..
 		"  Bosses: " .. tostring(AF.bosses) .. "\n" ..
@@ -1195,8 +1197,8 @@ local Ohyya = Regui.CreateImage(FarmTab, {Name = "Meme", Transparence = 1, Align
 --=====--
 function verific(toggle, val)
 		if val then
-		--toggle.Set(val)
-		toggle.OnToggle()
+		toggle.Set(val)
+		--toggle.OnToggle()
 	end
 end
 
