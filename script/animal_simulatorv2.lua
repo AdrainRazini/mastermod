@@ -752,9 +752,16 @@ function receiveTeleportData(timeout)
 			if data.PVP_Timer then PVP_Timer = data.PVP_Timer end
 			if data.AF_Timer then AF_Timer = data.AF_Timer end
 			if data.selectedTimer then selectedTimer = data.selectedTimer end
-			if data.AntiAFK then AntiAFK = data.AntiAFK end
+			if data.AntiAFK ~= nil then AntiAFK = data.AntiAFK end
+			if data.Teleports_Accumulated then
+				Teleports_Accumulated = tonumber(data.Teleports_Accumulated) or Teleports_Accumulated
+			end
 
-			print("🔄 Dados recebidos após teleport.")
+			print("🔄 Dados recebidos após teleport. Teleports acumulados:", Teleports_Accumulated)
+
+			-- Atualiza a UI/logs imediatamente
+			if updateLabelData then updateLabelData() end
+
 			return true
 		end
 	until tick() - startTime > timeout
@@ -762,6 +769,7 @@ function receiveTeleportData(timeout)
 	print("⚠️ Nenhum dado recebido após teleport (timeout).")
 	return false
 end
+
 
 
 -- =================================
