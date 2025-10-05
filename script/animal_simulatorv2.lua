@@ -683,6 +683,7 @@ end
 local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
 local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 local PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
+local ToolsTab = Regui.CreateTab(Window,{Name="Tools"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
@@ -1719,6 +1720,69 @@ verific(ToggleLightningIA, PVP.AutoEletricIA)
 
 
 --===================--
+-- Window Tools Tab
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
+
+--====================--
+local Label_Game_Info = Regui.CreateLabel(ToolsTab, {Text = "Get Tools", Color = "White", Alignment = "Center"})
+-- Botão para pegar a Fireball manual
+local GiveAutoFire1 = Regui.CreateButton(ToolsTab, {
+	Text = "Get Fireball Tool",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	giveTool("Fireball", "NewFireball")
+end)
+
+-- Botão para pegar a Lightning manual
+local GiveAutoFire2 = Regui.CreateButton(ToolsTab, {
+	Text = "Get Lightning Tool",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	giveTool("FireballEletric", "NewLightningball")
+end)
+
+-- Botão para pegar a Fireball automática
+local GiveAutoFire3 = Regui.CreateButton(ToolsTab, {
+	Text = "Get Auto Fireball Tool",
+	Color = "White",
+	BGColor = "Green",
+	TextSize = 16
+}, function()
+	giveToolAuto("FireballAuto", "NewFireball")
+end)
+
+-- Botão para pegar a Lightning automática
+local GiveAutoFire4 = Regui.CreateButton(ToolsTab, {
+	Text = "Get Auto Lightning Tool",
+	Color = "White",
+	BGColor = "Green",
+	TextSize = 16
+}, function()
+	giveToolAuto("LightningAuto", "NewLightningball")
+end)
+
+-- Botão para pegar a Lightning automática
+local GiveAutoFire5 = Regui.CreateButton(ToolsTab, {
+	Text = "Get Fake Tool",
+	Color = "White",
+	BGColor = "Green",
+	TextSize = 16
+}, function()
+	giveToolFake("FakePoss", "NewLightningball")
+end)
+
+local Memedemonslayer= Regui.CreateImage(ToolsTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
+
+---=======================================--
+
+
+
+--===================--
 -- Window Game Tab
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
@@ -1787,7 +1851,6 @@ function Verific_Cla()
 	return true
 end
 
---===================================================--
 -- Caixa de texto para nome
 local Input_Text_Cla = Regui.CreateTextBox(GameTab, {
 	Placeholder = "Name Clan...",
@@ -1798,8 +1861,7 @@ local Input_Text_Cla = Regui.CreateTextBox(GameTab, {
 	name_Cla = val
 end)
 
---===================================================--
--- Slider de criação/deleção
+
 local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {
 	Text = "Clan Action",
 	Color = "White",
@@ -1915,63 +1977,6 @@ end)
 --===========================================--
 
 local Label_Game_Set = Regui.CreateLabel(GameTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
-
-
-local Label_Game_Info = Regui.CreateLabel(GameTab, {Text = "Get Tools", Color = "White", Alignment = "Center"})
--- Botão para pegar a Fireball manual
-local GiveAutoFire1 = Regui.CreateButton(GameTab, {
-	Text = "Get Fireball Tool",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function()
-	giveTool("Fireball", "NewFireball")
-end)
-
--- Botão para pegar a Lightning manual
-local GiveAutoFire2 = Regui.CreateButton(GameTab, {
-	Text = "Get Lightning Tool",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function()
-	giveTool("FireballEletric", "NewLightningball")
-end)
-
--- Botão para pegar a Fireball automática
-local GiveAutoFire3 = Regui.CreateButton(GameTab, {
-	Text = "Get Auto Fireball Tool",
-	Color = "White",
-	BGColor = "Green",
-	TextSize = 16
-}, function()
-	giveToolAuto("FireballAuto", "NewFireball")
-end)
-
--- Botão para pegar a Lightning automática
-local GiveAutoFire4 = Regui.CreateButton(GameTab, {
-	Text = "Get Auto Lightning Tool",
-	Color = "White",
-	BGColor = "Green",
-	TextSize = 16
-}, function()
-	giveToolAuto("LightningAuto", "NewLightningball")
-end)
-
--- Botão para pegar a Lightning automática
-local GiveAutoFire5 = Regui.CreateButton(GameTab, {
-	Text = "Get Fake Tool",
-	Color = "White",
-	BGColor = "Green",
-	TextSize = 16
-}, function()
-	giveToolFake("FakePoss", "NewLightningball")
-end)
-
-local Memedemonslayer= Regui.CreateImage(GameTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
-
----=======================================--
-
 
 --============================--
 
