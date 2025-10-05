@@ -125,6 +125,7 @@ local AF = { coins=false, bosses=false, afkmod = false, dummies=false, dummies5k
 local AF_Timer = {Coins_Speed = 1, Bosses_Speed = 0.05, Dummies_Speed = 1, DummiesTp_Speed = 1}
 local PVP = { killAura=false, AutoFire=false, AutoEletric=false, AutoFireIA=false, AutoEletricIA=false, AutoAttack=false, AutoFlyAttack=false, AttackType="Melee", AutoTp = false }
 local PVP_Timer = {KillAura_Speed = 0.05, AutoFire_Speed = 0.05, AutoEletric_Speed = 0.05,AutoFireIA_Speed = 0.05, AutoEletricIA_Speed = 0.05, AutoAttack_Speed = 0.05, AutoFlyAttack_Speed = 0.05, AutoTp_Speed = 1}
+local Mod = {camera = false}
 
 local maxRange = 100
 
@@ -266,24 +267,35 @@ local function attackLoopTp(flag, folder)
 end
 
 
+
 -- AUTO FARM BOSSES
--- Função para mover a câmera do player ou do boss
-function movCameraPlr(npc, followBoss)
-	local cam = Workspace.CurrentCamera
+-- Função para mover a câmera do player, boss ou outro jogador
+
+local Camera_name = nil
+
+
+function movCameraPlr(target, follow)
+	local cam = workspace.CurrentCamera
 	local char = player.Character
 
-	if followBoss and AF.afkmod and npc and npc:FindFirstChild("Humanoid") then
-		-- Câmera segue o boss
-		cam.CameraSubject = npc.Humanoid
+	-- Se for Player, converte para Character
+	if typeof(target) == "Instance" and target:IsA("Player") then
+		target = target.Character
+	end
+
+	-- Se o modo de câmera estiver ativo e houver um alvo válido
+	if follow and target and target:FindFirstChild("Humanoid") then
+		cam.CameraSubject = target.Humanoid
 		cam.CameraType = Enum.CameraType.Custom
 	else
-		-- Câmera volta pro player
+		-- Volta para o player local
 		if char and char:FindFirstChild("Humanoid") then
 			cam.CameraSubject = char.Humanoid
 			cam.CameraType = Enum.CameraType.Custom
 		end
 	end
 end
+
 
 -- AUTO FARM BOSSES Original
 -- Função de farm boss
@@ -686,6 +698,7 @@ local PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
 local ToolsTab = Regui.CreateTab(Window,{Name="Tools"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
+local CameraTab = Regui.CreateTab(Window,{Name="Camera"})
 local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
@@ -1042,18 +1055,6 @@ local ToggleBosses = Regui.CreateToggleboxe(FarmTab, {Text="Auto Bosses", Color=
 	end
 end)
 
-
--- Toggle de AFK Camera
-local ToggleBosses_AFK = Regui.CreateToggleboxe(FarmTab, {Text="AFK Camera Bosses", Color="Red"}, function(state)
-	AF.afkmod = state
-
-	if AF.afkmod == false then
-		-- Se desativar → restaura câmera normal
-		game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-		game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
-		movCameraPlr(nil, false)
-	end
-end)
 
 -- SliderOption para escolher o modo (afeta apenas farmBosses)
 local BossOption_Bombox = Regui.CreateSliderOption(FarmTab, {
@@ -2262,3 +2263,96 @@ end)
 
 local Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://136319203684781", Size_Image = UDim2.new(0, 75, 0, 75)  })
 
+
+
+
+
+--===================--
+-- Window Camera Tab
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
+
+
+-- Toggle de AFK Camera
+local ToggleBosses_AFK = Regui.CreateToggleboxe(CameraTab, {Text="AFK Camera Bosses", Color="Red"}, function(state)
+	AF.afkmod = state
+
+	if AF.afkmod == false then
+		-- Se desativar → restaura câmera normal
+		game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+		game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
+		movCameraPlr(nil, false)
+	end
+end)
+
+
+--====================================--
+-- FUNÇÃO: Pegar todos os players em formato correto
+function GetPlayers()
+	-- Retorna lista de {name = "PlayerName", Obj = PlayerInstance}
+	local players = {}
+
+	-- Adiciona opção padrão
+	table.insert(players, {name = "nil", Obj = nil})
+
+	for _, plr in ipairs(game.Players:GetPlayers()) do
+		table.insert(players, {name = plr.Name, Obj = plr})
+	end
+
+	return players
+end
+
+
+--====================================--
+-- Cria seletor de jogadores com lista inicial
+local selectorPlayers_Camera = Regui.CreateSelectorOpitions(CameraTab, {
+	Name = "Selecionar Jogador",
+	Options = GetPlayers(),
+	Type = "Instance",
+	Size_Frame = UDim2.new(1, -10, 0, 100)
+}, function(selectedItem)
+	-- selectedItem = {name = "PlayerName", Obj = PlayerInstance}
+	if selectedItem and selectedItem.Obj then
+		Camera_name = selectedItem.Obj
+	else
+		Camera_name = nil
+	end
+end)
+
+
+--====================================--
+-- Toggle de AFK Camera
+local Toggle_Camera_players = Regui.CreateToggleboxe(CameraTab, {
+	Text = "Camera Players",
+	Color = "Red"
+}, function(state)
+	Mod.camera = state
+
+	if Mod.camera then
+		movCameraPlr(Camera_name, true)
+	else
+		-- Restaura câmera normal
+		local cam = game.Workspace.CurrentCamera
+		local char = game.Players.LocalPlayer.Character
+		if char and char:FindFirstChild("Humanoid") then
+			cam.CameraType = Enum.CameraType.Custom
+			cam.CameraSubject = char.Humanoid
+		end
+		movCameraPlr(nil, false)
+	end
+end)
+
+
+--====================================--
+-- Atualiza lista de jogadores a cada 60s
+task.spawn(function()
+	while true do
+		task.wait(60)
+		local updatedList = GetPlayers()
+		selectorPlayers_Camera.Reset(updatedList)
+	end
+end)
+
+
+--=================================--
+--=================================--
