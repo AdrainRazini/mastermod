@@ -2017,7 +2017,7 @@ local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 	Color = "White",
 	Background = "Blue",
 	Value = 1,
-	Table = {"Join", "Delete"}
+	Table = {"Join", "Leave"}
 }, function(state)
 	if not forced_accept then return end
 
@@ -2029,11 +2029,16 @@ local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 			teamName = forced_accept
 		})
 
-	elseif state == "Delete" then
-		game.ReplicatedStorage:WaitForChild("Events"):WaitForChild("ClanEvent"):FireServer({
-			[1] = {
-				["action"] = "leave_clan"
-			}
+	elseif state == "Leave" then
+		clanEvent_upvr:FireServer({
+			action = "leave_clan"
+		})
+
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Clan leave_clan",
+			Text = "You have left your clan.",
+			Color = "Red",
+			Tempo = 2
 		})
 	end
 end)
