@@ -1982,7 +1982,6 @@ end)
 
 
 local teams_game = Workspace:FindFirstChild("Teams")
-local invitationEvent = game.ReplicatedStorage:WaitForChild("invitationEvent")
 local forced_accept = nil
 
 
@@ -2008,7 +2007,7 @@ local selector_Clan_forced = Regui.CreateSelectorOpitions(GameTab, {
 	Type = "string", -- agora é string
 	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(selectedName)
-	forced_accept = selectedName ~= "Nill" and selectedName or nil
+	forced_accept = selectedName
 end)
 
 --==============================--
@@ -2023,13 +2022,13 @@ local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 	if not forced_accept then return end
 
 	if state == "Join" then
-		invitationEvent:FireServer({
-			[1] = {
-				["teamIcon"] = "",
-				["action"] = "accepted",
-				["teamName"] = forced_accept
-			}
+		
+		invitationEvent_upvr:FireServer({
+			teamIcon = "",
+			action = "accepted",
+			teamName = forced_accept
 		})
+
 	elseif state == "Delete" then
 		game.ReplicatedStorage:WaitForChild("Events"):WaitForChild("ClanEvent"):FireServer({
 			[1] = {
