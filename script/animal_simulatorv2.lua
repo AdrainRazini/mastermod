@@ -686,14 +686,13 @@ local PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
 local ToolsTab = Regui.CreateTab(Window,{Name="Tools"})
 local GameTab = Regui.CreateTab(Window,{Name="Game"})
 local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
+local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 --=============-
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 --=============-
-
-
 
 --=================================--
 --=================================--
@@ -703,8 +702,8 @@ local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence 
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 
+
 -- GUI (Regui) Afk_Mod
-local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local TeleportService = game:GetService("TeleportService")
 
 -- FLAGS
@@ -980,8 +979,10 @@ task.spawn(function()
 end)
 
 --=================================--
-
+local Memequeque = Regui.CreateImage(AfkTab, {Name = "Meme (??)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://88038371334980", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --============--
+
+
 
 --===================--
 -- Window Farm Tab   --
@@ -1989,6 +1990,7 @@ local MemeCinemelayer= Regui.CreateImage(GameTab, {Name = "Meme (Cini)", Transpa
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 
+
 local MarketplaceService = game:GetService("MarketplaceService")
 
 local Label_Music_Info = Regui.CreateLabel(MusicTab, {Text = "Boombox", Color = "White", Alignment = "Center"})
@@ -2164,6 +2166,10 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 end)
 ]]
 
+local MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
+--local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
+-- 
+
 --=================================--
 --=================================--
 
@@ -2171,6 +2177,7 @@ end)
 -- Window Configs Tab
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
+
 
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
@@ -2252,4 +2259,6 @@ local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
 
 
 end)
+
+local Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://136319203684781", Size_Image = UDim2.new(0, 75, 0, 75)  })
 
