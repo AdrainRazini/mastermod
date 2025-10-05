@@ -2262,3 +2262,97 @@ end)
 
 local Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://136319203684781", Size_Image = UDim2.new(0, 75, 0, 75)  })
 
+
+
+
+
+--====
+--==== CAMERA SYSTEM ====--
+
+local Mod = {camera = false}
+local CameraTab = Regui.CreateTab(Window, {Name = "Camera"})
+
+--==============================--
+-- 🔹 Função para pegar todos os jogadores
+function getplrs()
+	local players = {}
+	table.insert(players, {name = "Nill", Obj = nil}) -- opção padrão
+
+	for _, plr in pairs(game.Players:GetPlayers()) do
+		if plr ~= player then
+			table.insert(players, {name = plr.Name, Obj = plr})
+		end
+	end
+	return players
+end
+
+--==============================--
+-- 🔹 Função principal de movimentação da câmera
+function movCameraPlrs(obj, follow)
+	local cam = Workspace.CurrentCamera
+	local char = player.Character
+
+	-- Se o alvo for Player, converte para Character
+	if obj and obj:IsA("Player") then
+		obj = obj.Character
+	end
+
+	if follow and Mod.camera and obj and obj:FindFirstChild("Humanoid") then
+		-- Câmera segue o alvo (jogador/NPC)
+		cam.CameraSubject = obj.Humanoid
+		cam.CameraType = Enum.CameraType.Custom
+	else
+		-- Restaura câmera pro jogador local
+		if char and char:FindFirstChild("Humanoid") then
+			cam.CameraSubject = char.Humanoid
+			cam.CameraType = Enum.CameraType.Custom
+		end
+	end
+end
+
+--==============================--
+-- 🔹 Criação da lista inicial
+local listCameraTab = getplrs()
+
+-- 🔹 Selector de alvo
+local selectorPlrs = Regui.CreateSelectorOpitions(CameraTab, {
+	Name = "Selecionar jogador",
+	Options = listCameraTab,
+	Type = "Instance",
+	Size_Frame = UDim2.new(1, -10, 0, 100)
+}, function(selectedObj)
+	if Mod.camera then
+		movCameraPlrs(selectedObj.Obj, true)
+	else
+		movCameraPlrs(nil, false)
+	end
+end)
+
+--==============================--
+-- 🔹 Toggle principal
+local Toggle_Plrs = Regui.CreateToggleboxe(CameraTab, {
+	Text = "Toggle Camera Follow",
+	Color = "Blue"
+}, function(state)
+	Mod.camera = state
+
+	if Mod.camera then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Camera",
+			Text = "Modo de câmera ativado",
+			Icon = "fa_wifi",
+			Tempo = 5
+		})
+	else
+		movCameraPlrs(nil, false)
+	end
+end)
+
+--==============================--
+-- 🔹 Atualiza lista de jogadores a cada 30s
+task.spawn(function()
+	while task.wait(30) do
+		local updated = getplrs()
+		selectorPlrs.Reset(updated)
+	end
+end)
