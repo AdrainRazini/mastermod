@@ -1981,41 +1981,34 @@ end)
 --=== test 
 
 
-
 local teams_game = Workspace:FindFirstChild("Teams")
 local invitationEvent = game.ReplicatedStorage:WaitForChild("invitationEvent")
 local forced_accept = nil
 
---==============================--
--- 🔹 Função para pegar todos os clãs
-function getClans()
-	local clans = {}
-	table.insert(clans, {name = "Nill", Obj = nil}) -- opção padrão
 
+--==============================--
+-- 🔹 Função para pegar todos os clãs como lista de strings
+function getClans()
+	local clans = {"Nill"} -- opção padrão
 	if teams_game then
 		for _, folder in pairs(teams_game:GetChildren()) do
 			if folder:IsA("Folder") then
-				table.insert(clans, {name = folder.Name, Obj = folder})
+				table.insert(clans, folder.Name) -- só o nome como string
 			end
 		end
 	end
-
 	return clans
 end
 
 --==============================--
--- 🔹 Selector de clãs
+-- 🔹 Selector de clãs (string)
 local selector_Clan_forced = Regui.CreateSelectorOpitions(GameTab, {
 	Name = "Selecionar Clã",
 	Options = getClans(),
-	Type = "Instance",
+	Type = "string", -- agora é string
 	Size_Frame = UDim2.new(1, -10, 0, 100)
-}, function(selectedObj)
-	if selectedObj and selectedObj.Obj then
-		forced_accept = selectedObj.name
-	else
-		forced_accept = nil
-	end
+}, function(selectedName)
+	forced_accept = selectedName ~= "Nill" and selectedName or nil
 end)
 
 --==============================--
@@ -2030,7 +2023,6 @@ local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 	if not forced_accept then return end
 
 	if state == "Join" then
-		-- Aceita convite forçado
 		invitationEvent:FireServer({
 			[1] = {
 				["teamIcon"] = "",
@@ -2039,7 +2031,6 @@ local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 			}
 		})
 	elseif state == "Delete" then
-		-- Sai do clã
 		game.ReplicatedStorage:WaitForChild("Events"):WaitForChild("ClanEvent"):FireServer({
 			[1] = {
 				["action"] = "leave_clan"
