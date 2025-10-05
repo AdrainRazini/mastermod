@@ -1905,9 +1905,7 @@ end)
 
 local Label_Game_Set_Clan_Invitation2 = Regui.CreateLabel(GameTab, {Text = "Clan Invitation", Color = "White", Alignment = "Center"})
 
-local MemeCinemelayer= Regui.CreateImage(GameTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84478265118657", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
---=====================--
 
 local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
 	Name = "Selecionar Jogador",
@@ -1982,6 +1980,7 @@ end)
 --===========================================--
 
 local Label_Game_Set = Regui.CreateLabel(GameTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
+local MemeCinemelayer= Regui.CreateImage(GameTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84478265118657", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 --============================--
 
