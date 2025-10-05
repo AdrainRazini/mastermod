@@ -2012,7 +2012,7 @@ local selector_Clan_forced = Regui.CreateSelectorOpitions(GameTab, {
 end)
 
 --==============================--
--- 🔹 Slider de ação do clã (Join / Delete)
+-- 🔹 Slider de ação do clã (Join / Leave)
 local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 	Text = "Clan Action",
 	Color = "White",
