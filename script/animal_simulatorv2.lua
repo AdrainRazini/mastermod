@@ -2266,10 +2266,11 @@ local Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence =
 
 
 
---====
 --==== CAMERA SYSTEM ====--
 
 local Mod = {camera = false}
+
+-- Criação da aba na interface
 local CameraTab = Regui.CreateTab(Window, {Name = "Camera"})
 
 --==============================--
@@ -2278,7 +2279,7 @@ function getplrs()
 	local players = {}
 	table.insert(players, {name = "Nill", Obj = nil}) -- opção padrão
 
-	for _, plr in pairs(game.Players:GetPlayers()) do
+	for _, plr in pairs(Players:GetPlayers()) do
 		if plr ~= player then
 			table.insert(players, {name = plr.Name, Obj = plr})
 		end
@@ -2290,7 +2291,7 @@ end
 -- 🔹 Função principal de movimentação da câmera
 function movCameraPlrs(obj, follow)
 	local cam = Workspace.CurrentCamera
-	local char = player.Character
+	local char = player.Character or player.CharacterAdded:Wait()
 
 	-- Se o alvo for Player, converte para Character
 	if obj and obj:IsA("Player") then
