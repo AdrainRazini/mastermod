@@ -1723,7 +1723,7 @@ verific(ToggleLightningIA, PVP.AutoEletricIA)
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 
-local Label_Game_Set_Clan_Invitation = Regui.CreateLabel(GameTab, {Text = "Clan Invitation", Color = "White", Alignment = "Center"})
+local Label_Game_Set_Clan_Invitation = Regui.CreateLabel(GameTab, {Text = "clan Event", Color = "White", Alignment = "Center"})
 
 --=====--
 local Reset_Timer = 10 
@@ -1764,45 +1764,82 @@ end
 
 -- Criação de Cla
 
+-- Criação e gerenciamento de Clã
+
 local clanEvent_upvr = game.ReplicatedStorage:WaitForChild("Events"):WaitForChild("ClanEvent")
+
 
 local name_Cla = "nil"
 local state_Cla = "nil"
 
-function Verific_Cla ()
-	local args = {
-		[1] = {
-			["clanToCreate"] = name_Cla,
-			["action"] = "create_clan",
-			["ClanIcon"] = "16273608500"
-		}
-	}
-	clanEvent_upvr:FireServer(args)
+--===================================================--
+-- Função de verificação ou feedback
+function Verific_Cla()
+	if name_Cla == "nil" or name_Cla == "" then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Clan System",
+			Text = "Please enter a valid clan name!",
+			Color = "Red",
+			Tempo = 2
+		})
+		return false
+	end
+	return true
 end
 
+--===================================================--
+-- Caixa de texto para nome
 local Input_Text_Cla = Regui.CreateTextBox(GameTab, {
-	Placeholder = "Name Clã ...",
-	Color = "White", -- cor do texto
-	BGColor = "DarkGray", -- cor de fundo
+	Placeholder = "Name Clan...",
+	Color = "White",
+	BGColor = "DarkGray",
 	Size = UDim2.new(1, -10, 0, 30)
 }, function(val)
 	name_Cla = val
 end)
 
-local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {Text = "Creat Clã", Color = "White", Background = "Blue" , Value = 1, Table = {"Creat","Delete"}}, function(state)
-	if state == "Creat" then
-		Verific_Cla()
-	else
-		local args = {
-			[1] = {
-				["action"] = "leave_clan"
-			}
-		}
-		clanEvent_upvr:FireServer(args)
+--===================================================--
+-- Slider de criação/deleção
+local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {
+	Text = "Clan Action",
+	Color = "White",
+	Background = "Blue",
+	Value = 1,
+	Table = {"Create", "Delete"}
+}, function(state)
+	state_Cla = state
+
+	if state == "Create" then
+		if not Verific_Cla() then return end
+
+		clanEvent_upvr:FireServer({
+			action = "create_clan",
+			clanToCreate = name_Cla,
+			ClanIcon = "16273608500" -- você pode trocar por outro ID de imagem
+		})
+
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Clan Created",
+			Text = "Clan '" .. name_Cla .. "' successfully created!",
+			Color = "Green",
+			Tempo = 2
+		})
+
+	elseif state == "Delete" then
+		clanEvent_upvr:FireServer({
+			action = "leave_clan"
+		})
+
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Clan Deleted",
+			Text = "You have left your clan.",
+			Color = "Red",
+			Tempo = 2
+		})
 	end
 end)
 
-
+local Label_Game_Set_Clan_Invitation2 = Regui.CreateLabel(GameTab, {Text = "Clan Invitation", Color = "White", Alignment = "Center"})
 --=====================--
 
 local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
