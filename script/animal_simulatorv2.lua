@@ -1497,7 +1497,7 @@ local Label_Farme_PVP_Info = Regui.CreateLabel(PlayerTab, {Text = "-------------
 --=====================================================================================================================--
 local Label_Farme_PVP_IA = Regui.CreateLabel(PlayerTab, {Text = "PVP Test IA", Color = "Red", Alignment = "Center"})
 
--- Guardar últimas posições para prever movimento
+--- Guardar últimas posições para prever movimento
 local lastPositions = {}
 local TimerlastPositions = 0.1 -- padrão, pode mudar para 0.005
 
@@ -1761,6 +1761,50 @@ function SetInvit()
 	end
 end
 
+
+-- Criação de Cla
+
+local clanEvent_upvr = game.ReplicatedStorage:WaitForChild("Events"):WaitForChild("ClanEvent")
+
+local name_Cla = "nil"
+local state_Cla = "nil"
+
+function Verific_Cla ()
+	local args = {
+		[1] = {
+			["clanToCreate"] = name_Cla,
+			["action"] = "create_clan",
+			["ClanIcon"] = "16273608500"
+		}
+	}
+	clanEvent_upvr:FireServer(args)
+end
+
+local Input_Text_Cla = Regui.CreateTextBox(GameTab, {
+	Placeholder = "Name Clã ...",
+	Color = "White", -- cor do texto
+	BGColor = "DarkGray", -- cor de fundo
+	Size = UDim2.new(1, -10, 0, 30)
+}, function(val)
+	name_Cla = val
+end)
+
+local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {Text = "Creat Clã", Color = "White", Background = "Blue" , Value = 1, Table = {"Creat","Delete"}}, function(state)
+	if state == "Creat" then
+		Verific_Cla()
+	else
+		local args = {
+			[1] = {
+				["action"] = "leave_clan"
+			}
+		}
+		clanEvent_upvr:FireServer(args)
+	end
+end)
+
+
+--=====================--
+
 local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
 	Name = "Selecionar Jogador",
 	Options = playersList,
@@ -1834,6 +1878,7 @@ end)
 --===========================================--
 
 local Label_Game_Set = Regui.CreateLabel(GameTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
+
 
 local Label_Game_Info = Regui.CreateLabel(GameTab, {Text = "Get Tools", Color = "White", Alignment = "Center"})
 -- Botão para pegar a Fireball manual
