@@ -1788,9 +1788,11 @@ local Memedemonslayer= Regui.CreateImage(ToolsTab, {Name = "Meme (demon slayer)"
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 
+--===================--
+-- Window Game Tab
+--===================--
 
-
-local Label_Game_Set_Clan_Invitation = Regui.CreateLabel(GameTab, {Text = "clan Event", Color = "White", Alignment = "Center"})
+local Label_Game_Set_Clan_Invitation = Regui.CreateLabel(GameTab, {Text = "Clan Event", Color = "White", Alignment = "Center"})
 
 --=====--
 local Reset_Timer = 10 
@@ -1798,18 +1800,27 @@ local Spaw_Timer = 5
 local Invit_Spaw = false
 
 local invitationEvent_upvr = game.ReplicatedStorage:WaitForChild("invitationEvent")
+local clanEvent_upvr = game.ReplicatedStorage:WaitForChild("Events"):WaitForChild("ClanEvent")
+
 local invitationPlayer = "All"
--- Lista de jogadores
-local playersList = {"All"}
-for _, p in ipairs(game.Players:GetPlayers()) do
-	table.insert(playersList, p.Name)
+
+--==============================--
+-- 🔹 Atualiza lista de jogadores
+local function getPlayers()
+	local list = {"All"}
+	for _, p in ipairs(game.Players:GetPlayers()) do
+		table.insert(list, p.Name)
+	end
+	return list
 end
 
+local playersList = getPlayers()
 
+--==============================--
+-- 🔹 Função para enviar convites
 function SetInvit()
 	local selectedName = invitationPlayer
 	if selectedName == "All" then
-		-- Envia convite para todos
 		for _, p in ipairs(game.Players:GetPlayers()) do
 			invitationEvent_upvr:FireServer({
 				action = "invite_clan",
@@ -1817,30 +1828,23 @@ function SetInvit()
 			})
 		end
 	else
-		-- Envia convite para jogador específico
-		local targetPlayer = game.Players:FindFirstChild(selectedName)
-		if targetPlayer then
+		local target = game.Players:FindFirstChild(selectedName)
+		if target then
 			invitationEvent_upvr:FireServer({
 				action = "invite_clan",
-				oplr = targetPlayer
+				oplr = target
 			})
 		end
 	end
 end
 
--- Criação de Cla
-
--- Criação e gerenciamento de Clã
-
-local clanEvent_upvr = game.ReplicatedStorage:WaitForChild("Events"):WaitForChild("ClanEvent")
-
+--==============================--
+-- 🔹 Criação e gerenciamento de Clã
 
 local name_Cla = "nil"
 local state_Cla = "nil"
 
---===================================================--
--- Função de verificação ou feedback
-function Verific_Cla()
+local function Verific_Cla()
 	if name_Cla == "nil" or name_Cla == "" then
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Clan System",
@@ -1863,7 +1867,7 @@ local Input_Text_Cla = Regui.CreateTextBox(GameTab, {
 	name_Cla = val
 end)
 
-
+-- Criação / Exclusão de clã
 local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {
 	Text = "Clan Action",
 	Color = "White",
@@ -1879,7 +1883,7 @@ local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {
 		clanEvent_upvr:FireServer({
 			action = "create_clan",
 			clanToCreate = name_Cla,
-			ClanIcon = "16273608500" -- você pode trocar por outro ID de imagem
+			ClanIcon = "16273608500"
 		})
 
 		Regui.NotificationPerson(Window.Frame.Parent, {
@@ -1903,126 +1907,109 @@ local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {
 	end
 end)
 
+--==============================--
+-- 🔹 Convites automáticos
+
 local Label_Game_Set_Clan_Invitation2 = Regui.CreateLabel(GameTab, {Text = "Clan Invitation", Color = "White", Alignment = "Center"})
-
-
 
 local selectorPlayers_upvr = Regui.CreateSelectorOpitions(GameTab, {
 	Name = "Selecionar Jogador",
 	Options = playersList,
-	Type = "string", -- ou "Instance" se quiser enviar o objeto Player
+	Type = "string",
 	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(selectedName)
 	invitationPlayer = selectedName
 	if Invit_Spaw then
 		SetInvit()
 	end
-
 end)
 
+local SetSpaw = Regui.CreateToggleboxe(GameTab, {
+	Text="Auto Clan Invitation",
+	Color="Cyan"
+}, function(state)
+	Invit_Spaw = state
 
-local SetSpaw = Regui.CreateToggleboxe(GameTab,{Text="Auto Clan Invitation",Color="Cyan"},function(state)
-	Invit_Spaw =state
-
-	if state then
-		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Alert: " .. invitationPlayer,
-			Text = "Auto Spaw State: " .. tostring(Invit_Spaw),
-			Icon = "rbxassetid://93478350885441",
-			Tempo = 2,
-			Casch = {},
-			Sound = ""
-		}, function()
-			print("Notificação fechada!")
-		end)		
-	end
+	Regui.NotificationPerson(Window.Frame.Parent, {
+		Title = "Alert: " .. invitationPlayer,
+		Text = "Auto Spaw State: " .. tostring(Invit_Spaw),
+		Icon = "rbxassetid://93478350885441",
+		Tempo = 2
+	})
 end)
-
 
 -- TIMER Auto Spaw
 local SliderInt_Spaw = Regui.CreateSliderFloat(GameTab, {
 	Text = "Spaw Timer", 
 	Color = "Cyan", 
-	Value = 1, Minimum = 0, Maximum = 1
+	Value = 1, Minimum = 1, Maximum = 10
 }, function(state)
 	Spaw_Timer = state
-	print("Reset da lista de convites:", state)
 end)
 
-
--- TIMER Auto Reset da lista de jogadores
+-- TIMER Auto Reset da lista
 local SliderInt_Reset_List = Regui.CreateSliderFloat(GameTab, {
 	Text = "Reset List Clan Invitation", 
 	Color = "Cyan", 
 	Value = 10, Minimum = 10, Maximum = 60
 }, function(state)
 	Reset_Timer = state
-	print("Reset da lista de convites:", state)
 end)
 
--- reset da lista de jogadores a cada 10 segundos
+-- Atualização automática das listas
 task.spawn(function()
-	while true do
-		task.wait(Reset_Timer)
+	while task.wait(Reset_Timer) do
+		playersList = getPlayers()
 		selectorPlayers_upvr.Reset(playersList)
 	end
 end)
+
 task.spawn(function()
-	while true do
-		task.wait(Spaw_Timer)
+	while task.wait(Spaw_Timer) do
 		if Invit_Spaw then
 			SetInvit()
 		end
 	end
 end)
 
-
-
---=== test 
-
+--==============================--
+-- 🔹 Forçar entrada e saída de clã
+local Label_Game_Set_Clan_Forced_Join = Regui.CreateLabel(GameTab, {Text = "Forced Join", Color = "White", Alignment = "Center"})
 
 local teams_game = Workspace:FindFirstChild("Teams")
 local forced_accept = nil
 
-
---==============================--
--- 🔹 Função para pegar todos os clãs como lista de strings
-function getClans()
-	local clans = {"Nill"} -- opção padrão
+local function getClans()
+	local clans = {"Nill"}
 	if teams_game then
-		for _, folder in pairs(teams_game:GetChildren()) do
-			if folder:IsA("Folder") then
-				table.insert(clans, folder.Name) -- só o nome como string
+		for _, f in pairs(teams_game:GetChildren()) do
+			if f:IsA("Folder") then
+				table.insert(clans, f.Name)
 			end
 		end
 	end
 	return clans
 end
 
---==============================--
--- 🔹 Selector de clãs (string)
 local selector_Clan_forced = Regui.CreateSelectorOpitions(GameTab, {
 	Name = "Selecionar Clã",
 	Options = getClans(),
-	Type = "string", -- agora é string
+	Type = "string",
 	Size_Frame = UDim2.new(1, -10, 0, 100)
 }, function(selectedName)
-	forced_accept = selectedName
+	forced_accept = selectedName ~= "Nill" and selectedName or nil
 end)
 
---==============================--
--- 🔹 Slider de ação do clã (Join / Delete)
 local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 	Text = "Clan Action",
 	Color = "White",
 	Background = "Blue",
 	Value = 1,
-	Table = {"Join", "Leave"}
+	Table = {"Join", "Leave", "Kick"}
 }, function(state)
 	if not forced_accept then return end
 
 	if state == "Join" then
-		
 		invitationEvent_upvr:FireServer({
 			teamIcon = "",
 			action = "accepted",
@@ -2040,17 +2027,31 @@ local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 			Color = "Red",
 			Tempo = 2
 		})
+
+	elseif state == "Kick" then
+		local target = invitationPlayer ~= "All" and invitationPlayer or nil
+		if target then
+			clanEvent_upvr:FireServer({
+				clanName = forced_accept,
+				playerToKickName = target,
+				action = "kick_player"
+			})
+			Regui.NotificationPerson(Window.Frame.Parent, {
+				Title = "Clan Kick",
+				Text = target .. " has been kicked from " .. forced_accept,
+				Color = "Red",
+				Tempo = 2
+			})
+		end
 	end
 end)
 
---==============================--
--- 🔹 Atualiza lista de clãs a cada 30s
+-- Atualiza lista de clãs a cada 30s
 task.spawn(function()
 	while task.wait(30) do
 		selector_Clan_forced.Reset(getClans())
 	end
 end)
-
 
 
 --===========================================--
