@@ -689,6 +689,9 @@ local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
 local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
+--==============--
+local ExplorerTab = Regui.CreateTab(Window,{Name="Explorer"})
+
 --=============-
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
@@ -2317,8 +2320,16 @@ local DeleteGui = Regui.CreateButton(ConfigsTab, {
 	end)
 end)
 
+local Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://136319203684781", Size_Image = UDim2.new(0, 75, 0, 75)  })
 
-local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
+
+
+--===================--
+-- Window Explorer Tab
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
+
+local Simple_Spy  = Regui.CreateButton(ExplorerTab, {
 	Text = "Simple Spy",
 	Color = "White",
 	BGColor = "Blue",
@@ -2342,8 +2353,4 @@ local Simple_Spy  = Regui.CreateButton(ConfigsTab, {
 
 end)
 
-local Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://136319203684781", Size_Image = UDim2.new(0, 75, 0, 75)  })
-
-
-
-
+local MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
