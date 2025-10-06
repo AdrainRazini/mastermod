@@ -737,6 +737,22 @@ function sendTeleportData()
 		reload = true
 	}
 
+	local loader_url = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"
+	local payload = ("loadstring(game:HttpGet('%s'))()"):format(loader_url)
+
+	-- compatibilidade com diferentes executores
+	if syn and syn.queue_on_teleport then
+		syn.queue_on_teleport(payload)
+	elseif queue_on_teleport then
+		queue_on_teleport(payload) -- KRNL / outros
+	elseif fluxus and fluxus.queue_on_teleport then
+		fluxus.queue_on_teleport(payload)
+	else
+		warn("executor não expõe queue_on_teleport — usar fallback (writefile)")
+	end
+
+
+
 	print("📤 Enviando dados no teleporte:", data)
 	TeleportService:Teleport(game.PlaceId, player, data)
 end
@@ -839,26 +855,46 @@ local Test_Teleport = Regui.CreateButton(AfkTab, {
 	TextSize = 16
 }, function()
 	print("Teleportando para a GUI...")
+	-- Envia dados atuais e teleporta
+	sendTeleportData()
+end)
+
+--[[
+--== BOTÃO TESTE TELEPORT ==--
+local Test_Teleport = Regui.CreateButton(AfkTab, {
+	Text = "Teleport Gui",
+	Color = "White",
+	BGColor = "Green",
+	TextSize = 16
+}, function()
+	print("Teleportando para a GUI...")
 
 	local loader_url = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"
 	local payload = ("loadstring(game:HttpGet('%s'))()"):format(loader_url)
 
-	-- compatibilidade com diferentes executores
-	if syn and syn.queue_on_teleport then
-		syn.queue_on_teleport(payload)
-	elseif queue_on_teleport then
-		queue_on_teleport(payload) -- KRNL / outros
-	elseif fluxus and fluxus.queue_on_teleport then
-		fluxus.queue_on_teleport(payload)
-	else
-		warn("executor não expõe queue_on_teleport — usar fallback (writefile)")
+	-- Fallback seguro (Delta-friendly)
+	local function queueLoader(code)
+		if syn and syn.queue_on_teleport then
+			syn.queue_on_teleport(code)
+		elseif queue_on_teleport then
+			queue_on_teleport(code)
+		elseif fluxus and fluxus.queue_on_teleport then
+			fluxus.queue_on_teleport(code)
+		else
+			-- fallback: salva e executa no próximo server
+			writefile("reload_loader.lua", code)
+			warn("⚠️ queue_on_teleport não disponível — salvando loader local")
+			queue_on_teleport("loadstring(readfile('reload_loader.lua'))()")
+		end
 	end
 
+	queueLoader(payload)
 
 	-- Envia dados atuais e teleporta
 	sendTeleportData()
 end)
 
+]]
 
 if AntiAFK then
 	Check_AntiAFK.Set(AntiAFK)
