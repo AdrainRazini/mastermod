@@ -692,6 +692,8 @@ local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
 --=============-
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
+local MemePirata= Regui.CreateImage(ReadmeTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://73362908559966", Size_Image = UDim2.new(0, 100, 0, 100)  })
+
 --=============-
 
 --=================================--
@@ -1223,6 +1225,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 
+local Label_Farme_Af_Info_Meme = Regui.CreateLabel(FarmTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
 local Ohyya = Regui.CreateImage(FarmTab, {Name = "Meme", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://75961890646911", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
@@ -1663,9 +1666,11 @@ local SliderInt_AutoEletricIA = Regui.CreateSliderFloat(PlayerTab, {
 	PVP_Timer.AutoEletricIA_Speed = state
 	print("AutoLightningIA Speed:", state)
 end)
+local Label_Farme_PVP_Info_Meme = Regui.CreateLabel(PlayerTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
-local MemeSucumba= Regui.CreateImage(PlayerTab, {Name = "Meme Suk", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://93478350885441", Size_Image = UDim2.new(0, 50, 0, 50)  })
+local MemeSucumba= Regui.CreateImage(PlayerTab, {Name = "Meme Suk", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://93478350885441", Size_Image = UDim2.new(0, 100, 0, 100)  })
 
+local MemeSos2= Regui.CreateImage(PlayerTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90615102202746", Size_Image = UDim2.new(0, 100, 0, 100)  })
 
 
 --======================================================================--
@@ -1777,6 +1782,7 @@ local GiveAutoFire5 = Regui.CreateButton(ToolsTab, {
 	giveToolFake("FakePoss", "NewLightningball")
 end)
 
+local Label_Tools_Info_Meme = Regui.CreateLabel(ToolsTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 local Memedemonslayer= Regui.CreateImage(ToolsTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 ---=======================================--
@@ -2056,7 +2062,7 @@ end)
 --===========================================--
 
 local Label_Game_Set = Regui.CreateLabel(GameTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
-local MemeCinemelayer= Regui.CreateImage(GameTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84478265118657", Size_Image = UDim2.new(0, 50, 0, 50)  })
+local MemeCinemelayer= Regui.CreateImage(GameTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84478265118657", Size_Image = UDim2.new(0, 75, 0, 75)  })
 
 --============================--
 
@@ -2241,6 +2247,7 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 end)
 ]]
 
+local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 local MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 -- 
