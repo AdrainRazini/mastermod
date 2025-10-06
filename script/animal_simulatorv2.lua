@@ -826,7 +826,7 @@ end)
 
 local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 	Text = "Ativar AntiAFK",
-	Color = "Blue"
+	Color = "White"
 }, function(state)
 	AntiAFK = state
 
