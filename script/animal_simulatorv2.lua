@@ -828,6 +828,38 @@ local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 	end
 end)
 
+
+
+
+-- Botão 
+local Test_Teleport = Regui.CreateButton(AfkTab, {
+	Text = "Teleport Gui",
+	Color = "White",
+	BGColor = "Green",
+	TextSize = 16
+}, function()
+	print("Teleportando para a GUI...")
+
+	local loader_url = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"
+	local payload = ("loadstring(game:HttpGet('%s'))()"):format(loader_url)
+
+	-- compatibilidade com diferentes executores
+	if syn and syn.queue_on_teleport then
+		syn.queue_on_teleport(payload)
+	elseif queue_on_teleport then
+		queue_on_teleport(payload) -- KRNL / outros
+	elseif fluxus and fluxus.queue_on_teleport then
+		fluxus.queue_on_teleport(payload)
+	else
+		warn("executor não expõe queue_on_teleport — usar fallback (writefile)")
+	end
+
+
+	-- Envia dados atuais e teleporta
+	sendTeleportData()
+end)
+
+
 if AntiAFK then
 	Check_AntiAFK.Set(AntiAFK)
 	--Check_AntiAFK.OnToggle()
