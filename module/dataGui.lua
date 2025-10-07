@@ -726,16 +726,17 @@ function chach.CreateButton(Scroll, list, callback)
 	button.MouseEnter:Connect(function() hoverTween(true) end)
 	button.MouseLeave:Connect(function() hoverTween(false) end)
 
-	-- Clique com efeito de pressão
-	button.MouseButton1Click:Connect(function()
-		local pressTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = button.Size - UDim2.new(0,2,0,2)})
-		local releaseTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = button.Size})
-		pressTween:Play()
-		pressTween.Completed:Wait()
-		releaseTween:Play()
+	local originalSize = button.Size
 
-		if callback then callback() end
-	end)
+button.MouseButton1Click:Connect(function()
+    local pressTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = originalSize - UDim2.new(0,2,0,2)})
+    local releaseTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = originalSize})
+    pressTween:Play()
+    pressTween.Completed:Wait()
+    releaseTween:Play()
+
+    if callback then callback() end
+end)
 
 	return button
 end
