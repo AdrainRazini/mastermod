@@ -694,8 +694,22 @@ local ExplorerTab = Regui.CreateTab(Window,{Name="Explorer"})
 
 --=============-
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
+
+local UpdateLog = Regui.CreateButton(ReadmeTab, {
+	Text = "New Updates",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+	--, Size = UDim2.new(1, -10, 0, 30)
+}, function()
+	Regui.NewsWindow(PlayerGui, {text = "Update ...",TextSize = 5, size ="" }, function(val) end)
+end)
+
+
 local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
 local MemePirata= Regui.CreateImage(ReadmeTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://73362908559966", Size_Image = UDim2.new(0, 100, 0, 100)  })
+
+--Regui.applyCorner(MemePirata)
 
 --=============-
 
@@ -2397,6 +2411,8 @@ local Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence =
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 
+local Label_Explorer_Info = Regui.CreateLabel(ExplorerTab, {Text = "Explorer Game", Color = "White", Alignment = "Center"})
+
 local Simple_Spy  = Regui.CreateButton(ExplorerTab, {
 	Text = "Simple Spy",
 	Color = "White",
@@ -2420,5 +2436,18 @@ local Simple_Spy  = Regui.CreateButton(ExplorerTab, {
 
 
 end)
+--[[
+local Simple_test  = Regui.CreateButton(ExplorerTab, {
+	Text = "test Image",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+	--, Size = UDim2.new(1, -10, 0, 30)
+}, function()
 
+end)
+
+local Simple_Icon = Regui.CreateImage(Simple_test, {Name = "Meme", Transparence = 1, Alignment = "Left", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 25, 0, 25)  })
+]]
+local Label_Explorer_End = Regui.CreateLabel(ExplorerTab, {Text = "--------------------", Color = "White", Alignment = "Center"})
 local MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
