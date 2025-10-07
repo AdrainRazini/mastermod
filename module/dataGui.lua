@@ -108,7 +108,7 @@ local chach = {
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "02/10/2025",
+		verdate = "07/10/2025",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
@@ -657,20 +657,28 @@ function chach.CreateLabel(Scroll, list)
 end
 
 function chach.CreateImage(Scroll, list)
-	-- Cria o ImageLabel
 	local imageLabel = Instance.new("ImageLabel")
 	imageLabel.Name = list.Name or "ImageLabel"
 	imageLabel.Size = list.Size_Image or UDim2.new(0, 50, 0, 50)
-	imageLabel.Position = list.Position or UDim2.new(0.5, 0, 0.5, 0)
-	imageLabel.AnchorPoint = list.AnchorPoint or Vector2.new(0.5, 0.5)
+	imageLabel.Position = list.Position or UDim2.new(0, 0, 0, 0)
+	imageLabel.AnchorPoint = list.AnchorPoint or Vector2.new(0, 0)
 	imageLabel.BackgroundTransparency = list.Transparence or 1
 	imageLabel.Image = list.Id_Image or ""
 	imageLabel.Parent = Scroll
 
-	-- Centraliza se Alignment for passado
+	-- Aplica alinhamento
 	if list.Alignment == "Center" then
 		imageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
 		imageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
+	elseif list.Alignment == "Right" then
+		imageLabel.AnchorPoint = Vector2.new(1, 0.5)
+		imageLabel.Position = UDim2.new(1, -10, 0.5, 0) -- -10 para dar uma margem
+	elseif list.Alignment == "Left" then
+		imageLabel.AnchorPoint = Vector2.new(0, 0.5)
+		imageLabel.Position = UDim2.new(0, 10, 0.5, 0) -- 10 de margem
+	elseif list.Alignment == "End" then -- BottomRight
+		imageLabel.AnchorPoint = Vector2.new(1, 1)
+		imageLabel.Position = UDim2.new(1, -10, 1, -10)
 	end
 
 	-- Aplica cantos arredondados se desejar
