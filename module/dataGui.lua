@@ -635,6 +635,105 @@ end
 
 
 
+
+
+function chach.NewsWindow(Scroll, list, callback)
+	local TweenService = game:GetService("TweenService")
+	local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "JaneladeNovidades"
+	screenGui.Parent = PlayerGui
+	screenGui.ResetOnSpawn = false
+
+	-- Frame principal
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 300, 0, 200)
+	frame.AnchorPoint = Vector2.new(0.5, 0.5)
+	frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	frame.BackgroundTransparency = 1 -- começa invisível
+	frame.Parent = screenGui
+	chach.applyCorner(frame, UDim.new(0, 12))
+	
+
+	local scroll = Instance.new("ScrollingFrame")
+	scroll.Size = UDim2.new(1, -15, 1, -20)
+	scroll.Position = UDim2.new(0, 10, 0, 10)
+	scroll.ScrollBarThickness = 5
+	scroll.BackgroundTransparency = 1
+	scroll.Parent = frame
+
+	chach.applyAutoScrolling(scroll)
+
+
+	-- Top bar
+	local topBar = Instance.new("Frame")
+	topBar.Size = UDim2.new(1, 0, 0, 30)
+	topBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	topBar.Parent = frame
+	chach.applyCorner(topBar, UDim.new(0, 12))
+	
+	-- Ícone de novidade
+	local icon = Instance.new("ImageLabel")
+	icon.Size = UDim2.new(0, 20, 0, 20)
+	icon.Position = UDim2.new(0, 10, 0, 5)
+	icon.BackgroundTransparency = 1
+	icon.Image = chach.Icons.fa_rr_information -- ícone de info
+	icon.Parent = topBar
+
+	
+	local imput_btn = Instance.new("TextButton")
+	imput_btn.Size = UDim2.new(1, 0, 1, 0)
+	imput_btn.BackgroundTransparency = 1
+	imput_btn.Text = ""
+	imput_btn.Parent = topBar
+	chach.applyDraggable(frame, imput_btn)
+
+	-- Texto de novidades
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, -20, 1, -20)
+	label.Position = UDim2.new(0, 10, 0, 40)
+	label.Text = list.text or "Novidades!"
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextWrapped = true
+	label.TextScaled = true
+	label.BackgroundTransparency = 1
+	label.Parent = scroll
+
+	-- Botão X para fechar
+	local btnClose = Instance.new("TextButton")
+	btnClose.Size = UDim2.new(0, 25, 0, 25)
+	btnClose.Position = UDim2.new(1, -30, 0, 5)
+	btnClose.AnchorPoint = Vector2.new(0, 0)
+	btnClose.Text = "X"
+	btnClose.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btnClose.BackgroundTransparency = 1
+	btnClose.Font = Enum.Font.SourceSansBold
+	btnClose.TextSize = 18
+	btnClose.Parent = frame
+
+	local function closeWindow()
+		local tween = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1, Size = UDim2.new(0, 0, 0, 0)})
+		tween:Play()
+		tween.Completed:Connect(function()
+			screenGui:Destroy()
+		end)
+	end
+
+	btnClose.MouseButton1Click:Connect(closeWindow)
+
+	-- Tween de entrada
+	local tweenIn = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.1, Size = UDim2.new(0, 300, 0, 200)})
+	tweenIn:Play()
+
+	return screenGui
+end
+
+
+
+
+
 function chach.CreateLabel(Scroll, list)
 	local text = list.Text or "Label"
 	local c = chach.Colors
