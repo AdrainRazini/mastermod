@@ -2190,6 +2190,72 @@ end)
 
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
+local Listaid = {
+	91233243522140,
+	116874163291138,
+	114727662968481,
+	98337901681441,
+	102402883551679,
+	122761529841977,
+	87909146687252,
+	127512475318182,
+	119936139925486,
+	105854178411388,
+	87233041213837,
+	121516877792091,
+	85833437298815,
+	94494416095572,   -- Ghost fight
+	115656438192853, -- A Engimatical Encounter
+	96357207714662,  -- Stronger Twan ya chara
+	107986977620509, -- Asgore
+	101378669026310, -- The Skeletons Last Breath
+	109606503605402, -- Hammer of Justice
+	112512564227744,
+	104621031886653,
+	83914052148279,
+	117236780703437,
+	81552567379452,
+	123809083385992,
+	112748273890049,
+	137155874195108,
+	106958630419629,
+	72320758533508,
+	127063071194532,
+	139667113842953,
+	90627119202018,
+	118507373399694,
+	93058983119992,
+	92295159623916,  -- DJ Raimundo
+	139218946376655, -- Rat Dance
+	97567416166163,  -- Sus
+	106732317934236, -- Hip Hop
+	17647322226,     -- Kerosene
+	132517043416676, -- Novinha Do Bonde
+	15689448519,     -- Giga Chad
+	16190782786,     -- Lil Kuudere Sukoyomi
+	1837006787,      -- You Ain't Hot Enough
+	1837014531,       -- Rock
+	131847084942844,
+	95046091312570,
+	111318048787674,
+	93958751571254,
+	120102995443063,
+	120138115344262,
+	104575671082804,
+	131689610122547,
+	13530439660,
+	14366981664,
+	16831107981,
+	129112111571462,
+	15689445424,
+	15689450026,
+	126713629899826,
+	77766610441787,
+	18841891575,
+	120871403922972
+}
+
+
 local listMusics = {
 	{name = "Nill", Obj = "0"},
 	{name = "100℅ Forrozin De Vaquejada Tema Dj Raimundo Pedras", Obj = "92295159623916"},
@@ -2236,7 +2302,27 @@ local listMusics = {
 	{name = "You Ain't Hot Enough", Obj = "1837006787"},
 	{name = "Tired Of You", Obj = "1837014531"},
 	{name = "Ghost Fight (Hard Bounce Flip)", Obj = "94494416095572"}
+
 }
+
+
+function getnamesbox(list)
+	local newList = {}
+
+	for _, id in ipairs(list) do
+		local success, info = pcall(function()
+			return MarketplaceService:GetProductInfo(id)
+		end)
+
+		if success and info then
+			table.insert(newList, {name = info.Name, Obj = tostring(id)})
+		else
+			table.insert(newList, {name = "???", Obj = tostring(id)})
+		end
+	end
+
+	return newList
+end
 
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
@@ -2273,6 +2359,13 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	end)	
 	]]
 
+end)
+
+-- 🔹 Atualiza lista de Musics a cada 120
+task.spawn(function()
+	while task.wait(120) do
+		selectorMusics.Reset(getnamesbox(Listaid))
+	end
 end)
 
 
