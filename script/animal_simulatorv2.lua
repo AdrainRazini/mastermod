@@ -4,7 +4,7 @@
 
 local ModInfo = {
 	Name = "Animal Simulator",
-	Version = "2.0.0", -- versão atual
+	Version = "3.0.0", -- versão atual
 	Date = "2025-09-23",
 	Notes = "Nil"
 }
