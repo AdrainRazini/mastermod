@@ -2361,16 +2361,9 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 
 end)
 
--- 🔹 Atualiza lista de Musics a cada 120
-task.spawn(function()
-	while task.wait(120) do
-		selectorMusics.Reset(getnamesbox(Listaid))
-	end
-end)
-
 
 --=======================--
---[[
+
 local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
 -- Botão para pegar a Musica
 -- Test De Salvamento do ID da musica
@@ -2414,16 +2407,70 @@ local Input_Text_Save = Regui.CreateTextBox(MusicTab, {
 end)
 
 -- Botão de salvar
+-- Função para verificar se um ID já existe na lista
+local function idExists(list, id)
+	for _, v in ipairs(list) do
+		if v == id then
+			return true
+		end
+	end
+	return false
+end
+
+-- Botão de salvar
 local MusicButton = Regui.CreateButton(MusicTab, {
 	Text = "Save ID",
 	Color = "White",
 	BGColor = "Blue",
 	TextSize = 16
 }, function()
-	print("ID salvo:", Save_Id)
-	updateMusicInfo() -- Também atualiza o label ao clicar
+	if not Save_Id or Save_Id == "" then
+		print("Nenhum ID para salvar")
+		return
+	end
+
+	-- Tenta pegar info da música de forma segura
+	local success, info = pcall(function()
+		return MarketplaceService:GetProductInfo(Save_Id)
+	end)
+
+	if success and info then
+		-- Verifica se o ID já existe
+		if not idExists(Listaid, Save_Id) then
+			table.insert(Listaid, Save_Id) -- adiciona na lista
+			updateMusicInfo() -- atualiza label
+			selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
+			print("ID adicionado:", Save_Id)
+		else
+			-- ID já existe
+			Regui.NotificationPerson(Window.Frame.Parent, {
+				Title = "ID Existente",
+				Text = "ID Music: " .. Save_Id,
+				Icon = "fa_rr_paper_plane",
+				Tempo = 5,
+				Casch = {},
+				Sound = ""
+			}, function()
+				print("Notificação fechada!")
+			end)
+		end
+	else
+		-- ID inválido
+		print("ID inválido:", Save_Id)
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "ID Inválido",
+			Text = "ID Music: " .. Save_Id,
+			Icon = "fa_rr_paper_plane",
+			Tempo = 5,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+	end
 end)
-]]
+
+
 
 local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 local MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
