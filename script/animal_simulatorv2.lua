@@ -62,23 +62,6 @@ end
 assert(Regui, "Regui não foi carregado!")
 
 
---[[
-local Send = Regui.NotificationDialog(Window.Frame.Parent, {
-	Title = "Nova Atualização!",
-	Text = "Foi lançada a versão 2.0. Deseja aplicar agora?",
-	Icon = "fa_bx_loader", -- qualquer ícone do seu dicionário
-	Tempo = 0 -- 0 = só fecha no clique
-}, function(result)
-	if result then
-		print("Usuário aceitou o update ✅")
-	else
-		print("Usuário recusou ❌")
-	end
-end)
-]]
-
-
-
 if PlayerGui:FindFirstChild(GuiName) then
 	Regui.Notifications(PlayerGui, {Title="Alert", Text="Neutralized Code", Icon="fa_rr_information", Tempo=10})
 	return
@@ -2209,7 +2192,7 @@ local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 	if not forced_accept then return end
 
 	if state == "Join" then
-		
+
 		invitationEvent_upvr:FireServer({
 			teamIcon = "",
 			action = "accepted",
@@ -2429,31 +2412,6 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	print("Set: ", selectedObj)
 	--Input_Text.SetVal(selectedObj)
 	idmusicRemote:FireServer(selectedObj)
-
-	--[[
-	local idname = ""
-	local success, info = pcall(function()
-		return MarketplaceService:GetProductInfo(selectedObj)
-	end)
-
-	if success and info then
-		idname = info.Name or "_Music_"
-	else
-		idname = "ID inválido!"
-	end
-	
-	Regui.NotificationPerson(Window.Frame.Parent, {
-		Title = "Name: " .. idname ,
-		Text = "Id Music: " .. selectedObj  ,
-		Icon = "fa_rr_paper_plane",
-		Tempo = 5,
-		Casch = {},
-		Sound = ""
-	}, function()
-		print("Notificação fechada!")
-	end)	
-	]]
-
 end)
 
 
