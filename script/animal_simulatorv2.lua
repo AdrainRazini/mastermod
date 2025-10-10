@@ -1891,7 +1891,7 @@ local GiveTeleportTool = Regui.CreateButton(ToolsTab, {
 	BGColor = "Button",
 	TextSize = 16
 }, function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/teleporttool.lua"))()
 end)
 
 local GiveTeleportTool_Icon = Regui.CreateImage(GiveTeleportTool, {
