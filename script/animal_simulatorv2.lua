@@ -675,20 +675,21 @@ end
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 -- GUI
-local Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
-local FarmTab = Regui.CreateTab(Window,{Name="Farm"})
-local PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
-local ToolsTab = Regui.CreateTab(Window,{Name="Tools"})
-local GameTab = Regui.CreateTab(Window,{Name="Game"})
-local MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
-local AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
-local ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
-local ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
---==============--
-local ExplorerTab = Regui.CreateTab(Window,{Name="Explorer"})
+ Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
+ FarmTab = Regui.CreateTab(Window,{Name="Farm"})
+ PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
+ ToolsTab = Regui.CreateTab(Window,{Name="Tools"})
+ GameTab = Regui.CreateTab(Window,{Name="Game"})
+ MusicTab = Regui.CreateTab(Window,{Name="Music Player"})
+ AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
+ ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
+ ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
+ ExplorerTab = Regui.CreateTab(Window,{Name="Explorer"})
+ 
+ -- Especial Tab
+ local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
+--===================--
 
---=============-
-local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 
 local UpdateLog = Regui.CreateButton(ReadmeTab, {
 	Text = "New Updates",
@@ -701,8 +702,8 @@ local UpdateLog = Regui.CreateButton(ReadmeTab, {
 end)
 
 
-local MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
-local MemePirata= Regui.CreateImage(ReadmeTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://73362908559966", Size_Image = UDim2.new(0, 100, 0, 100)  })
+ MemeDog = Regui.CreateImage(ReadmeTab, {Name = "Meme (Dog)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://90426210033947", Size_Image = UDim2.new(0, 50, 0, 50)  })
+ MemePirata= Regui.CreateImage(ReadmeTab, {Name = "Meme (Cini)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://73362908559966", Size_Image = UDim2.new(0, 100, 0, 100)  })
 
 --Regui.applyCorner(MemePirata)
 
