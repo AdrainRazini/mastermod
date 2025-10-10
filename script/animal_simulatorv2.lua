@@ -2623,10 +2623,11 @@ for nome, id in pairs(GetIcons) do
 	}, function()
 		-- Exemplo: mostra no console ou exibe notificação
 		print("🔹 Ícone selecionado:", nome, id)
-		Regui.NotificationPerson(Sub_Scroll_Icons["Data"], {
+		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "Ícone: " .. nome,
 			Text = "AssetID: " .. id,
-			Icon = id
+			Icon = id,
+			Tempo = 1
 		})
 	end)
 
