@@ -1827,9 +1827,19 @@ verific(ToggleLightningIA, PVP.AutoEletricIA)
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 
---====================--
-local Label_Game_Info = Regui.CreateLabel(ToolsTab, {Text = "Get Tools", Color = "White", Alignment = "Center"})
+-- Título principal
+local Label_Game_Info = Regui.CreateLabel(ToolsTab, {
+	Text = "Get Tools",
+	Color = "White",
+	Alignment = "Center"
+})
 
+
+local Label_Fireball = Regui.CreateLabel(ToolsTab, {
+	Text = "--- Fireball Tools ---",
+	Color = "White",
+	Alignment = "Center"
+})
 
 -- Botão para pegar a Fireball manual
 local GiveAutoFire1 = Regui.CreateButton(ToolsTab, {
@@ -1841,32 +1851,11 @@ local GiveAutoFire1 = Regui.CreateButton(ToolsTab, {
 	giveTool("Fireball", "NewFireball")
 end)
 
--- Ícone Fireball azul
 local GiveAutoFire1_Icon = Regui.CreateImage(GiveAutoFire1, {
 	Name = "FireballIcon",
 	Transparence = 1,
 	Alignment = "Left",
 	Id_Image = "rbxassetid://120451378713427", 
-	Size_Image = UDim2.new(0, 25, 0, 25)
-})
-
-
--- Botão para pegar a Lightning manual
-local GiveAutoFire2 = Regui.CreateButton(ToolsTab, {
-	Text = "Get Lightning Tool",
-	Color = "White",
-	BGColor = "Button",
-	TextSize = 16
-}, function()
-	giveTool("FireballEletric", "NewLightningball")
-end)
-
--- Ícone Lightning azul
-local GiveAutoFire2_Icon = Regui.CreateImage(GiveAutoFire2, {
-	Name = "LightningIcon",
-	Transparence = 1,
-	Alignment = "Left",
-	Id_Image = "rbxassetid://75399074142545", 
 	Size_Image = UDim2.new(0, 25, 0, 25)
 })
 
@@ -1881,12 +1870,36 @@ local GiveAutoFire3 = Regui.CreateButton(ToolsTab, {
 	giveToolAuto("FireballAuto", "NewFireball")
 end)
 
--- Ícone Fireball azul
 local GiveAutoFire3_Icon = Regui.CreateImage(GiveAutoFire3, {
 	Name = "FireballAutoIcon",
 	Transparence = 1,
 	Alignment = "Left",
 	Id_Image = "rbxassetid://120451378713427",
+	Size_Image = UDim2.new(0, 25, 0, 25)
+})
+
+
+local Label_Lightning = Regui.CreateLabel(ToolsTab, {
+	Text = "--- Lightning Tools ---",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Botão para pegar a Lightning manual
+local GiveAutoFire2 = Regui.CreateButton(ToolsTab, {
+	Text = "Get Lightning Tool",
+	Color = "White",
+	BGColor = "Button",
+	TextSize = 16
+}, function()
+	giveTool("FireballEletric", "NewLightningball")
+end)
+
+local GiveAutoFire2_Icon = Regui.CreateImage(GiveAutoFire2, {
+	Name = "LightningIcon",
+	Transparence = 1,
+	Alignment = "Left",
+	Id_Image = "rbxassetid://75399074142545", 
 	Size_Image = UDim2.new(0, 25, 0, 25)
 })
 
@@ -1901,17 +1914,22 @@ local GiveAutoFire4 = Regui.CreateButton(ToolsTab, {
 	giveToolAuto("LightningAuto", "NewLightningball")
 end)
 
--- Ícone Lightning azul
 local GiveAutoFire4_Icon = Regui.CreateImage(GiveAutoFire4, {
 	Name = "LightningAutoIcon",
 	Transparence = 1,
 	Alignment = "Left",
-	Id_Image = "rbxassetid://75399074142545", 
+	Id_Image = "rbxassetid://75399074142545",
 	Size_Image = UDim2.new(0, 25, 0, 25)
 })
 
 
--- Botão para pegar a Lightning automática
+local Label_Teleport = Regui.CreateLabel(ToolsTab, {
+	Text = "--- Teleport Tool ---",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Botão para pegar a Tool de Teleporte
 local GiveTeleportTool = Regui.CreateButton(ToolsTab, {
 	Text = "Get Teleport Tool",
 	Color = "White",
@@ -1921,19 +1939,29 @@ local GiveTeleportTool = Regui.CreateButton(ToolsTab, {
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
 end)
 
--- Ícone Lightning azul
 local GiveTeleportTool_Icon = Regui.CreateImage(GiveTeleportTool, {
-	Name = "Teleport Icon",
+	Name = "TeleportIcon",
 	Transparence = 1,
 	Alignment = "Left",
-	Id_Image = "rbxassetid://77789236265753", 
+	Id_Image = "rbxassetid://77789236265753", -- 🌀 Portal azul
 	Size_Image = UDim2.new(0, 25, 0, 25)
 })
 
 
 
-local Label_Tools_Info_Meme = Regui.CreateLabel(ToolsTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
-local Memedemonslayer= Regui.CreateImage(ToolsTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
+local Label_Tools_Info_Meme = Regui.CreateLabel(ToolsTab, {
+	Text = "-------------------------------",
+	Color = "White",
+	Alignment = "Center"
+})
+
+local Memedemonslayer = Regui.CreateImage(ToolsTab, {
+	Name = "Meme (demon slayer)",
+	Transparence = 1,
+	Alignment = "Center",
+	Id_Image = "rbxassetid://126174945491186",
+	Size_Image = UDim2.new(0, 50, 0, 50)
+})
 
 ---=======================================--
 
