@@ -2237,7 +2237,7 @@ end)
 
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
-local Listaid = {
+Listaid = {
 	91233243522140,
 	116874163291138,
 	114727662968481,
@@ -2495,7 +2495,7 @@ end)
 
 
 local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
-local MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
+MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 -- 
 
@@ -2564,7 +2564,7 @@ local DeleteGui = Regui.CreateButton(ConfigsTab, {
 	end)
 end)
 
-local Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://136319203684781", Size_Image = UDim2.new(0, 75, 0, 75)  })
+Memeque = Regui.CreateImage(ConfigsTab, {Name = "Meme (?)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://136319203684781", Size_Image = UDim2.new(0, 75, 0, 75)  })
 
 
 
@@ -2614,6 +2614,6 @@ local Simple_Icon = Regui.CreateImage(Simple_test, {Name = "Meme", Transparence 
 
 ]]
 
---local MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
+MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 
