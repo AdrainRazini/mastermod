@@ -1,4 +1,16 @@
 -- ==========================================
+-- MastermodV2: Verific Game
+-- ==========================================
+--[[
+-- AutoExec: só roda no jogo ID 5712833750 (Animal Simulator)
+if game.PlaceId ~= 5712833750 then
+	return -- sai se não for o jogo certo
+end
+]]
+
+
+
+-- ==========================================
 -- MastermodV2: Mod Menu + Simulator
 -- ==========================================
 
@@ -2576,6 +2588,7 @@ local Simple_Spy  = Regui.CreateButton(ExplorerTab, {
 
 
 end)
+
 --[[
 local Simple_test  = Regui.CreateButton(ExplorerTab, {
 	Text = "test Image",
@@ -2588,6 +2601,50 @@ local Simple_test  = Regui.CreateButton(ExplorerTab, {
 end)
 
 local Simple_Icon = Regui.CreateImage(Simple_test, {Name = "Meme", Transparence = 1, Alignment = "Left", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 25, 0, 25)  })
+
 ]]
+
+
+
+local Sub_Scroll_Icons = Regui.SubTabsWindow(ExplorerTab, {
+	Text = "Afk Player",
+	Table = {"Icons", "Data"},
+	Color = "Blue"
+})
+
+local GetIcons = Regui.Icons 
+-- Cria um botão com imagem para cada ícone
+for nome, id in pairs(GetIcons) do
+	local Simple_test = Regui.CreateButton(Sub_Scroll_Icons["Icons"], {
+		Text = nome,
+		Color = "White",
+		BGColor = "Button",
+		TextSize = 16
+	}, function()
+		-- Exemplo: mostra no console ou exibe notificação
+		print("🔹 Ícone selecionado:", nome, id)
+		Regui.NotificationPerson(Sub_Scroll_Icons["Data"], {
+			Title = "Ícone: " .. nome,
+			Text = "AssetID: " .. id,
+			Icon = id
+		})
+	end)
+
+	-- Adiciona imagem real do ícone à esquerda
+	local Simple_Icon = Regui.CreateImage(Simple_test, {
+		Name = "Icon_" .. nome,
+		Transparence = 1,
+		Alignment = "Left",
+		Id_Image = id,
+		Size_Image = UDim2.new(0, 25, 0, 25)
+	})
+end
+
+
+
+
+
 local Label_Explorer_End = Regui.CreateLabel(ExplorerTab, {Text = "--------------------", Color = "White", Alignment = "Center"})
 local MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
+
+
