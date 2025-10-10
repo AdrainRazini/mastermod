@@ -2615,6 +2615,47 @@ local Simple_Icon = Regui.CreateImage(Simple_test, {Name = "Meme", Transparence 
 
 ]]
 
+
+Sub_Scroll_Icons = Regui.SubTabsWindow(ExplorerTab, {
+	Text = "Afk Player",
+	Table = {"Icons", "Data"},
+	Color = "Blue"
+})
+
+GetIcons = Regui.Icons 
+
+-- Reuso de variáveis
+local button, icon
+
+for nome, id in pairs(GetIcons) do
+	task.wait(0.05) -- pequeno delay para evitar lag e sobrecarga
+
+	button = Regui.CreateButton(Sub_Scroll_Icons["Icons"], {
+		Text = nome,
+		Color = "White",
+		BGColor = "Button",
+		TextSize = 16
+	}, function()
+		print("🔹 Ícone selecionado:", nome, id)
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Ícone: " .. nome,
+			Text = "AssetID: " .. id,
+			Icon = id,
+			Tempo = 1
+		})
+	end)
+
+	icon = Regui.CreateImage(button, {
+		Name = "Icon_" .. nome,
+		Transparence = 1,
+		Alignment = "Left",
+		Id_Image = id,
+		Size_Image = UDim2.new(0, 25, 0, 25)
+	})
+end
+
+
+
 MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 
