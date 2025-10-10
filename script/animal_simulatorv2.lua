@@ -1829,55 +1829,108 @@ verific(ToggleLightningIA, PVP.AutoEletricIA)
 
 --====================--
 local Label_Game_Info = Regui.CreateLabel(ToolsTab, {Text = "Get Tools", Color = "White", Alignment = "Center"})
+
+
 -- Botão para pegar a Fireball manual
 local GiveAutoFire1 = Regui.CreateButton(ToolsTab, {
 	Text = "Get Fireball Tool",
 	Color = "White",
-	BGColor = "Blue",
+	BGColor = "Button",
 	TextSize = 16
 }, function()
 	giveTool("Fireball", "NewFireball")
 end)
 
+-- Ícone Fireball azul
+local GiveAutoFire1_Icon = Regui.CreateImage(GiveAutoFire1, {
+	Name = "FireballIcon",
+	Transparence = 1,
+	Alignment = "Left",
+	Id_Image = "rbxassetid://120451378713427", 
+	Size_Image = UDim2.new(0, 25, 0, 25)
+})
+
+
 -- Botão para pegar a Lightning manual
 local GiveAutoFire2 = Regui.CreateButton(ToolsTab, {
 	Text = "Get Lightning Tool",
 	Color = "White",
-	BGColor = "Blue",
+	BGColor = "Button",
 	TextSize = 16
 }, function()
 	giveTool("FireballEletric", "NewLightningball")
 end)
 
+-- Ícone Lightning azul
+local GiveAutoFire2_Icon = Regui.CreateImage(GiveAutoFire2, {
+	Name = "LightningIcon",
+	Transparence = 1,
+	Alignment = "Left",
+	Id_Image = "rbxassetid://75399074142545", 
+	Size_Image = UDim2.new(0, 25, 0, 25)
+})
+
+
 -- Botão para pegar a Fireball automática
 local GiveAutoFire3 = Regui.CreateButton(ToolsTab, {
 	Text = "Get Auto Fireball Tool",
 	Color = "White",
-	BGColor = "Green",
+	BGColor = "Button",
 	TextSize = 16
 }, function()
 	giveToolAuto("FireballAuto", "NewFireball")
 end)
 
+-- Ícone Fireball azul
+local GiveAutoFire3_Icon = Regui.CreateImage(GiveAutoFire3, {
+	Name = "FireballAutoIcon",
+	Transparence = 1,
+	Alignment = "Left",
+	Id_Image = "rbxassetid://120451378713427",
+	Size_Image = UDim2.new(0, 25, 0, 25)
+})
+
+
 -- Botão para pegar a Lightning automática
 local GiveAutoFire4 = Regui.CreateButton(ToolsTab, {
 	Text = "Get Auto Lightning Tool",
 	Color = "White",
-	BGColor = "Green",
+	BGColor = "Button",
 	TextSize = 16
 }, function()
 	giveToolAuto("LightningAuto", "NewLightningball")
 end)
 
+-- Ícone Lightning azul
+local GiveAutoFire4_Icon = Regui.CreateImage(GiveAutoFire4, {
+	Name = "LightningAutoIcon",
+	Transparence = 1,
+	Alignment = "Left",
+	Id_Image = "rbxassetid://75399074142545", 
+	Size_Image = UDim2.new(0, 25, 0, 25)
+})
+
+
 -- Botão para pegar a Lightning automática
-local GiveAutoFire5 = Regui.CreateButton(ToolsTab, {
-	Text = "Get Fake Tool",
+local GiveTeleportTool = Regui.CreateButton(ToolsTab, {
+	Text = "Get Teleport Tool",
 	Color = "White",
-	BGColor = "Green",
+	BGColor = "Button",
 	TextSize = 16
 }, function()
-	giveToolFake("FakePoss", "NewLightningball")
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/teleporttool.lua"))()
 end)
+
+-- Ícone Lightning azul
+local GiveTeleportTool_Icon = Regui.CreateImage(GiveTeleportTool, {
+	Name = "Teleport Icon",
+	Transparence = 1,
+	Alignment = "Left",
+	Id_Image = "rbxassetid://77789236265753", 
+	Size_Image = UDim2.new(0, 25, 0, 25)
+})
+
+
 
 local Label_Tools_Info_Meme = Regui.CreateLabel(ToolsTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 local Memedemonslayer= Regui.CreateImage(ToolsTab, {Name = "Meme (demon slayer)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://126174945491186", Size_Image = UDim2.new(0, 50, 0, 50)  })
@@ -2599,50 +2652,10 @@ local Simple_test  = Regui.CreateButton(ExplorerTab, {
 }, function()
 
 end)
-
+-- rbxassetid://120451378713427
 local Simple_Icon = Regui.CreateImage(Simple_test, {Name = "Meme", Transparence = 1, Alignment = "Left", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 25, 0, 25)  })
 
 ]]
-
-
-
-local Sub_Scroll_Icons = Regui.SubTabsWindow(ExplorerTab, {
-	Text = "Afk Player",
-	Table = {"Icons", "Data"},
-	Color = "Blue"
-})
-
-local GetIcons = Regui.Icons 
--- Cria um botão com imagem para cada ícone
-for nome, id in pairs(GetIcons) do
-	local Simple_test = Regui.CreateButton(Sub_Scroll_Icons["Icons"], {
-		Text = nome,
-		Color = "White",
-		BGColor = "Button",
-		TextSize = 16
-	}, function()
-		-- Exemplo: mostra no console ou exibe notificação
-		print("🔹 Ícone selecionado:", nome, id)
-		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Ícone: " .. nome,
-			Text = "AssetID: " .. id,
-			Icon = id,
-			Tempo = 1
-		})
-	end)
-
-	-- Adiciona imagem real do ícone à esquerda
-	local Simple_Icon = Regui.CreateImage(Simple_test, {
-		Name = "Icon_" .. nome,
-		Transparence = 1,
-		Alignment = "Left",
-		Id_Image = id,
-		Size_Image = UDim2.new(0, 25, 0, 25)
-	})
-end
-
-
-
 
 
 local Label_Explorer_End = Regui.CreateLabel(ExplorerTab, {Text = "--------------------", Color = "White", Alignment = "Center"})
