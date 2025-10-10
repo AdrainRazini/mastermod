@@ -760,14 +760,10 @@ function sendTeleportData()
 		warn("executor não expõe queue_on_teleport — usar fallback (writefile)")
 	end
 
-
-
 	print("📤 Enviando dados no teleporte:", data)
 	TeleportService:Teleport(game.PlaceId, player, data)
 end
 
-
--- Função para receber dados após teleport
 -- Função para receber dados após teleport (bloqueante)
 function receiveTeleportData(timeout)
 	timeout = timeout or 5
@@ -797,8 +793,6 @@ function receiveTeleportData(timeout)
 	return false
 end
 
-
-
 -- =================================
 -- Espera até receber antes de continuar
 -- =================================
@@ -817,6 +811,7 @@ local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
 	Alignment = "Center"
 })
 
+
 local selectorTimer = Regui.CreateSelectorOpitions(AfkTab, {
 	Name = "Selector Tempo",
 	Options = {
@@ -832,6 +827,12 @@ local selectorTimer = Regui.CreateSelectorOpitions(AfkTab, {
 	print("Novo tempo selecionado:", val)
 	selectedTimer = val
 end)
+
+local Label_Check_AintiAFK = Regui.CreateLabel(AfkTab, {
+	Text = "--- Check  ---",
+	Color = "White",
+	Alignment = "Center"
+})
 
 local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 	Text = "Ativar AntiAFK",
@@ -853,6 +854,11 @@ local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 	end
 end)
 
+local Button_Forced_Teleport = Regui.CreateLabel(AfkTab, {
+	Text = "--- Forced_Teleport  ---",
+	Color = "White",
+	Alignment = "Center"
+})
 
 
 
@@ -868,46 +874,9 @@ local Test_Teleport = Regui.CreateButton(AfkTab, {
 	sendTeleportData()
 end)
 
---[[
---== BOTÃO TESTE TELEPORT ==--
-local Test_Teleport = Regui.CreateButton(AfkTab, {
-	Text = "Teleport Gui",
-	Color = "White",
-	BGColor = "Green",
-	TextSize = 16
-}, function()
-	print("Teleportando para a GUI...")
-
-	local loader_url = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"
-	local payload = ("loadstring(game:HttpGet('%s'))()"):format(loader_url)
-
-	-- Fallback seguro (Delta-friendly)
-	local function queueLoader(code)
-		if syn and syn.queue_on_teleport then
-			syn.queue_on_teleport(code)
-		elseif queue_on_teleport then
-			queue_on_teleport(code)
-		elseif fluxus and fluxus.queue_on_teleport then
-			fluxus.queue_on_teleport(code)
-		else
-			-- fallback: salva e executa no próximo server
-			writefile("reload_loader.lua", code)
-			warn("⚠️ queue_on_teleport não disponível — salvando loader local")
-			queue_on_teleport("loadstring(readfile('reload_loader.lua'))()")
-		end
-	end
-
-	queueLoader(payload)
-
-	-- Envia dados atuais e teleporta
-	sendTeleportData()
-end)
-
-]]
 
 if AntiAFK then
 	Check_AntiAFK.Set(AntiAFK)
-	--Check_AntiAFK.OnToggle()
 end
 
 
@@ -2645,8 +2614,6 @@ local Simple_Icon = Regui.CreateImage(Simple_test, {Name = "Meme", Transparence 
 
 ]]
 
-
-local Label_Explorer_End = Regui.CreateLabel(ExplorerTab, {Text = "--------------------", Color = "White", Alignment = "Center"})
-local MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
+--local MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 
