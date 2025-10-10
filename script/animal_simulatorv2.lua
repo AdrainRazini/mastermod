@@ -1885,6 +1885,8 @@ local Label_Lightning = Regui.CreateLabel(ToolsTab, {
 	Alignment = "Center"
 })
 
+
+
 -- Botão para pegar a Lightning manual
 local GiveAutoFire2 = Regui.CreateButton(ToolsTab, {
 	Text = "Get Lightning Tool",
