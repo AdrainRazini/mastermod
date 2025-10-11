@@ -42,8 +42,21 @@ end
 
 --====================================================================================================================--
 
-local AF = { FarmOrb = false, FarmOrbs = false, AutoRebirt = false }
-local AF_Timer = { FarmOrb_Timer = 0.1, FarmOrbs_Timer = 0.1, AutoRebirt_Timer = 1}
+local AF = {
+	FarmOrb = false,
+	FarmOrbs = false,
+	AutoRebirt = false,
+	AutoHoops = false,
+	Hoops_Pull = false,
+	Hoops_Teleport = false
+}
+
+local AF_Timer = {
+	FarmOrb_Timer = 0.1,
+	FarmOrbs_Timer = 0.1,
+	AutoRebirt_Timer = 1,
+	AutoHoops_Timer = 0.1
+}
 local Val_Orb = "Red Orb"
 
 --===================--
@@ -192,7 +205,7 @@ local Toggle_Orb_AF = Regui.CreateToggleboxe(FarmTab, {
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoFarm",
 			Text = "Auto Orbs (único) parado.",
-			Icon = "fa_rr_stop_circle",
+			Icon = "fa_bx_config",
 			Tempo = 5
 		})
 	end
@@ -216,7 +229,7 @@ local Toggle_Orbs_All_AF = Regui.CreateToggleboxe(FarmTab, {
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoFarm",
 			Text = "Coleta automática de todas as orbes parada.",
-			Icon = "fa_rr_stop_circle",
+			Icon = "fa_bx_config",
 			Tempo = 5
 		})
 	end
@@ -255,8 +268,13 @@ end
 	
 	
 
-local Toglle_Auto_Rebirt = Regui.CreateToggleboxe(FarmTab,{Text = "Auto Rebirt", Color = "White"}, function(state)
+local Toglle_Auto_Rebirt = Regui.CreateToggleboxe(FarmTab,{
+	Text = "Auto Rebirt",
+	Color = "White"
+}, function(state)
+	
 	AF.AutoRebirt = state
+	
 	if AF.AutoRebirt then
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoFarm",
@@ -267,3 +285,131 @@ local Toglle_Auto_Rebirt = Regui.CreateToggleboxe(FarmTab,{Text = "Auto Rebirt",
 		AutoRebirt()
 		end
 end)
+
+
+-- Retorna todos os objetos dentro de um folder com o nome específico
+function GetObj(FolderName, ObjName)
+	local results = {}
+	local folder = game.Workspace:FindFirstChild(FolderName)
+	if folder then
+		for _, obj in ipairs(folder:GetChildren()) do
+			if obj.Name == ObjName then
+				table.insert(results, obj)
+			end
+		end
+	else
+		warn("❌ Pasta não encontrada:", FolderName)
+	end
+	return results
+end
+
+--==================================================--
+-- 🔹 Puxar todos os Hoops até o jogador
+--==================================================--
+function PullAllHoops()
+	task.spawn(function()
+		local player = game.Players.LocalPlayer
+		local char = player.Character
+		local root = char and char:FindFirstChild("HumanoidRootPart")
+
+		while AF.Hoops_Pull and root do
+			local hoops = GetObj("Hoops", "Hoop")
+			for _, hoop in ipairs(hoops) do
+				if hoop:FindFirstChild("TouchInterest") or hoop:IsA("Model") then
+					-- Move o hoop até o jogador
+					if hoop:IsA("Model") and hoop:FindFirstChild("HumanoidRootPart") then
+						hoop:FindFirstChild("HumanoidRootPart").CFrame = root.CFrame
+					elseif hoop:IsA("BasePart") then
+						hoop.CFrame = root.CFrame
+					end
+				end
+			end
+			task.wait(AF_Timer.AutoHoops_Timer)
+		end
+	end)
+end
+
+--==================================================--
+-- 🔹 Teletransportar o jogador até cada Hoop
+--==================================================--
+function TeleportToHoops()
+	task.spawn(function()
+		local player = game.Players.LocalPlayer
+		local char = player.Character
+		local root = char and char:FindFirstChild("HumanoidRootPart")
+
+		while AF.Hoops_Teleport and root do
+			local hoops = GetObj("Hoops", "Hoop")
+			for _, hoop in ipairs(hoops) do
+				if hoop:IsA("Model") and hoop:FindFirstChild("HumanoidRootPart") then
+					root.CFrame = hoop.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+				elseif hoop:IsA("BasePart") then
+					root.CFrame = hoop.CFrame + Vector3.new(0, 3, 0)
+				end
+				task.wait(AF_Timer.AutoHoops_Timer)
+			end
+			task.wait(0.1)
+		end
+	end)
+end
+
+
+
+local Toggle_Hoops_Pull = Regui.CreateToggleboxe(FarmTab, {
+	Text = "Pull Hoops (Atrair até você)",
+	Color = "Yellow"
+}, function(state)
+	AF.Hoops_Pull = state
+	if state then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoFarm",
+			Text = "Puxando todos os Hoops até o jogador!",
+			Icon = "fa_rr_magnet",
+			Tempo = 5
+		})
+		PullAllHoops()
+	else
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoFarm",
+			Text = "Parando de puxar Hoops.",
+			Icon = "fa_rr_stop_circle",
+			Tempo = 5
+		})
+	end
+end)
+
+--  Teleportar o jogador para cada Hoop
+local Toggle_Hoops_Teleport = Regui.CreateToggleboxe(FarmTab, {
+	Text = "Teleport Hoops (Ir até cada um)",
+	Color = "Cyan"
+}, function(state)
+	AF.Hoops_Teleport = state
+	if state then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoFarm",
+			Text = "Teleportando para todos os Hoops!",
+			Icon = "fa_rr_paper_plane",
+			Tempo = 5
+		})
+		TeleportToHoops()
+	else
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoFarm",
+			Text = "Teleport automático parado.",
+			Icon = "fa_rr_stop_circle",
+			Tempo = 5
+		})
+	end
+end)
+
+-- Timer dos Hoops
+local Slider_Hoops_Timer = Regui.CreateSliderFloat(FarmTab, {
+	Text = "Timer Hoops",
+	Color = "Blue",
+	Value = 0.1,
+	Minimum = 0.01,
+	Maximum = 1
+}, function(value)
+	AF_Timer.AutoHoops_Timer = value
+end)
+--local Hoops  = game.Workspace:FindFirstChild("Hoops")
