@@ -42,8 +42,8 @@ end
 
 --====================================================================================================================--
 
-local AF = { FarmOrb = false, FarmOrbs = false }
-local AF_Timer = { FarmOrb_Timer = 0.1, FarmOrbs_Timer = 0.1}
+local AF = { FarmOrb = false, FarmOrbs = false, AutoRebirt = false }
+local AF_Timer = { FarmOrb_Timer = 0.1, FarmOrbs_Timer = 0.1, AutoRebirt_Timer = 1}
 local Val_Orb = "Red Orb"
 
 --===================--
@@ -234,15 +234,36 @@ local Slider_Float_Obrs = Regui.CreateSliderFloat(FarmTab, {
 end)
 
 
-local AF_Togle = Regui.CreateLabel()
 
 
-function AutoRebirt(Arg1)
-	local args = {
-[1] = "rebirthRequest"
 
-	}
-
-	game:GetService("ReplicatedStorage").rEvents.rebirthEvent:FireServer(unpack(args))
+function AutoRebirt()
+	task.spawn(
+		function()
+			while AF.AutoRebirt do
+				local args = {
+					[1] = "rebirthRequest"
+				}
+				game:GetService("ReplicatedStorage").rEvents.rebirthEvent:FireServer(unpack(args))
+				task.wait(1)
+				if not AF.AutoRebirt then break end
+			end
+		end
+	)
 end
+	
+	
+	
 
+local Toglle_Auto_Rebirt = Regui.CreateToggleboxe(FarmTab,{Text = "Auto Rebirt", Color = "White"}, function(state)
+	AF.AutoRebirt = state
+	if AF.AutoRebirt then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoFarm",
+			Text = "Auto Rebirt iniciado!",
+			Icon = "fa_rr_paper_plane",
+			Tempo = 5
+		})
+		AutoRebirt()
+		end
+end)
