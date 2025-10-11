@@ -1017,7 +1017,7 @@ function criar_Gui_Frame()
 		{name = "Inventario", path = "inventario.lua"},
 		{name = "Mod Menu", path = "Mod_Data.lua"},
 		{name = "animal simulator", path = "animal_simulatorv2.lua"},
-		--{name = "animal simulator", path = "animal_simulator.lua"},
+		{name = "Legends Of Speeds", path = "Legends_Of_Speeds.lua"},
 		{name = "test aura kill", path = "test_aura_kill.lua"},
 		{name = "FlyGui", path = "flyguiv2.lua"},
 		{name = "99 Nights", path = "farme_nights.lua"},
