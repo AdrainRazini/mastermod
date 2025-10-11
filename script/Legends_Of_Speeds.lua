@@ -364,7 +364,7 @@ local Toggle_Hoops_Pull = Regui.CreateToggleboxe(FarmTab, {
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoFarm",
 			Text = "Puxando todos os Hoops até o jogador!",
-			Icon = "fa_rr_magnet",
+			Icon = "fa_ss_marker",
 			Tempo = 5
 		})
 		PullAllHoops()
@@ -372,7 +372,7 @@ local Toggle_Hoops_Pull = Regui.CreateToggleboxe(FarmTab, {
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoFarm",
 			Text = "Parando de puxar Hoops.",
-			Icon = "fa_rr_stop_circle",
+			Icon = "fa_ss_marker",
 			Tempo = 5
 		})
 	end
@@ -396,7 +396,7 @@ local Toggle_Hoops_Teleport = Regui.CreateToggleboxe(FarmTab, {
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoFarm",
 			Text = "Teleport automático parado.",
-			Icon = "fa_rr_stop_circle",
+			Icon = "fa_ss_marker",
 			Tempo = 5
 		})
 	end
