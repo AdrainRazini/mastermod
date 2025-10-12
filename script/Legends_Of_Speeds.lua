@@ -161,21 +161,26 @@ function FarmFastOrb()
 
 	task.spawn(function()
 		while AF.FarmFastOrb do
-			-- dispara FireServer sem limite de batch, só respeitando o maxQueue
+			-- dispara FireServer respeitando o maxQueue
 			while queueCount < maxQueue and AF.FarmFastOrb do
 				queueCount += 1
-				local args = {
-					[1] = "collectOrb",
-					[2] = Val_Orb,
-					[3] = "City"
-				}
+
 				task.spawn(function()
+					local args = {
+						[1] = "collectOrb",
+						[2] = Val_Orb,
+						[3] = "City"
+					}
 					game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+
+					-- decrementa quase imediatamente
+					task.wait(0.001)
 					queueCount -= 1
 				end)
 			end
-			-- intervalo mínimo, só para não travar completamente o jogo
-			task.wait(AF_Timer.FarmFastOrb_Timer) -- espera o tempo configurado
+
+			-- intervalo mínimo entre lotes, pode até deixar 0
+			task.wait(AF_Timer.FarmFastOrb_Timer)
 		end
 	end)
 end
