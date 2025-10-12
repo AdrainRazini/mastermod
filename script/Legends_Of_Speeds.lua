@@ -156,7 +156,7 @@ function FarmOrb()
 end
 
 function FarmFastOrb()
-	local maxQueue = 1000        -- limite máximo de FireServer pendentes
+	local maxQueue = 200        -- limite máximo de FireServer pendentes
 	local queueCount = 0
 
 	task.spawn(function()
