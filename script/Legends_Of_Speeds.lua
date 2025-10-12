@@ -44,6 +44,7 @@ end
 
 local AF = {
 	FarmOrb = false,
+	FarmFastOrb = false,
 	FarmOrbs = false,
 	AutoRebirt = false,
 	AutoHoops = false,
@@ -54,6 +55,7 @@ local AF = {
 
 local AF_Timer = {
 	FarmOrb_Timer = 0.1,
+	FarmFastOrb_Timer = 0,
 	FarmOrbs_Timer = 0.1,
 	AutoRebirt_Timer = 1,
 	AutoHoops_Timer = 0.1
@@ -153,6 +155,53 @@ function FarmOrb()
 	end)
 end
 
+-- Variável para guardar a thread ativa
+local FarmFastOrbThread
+
+function FarmFastOrb()
+	local maxQueue = 50        -- máximo de FireServer acumulados
+	local queueCount = 0       -- contador atual
+
+	-- Se já houver thread ativa, encerra
+	if FarmFastOrbThread then
+		AF.FarmFastOrb = false
+		FarmFastOrbThread:Disconnect() -- desconecta qualquer event ou thread conectada
+		FarmFastOrbThread = nil
+		queueCount = 0
+	end
+
+	AF.FarmFastOrb = true -- garante que toggle está ativo
+
+	-- Cria nova thread
+	FarmFastOrbThread = task.spawn(function()
+		while AF.FarmFastOrb do
+			if queueCount < maxQueue then
+				queueCount += 1
+
+				task.spawn(function()
+					local args = {
+						[1] = "collectOrb",
+						[2] = Val_Orb,
+						[3] = "City"
+					}
+					game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+
+					-- decrementa o contador depois de processar
+					queueCount -= 1
+				end)
+			end
+
+			task.wait(AF_Timer.FarmFastOrb_Timer)
+		end
+
+		-- Ao desligar, zera contador
+		queueCount = 0
+	end)
+end
+
+
+
+
 -- Farm todas as orbs da lista
 function FarmAllOrbs()
 	task.spawn(function()
@@ -193,6 +242,29 @@ local Toggle_Orb_AF = Regui.CreateToggleboxe(FarmTab, {
 			Tempo = 5
 		})
 		FarmOrb()
+	else
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoFarm",
+			Text = "Auto Orbs (único) parado.",
+			Icon = "fa_bx_config",
+			Tempo = 5
+		})
+	end
+end)
+
+local Toggle_Orb2_AF = Regui.CreateToggleboxe(FarmTab, {
+	Text = "Auto Orb (Selecionado)",
+	Color = "Yellow"
+}, function(state)
+	AF.FarmFastOrb = state
+	if state then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoFarm (Fast)",
+			Text = "Coleta de orb iniciada: " .. Val_Orb,
+			Icon = "fa_rr_paper_plane",
+			Tempo = 5
+		})
+		FarmFastOrb()
 	else
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoFarm",
