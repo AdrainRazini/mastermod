@@ -162,23 +162,90 @@ function FarmFastOrb()
 	task.spawn(function()
 		while AF.FarmFastOrb do
 			-- dispara FireServer respeitando o maxQueue
-			while queueCount < maxQueue and AF.FarmFastOrb do
-				queueCount += 1
-
-				task.spawn(function()
-					local args = {
+			while AF.FarmFastOrb do
+           	local args = {
 						[1] = "collectOrb",
 						[2] = Val_Orb,
 						[3] = "City"
-					}
-					game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+			}
+			
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+				game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
 
-					-- decrementa quase imediatamente
-					task.wait(0.001)
-					queueCount -= 1
-				end)
 			end
-
 			-- intervalo mínimo entre lotes, pode até deixar 0
 			task.wait(AF_Timer.FarmFastOrb_Timer)
 		end
