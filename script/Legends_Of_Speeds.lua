@@ -239,7 +239,7 @@ local Slider_Float_Obrs = Regui.CreateSliderFloat(FarmTab, {
 	Text = "Velocidade de Coleta (Timer)",
 	Color = "Blue",
 	Value = 0.1,
-	Minimum = 0.01,
+	Minimum = 0,
 	Maximum = 1
 }, function(value)
 	AF_Timer.FarmOrb_Timer = value
