@@ -48,7 +48,8 @@ local AF = {
 	AutoRebirt = false,
 	AutoHoops = false,
 	Hoops_Pull = false,
-	Hoops_Teleport = false
+	Hoops_Teleport = false,
+	AutoDeleted = false
 }
 
 local AF_Timer = {
@@ -65,15 +66,6 @@ local Val_Orb = "Red Orb"
 --===================--
 
 
-function SellsPets(Arg1,Arg2)
-	
-	local args = {
-		[1] = Arg1, -- sellPet
-		[2] = game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild(Arg2) -- "Divine Pegasus"
-	}
-	game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(args))
-	
-end
 
 function OpensEggs(Arg1, Arg2)
 	
@@ -412,4 +404,219 @@ local Slider_Hoops_Timer = Regui.CreateSliderFloat(FarmTab, {
 }, function(value)
 	AF_Timer.AutoHoops_Timer = value
 end)
---local Hoops  = game.Workspace:FindFirstChild("Hoops")
+
+
+
+-- New Tab
+-- LocalScript (StarterPlayerScripts)
+local player = game.Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Cria SubWindow
+local SubWin = Regui.SubTabsWindow(FarmTab, {
+	Text = "Sub_Window",
+	Table = {"Logs","Pets","Main"},
+	Color = "Blue"
+})
+
+-- Espera a pasta petsFolder existir
+local petsFolder = player:WaitForChild("petsFolder")
+
+-------------------------------------------------
+-- Monta lista de raridades (subpastas)
+-------------------------------------------------
+local list_pets = {
+	{ name = "All", Obj = petsFolder } -- opção para ver todos
+}
+
+for _, folder in ipairs(petsFolder:GetChildren()) do
+	if folder:IsA("Folder") then
+		table.insert(list_pets, { name = folder.Name, Obj = folder })
+	end
+end
+
+print("🐾 Pastas encontradas:")
+for _, pet in ipairs(list_pets) do
+	print("-", pet.name)
+end
+
+-------------------------------------------------
+-- Função para criar os botões de pets
+-------------------------------------------------
+local function RenderPets(rarity)
+	-- Limpa pets anteriores
+	for _, obj in ipairs(SubWin["Pets"]:GetChildren()) do
+		if obj:IsA("GuiObject") then
+			obj:Destroy()
+		end
+	end
+
+	local function createButton(petValue)
+		local nome = petValue.Name
+		local img = petValue.Value
+
+		local button = Regui.CreateButton(SubWin["Pets"], {
+			Text = nome,
+			Color = "White",
+			BGColor = "Button",
+			TextSize = 16
+		}, function()
+			print("🐶 Pet selecionado:", nome)
+			Regui.NotificationPerson(Window.Frame.Parent, {
+				Title = "Pet: " .. nome,
+				Text = "Imagem: " .. img,
+				Icon = img,
+				Tempo = 1.5
+			})
+		end)
+
+		Regui.CreateImage(button, {
+			Name = "Icon_" .. nome,
+			Transparence = 1,
+			Alignment = "Left",
+			Id_Image = img,
+			Size_Image = UDim2.new(0, 25, 0, 25)
+		})
+	end
+
+	-- Se for "All", percorre todas as pastas
+	if rarity == "All" then
+		for _, folder in ipairs(petsFolder:GetChildren()) do
+			if folder:IsA("Folder") then
+				for _, petValue in ipairs(folder:GetChildren()) do
+					if petValue:IsA("StringValue") then
+						createButton(petValue)
+					end
+				end
+			end
+		end
+	else
+		-- Mostra apenas a raridade selecionada
+		local selectedFolder = petsFolder:FindFirstChild(rarity)
+		if selectedFolder then
+			for _, petValue in ipairs(selectedFolder:GetChildren()) do
+				if petValue:IsA("StringValue") then
+					createButton(petValue)
+				end
+			end
+		else
+			warn("❌ Nenhuma pasta encontrada para a raridade:", rarity)
+		end
+	end
+end
+
+-------------------------------------------------
+-- Cria o seletor com atualização dinâmica
+-------------------------------------------------
+local Selected_Rare = "All"
+
+local Selector_Rare = Regui.CreateSelectorOpitions(SubWin["Logs"], {
+	Name = "Selecionar Raridade",
+	Alignment = "Center",
+	Size_Frame = UDim2.new(1, -10, 0, 80),
+	Type = "Instance",
+	Options = list_pets,
+	Frame_Max = 80
+}, function(selected)
+	if selected then
+		Selected_Rare = selected.name
+		print("⭐ Raridade selecionada:", Selected_Rare)
+		RenderPets(Selected_Rare)
+	end
+end)
+
+-------------------------------------------------
+-- Render inicial (mostrar todos os pets)
+-------------------------------------------------
+RenderPets("All")
+
+function SellsPets(Arg1, Arg2, Arg3)
+	local player = game:GetService("Players").LocalPlayer
+	local petToSell = player.petsFolder[Arg3]:FindFirstChild(Arg2) -- pega o pet correto
+
+	if petToSell then
+		local args = {
+			[1] = Arg1, -- sellPet
+			[2] = petToSell
+		}
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(args))
+		
+	end
+end
+
+-- Função para vender todos os pets de uma raridade continuamente
+function AutoDelete(rarity)
+	if rarity == "All" then return end -- não deletar se "All"
+
+	local player = game.Players.LocalPlayer
+	local petsFolder = player:WaitForChild("petsFolder")
+	local selectedFolder = petsFolder:FindFirstChild(rarity)
+	if not selectedFolder then return end
+
+	-- Loop contínuo enquanto o toggle estiver ativo
+	while AF.AutoDeleted do
+		for _, petValue in ipairs(selectedFolder:GetChildren()) do
+			if petValue:IsA("StringValue") then
+				SellsPets("sellPet", petValue.Name, rarity)
+				Regui.NotificationPerson(Window.Frame.Parent, {
+					Title = "AutoDelete",
+					Text = "✅ AutoDelete ativado para a raridade: " .. petValue.Name,
+					Icon = petValue.Value,
+					Tempo = 1
+				})
+				
+			end
+		end
+		wait(1) -- espera antes de checar novamente
+	end
+end
+
+
+-- Toggle para ativar/desativar AutoDelete
+local Toggle_Auto_Delete = Regui.CreateToggleboxe(SubWin["Main"], {
+	Text = "Deletar por Raridade",
+	Color = "Yellow"
+}, function(state)
+	local rarity = Selected_Rare
+
+	if rarity ~= "All" then
+		AF.AutoDeleted = state
+	else
+		AF.AutoDeleted = false
+	end
+
+	if state then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoDelete",
+			Text = "✅ AutoDelete ativado para a raridade: " .. rarity,
+			Icon = "fa_ss_marker",
+			Tempo = 4
+		})
+		-- Inicia o AutoDelete contínuo
+		spawn(function()
+			AutoDelete(rarity)
+		end)
+	else
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoDelete",
+			Text = "⏹ AutoDelete desativado.",
+			Icon = "fa_ss_marker",
+			Tempo = 4
+		})
+	end
+end)
+
+
+
+local button_R = Regui.CreateButton(SubWin["Logs"], {
+	Text = "Reset",
+	Color = "White",
+	BGColor = "Button",
+	TextSize = 16
+}, function()
+	Toggle_Auto_Delete.Set(AF.AutoDeleted)
+	Selector_Rare.Opitions_Title.Text = "Raridade: " .. Selected_Rare
+	RenderPets("All")
+	AF.AutoDeleted = false
+	Selected_Rare = "All"
+end)
