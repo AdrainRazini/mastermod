@@ -155,27 +155,14 @@ function FarmOrb()
 	end)
 end
 
--- Variável para guardar a thread ativa
-local FarmFastOrbThread
-
 function FarmFastOrb()
-	local maxQueue = 50        -- máximo de FireServer acumulados
-	local queueCount = 0       -- contador atual
+	local maxQueue = 1000        -- limite máximo de FireServer pendentes
+	local queueCount = 0
 
-	-- Se já houver thread ativa, encerra
-	if FarmFastOrbThread then
-		AF.FarmFastOrb = false
-		FarmFastOrbThread:Disconnect() -- desconecta qualquer event ou thread conectada
-		FarmFastOrbThread = nil
-		queueCount = 0
-	end
-
-	AF.FarmFastOrb = true -- garante que toggle está ativo
-
-	-- Cria nova thread
-	FarmFastOrbThread = task.spawn(function()
+	task.spawn(function()
 		while AF.FarmFastOrb do
-			if queueCount < maxQueue then
+			-- dispara FireServer sem limite de batch, só respeitando o maxQueue
+			while queueCount < maxQueue and AF.FarmFastOrb do
 				queueCount += 1
 
 				task.spawn(function()
@@ -186,18 +173,17 @@ function FarmFastOrb()
 					}
 					game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
 
-					-- decrementa o contador depois de processar
+					-- decrementa o contador após envio
 					queueCount -= 1
 				end)
 			end
 
-			task.wait(AF_Timer.FarmFastOrb_Timer)
+			-- intervalo mínimo, só para não travar completamente o jogo
+			task.wait(AF_Timer.FarmFastOrb_Timer) -- espera o tempo configurado
 		end
-
-		-- Ao desligar, zera contador
-		queueCount = 0
 	end)
 end
+
 
 
 
@@ -253,7 +239,7 @@ local Toggle_Orb_AF = Regui.CreateToggleboxe(FarmTab, {
 end)
 
 local Toggle_Orb2_AF = Regui.CreateToggleboxe(FarmTab, {
-	Text = "Auto Orb (Selecionado)",
+	Text = "Auto Orb ((Fast))",
 	Color = "Yellow"
 }, function(state)
 	AF.FarmFastOrb = state
