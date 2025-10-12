@@ -166,7 +166,10 @@ function FarmFastOrb()
 					[3] = "City"
 				}
 				task.spawn(function()
-					game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))
+					if AF.FarmFastOrb then
+					game:GetService("ReplicatedStorage").rEvents.orbEvent:FireServer(unpack(args))	
+					end
+					
 				end)
 			end
 
