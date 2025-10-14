@@ -2513,6 +2513,8 @@ function CreatGuiBoards()
 	end)
 end
 
+local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "---- Visor Id Boombox ----", Color = "White", Alignment = "Center"})
+
 -- Toggle GUI
 local Toggle_Visor_Ids = Regui.CreateToggleboxe(MusicTab, {Text="Visor Id Boombox", Color="Cyan"}, function(state)
 	Visor = state
@@ -2544,7 +2546,7 @@ end)
 
 --=======================--
 
-local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
+
 -- Botão para pegar a Musica
 -- Test De Salvamento do ID da musica
 
