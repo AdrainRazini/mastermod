@@ -2306,7 +2306,6 @@ Listaid = {
 
 local listMusics = {
 	{name = "Nill", Obj = "0"},
-	{name = "100℅ Forrozin De Vaquejada Tema Dj Raimundo Pedras", Obj = "92295159623916"},
 	{name = "MONTAGEM PODER IV (SLOWED)", Obj = "91233243522140"},
 	{name = "BRAZILIAN DRIFT MUSIC", Obj = "116874163291138"},
 	{name = "Montagem Tomada", Obj = "114727662968481"},
@@ -2320,6 +2319,7 @@ local listMusics = {
 	{name = "Winter", Obj = "87233041213837"},
 	{name = "Montagem Primo", Obj = "121516877792091"},
 	{name = "jumpstyle", Obj = "85833437298815"},
+	{name = "Ghost Fight (Hard Bounce Flip)", Obj = "94494416095572"},
 	{name = "A Engimatical Encounter", Obj = "115656438192853"},
 	{name = "stronger than ya chara response", Obj = "96357207714662"},
 	{name = "ASGORE", Obj = "107986977620509"},
@@ -2340,6 +2340,7 @@ local listMusics = {
 	{name = "Montagem Mysterious", Obj = "90627119202018"},
 	{name = "melodia de verão (tiktok edit)", Obj = "118507373399694"},
 	{name = "MONTAGEM ECLIPSE ESTELAR", Obj = "93058983119992"},
+	{name = "100℅ Forrozin De Vaquejada Tema Dj Raimundo Pedras", Obj = "92295159623916"},
 	{name = "aw YEA", Obj = "139218946376655"},
 	{name = "pisada XL 2", Obj = "97567416166163"},
 	{name = "Fat Rat", Obj = "106732317934236"},
@@ -2349,9 +2350,26 @@ local listMusics = {
 	{name = "Lil Kuudere, sukoyomi - Alone", Obj = "16190782786"},
 	{name = "You Ain't Hot Enough", Obj = "1837006787"},
 	{name = "Tired Of You", Obj = "1837014531"},
-	{name = "Ghost Fight (Hard Bounce Flip)", Obj = "94494416095572"}
-
+	{name = "Embora", Obj = "131847084942844"},
+	{name = "pai", Obj = "95046091312570"},
+	{name = "PASSO BEM SOLTO SUBMUNDO", Obj = "111318048787674"},
+	{name = "So clean", Obj = "93958751571254"},
+	{name = "Stray", Obj = "120102995443063"},
+	{name = "MONTAGEM BANDIDO 2.0", Obj = "120138115344262"},
+	{name = "Tele", Obj = "104575671082804"},
+	{name = "GATINHA", Obj = "131689610122547"},
+	{name = "0to8,1xmxxd - stop posting about baller - sped up", Obj = "13530439660"},
+	{name = "SAKU - GTA (Nightcore)", Obj = "14366981664"},
+	{name = "Prismo - Solo", Obj = "16831107981"},
+	{name = "MONTAGEM SUCESSO", Obj = "129112111571462"},
+	{name = "Din1c - Dionic 2", Obj = "15689445424"},
+	{name = "jugsta - skeletons", Obj = "15689450026"},
+	{name = "MORTAL", Obj = "126713629899826"},
+	{name = "Dopamine Rat", Obj = "77766610441787"},
+	{name = "d3r, m1v, asteria - no escape", Obj = "18841891575"},
+	{name = "CUTEMAKMAKFUNK (Slowed)", Obj = "120871403922972"}
 }
+
 
 
 function getnamesbox(list)
@@ -2494,11 +2512,123 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 end)
 
 
+local Visor = false
+local ActiveBoards = {} -- armazenamento das GUIs criadas
+
+-- Função que cria o visor sobre o player
+local function CreateMusicBoard(player, sound)
+	if ActiveBoards[player] then
+		ActiveBoards[player]:Destroy()
+		ActiveBoards[player] = nil
+	end
+
+	local info
+	pcall(function()
+		info = MarketplaceService:GetProductInfo(sound.SoundId:gsub("%D", ""), Enum.InfoType.Asset)
+	end)
+
+	if not info then return end
+
+	-- Cria BillboardGui no Root
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "Boombox_Visor"
+	billboard.Adornee = root
+	billboard.Size = UDim2.new(0, 200, 0, 50)
+	billboard.StudsOffset = Vector3.new(0, 4, 0)
+	billboard.AlwaysOnTop = true
+	billboard.Parent = root
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.BackgroundTransparency = 0.3
+	textLabel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+	textLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+	textLabel.Font = Enum.Font.GothamBold
+	textLabel.TextScaled = true
+	textLabel.Text = string.format("%s\nID: %s", info.Name, sound.SoundId:gsub("%D", ""))
+	textLabel.Parent = billboard
+
+	ActiveBoards[player] = billboard
+
+	-- Se o som for removido, remove o visor
+	sound.AncestryChanged:Connect(function(_, parent)
+		if not parent and billboard then
+			billboard:Destroy()
+			ActiveBoards[player] = nil
+		end
+	end)
+end
+
+-- Função que monitora os players e cria/remover visores
+function CreatGuiBoards()
+	task.spawn(function()
+		while Visor do
+			for _, player in ipairs(Players:GetPlayers()) do
+				local char = player.Character
+				if char then
+					local root = char:FindFirstChild("HumanoidRootPart")
+					if root then
+						local sound = root:FindFirstChildOfClass("Sound")
+						if sound and sound.SoundId ~= "" then
+							if not ActiveBoards[player] then
+								CreateMusicBoard(player, sound)
+							end
+						else
+							if ActiveBoards[player] then
+								ActiveBoards[player]:Destroy()
+								ActiveBoards[player] = nil
+							end
+						end
+					end
+				end
+			end
+			task.wait(0.5)
+		end
+
+		-- Se desativar, limpa tudo
+		for _, gui in pairs(ActiveBoards) do
+			gui:Destroy()
+		end
+		table.clear(ActiveBoards)
+	end)
+end
+
+-- Toggle GUI
+local Toggle_Visor_Ids = Regui.CreateToggleboxe(MusicTab, {Text="Visor Id Boombox", Color="Cyan"}, function(state)
+	Visor = state
+
+	if state then 
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Visor Id Boombox",
+			Text = "Visor ativado: " .. tostring(Visor),
+			Icon = "rbxassetid://93478350885441",
+			Tempo = 2,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
+
+		CreatGuiBoards()
+	else
+		-- Desativar visores
+		for _, gui in pairs(ActiveBoards) do
+			gui:Destroy()
+		end
+		table.clear(ActiveBoards)
+	end
+end)
+
 
 local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 -- 
+
+
 
 --=================================--
 --=================================--
