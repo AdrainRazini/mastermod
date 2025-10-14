@@ -1904,6 +1904,33 @@ local GiveTeleportTool_Icon = Regui.CreateImage(GiveTeleportTool, {
 
 
 
+local Label_Fly_Gui = Regui.CreateLabel(ToolsTab, {
+	Text = "--- Fly Gui ---",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Botão para pegar a Tool de Teleporte
+local GiveFly_Gui = Regui.CreateButton(ToolsTab, {
+	Text = "Get Fly Gui Tool",
+	Color = "White",
+	BGColor = "Button",
+	TextSize = 16
+}, function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/flygui.lua"))()
+end)
+
+local GiveFly_Gui_Icon = Regui.CreateImage(GiveFly_Gui, {
+	Name = "TeleportIcon",
+	Transparence = 1,
+	Alignment = "Left",
+	Id_Image = "rbxassetid://83181120917208", 
+	Size_Image = UDim2.new(0, 25, 0, 25)
+})
+
+
+
+
 local Label_Tools_Info_Meme = Regui.CreateLabel(ToolsTab, {
 	Text = "-------------------------------",
 	Color = "White",
@@ -2402,116 +2429,6 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	idmusicRemote:FireServer(selectedObj)
 end)
 
-
---=======================--
-
-local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
--- Botão para pegar a Musica
--- Test De Salvamento do ID da musica
-
-local Save_Id = "0"
-
--- Label que mostra info da música
-local Label_Music_Info_Save = Regui.CreateLabel(MusicTab, {
-	Text = "_Music_",
-	Color = "White",
-	Alignment = "Center"
-})
-
--- Função segura para atualizar info da música
-local function updateMusicInfo()
-	if not Save_Id or Save_Id == "" then
-		Label_Music_Info_Save.Text = "_Music_"
-		return
-	end
-
-	local success, info = pcall(function()
-		return MarketplaceService:GetProductInfo(Save_Id)
-	end)
-
-	if success and info then
-		Label_Music_Info_Save.Text = info.Name or "_Music_"
-	else
-		Label_Music_Info_Save.Text = "ID inválido!"
-	end
-end
-
--- Input de ID
-local Input_Text_Save = Regui.CreateTextBox(MusicTab, {
-	Placeholder = "ID Bombox",
-	Color = "White",
-	BGColor = "DarkGray",
-	Size = UDim2.new(1, -10, 0, 30)
-}, function(val)
-	Save_Id = val
-	updateMusicInfo() -- Atualiza automaticamente ao digitar
-end)
-
--- Botão de salvar
--- Função para verificar se um ID já existe na lista
-local function idExists(list, id)
-	for _, v in ipairs(list) do
-		if v == id then
-			return true
-		end
-	end
-	return false
-end
-
--- Botão de salvar
-local MusicButton = Regui.CreateButton(MusicTab, {
-	Text = "Save ID",
-	Color = "White",
-	BGColor = "Blue",
-	TextSize = 16
-}, function()
-	if not Save_Id or Save_Id == "" then
-		print("Nenhum ID para salvar")
-		return
-	end
-
-	-- Tenta pegar info da música de forma segura
-	local success, info = pcall(function()
-		return MarketplaceService:GetProductInfo(Save_Id)
-	end)
-
-	if success and info then
-		-- Verifica se o ID já existe
-		if not idExists(Listaid, Save_Id) then
-			table.insert(Listaid, Save_Id) -- adiciona na lista
-			updateMusicInfo() -- atualiza label
-			selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
-			print("ID adicionado:", Save_Id)
-		else
-			-- ID já existe
-			Regui.NotificationPerson(Window.Frame.Parent, {
-				Title = "ID Existente",
-				Text = "ID Music: " .. Save_Id,
-				Icon = "fa_rr_paper_plane",
-				Tempo = 5,
-				Casch = {},
-				Sound = ""
-			}, function()
-				print("Notificação fechada!")
-			end)
-		end
-	else
-		-- ID inválido
-		print("ID inválido:", Save_Id)
-		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "ID Inválido",
-			Text = "ID Music: " .. Save_Id,
-			Icon = "fa_rr_paper_plane",
-			Tempo = 5,
-			Casch = {},
-			Sound = ""
-		}, function()
-			print("Notificação fechada!")
-		end)
-	end
-end)
-
-
 local Visor = false
 local ActiveBoards = {} -- armazenamento das GUIs criadas
 
@@ -2619,6 +2536,117 @@ local Toggle_Visor_Ids = Regui.CreateToggleboxe(MusicTab, {Text="Visor Id Boombo
 			gui:Destroy()
 		end
 		table.clear(ActiveBoards)
+	end
+end)
+
+
+
+
+--=======================--
+
+local Label_Music_Info_BT = Regui.CreateLabel(MusicTab, {Text = "Button", Color = "White", Alignment = "Center"})
+-- Botão para pegar a Musica
+-- Test De Salvamento do ID da musica
+
+local Save_Id = "0"
+
+-- Label que mostra info da música
+local Label_Music_Info_Save = Regui.CreateLabel(MusicTab, {
+	Text = "_Music_",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Função segura para atualizar info da música
+local function updateMusicInfo()
+	if not Save_Id or Save_Id == "" then
+		Label_Music_Info_Save.Text = "_Music_"
+		return
+	end
+
+	local success, info = pcall(function()
+		return MarketplaceService:GetProductInfo(Save_Id)
+	end)
+
+	if success and info then
+		Label_Music_Info_Save.Text = info.Name or "_Music_"
+	else
+		Label_Music_Info_Save.Text = "ID inválido!"
+	end
+end
+
+-- Input de ID
+local Input_Text_Save = Regui.CreateTextBox(MusicTab, {
+	Placeholder = "ID Bombox",
+	Color = "White",
+	BGColor = "DarkGray",
+	Size = UDim2.new(1, -10, 0, 30)
+}, function(val)
+	Save_Id = val
+	updateMusicInfo() -- Atualiza automaticamente ao digitar
+end)
+
+-- Botão de salvar
+-- Função para verificar se um ID já existe na lista
+local function idExists(list, id)
+	for _, v in ipairs(list) do
+		if v == id then
+			return true
+		end
+	end
+	return false
+end
+
+-- Botão de salvar
+local MusicButton = Regui.CreateButton(MusicTab, {
+	Text = "Save ID",
+	Color = "White",
+	BGColor = "Blue",
+	TextSize = 16
+}, function()
+	if not Save_Id or Save_Id == "" then
+		print("Nenhum ID para salvar")
+		return
+	end
+
+	-- Tenta pegar info da música de forma segura
+	local success, info = pcall(function()
+		return MarketplaceService:GetProductInfo(Save_Id)
+	end)
+
+	if success and info then
+		-- Verifica se o ID já existe
+		if not idExists(Listaid, Save_Id) then
+			table.insert(Listaid, Save_Id) -- adiciona na lista
+			updateMusicInfo() -- atualiza label
+			selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
+			print("ID adicionado:", Save_Id)
+		else
+			-- ID já existe
+			Regui.NotificationPerson(Window.Frame.Parent, {
+				Title = "ID Existente",
+				Text = "ID Music: " .. Save_Id,
+				Icon = "fa_rr_paper_plane",
+				Tempo = 5,
+				Casch = {},
+				Sound = ""
+			}, function()
+				print("Notificação fechada!")
+			end)
+		end
+	else
+		-- ID inválido
+		print("ID inválido:", Save_Id)
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "ID Inválido",
+			Text = "ID Music: " .. Save_Id,
+			Icon = "fa_rr_paper_plane",
+			Tempo = 5,
+			Casch = {},
+			Sound = ""
+		}, function()
+			print("Notificação fechada!")
+		end)
 	end
 end)
 
