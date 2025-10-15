@@ -51,6 +51,7 @@ local AF = {
 	Hoops_Pull = false,
 	Hoops_Teleport = false,
 	AutoDeleted = false,
+	AutoDeleted_Sequence = false,
 	AutoBuyPets = false
 }
 
@@ -482,6 +483,8 @@ local list_pets = {
 	{ name = "All", Obj = petsFolder } -- opção para ver todos
 }
 
+
+
 for _, folder in ipairs(petsFolder:GetChildren()) do
 	if folder:IsA("Folder") then
 		table.insert(list_pets, { name = folder.Name, Obj = folder })
@@ -563,6 +566,7 @@ end
 -------------------------------------------------
 local Selected_Rare = "All"
 
+
 local Selector_Rare = Regui.CreateSelectorOpitions(SubWin["Logs"], {
 	Name = "Selecionar Raridade",
 	Alignment = "Center",
@@ -583,76 +587,116 @@ end)
 -------------------------------------------------
 RenderPets("All")
 
+local Sequencia_Rare = {"Basic", "Advanced", "Rare", "Epic", "Unique", "Omega"}
+
 function SellsPets(Arg1, Arg2, Arg3)
 	local player = game:GetService("Players").LocalPlayer
-	local petToSell = player.petsFolder[Arg3]:FindFirstChild(Arg2) -- pega o pet correto
-
+	local petToSell = player.petsFolder[Arg3]:FindFirstChild(Arg2)
 	if petToSell then
 		local args = {
-			[1] = Arg1, -- sellPet
+			[1] = Arg1, -- "sellPet"
 			[2] = petToSell
 		}
 		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(args))
-		
 	end
 end
 
--- Função para vender todos os pets de uma raridade continuamente
-function AutoDelete(rarity)
-	if rarity == "All" then return end -- não deletar se "All"
-
+function AutoDelete(rarity, sequenceMode)
 	local player = game.Players.LocalPlayer
 	local petsFolder = player:WaitForChild("petsFolder")
-	local selectedFolder = petsFolder:FindFirstChild(rarity)
-	if not selectedFolder then return end
 
-	-- Loop contínuo enquanto o toggle estiver ativo
-	while AF.AutoDeleted do
-		for _, petValue in ipairs(selectedFolder:GetChildren()) do
-			if petValue:IsA("StringValue") then
-				SellsPets("sellPet", petValue.Name, rarity)
-				Regui.NotificationPerson(Window.Frame.Parent, {
-					Title = "AutoDelete",
-					Text = "✅ AutoDelete ativado para a raridade: " .. petValue.Name,
-					Icon = petValue.Value,
-					Tempo = 1
-				})
-				
+	while (sequenceMode and AF.AutoDeleted_Sequence) or (not sequenceMode and AF.AutoDeleted) do
+		local raritiesToDelete = {}
+
+		if sequenceMode then
+			-- Selected + Sequence: pega raridade selecionada e todas abaixo
+			local selectedIndex
+			for i, name in ipairs(Sequencia_Rare) do
+				if name == rarity then
+					selectedIndex = i
+					break
+				end
 			end
+			if selectedIndex then
+				for i = 1, selectedIndex do
+					table.insert(raritiesToDelete, Sequencia_Rare[i])
+				end
+			end
+		else
+			-- Apenas a raridade selecionada
+			table.insert(raritiesToDelete, rarity)
 		end
-		wait(1) -- espera antes de checar novamente
+
+		for _, rareName in ipairs(raritiesToDelete) do
+			local selectedFolder = petsFolder:FindFirstChild(rareName)
+			if selectedFolder then
+				for _, petValue in ipairs(selectedFolder:GetChildren()) do
+					if petValue:IsA("StringValue") then
+						SellsPets("sellPet", petValue.Name, rareName)
+						Regui.NotificationPerson(Window.Frame.Parent, {
+							Title = "AutoDelete",
+							Text = "🌀 Deletando pet: " .. petValue.Name .. " (" .. rareName .. ")",
+							Icon = petValue.Value,
+							Tempo = 1
+						})
+					end
+				end
+			end
+			task.wait(0.8)
+		end
+
+		task.wait(1.5)
 	end
 end
 
-
--- Toggle para ativar/desativar AutoDelete
-local Toggle_Auto_Delete = Regui.CreateToggleboxe(SubWin["Main"], {
-	Text = "Deletar por Raridade",
+-- Toggle Selected + Sequence
+local Toggle_Auto_Delete_Sequencial = Regui.CreateToggleboxe(SubWin["Main"], {
+	Text = "Deletar por Raridade (Selected + Sequence)",
 	Color = "Yellow"
 }, function(state)
 	local rarity = Selected_Rare
 
-	if rarity ~= "All" then
-		AF.AutoDeleted = state
-	else
-		AF.AutoDeleted = false
-	end
+	AF.AutoDeleted_Sequence = (rarity ~= "All" and state) or false
 
 	if state then
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoDelete",
-			Text = "✅ AutoDelete ativado para a raridade: " .. rarity,
+			Text = "✅ AutoDelete ativado para Selected + Sequence: " .. rarity,
 			Icon = "fa_ss_marker",
 			Tempo = 4
 		})
-		-- Inicia o AutoDelete contínuo
-		spawn(function()
-			AutoDelete(rarity)
-		end)
+		spawn(function() AutoDelete(rarity, true) end)
 	else
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "AutoDelete",
-			Text = "⏹ AutoDelete desativado.",
+			Text = "⏹ AutoDelete desativado (Selected + Sequence).",
+			Icon = "fa_ss_marker",
+			Tempo = 4
+		})
+	end
+end)
+
+-- Toggle Selected apenas
+local Toggle_Auto_Delete = Regui.CreateToggleboxe(SubWin["Main"], {
+	Text = "Deletar por Raridade (Selected)",
+	Color = "Yellow"
+}, function(state)
+	local rarity = Selected_Rare
+
+	AF.AutoDeleted = (rarity ~= "All" and state) or false
+
+	if state then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoDelete",
+			Text = "✅ AutoDelete ativado para Selected: " .. rarity,
+			Icon = "fa_ss_marker",
+			Tempo = 4
+		})
+		spawn(function() AutoDelete(rarity, false) end)
+	else
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "AutoDelete",
+			Text = "⏹ AutoDelete desativado (Selected).",
 			Icon = "fa_ss_marker",
 			Tempo = 4
 		})
