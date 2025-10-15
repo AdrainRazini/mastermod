@@ -90,10 +90,10 @@ end
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 -- GUI
-Window = Regui.TabsWindow({Title=GuiName, Text="Legends Of Speed", Size=UDim2.new(0,300,0,200)})
+Window = Regui.TabsWindow({Title=GuiName, Text="Legends Of Speed", Size=UDim2.new(0,350,0,250)})
 FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 ShopTab = Regui.CreateTab(Window,{Name="Buy"})
-GameTab = Regui.CreateTab(Window,{Name="Game"})
+AnimalsTab = Regui.CreateTab(Window,{Name="Pets"})
 AfkTab = Regui.CreateTab(Window,{Name="Afk Mod"})
 ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
 ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
@@ -120,7 +120,7 @@ local Orbs = {
 local Selector_Orbs = Regui.CreateSelectorOpitions(FarmTab, {
 	Name = "Selecionar Orbs",
 	Alignment = "Center",
-	Size_Frame = UDim2.new(1, -10, 0, 80),
+	Size_Frame = UDim2.new(1, -10, 0, 100),
 	Type = "Instance",
 	Options = Orbs,
 	Frame_Max = 80
@@ -464,10 +464,92 @@ local Slider_Hoops_Timer = Regui.CreateSliderFloat(FarmTab, {
 end)
 
 
+-- ShopTab
+
+local Selected_Crysta = "All"
+
+local List_Cristy = {
+		{name = "Jungle Crystal", Obj = "Jungle Crystal"}
+}
+
+-- Função para abrir ovos
+function OpensEggs(Arg1, Arg2)
+	task.spawn(function()
+		while AF.AutoBuyPets do
+			local crystalName = Arg2 == "All" and List_Cristy[1].Obj or Arg2
+			local args = {
+				[1] = Arg1, -- "openCrystal"
+				[2] = crystalName
+			}
+			game:GetService("ReplicatedStorage").rEvents.openCrystalRemote:InvokeServer(unpack(args))
+			task.wait(AF_Timer.AutoBuyPets_Timer)
+		end
+	end)
+end
+
+-- Seletor de crysta
+local Selector_Crysta = Regui.CreateSelectorOpitions(ShopTab, {
+	Name = "Selecionar Crysta",
+	Alignment = "Center",
+	Size_Frame = UDim2.new(1, -10, 0, 100),
+	Type = "Instance",
+	Options = List_Cristy,
+	Frame_Max = 80
+}, function(selected)
+	if selected then
+		Selected_Crysta = selected
+		UpdateCrystaLabel() -- atualiza imediatamente
+	end
+end)
+
+-- Label de crysta selecionada
+local Label_Crysta = Regui.CreateLabel(ShopTab, {
+	Text = "Crysta Selecionada: " .. Selected_Crysta,
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Atualiza label dinamicamente
+function UpdateCrystaLabel()
+	Label_Crysta.Text = "Crysta Selecionada: " .. tostring(Selected_Crysta)
+end
+
+-- Toggle de compra
+local Toggle_Buy_Crysta = Regui.CreateToggleboxe(ShopTab, {
+	Text = "Buy Crysta (Selected)",
+	Color = "Cyan"
+}, function(state)
+	AF.AutoBuyPets = state
+	if state then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Auto Buy",
+			Text = "Buy Pet: " .. tostring(Selected_Crysta),
+			Icon = "fa_rr_paper_plane",
+			Tempo = 5
+		})
+		OpensEggs("openCrystal", Selected_Crysta)
+	end
+end)
+
+-- Slider de tempo entre compras
+local Slider_Buy_Pets_Timer = Regui.CreateSliderFloat(ShopTab, {
+	Text = "Timer Auto Buy Pets",
+	Color = "Blue",
+	Value = 1,
+	Minimum = 0.01,
+	Maximum = 1
+}, function(value)
+	AF_Timer.AutoBuyPets_Timer = value
+end)
+
+
+
+
+
 -- Pets Player
 
 -- Cria SubWindow
-local SubWin = Regui.SubTabsWindow(FarmTab, {
+local SubWin = Regui.SubTabsWindow(AnimalsTab, {
 	Text = "Windon Pets",
 	Table = {"Logs","Pets","Main"},
 	Color = "Blue"
@@ -570,7 +652,7 @@ local Selected_Rare = "All"
 local Selector_Rare = Regui.CreateSelectorOpitions(SubWin["Logs"], {
 	Name = "Selecionar Raridade",
 	Alignment = "Center",
-	Size_Frame = UDim2.new(1, -10, 0, 80),
+	Size_Frame = UDim2.new(1, -10, 0, 100),
 	Type = "Instance",
 	Options = list_pets,
 	Frame_Max = 80
@@ -730,83 +812,3 @@ local button_R = Regui.CreateButton(SubWin["Logs"], {
 	Selected_Rare = "All"
 end)
 
-
-
-
--- ShopTab
-
-local Selected_Crysta = "All"
-
-local List_Cristy = {
-		{name = "Jungle Crystal", Obj = "Jungle Crystal"}
-}
-
--- Função para abrir ovos
-function OpensEggs(Arg1, Arg2)
-	task.spawn(function()
-		while AF.AutoBuyPets do
-			local crystalName = Arg2 == "All" and List_Cristy[1].Obj or Arg2
-			local args = {
-				[1] = Arg1, -- "openCrystal"
-				[2] = crystalName
-			}
-			game:GetService("ReplicatedStorage").rEvents.openCrystalRemote:InvokeServer(unpack(args))
-			task.wait(AF_Timer.AutoBuyPets_Timer)
-		end
-	end)
-end
-
--- Seletor de crysta
-local Selector_Crysta = Regui.CreateSelectorOpitions(ShopTab, {
-	Name = "Selecionar Crysta",
-	Alignment = "Center",
-	Size_Frame = UDim2.new(1, -10, 0, 80),
-	Type = "Instance",
-	Options = List_Cristy,
-	Frame_Max = 80
-}, function(selected)
-	if selected then
-		Selected_Crysta = selected
-		UpdateCrystaLabel() -- atualiza imediatamente
-	end
-end)
-
--- Label de crysta selecionada
-local Label_Crysta = Regui.CreateLabel(ShopTab, {
-	Text = "Crysta Selecionada: " .. Selected_Crysta,
-	Color = "White",
-	Alignment = "Center"
-})
-
--- Atualiza label dinamicamente
-function UpdateCrystaLabel()
-	Label_Crysta.Text = "Crysta Selecionada: " .. tostring(Selected_Crysta)
-end
-
--- Toggle de compra
-local Toggle_Buy_Crysta = Regui.CreateToggleboxe(ShopTab, {
-	Text = "Buy Crysta (Selected)",
-	Color = "Cyan"
-}, function(state)
-	AF.AutoBuyPets = state
-	if state then
-		Regui.NotificationPerson(Window.Frame.Parent, {
-			Title = "Auto Buy",
-			Text = "Buy Pet: " .. tostring(Selected_Crysta),
-			Icon = "fa_rr_paper_plane",
-			Tempo = 5
-		})
-		OpensEggs("openCrystal", Selected_Crysta)
-	end
-end)
-
--- Slider de tempo entre compras
-local Slider_Buy_Pets_Timer = Regui.CreateSliderFloat(ShopTab, {
-	Text = "Timer Auto Buy Pets",
-	Color = "Blue",
-	Value = 1,
-	Minimum = 0.01,
-	Maximum = 1
-}, function(value)
-	AF_Timer.AutoBuyPets_Timer = value
-end)
