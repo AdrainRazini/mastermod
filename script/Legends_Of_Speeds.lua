@@ -682,26 +682,18 @@ end)
 local Selected_Crysta = "All"
 
 local List_Cristy = {
-	{name = "Jungle Crystal", Obj = "Jungle Crystal"}
+		{name = "Jungle Crystal", Obj = "Jungle Crystal"}
 }
 
 -- Função para abrir ovos
 function OpensEggs(Arg1, Arg2)
 	task.spawn(function()
 		while AF.AutoBuyPets do
-			local crystalName
-
-			if Arg2 == "All" then
-				crystalName = List_Cristy[1].Obj -- usa o primeiro da lista como padrão
-			else
-				crystalName = Arg2
-			end
-
+			local crystalName = Arg2 == "All" and List_Cristy[1].Obj or Arg2
 			local args = {
 				[1] = Arg1, -- "openCrystal"
 				[2] = crystalName
 			}
-
 			game:GetService("ReplicatedStorage").rEvents.openCrystalRemote:InvokeServer(unpack(args))
 			task.wait(AF_Timer.AutoBuyPets_Timer)
 		end
@@ -718,27 +710,22 @@ local Selector_Crysta = Regui.CreateSelectorOpitions(ShopTab, {
 	Frame_Max = 80
 }, function(selected)
 	if selected then
-		Selected_Crysta = selected  
+		Selected_Crysta = selected
+		UpdateCrystaLabel() -- atualiza imediatamente
 	end
 end)
 
-
+-- Label de crysta selecionada
 local Label_Crysta = Regui.CreateLabel(ShopTab, {
 	Text = "Crysta Selecionada: " .. Selected_Crysta,
 	Color = "White",
 	Alignment = "Center"
 })
 
+-- Atualiza label dinamicamente
 function UpdateCrystaLabel()
-	Label_Crysta.Text = "Cryta Selecionada: " .. tostring(Selected_Crysta)
+	Label_Crysta.Text = "Crysta Selecionada: " .. tostring(Selected_Crysta)
 end
-
-task.spawn(function()
-	while true do
-		UpdateCrystaLabel()
-		wait(0.5)
-	end
-end)
 
 -- Toggle de compra
 local Toggle_Buy_Crysta = Regui.CreateToggleboxe(ShopTab, {
@@ -757,7 +744,7 @@ local Toggle_Buy_Crysta = Regui.CreateToggleboxe(ShopTab, {
 	end
 end)
 
--- Timer dos AutoBuyPets
+-- Slider de tempo entre compras
 local Slider_Buy_Pets_Timer = Regui.CreateSliderFloat(ShopTab, {
 	Text = "Timer Auto Buy Pets",
 	Color = "Blue",
