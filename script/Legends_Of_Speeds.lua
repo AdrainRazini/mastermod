@@ -630,8 +630,17 @@ function AutoDelete(rarity, sequenceMode)
 		for _, rareName in ipairs(raritiesToDelete) do
 			local selectedFolder = petsFolder:FindFirstChild(rareName)
 			if selectedFolder then
+				-- Copia a lista atual de pets para evitar problemas com remoção no meio do loop
+				local petsList = {}
 				for _, petValue in ipairs(selectedFolder:GetChildren()) do
 					if petValue:IsA("StringValue") then
+						table.insert(petsList, petValue)
+					end
+				end
+
+				for _, petValue in ipairs(petsList) do
+					-- Confirma que o pet ainda existe antes de vender
+					if petValue.Parent then
 						SellsPets("sellPet", petValue.Name, rareName)
 						Regui.NotificationPerson(Window.Frame.Parent, {
 							Title = "AutoDelete",
@@ -639,6 +648,8 @@ function AutoDelete(rarity, sequenceMode)
 							Icon = petValue.Value,
 							Tempo = 1
 						})
+						-- Pequena pausa para evitar disparos duplicados
+						task.wait(0.3)
 					end
 				end
 			end
@@ -648,6 +659,7 @@ function AutoDelete(rarity, sequenceMode)
 		task.wait(1.5)
 	end
 end
+
 
 -- Toggle Selected + Sequence
 local Toggle_Auto_Delete_Sequencial = Regui.CreateToggleboxe(SubWin["Main"], {
