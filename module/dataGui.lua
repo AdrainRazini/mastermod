@@ -108,7 +108,7 @@ local chach = {
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "07/10/2025",
+		verdate = "15/10/2025",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
@@ -353,7 +353,7 @@ function chach.TabsWindow(list)
 	local minimized = false
 	Btn_On_Off.MouseButton1Click:Connect(function()
 		minimized = not minimized
-		frame.Size = minimized and UDim2.new(0, 200, 0, 200) or (list.Size or UDim2.new(0, 400, 0, 300))
+		--frame.Size = minimized and UDim2.new(0, 200, 0, 200) or (list.Size or UDim2.new(0, 400, 0, 300))
 		frame.BackgroundTransparency = minimized and 1 or 0.2
 		top_Tabs.Visible = not minimized
 		tabContainer.Visible = not minimized
