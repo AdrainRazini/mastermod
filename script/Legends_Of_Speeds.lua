@@ -60,6 +60,7 @@ local AF_Timer = {
 	FarmOrbs_Timer = 0.1,
 	AutoRebirt_Timer = 1,
 	AutoHoops_Timer = 0.01,
+	AutoBuyPets_Timer = 1
 
 }
 local Val_Orb = "Red Orb"
@@ -686,20 +687,25 @@ local List_Cristy = {
 
 -- Função para abrir ovos
 function OpensEggs(Arg1, Arg2)
-	local crystalName
+	task.spawn(function()
+		while AF.AutoBuyPets do
+			local crystalName
 
-	if Arg2 == "All" then
-		crystalName = List_Cristy[1].Obj -- usa o primeiro da lista como padrão
-	else
-		crystalName = Arg2
-	end
+			if Arg2 == "All" then
+				crystalName = List_Cristy[1].Obj -- usa o primeiro da lista como padrão
+			else
+				crystalName = Arg2
+			end
 
-	local args = {
-		[1] = Arg1, -- "openCrystal"
-		[2] = crystalName
-	}
+			local args = {
+				[1] = Arg1, -- "openCrystal"
+				[2] = crystalName
+			}
 
-	game:GetService("ReplicatedStorage").rEvents.openCrystalRemote:InvokeServer(unpack(args))
+			game:GetService("ReplicatedStorage").rEvents.openCrystalRemote:InvokeServer(unpack(args))
+			task.wait(AF_Timer.AutoBuyPets_Timer)
+		end
+	end)
 end
 
 -- Seletor de crysta
@@ -713,6 +719,24 @@ local Selector_Crysta = Regui.CreateSelectorOpitions(ShopTab, {
 }, function(selected)
 	if selected then
 		Selected_Crysta = selected  
+	end
+end)
+
+
+local Label_Crysta = Regui.CreateLabel(ShopTab, {
+	Text = "Crysta Selecionada: " .. Selected_Crysta,
+	Color = "White",
+	Alignment = "Center"
+})
+
+function UpdateCrystaLabel()
+	Label_Crysta.Text = "Cryta Selecionada: " .. tostring(Selected_Crysta)
+end
+
+task.spawn(function()
+	while true do
+		UpdateCrystaLabel()
+		wait(0.5)
 	end
 end)
 
@@ -731,4 +755,15 @@ local Toggle_Buy_Crysta = Regui.CreateToggleboxe(ShopTab, {
 		})
 		OpensEggs("openCrystal", Selected_Crysta)
 	end
+end)
+
+-- Timer dos AutoBuyPets
+local Slider_Buy_Pets_Timer = Regui.CreateSliderFloat(ShopTab, {
+	Text = "Timer Auto Buy Pets",
+	Color = "Blue",
+	Value = 1,
+	Minimum = 0.01,
+	Maximum = 1
+}, function(value)
+	AF_Timer.AutoBuyPets_Timer = value
 end)
