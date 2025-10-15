@@ -66,6 +66,8 @@ local AF_Timer = {
 }
 local Val_Orb = "Red Orb"
 
+local batchSize = 10 -- quantos FireServer enviar por loop
+
 --===================--
 -- Fuctions Executes --
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
@@ -159,8 +161,10 @@ function FarmOrb()
 	end)
 end
 
+
+
 function FarmFastOrb()
-	local batchSize = 100 -- quantos FireServer enviar por loop
+
 	task.spawn(function()
 		while AF.FarmFastOrb do
 			for i = 1, batchSize do
@@ -812,3 +816,54 @@ local button_R = Regui.CreateButton(SubWin["Logs"], {
 	Selected_Rare = "All"
 end)
 
+
+
+
+--=====================--
+-- Window Configs Tab 
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--=====================--
+
+
+-- Label principal
+local Label_Config = Regui.CreateLabel(ConfigsTab, {
+	Text = "--- Configurar Events ---",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Lista de opções (eventos por batch)
+local Fire_Server = {
+	{name = "Eventos: 10", Obj = 10},
+	{name = "Eventos: 25", Obj = 25},
+	{name = "Eventos: 50", Obj = 50},
+	{name = "Eventos: 75", Obj = 75},
+	{name = "Eventos: 100", Obj = 100}
+}
+
+
+local Selector_Rare = Regui.CreateSelectorOpitions(ConfigsTab, {
+	Name = "Selecionar Sequencia de Eventos (Fast)",
+	Alignment = "Center",
+	Size_Frame = UDim2.new(1, -10, 0, 100),
+	Type = "Instance",
+	Options = Fire_Server,
+	Frame_Max = 80
+}, function(selected)
+	if selected then
+		batchSize = selected -- pega o valor do objeto
+		UpsLabelConfig()
+	end
+end)
+
+-- Label de info
+local Label_Config_Info = Regui.CreateLabel(ConfigsTab, {
+	Text = "Info: " .. tostring(batchSize) .. " Eventos por vez",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Função para atualizar a label
+function UpsLabelConfig()
+	Label_Config_Info.Text = "Info: " .. tostring(batchSize) .. " Eventos por vez"
+end
