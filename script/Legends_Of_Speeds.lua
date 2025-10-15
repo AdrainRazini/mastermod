@@ -50,7 +50,8 @@ local AF = {
 	AutoHoops = false,
 	Hoops_Pull = false,
 	Hoops_Teleport = false,
-	AutoDeleted = false
+	AutoDeleted = false,
+	AutoBugPets = false
 }
 
 local AF_Timer = {
@@ -58,7 +59,8 @@ local AF_Timer = {
 	FarmFastOrb_Timer = 0,
 	FarmOrbs_Timer = 0.1,
 	AutoRebirt_Timer = 1,
-	AutoHoops_Timer = 0.1
+	AutoHoops_Timer = 0.01,
+	AutoBugPets_Timer = 10
 }
 local Val_Orb = "Red Orb"
 
@@ -460,15 +462,11 @@ local Slider_Hoops_Timer = Regui.CreateSliderFloat(FarmTab, {
 end)
 
 
-
--- New Tab
--- LocalScript (StarterPlayerScripts)
-local player = game.Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Pets Player
 
 -- Cria SubWindow
 local SubWin = Regui.SubTabsWindow(FarmTab, {
-	Text = "Sub_Window",
+	Text = "Windon Pets",
 	Table = {"Logs","Pets","Main"},
 	Color = "Blue"
 })
@@ -668,9 +666,9 @@ local button_R = Regui.CreateButton(SubWin["Logs"], {
 	BGColor = "Button",
 	TextSize = 16
 }, function()
+	AF.AutoDeleted = false
 	Toggle_Auto_Delete.Set(AF.AutoDeleted)
 	Selector_Rare.Opitions_Title.Text = "Raridade: " .. Selected_Rare
 	RenderPets("All")
-	AF.AutoDeleted = false
 	Selected_Rare = "All"
 end)
