@@ -51,7 +51,7 @@ local AF = {
 	Hoops_Pull = false,
 	Hoops_Teleport = false,
 	AutoDeleted = false,
-	AutoBugPets = false
+	AutoBuyPets = false
 }
 
 local AF_Timer = {
@@ -60,7 +60,7 @@ local AF_Timer = {
 	FarmOrbs_Timer = 0.1,
 	AutoRebirt_Timer = 1,
 	AutoHoops_Timer = 0.01,
-	AutoBugPets_Timer = 10
+
 }
 local Val_Orb = "Red Orb"
 
@@ -70,7 +70,7 @@ local Val_Orb = "Red Orb"
 --===================--
 
 
-
+--[[
 function OpensEggs(Arg1, Arg2)
 	
 	local args = {
@@ -80,7 +80,7 @@ function OpensEggs(Arg1, Arg2)
 	game:GetService("ReplicatedStorage").rEvents.openCrystalRemote:InvokeServer(unpack(args))
 
 end
-
+]]
 
 
 --===================--
@@ -671,4 +671,64 @@ local button_R = Regui.CreateButton(SubWin["Logs"], {
 	Selector_Rare.Opitions_Title.Text = "Raridade: " .. Selected_Rare
 	RenderPets("All")
 	Selected_Rare = "All"
+end)
+
+
+
+
+-- ShopTab
+
+local Selected_Crysta = "All"
+
+local List_Cristy = {
+	{name = "Jungle Crystal", Obj = "Jungle Crystal"}
+}
+
+-- Função para abrir ovos
+function OpensEggs(Arg1, Arg2)
+	local crystalName
+
+	if Arg2 == "All" then
+		crystalName = List_Cristy[1].Obj -- usa o primeiro da lista como padrão
+	else
+		crystalName = Arg2
+	end
+
+	local args = {
+		[1] = Arg1, -- "openCrystal"
+		[2] = crystalName
+	}
+
+	game:GetService("ReplicatedStorage").rEvents.openCrystalRemote:InvokeServer(unpack(args))
+end
+
+-- Seletor de crysta
+local Selector_Crysta = Regui.CreateSelectorOpitions(ShopTab, {
+	Name = "Selecionar Crysta",
+	Alignment = "Center",
+	Size_Frame = UDim2.new(1, -10, 0, 80),
+	Type = "Instance",
+	Options = List_Cristy,
+	Frame_Max = 80
+}, function(selected)
+	if selected then
+		Selected_Crysta = selected  
+	end
+end)
+
+-- Toggle de compra
+local Toggle_Buy_Crysta = Regui.CreateToggleboxe(ShopTab, {
+	Text = "Buy Crysta (Selected)",
+	Color = "Cyan"
+}, function(state)
+	AF.AutoBuyPets = state
+	if state then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "Auto Buy",
+			Text = "Buy Pet: " .. tostring(Selected_Crysta),
+			Icon = "fa_rr_paper_plane",
+			Tempo = 5
+		})
+		OpensEggs("openCrystal", Selected_Crysta)
+	end
 end)
