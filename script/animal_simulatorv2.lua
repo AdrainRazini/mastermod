@@ -685,7 +685,8 @@ end
  ConfigsTab = Regui.CreateTab(Window,{Name="Configs"})
  ReadmeTab = Regui.CreateTab(Window,{Name="Readme"})
  ExplorerTab = Regui.CreateTab(Window,{Name="Explorer"})
- 
+
+
  -- Especial Tab
  local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 --===================--
@@ -2819,3 +2820,45 @@ end
 MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://84471807656657", Size_Image = UDim2.new(0, 50, 0, 50)  })
 
 
+
+--===================--
+-- Window Discord Tab
+-- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
+--===================--
+
+-- ADN CLÃN TAB
+DiscordTab = Regui.CreateTab(Window,{Name="Discord"})
+
+-- Ícone principal do clã
+local Discord_Icon = Regui.CreateImage(DiscordTab, {
+	Name = "ADN_Icon",
+	Transparence = 1,
+	Alignment = "Center",
+	Id_Image = "rbxassetid://120181810700514",
+	Size_Image = UDim2.new(0, 70, 0, 70)
+})
+
+Regui.applyCorner(Discord_Icon)
+-- Título principal
+local Label_Discord_Info = Regui.CreateLabel(DiscordTab, {
+	Text = "💜 ADN • Discord Oficial",
+	Color = "White",
+	Alignment = "Center"
+})
+
+
+
+-- Botão para copiar link do Discord
+local Btn_Discord_Link = Regui.CreateButton(DiscordTab, {
+	Text = "🔗 Copiar Link do Servidor",
+	Color = "White",
+	BGColor = "Purple"
+}, function()
+	setclipboard("https://discord.gg/spCcTWFWBR")
+	Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
+		Title = "ADN Discord",
+		Text = "Link copiado para área de transferência!",
+		Icon = "fa_rr_share",
+		Tempo = 3
+	})
+end)
