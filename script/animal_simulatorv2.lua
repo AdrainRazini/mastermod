@@ -1164,7 +1164,7 @@ end)
 
 -- rbxassetid://93478350885441
 
-local Check_Farme_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies 5K", Color = "Blue"}, function(state)
+Check_Farme_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Auto dummies 5K", Color = "Blue"}, function(state)
 	AF.dummies5k = state
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
 
@@ -1188,7 +1188,7 @@ end)
 
 
 
-local SliderFloat_dummies_Tp = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies + Tp", Color = "Blue", Value = 1, Minimum = 0, Maximum = 1}, function(state)
+SliderFloat_dummies_Tp = Regui.CreateSliderFloat(FarmTab, {Text = "Timer dummies + Tp", Color = "Blue", Value = 1, Minimum = 0, Maximum = 1}, function(state)
 	AF_Timer.DummiesTp_Speed = state
 	print("Slider Float clicada! Estado:", AF_Timer.DummiesTp_Speed)
 
@@ -1196,7 +1196,7 @@ end)
 
 
 
-local Check_Tp_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummies", Color = "White"}, function(state)
+Check_Tp_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummies", Color = "White"}, function(state)
 	AF.tpDummy = state
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
 
@@ -1219,7 +1219,7 @@ local Check_Tp_dummies = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummi
 end)
 
 
-local Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummies 5K", Color = "White"}, function(state)
+Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dummies 5K", Color = "White"}, function(state)
 	AF.tpDummy5k = state
 	--print("Checkbox clicada! Estado:", Test_.Button_Box)
 
@@ -1242,7 +1242,7 @@ local Check_Tp_dummies5k = Regui.CreateCheckboxe(FarmTab, {Text = "Tp + Auto dum
 end)
 
 -- SliderOption para escolher o modo (afeta apenas farmBosses)
-local DummyOption_Bombox = Regui.CreateSliderOption(FarmTab, {
+DummyOption_Bombox = Regui.CreateSliderOption(FarmTab, {
 	Text = "Modo De Ataque tpDummy ",
 	Color = "White",
 	Background = "Blue",
@@ -1252,6 +1252,7 @@ local DummyOption_Bombox = Regui.CreateSliderOption(FarmTab, {
 	ModtpDummy = state
 
 end)
+
 
 -- Safe TP
 
@@ -2670,6 +2671,35 @@ MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparenc
 --===================--
 
 
+
+
+Size_Window_Choice = "Pequeno"
+
+-- Função que ajusta o tamanho da janela
+function Set_Size(Obj)
+	if Size_Window_Choice == "Pequeno" then
+		Obj.Size = UDim2.new(0, 300, 0, 200)
+	elseif Size_Window_Choice == "Normal" then
+		Obj.Size = UDim2.new(0, 350, 0, 250)
+	elseif Size_Window_Choice == "Grande" then
+		Obj.Size = UDim2.new(0, 400, 0, 300)
+	end
+end
+
+-- SliderOption para escolher o tamanho da janela
+local Slider_Size = Regui.CreateSliderOption(ConfigsTab, {
+	Text = "Tamanho Da Janela",
+	Color = "White",
+	Background = "Blue",
+	Value = 1, -- valor inicial
+	Table = {"Pequeno", "Normal", "Grande"} -- opções
+}, function(state)
+	Size_Window_Choice = state -- atualiza a variável
+	Set_Size(Window.Frame) -- aplica o tamanho na janela
+end)
+
+
+
 local Label_Music_Info_Paint = Regui.CreateLabel(ConfigsTab, {Text = "Pintura", Color = "White", Alignment = "Center"})
 -- Configs Painter
 Regui.CreatePainterPanel(ConfigsTab,{
@@ -2830,7 +2860,7 @@ MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 
 local DiscordTab = Regui.CreateTab(Window, {Name = "Discord"})
 
 -- Ícone principal do clã
-local Discord_Icon = Regui.CreateImage(DiscordTab, {
+Discord_Icon = Regui.CreateImage(DiscordTab, {
 	Name = "ADN_Icon",
 	Transparence = 1,
 	Alignment = "Center",
