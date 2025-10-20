@@ -2857,7 +2857,7 @@ MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 
 --===================--
 
 -- ADN CLÃN TAB
-local DiscordTab = Regui.CreateTab(Window, {Name = "Discord"})
+DiscordTab = Regui.CreateTab(Window, {Name = "Discord"})
 
 -- Ícone principal do clã
 Discord_Icon = Regui.CreateImage(DiscordTab, {
@@ -2870,7 +2870,7 @@ Discord_Icon = Regui.CreateImage(DiscordTab, {
 Regui.applyCorner(Discord_Icon)
 
 -- Título principal
-local Label_Discord_Info = Regui.CreateLabel(DiscordTab, {
+Label_Discord_Info = Regui.CreateLabel(DiscordTab, {
 	Text = "💜 ADN • Discord Oficial",
 	Color = "White",
 	Alignment = "Center"
@@ -2879,7 +2879,7 @@ local Label_Discord_Info = Regui.CreateLabel(DiscordTab, {
 local discordLink = "https://discord.gg/spCcTWFWBR"
 
 -- Botão para copiar o link
-local Btn_Copy_Discord = Regui.CreateButton(DiscordTab, {
+Btn_Copy_Discord = Regui.CreateButton(DiscordTab, {
 	Text = "📋 Copiar Link do Discord",
 	Color = "White",
 	BGColor = "Blue"
@@ -2895,7 +2895,7 @@ local Btn_Copy_Discord = Regui.CreateButton(DiscordTab, {
 end)
 
 -- Botão para abrir o link
-local Btn_Open_Discord = Regui.CreateButton(DiscordTab, {
+Btn_Open_Discord = Regui.CreateButton(DiscordTab, {
 	Text = "🔗 Abrir Discord",
 	Color = "White",
 	BGColor = "Purple"
