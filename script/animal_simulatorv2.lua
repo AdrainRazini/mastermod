@@ -2847,15 +2847,32 @@ local Label_Discord_Info = Regui.CreateLabel(DiscordTab, {
 })
 
 -- Botão para copiar link e abrir o servidor
-local Btn_Discord_Link = Regui.CreateButton(DiscordTab, {
+-- Botão para copiar o link do Discord
+local Btn_Copy_Discord = Regui.CreateButton(DiscordTab, {
+	Text = "📋 Copiar Link do Discord",
+	Color = "White",
+	BGColor = "Blue"
+}, function()
+	local discordLink = "https://discord.gg/spCcTWFWBR"
+	setclipboard(discordLink)
+
+	Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
+		Title = "ADN Discord",
+		Text = "📋 Link copiado para a área de transferência!",
+		Icon = "fa_rr_copy",
+		Tempo = 4
+	})
+end)
+
+-- Botão para abrir o Discord via navegador
+local Btn_Open_Discord = Regui.CreateButton(DiscordTab, {
 	Text = "🔗 Entrar no Servidor ADN",
 	Color = "White",
 	BGColor = "Purple"
 }, function()
 	local discordLink = "https://discord.gg/spCcTWFWBR"
-	setclipboard(discordLink)
 
-	-- tenta abrir o Discord via Browser (se permitido)
+	-- tenta abrir via HTTP (caso o executor permita)
 	pcall(function()
 		if syn and syn.request then
 			syn.request({Url = discordLink, Method = "GET"})
@@ -2868,10 +2885,9 @@ local Btn_Discord_Link = Regui.CreateButton(DiscordTab, {
 		end
 	end)
 
-	-- Notificação visual
 	Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
 		Title = "ADN Discord",
-		Text = "🔗 Link copiado e aberto no navegador!",
+		Text = "🔗 Tentativa de abrir o link no navegador!",
 		Icon = "fa_rr_share",
 		Tempo = 4
 	})
