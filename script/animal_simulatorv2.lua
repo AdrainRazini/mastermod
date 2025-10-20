@@ -2845,16 +2845,16 @@ local Label_Discord_Info = Regui.CreateLabel(DiscordTab, {
 	Color = "White",
 	Alignment = "Center"
 })
+-- Link do Discord
+local discordLink = "https://discord.gg/spCcTWFWBR"
 
--- Botão para copiar link e abrir o servidor
--- Botão para copiar o link do Discord
+-- Botão para copiar o link
 local Btn_Copy_Discord = Regui.CreateButton(DiscordTab, {
 	Text = "📋 Copiar Link do Discord",
 	Color = "White",
 	BGColor = "Blue"
 }, function()
-	local discordLink = "https://discord.gg/spCcTWFWBR"
-	setclipboard(discordLink)
+	setclipboard(discordLink) -- Copia o link
 
 	Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
 		Title = "ADN Discord",
@@ -2864,21 +2864,19 @@ local Btn_Copy_Discord = Regui.CreateButton(DiscordTab, {
 	})
 end)
 
--- Botão para abrir o Discord via navegador
+-- Botão para abrir o link
 local Btn_Open_Discord = Regui.CreateButton(DiscordTab, {
-	Text = "🔗 Entrar no Servidor ADN",
+	Text = "🔗 Abrir Discord",
 	Color = "White",
 	BGColor = "Purple"
 }, function()
-	local discordLink = "https://discord.gg/spCcTWFWBR"
-
-	-- tenta abrir via HTTP (caso o executor permita)
+	-- Abre no navegador padrão do executor
 	pcall(function()
-		if syn and syn.request then
+		if (syn and syn.request) then
 			syn.request({Url = discordLink, Method = "GET"})
-		elseif request then
+		elseif (request) then
 			request({Url = discordLink, Method = "GET"})
-		elseif http and http.request then
+		elseif (http and http.request) then
 			http.request({Url = discordLink, Method = "GET"})
 		elseif (getgenv and getgenv().http_request) then
 			getgenv().http_request({Url = discordLink, Method = "GET"})
