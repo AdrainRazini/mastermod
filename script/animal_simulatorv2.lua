@@ -2894,29 +2894,53 @@ Btn_Copy_Discord = Regui.CreateButton(DiscordTab, {
 	})
 end)
 
+
 -- Botão para abrir o link
 Btn_Open_Discord = Regui.CreateButton(DiscordTab, {
 	Text = "🔗 Abrir Discord",
 	Color = "White",
 	BGColor = "Purple"
 }, function()
-	-- Abre no navegador padrão do executor
+
+	local sucesso = false
+
 	pcall(function()
-		if (syn and syn.request) then
-			syn.request({Url = discordLink, Method = "GET"})
-		elseif (request) then
-			request({Url = discordLink, Method = "GET"})
-		elseif (http and http.request) then
-			http.request({Url = discordLink, Method = "GET"})
-		elseif (getgenv and getgenv().http_request) then
-			getgenv().http_request({Url = discordLink, Method = "GET"})
+		-- Executores com suporte direto para abrir navegador
+		if syn and syn.open_url then
+			syn.open_url(discordLink)
+			sucesso = true
+		elseif getgenv and getgenv().open_url then
+			getgenv().open_url(discordLink)
+			sucesso = true
+		elseif openbrowser then
+			openbrowser(discordLink)
+			sucesso = true
+		elseif fluxus and fluxus.open_browser then
+			fluxus.open_browser(discordLink)
+			sucesso = true
+		elseif KRNL_LOADED and writefile then
+			-- Alguns executores antigos não abrem, mas dá pra copiar
+			if setclipboard then setclipboard(discordLink) end
+			sucesso = false
+		elseif setclipboard then
+			setclipboard(discordLink)
+			sucesso = false
 		end
 	end)
 
-	Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
-		Title = "ADN Discord",
-		Text = "🔗 Tentativa de abrir o link no navegador!",
-		Icon = "fa_rr_share",
-		Tempo = 4
-	})
+	if sucesso then
+		Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
+			Title = "ADN Discord",
+			Text = "🌐 Link aberto no navegador!",
+			Icon = "fa_rr_globe",
+			Tempo = 4
+		})
+	else
+		Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
+			Title = "ADN Discord",
+			Text = "📋 Link copiado! Cole no navegador para abrir.",
+			Icon = "fa_rr_copy",
+			Tempo = 4
+		})
+	end
 end)
