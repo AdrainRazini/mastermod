@@ -2827,7 +2827,7 @@ MemeKira= Regui.CreateImage(ExplorerTab, {Name = "Meme (Ligth)", Transparence = 
 --===================--
 
 -- ADN CLÃN TAB
-DiscordTab = Regui.CreateTab(Window,{Name="Discord"})
+local DiscordTab = Regui.CreateTab(Window, {Name = "Discord"})
 
 -- Ícone principal do clã
 local Discord_Icon = Regui.CreateImage(DiscordTab, {
@@ -2837,8 +2837,8 @@ local Discord_Icon = Regui.CreateImage(DiscordTab, {
 	Id_Image = "rbxassetid://120181810700514",
 	Size_Image = UDim2.new(0, 70, 0, 70)
 })
-
 Regui.applyCorner(Discord_Icon)
+
 -- Título principal
 local Label_Discord_Info = Regui.CreateLabel(DiscordTab, {
 	Text = "💜 ADN • Discord Oficial",
@@ -2846,19 +2846,33 @@ local Label_Discord_Info = Regui.CreateLabel(DiscordTab, {
 	Alignment = "Center"
 })
 
-
-
--- Botão para copiar link do Discord
+-- Botão para copiar link e abrir o servidor
 local Btn_Discord_Link = Regui.CreateButton(DiscordTab, {
-	Text = "🔗 Copiar Link do Servidor",
+	Text = "🔗 Entrar no Servidor ADN",
 	Color = "White",
 	BGColor = "Purple"
 }, function()
-	setclipboard("https://discord.gg/spCcTWFWBR")
+	local discordLink = "https://discord.gg/spCcTWFWBR"
+	setclipboard(discordLink)
+
+	-- tenta abrir o Discord via Browser (se permitido)
+	pcall(function()
+		if syn and syn.request then
+			syn.request({Url = discordLink, Method = "GET"})
+		elseif request then
+			request({Url = discordLink, Method = "GET"})
+		elseif http and http.request then
+			http.request({Url = discordLink, Method = "GET"})
+		elseif (getgenv and getgenv().http_request) then
+			getgenv().http_request({Url = discordLink, Method = "GET"})
+		end
+	end)
+
+	-- Notificação visual
 	Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
 		Title = "ADN Discord",
-		Text = "Link copiado para área de transferência!",
+		Text = "🔗 Link copiado e aberto no navegador!",
 		Icon = "fa_rr_share",
-		Tempo = 3
+		Tempo = 4
 	})
 end)
