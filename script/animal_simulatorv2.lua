@@ -2047,7 +2047,7 @@ local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {
 		clanEvent_upvr:FireServer({
 			action = "create_clan",
 			clanToCreate = name_Cla,
-			ClanIcon = "16273608500" -- você pode trocar por outro ID de imagem
+			ClanIcon = "120181810700514" -- você pode trocar por outro ID de imagem
 		})
 
 		Regui.NotificationPerson(Window.Frame.Parent, {
@@ -2193,7 +2193,7 @@ local SliderOption_Forced_Cla = Regui.CreateSliderOption(GameTab, {
 	if state == "Join" then
 
 		invitationEvent_upvr:FireServer({
-			teamIcon = "",
+			teamIcon = "101534974401621",
 			action = "accepted",
 			teamName = forced_accept
 		})
