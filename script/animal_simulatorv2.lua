@@ -2005,6 +2005,7 @@ local clanEvent_upvr = game.ReplicatedStorage:WaitForChild("Events"):WaitForChil
 
 local name_Cla = "nil"
 local state_Cla = "nil"
+local Icon_Cla = "120181810700514"
 
 --===================================================--
 -- Função de verificação ou feedback
@@ -2020,6 +2021,17 @@ function Verific_Cla()
 	end
 	return true
 end
+
+
+-- Caixa de texto para nome
+local Input_Icon_Cla = Regui.CreateTextBox(GameTab, {
+	Placeholder = "Icon Clan...",
+	Color = "White",
+	BGColor = "DarkGray",
+	Size = UDim2.new(1, -10, 0, 30)
+}, function(val)
+	Icon_Cla = val
+end)
 
 -- Caixa de texto para nome
 local Input_Text_Cla = Regui.CreateTextBox(GameTab, {
@@ -2047,7 +2059,7 @@ local SliderOption_Cla = Regui.CreateSliderOption(GameTab, {
 		clanEvent_upvr:FireServer({
 			action = "create_clan",
 			clanToCreate = name_Cla,
-			ClanIcon = "120181810700514" -- você pode trocar por outro ID de imagem
+			ClanIcon = Icon_Cla -- você pode trocar por outro ID de imagem
 		})
 
 		Regui.NotificationPerson(Window.Frame.Parent, {
