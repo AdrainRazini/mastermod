@@ -2960,6 +2960,6 @@ Btn_Open_Discord = Regui.CreateButton(DiscordTab, {
 			Icon = "fa_rr_copy",
 			Tempo = 4
 		})
-		setclipboard(discordLink)
+		
 	end
 end)
