@@ -2280,7 +2280,8 @@ end)
 
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
-Listaid = {
+-- Lista só com IDs (sem repetições)
+ListaId = {
 	91233243522140,
 	116874163291138,
 	114727662968481,
@@ -2295,11 +2296,11 @@ Listaid = {
 	121516877792091,
 	85833437298815,
 	94494416095572,   -- Ghost fight
-	115656438192853, -- A Engimatical Encounter
-	96357207714662,  -- Stronger Twan ya chara
-	107986977620509, -- Asgore
-	101378669026310, -- The Skeletons Last Breath
-	109606503605402, -- Hammer of Justice
+	115656438192853,  -- A Engimatical Encounter
+	96357207714662,   -- Stronger Twan ya chara
+	107986977620509,  -- Asgore
+	101378669026310,  -- The Skeletons Last Breath
+	109606503605402,  -- Hammer of Justice
 	112512564227744,
 	104621031886653,
 	83914052148279,
@@ -2317,14 +2318,14 @@ Listaid = {
 	93058983119992,
 	92295159623916,  -- DJ Raimundo
 	139218946376655, -- Rat Dance
-	97567416166163,  -- Sus
-	106732317934236, -- Hip Hop
+	97567416166163,
+	106732317934236,
 	17647322226,     -- Kerosene
-	132517043416676, -- Novinha Do Bonde
-	15689448519,     -- Giga Chad
-	16190782786,     -- Lil Kuudere Sukoyomi
-	1837006787,      -- You Ain't Hot Enough
-	1837014531,       -- Rock
+	132517043416676,
+	15689448519,
+	16190782786,
+	1837006787,
+	1837014531,
 	131847084942844,
 	95046091312570,
 	111318048787674,
@@ -2342,12 +2343,25 @@ Listaid = {
 	126713629899826,
 	77766610441787,
 	18841891575,
-	120871403922972
+	120871403922972,
+	95554192381753,
+	126372814380356,
+	123517126955383,
+	105102042077619,
+	92715012838361,
+	84053362849165,
+	75146085667327,
+	86511617909610,
+	16190783444,
+	100697759026652,
+	127868004681532,
+	1839246711
 }
 
 
+-- Lista com nome e ID
 local listMusics = {
-	{name = "Nill", Obj = "0"},
+	{name = "Stop", Obj = "0"},
 	{name = "MONTAGEM PODER IV (SLOWED)", Obj = "91233243522140"},
 	{name = "BRAZILIAN DRIFT MUSIC", Obj = "116874163291138"},
 	{name = "Montagem Tomada", Obj = "114727662968481"},
@@ -2409,8 +2423,21 @@ local listMusics = {
 	{name = "MORTAL", Obj = "126713629899826"},
 	{name = "Dopamine Rat", Obj = "77766610441787"},
 	{name = "d3r, m1v, asteria - no escape", Obj = "18841891575"},
-	{name = "CUTEMAKMAKFUNK (Slowed)", Obj = "120871403922972"}
+	{name = "CUTEMAKMAKFUNK (Slowed)", Obj = "120871403922972"},
+	{name = "The Flames On Fire", Obj = "95554192381753"},
+	{name = "edit", Obj = "126372814380356"},
+	{name = "MONTAGEM SKY HIGH", Obj = "123517126955383"},
+	{name = "RITMO SELVAGEM", Obj = "105102042077619"},
+	{name = "OFFLINE", Obj = "92715012838361"},
+	{name = "A última chance", Obj = "84053362849165"},
+	{name = "bing", Obj = "75146085667327"},
+	{name = "Cute cat music audio", Obj = "86511617909610"},
+	{name = "nMisaki - Dubidubidu (Uptempo Remix)", Obj = "16190783444"},
+	{name = "Schnuffel", Obj = "100697759026652"},
+	{name = "FUNK DANCE OF EPHORIA LA LA!", Obj = "127868004681532"},
+	{name = "Jumpstyle", Obj = "1839246711"}
 }
+
 
 
 
@@ -2437,7 +2464,7 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	Name = "Selecionar Musica",
 	Options = listMusics,
 	Type = "Instance",
-	Size_Frame = UDim2.new(1, -10, 0, 100)
+	Size_Frame = UDim2.new(1, -10, 0, 150)
 }, function(selectedObj)
 	print("Set: ", selectedObj)
 	--Input_Text.SetVal(selectedObj)
