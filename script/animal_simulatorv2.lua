@@ -2022,7 +2022,7 @@ function Verific_Cla()
 	return true
 end
 
-
+Label_Game_Cla_I = Regui.CreateLabel(GameTab, {Text = "--- Icon Clan ---", Color = "White", Alignment = "Center"})
 -- Caixa de texto para nome
 local Input_Icon_Cla = Regui.CreateTextBox(GameTab, {
 	Placeholder = "Icon Clan...",
@@ -2033,6 +2033,7 @@ local Input_Icon_Cla = Regui.CreateTextBox(GameTab, {
 	Icon_Cla = val
 end)
 
+Label_Game_Cla_N = Regui.CreateLabel(GameTab, {Text = "--- Name Clan ---", Color = "White", Alignment = "Center"})
 -- Caixa de texto para nome
 local Input_Text_Cla = Regui.CreateTextBox(GameTab, {
 	Placeholder = "Name Clan...",
