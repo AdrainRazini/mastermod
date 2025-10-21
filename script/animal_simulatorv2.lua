@@ -2917,6 +2917,19 @@ Btn_Open_Discord = Regui.CreateButton(DiscordTab, {
 
 	local sucesso = false
 
+pcall(function()
+	if syn and syn.open_url then
+		print("✅ Synapse URL disponível")
+	elseif fluxus and fluxus.open_browser then
+		print("✅ Fluxus URL disponível")
+	elseif KRNL_LOADED then
+		print("ℹ️ KRNL detectado — não suporta abrir navegador.")
+	else
+		print("⚠️ Nenhum método detectado.")
+	end
+end)
+
+--[[
 	pcall(function()
 		-- Executores com suporte direto para abrir navegador
 		if syn and syn.open_url then
@@ -2940,6 +2953,8 @@ Btn_Open_Discord = Regui.CreateButton(DiscordTab, {
 			sucesso = false
 		end
 	end)
+
+	]]
 
 	if sucesso then
 		Regui.Notifications(game.Players.LocalPlayer.PlayerGui, {
