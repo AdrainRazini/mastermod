@@ -2281,7 +2281,7 @@ end)
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
 -- Lista só com IDs (sem repetições)
-ListaId = {
+Listaid = {
 	91233243522140,
 	116874163291138,
 	114727662968481,
@@ -2355,7 +2355,22 @@ ListaId = {
 	16190783444,
 	100697759026652,
 	127868004681532,
-	1839246711
+	1839246711,
+	103504594968244,
+	80946196913756,
+	93751275110337,
+	109840843335222,
+	110035574248336,
+	104567749101480,
+	18841888868,
+	85075816659415,
+	96028783423401,
+	125200420795517,
+	92446612272052,
+	107683146338584,
+	79953696595578,
+	129212629624727,
+	87554448466409
 }
 
 
@@ -2435,7 +2450,22 @@ local listMusics = {
 	{name = "nMisaki - Dubidubidu (Uptempo Remix)", Obj = "16190783444"},
 	{name = "Schnuffel", Obj = "100697759026652"},
 	{name = "FUNK DANCE OF EPHORIA LA LA!", Obj = "127868004681532"},
-	{name = "Jumpstyle", Obj = "1839246711"}
+	{name = "Jumpstyle", Obj = "1839246711"},
+	{name = "Dark Night", Obj = "103504594968244"},
+	{name = "I need you", Obj = "80946196913756"},
+	{name = "MOMENTS", Obj = "93751275110337"},
+	{name = "Underworld", Obj = "109840843335222"},
+	{name = "dark_mov", Obj = "110035574248336"},
+	{name = "introduce", Obj = "104567749101480"},
+	{name = "d3r - love bomb", Obj = "18841888868"},
+	{name = "no feelinngs", Obj = "85075816659415"},
+	{name = "Funk Sigcuro (Ultra Slowed)", Obj = "96028783423401"},
+	{name = "tomagi mo tão Anime ver.", Obj = "125200420795517"},
+	{name = "MTG ZUM ZUM ZUM VIRAL FUNK BH", Obj = "92446612272052"},
+	{name = "Minha Estória (Musica Oficial)", Obj = "107683146338584"},
+	{name = "Batidão na Aldeia (Musica Oficial)", Obj = "79953696595578"},
+	{name = "Eu Duvido (Musica Oficial)", Obj = "129212629624727"},
+	{name = "SOLDIER", Obj = "87554448466409"},
 }
 
 
