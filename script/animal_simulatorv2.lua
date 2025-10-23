@@ -675,7 +675,7 @@ end
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 -- GUI
-Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200), Icon_btn = true})
+Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0, 350, 0, 250), Icon_btn = true})
 FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
 ToolsTab = Regui.CreateTab(Window,{Name="Tools"})
@@ -2853,7 +2853,7 @@ MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparenc
 
 
 
-Size_Window_Choice = "Pequeno"
+Size_Window_Choice = "Normal"
 
 -- Função que ajusta o tamanho da janela
 function Set_Size(Obj)
@@ -2871,7 +2871,7 @@ local Slider_Size = Regui.CreateSliderOption(ConfigsTab, {
 	Text = "Tamanho Da Janela",
 	Color = "White",
 	Background = "Blue",
-	Value = 1, -- valor inicial
+	Value = 2, -- valor inicial
 	Table = {"Pequeno", "Normal", "Grande"} -- opções
 }, function(state)
 	Size_Window_Choice = state -- atualiza a variável
