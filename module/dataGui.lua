@@ -349,16 +349,66 @@ function chach.TabsWindow(list)
 	tabContainer.Position = UDim2.new(0, 0, 0, 60)
 	tabContainer.BackgroundTransparency = 1
 	tabContainer.Parent = frame
+	
+		-- Cria o botão
+		local Icon_Btn = Instance.new("ImageButton")
+		Icon_Btn.Visible = false
+		Icon_Btn.Name = "Icon_Btn"
+		Icon_Btn.Image = "rbxassetid://120181810700514"
+		Icon_Btn.Size = UDim2.new(0, 50, 0, 50)
+		Icon_Btn.Position = UDim2.new(0.05, 0, 0.15, 0)
+		Icon_Btn.BackgroundTransparency = 1
+		Icon_Btn.Parent = screenGui
+
+		-- Aplica bordas arredondadas (caso a função exista)
+		if chach and chach.applyCorner then
+			chach.applyCorner(Icon_Btn)
+		end
+
+		-- Aplica gradiente animado
+		if applyRotatingGradientUIStroke then
+			applyRotatingGradientUIStroke(Icon_Btn, "Purple", "Indigo", "Aqua")
+		end
+
+		-- Torna o botão arrastável
+		if chach and chach.applyDraggable then
+			chach.applyDraggable(Icon_Btn, Icon_Btn)
+		end
+	
+
 
 	local minimized = false
+
+	-- Botão de ligar/desligar
 	Btn_On_Off.MouseButton1Click:Connect(function()
 		minimized = not minimized
-		--frame.Size = minimized and UDim2.new(0, 200, 0, 200) or (list.Size or UDim2.new(0, 400, 0, 300))
+
+		if list.Icon_btn then
+			Icon_Btn.Visible = minimized
+			frame.Visible = not minimized
+		end
+
 		frame.BackgroundTransparency = minimized and 1 or 0.2
 		top_Tabs.Visible = not minimized
 		tabContainer.Visible = not minimized
 		Btn_On_Off.Rotation = minimized and 0 or 90
 	end)
+
+	-- Botão de ícone
+	if list.Icon_btn then
+		Icon_Btn.MouseButton1Click:Connect(function()
+			minimized = not minimized
+
+			Icon_Btn.Visible = minimized
+			frame.Visible = not minimized
+
+			frame.BackgroundTransparency = minimized and 1 or 0.2
+			top_Tabs.Visible = not minimized
+			tabContainer.Visible = not minimized
+			Btn_On_Off.Rotation = minimized and 0 or 90
+		end)
+	end
+
 
 	return {screenGui = screenGui, Frame=frame, TopBar=top_frame, TopTabs=top_Tabs, TabContainer=tabContainer, Tabs={}}
 end
