@@ -675,7 +675,7 @@ end
 -- ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 --===================--
 -- GUI
-Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200)})
+Window = Regui.TabsWindow({Title=GuiName, Text="Animal Simulator", Size=UDim2.new(0,300,0,200), Icon_btn = true})
 FarmTab = Regui.CreateTab(Window,{Name="Farm"})
 PlayerTab = Regui.CreateTab(Window,{Name="PVP Player"})
 ToolsTab = Regui.CreateTab(Window,{Name="Tools"})
@@ -2281,6 +2281,8 @@ end)
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
 -- Lista só com IDs (sem repetições)
+
+
 Listaid = {
 	91233243522140,
 	116874163291138,
