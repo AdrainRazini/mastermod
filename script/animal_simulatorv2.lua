@@ -714,14 +714,19 @@ ExplorerTab = Regui.CreateTab(Window,{Name="Explorer"})
 -- Especial Tab
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 --===================--
-
+--[[
 Loading_Logo = Instance.new("VideoFrame")
 Loading_Logo.Parent = Window.Frame
 Loading_Logo.Size = UDim2.new(0, 350, 0, 250)
 Loading_Logo.Video = "rbxassetid://90717497825963"
 Loading_Logo.Playing = true
 Loading_Logo.Volume = 0
+]]
 
+Loading_Logo = Instance.new("ImageLabel")
+Loading_Logo.Parent = Window.Frame
+Loading_Logo.Size = UDim2.new(0, 350, 0, 250)
+Loading_Logo.Image = "rbxassetid://120181810700514"
 
 
 local UpdateLog = Regui.CreateButton(ReadmeTab, {
