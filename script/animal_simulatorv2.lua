@@ -867,6 +867,8 @@ if not ok then
 	print("⚠️ Continuando sem dados de teleport (vai usar valores padrão).")
 end
 
+wait(5)
+
 Loading_Logo.Visible = false
 
 -- Labels e UI
