@@ -91,6 +91,33 @@ if PlayerGui:FindFirstChild(GuiName) then
 	return
 end
 
+
+-- URL da API (sem repetições de variável)
+local HttpService = game:GetService("HttpService")
+
+-- URL da API (defina antes de usar)
+local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
+
+-- Função que busca e retorna a lista de IDs
+local function GetIds()
+	local success, result = pcall(function()
+		local response = game:HttpGet(API_URL)
+		return HttpService:JSONDecode(response)
+	end)
+
+	if success then
+		print("Foram carregados " .. #result .. " IDs da API.")
+		return result
+	else
+		warn("Erro ao buscar IDs da API:", result)
+		return {} -- Retorna lista vazia em caso de erro
+	end
+end
+
+
+-- Carrega a lista
+local ListaId = GetIds()
+
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
 local skillsRemote = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
@@ -2348,30 +2375,6 @@ local SliderOption_Bombox = Regui.CreateSliderOption(MusicTab, {Text = "Music", 
 end)
 
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
-
--- Lista só com IDs (sem repetições)
--- URL da API (sem repetições de variável)
-local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
-
--- Função que busca e retorna a lista de IDs
-local function GetIds()
-	local HttpService = game:GetService("HttpService")
-	
-	local success, result = pcall(function()
-		local response = game:HttpGet(API_URL)
-		return HttpService:JSONDecode(response)
-	end)
-
-	if success then
-		return result
-	else
-		warn("Erro ao buscar IDs da API:", result)
-		return {} -- Retorna lista vazia em caso de erro
-	end
-end
-
--- Carrega a lista
-local ListaId = GetIds()
 
 
 -- Lista com nome e ID
