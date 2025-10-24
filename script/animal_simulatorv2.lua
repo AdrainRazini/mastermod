@@ -2868,19 +2868,41 @@ end
 API_URL = "https://animal-simulator-server.vercel.app/api/musics"
 newId = Save_Id 
 
+-- Função unificada para compatibilidade com vários executores
+local function getRequest()
+	return (syn and syn.request)
+		or (http and http.request)
+		or (http_request)
+		or (fluxus and fluxus.request)
+		or (request)
+end
+
+-- Função para adicionar ID via requisição HTTP
 function addMusicId(id)
-	local HttpService = game:GetService("HttpService")
-	local payload = HttpService:JSONEncode({ id = id })
+	local requestFunc = getRequest()
 
-	local success, result = pcall(function()
-		return HttpService:PostAsync(API_URL, payload, Enum.HttpContentType.ApplicationJson)
-	end)
+	if not requestFunc then
+		warn("❌ Executor não suporta requisições HTTP.")
+		return
+	end
 
-	if success then
+	local data = game:GetService("HttpService"):JSONEncode({ id = id })
+
+	local response = requestFunc({
+		Url = API_URL,
+		Method = "POST",
+		Headers = {
+			["Content-Type"] = "application/json"
+		},
+		Body = data
+	})
+
+	if response and response.Success then
 		print("✅ ID adicionado com sucesso:", id)
-		print("Resposta do servidor:", result)
+		print("📩 Resposta do servidor:", response.Body)
 	else
-		warn("❌ Erro ao adicionar ID:", result)
+		warn("❌ Erro ao enviar ID:", response and response.StatusCode or "Desconhecido")
+		warn("Detalhes:", response and response.Body)
 	end
 end
 
