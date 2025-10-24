@@ -772,6 +772,7 @@ function sendTeleportData()
 		reload = true
 	}
 
+--[[
 	local loader_url = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"
 	local payload = ("loadstring(game:HttpGet('%s'))()"):format(loader_url)
 
@@ -785,6 +786,35 @@ function sendTeleportData()
 	else
 		warn("executor não expõe queue_on_teleport — usar fallback (writefile)")
 	end
+]]
+
+	local loader_url = "https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/animal_simulatorv2.lua"
+
+	-- tenta baixar o código principal
+	local success, response = pcall(function()
+		return game:HttpGet(loader_url)
+	end)
+
+	-- se falhar, usa fallback
+	if not success or not response or response == "" then
+		print("Falha ao carregar URL principal, usando fallback...")
+		response = game:HttpGet("https://animal-simulator-server.vercel.app/lua/mod_animal_simulator_v2.lua")
+	end
+
+	local payload = ("loadstring(%q)()"):format(response)
+
+	-- compatibilidade com diferentes executores
+	if syn and syn.queue_on_teleport then
+		syn.queue_on_teleport(payload)
+	elseif queue_on_teleport then
+		queue_on_teleport(payload) -- KRNL / outros
+	elseif fluxus and fluxus.queue_on_teleport then
+		fluxus.queue_on_teleport(payload)
+	else
+		warn("executor não expõe queue_on_teleport — usando fallback (writefile)")
+	end
+
+
 
 	print("📤 Enviando dados no teleporte:", data)
 	TeleportService:Teleport(game.PlaceId, player, data)
