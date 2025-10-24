@@ -2529,22 +2529,35 @@ local listMusics = {
 
 
 
+-- Função que retorna nomes para o selector e atualiza listMusics automaticamente
 function getnamesbox(list)
-	local newList = {}
+	local existingIds = {}
 
+	-- Marca todos os IDs já existentes em listMusics
+	for _, music in ipairs(listMusics) do
+		existingIds[music.Obj] = true
+	end
+
+	-- Processa novos IDs, evitando duplicatas
 	for _, id in ipairs(list) do
-		local success, info = pcall(function()
-			return MarketplaceService:GetProductInfo(id)
-		end)
+		if not existingIds[tostring(id)] then
+			local success, info = pcall(function()
+				return MarketplaceService:GetProductInfo(id)
+			end)
 
-		if success and info then
-			table.insert(newList, {name = info.Name, Obj = tostring(id)})
-		else
-			table.insert(newList, {name = "???", Obj = tostring(id)})
+			local newMusic = {}
+			if success and info then
+				newMusic = {name = info.Name, Obj = tostring(id)}
+			else
+				newMusic = {name = "???", Obj = tostring(id)}
+			end
+
+			table.insert(listMusics, newMusic)        -- adiciona direto na lista principal
+			existingIds[tostring(id)] = true          -- marca como existente
 		end
 	end
 
-	return newList
+	return listMusics -- retorna a lista atualizada
 end
 
 
@@ -2807,9 +2820,19 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 		if not idExists(Listaid, Save_Id) then
 			table.insert(Listaid, Save_Id) -- adiciona na lista
 			updateMusicInfo() -- atualiza label
-			selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
 			addMusicId(Save_Id)
 			print("ID adicionado:", Save_Id)
+			Regui.NotificationPerson(Window.Frame.Parent, {
+				Title = "ID Salvo No Servidor",
+				Text = "ID Music: " .. Save_Id,
+				Icon = "fa_rr_paper_plane",
+				Tempo = 5,
+				Casch = {},
+				Sound = ""
+			}, function()
+				print("Notificação fechada!")
+			end)
+			selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
 		else
 			-- ID já existe
 			Regui.NotificationPerson(Window.Frame.Parent, {
