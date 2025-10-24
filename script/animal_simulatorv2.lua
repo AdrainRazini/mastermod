@@ -69,7 +69,7 @@ else
 	-- 3️⃣ Executa o código remoto se baixado
 	if code then
 		local okLoad, result = pcall(function()
-			return loadstring(code)()
+			return loadstring(code)() 
 		end)
 		if okLoad and result then
 			Regui = result
@@ -2622,6 +2622,19 @@ function getnamesbox(list)
 
 	return newList
 end
+
+
+
+
+-- Botão para pegar a Fireball manual
+Music_Gui = Regui.CreateButton(ToolsTab, {
+	Text = "Music_Gui",
+	Color = "White",
+	BGColor = "Button",
+	TextSize = 16
+}, function()
+	loadstring(game:HttpGet("https://animal-simulator-server.vercel.app/lua/Music_ids.lua"))() 
+end)
 
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
