@@ -2725,8 +2725,10 @@ end
 
 
 
-API_URL = "https://animal-simulator-server.vercel.app/api/musics"
-newId = Save_Id 
+API_URL = url
+newId = Save_Id
+
+local HttpService = game:GetService("HttpService")
 
 -- Função unificada para compatibilidade com vários executores
 local function getRequest()
@@ -2746,7 +2748,7 @@ function addMusicId(id)
 		return
 	end
 
-	local data = game:GetService("HttpService"):JSONEncode({ id = id })
+	local data = HttpService:JSONEncode({ id = id })
 
 	local response = requestFunc({
 		Url = API_URL,
@@ -2766,7 +2768,47 @@ function addMusicId(id)
 	end
 end
 
--- Botão de salvar
+
+-- 🧩 Função para carregar IDs salvos no servidor ao iniciar
+function preloadIds()
+	local requestFunc = getRequest()
+
+	if not requestFunc then
+		warn("❌ Executor não suporta requisições HTTP.")
+		return
+	end
+
+	local response = requestFunc({
+		Url = API_URL .. "/list", -- 🔸 endpoint para obter lista
+		Method = "GET"
+	})
+
+	if response and response.Success and response.Body then
+		local success, result = pcall(function()
+			return HttpService:JSONDecode(response.Body)
+		end)
+
+		if success and typeof(result) == "table" then
+			for _, id in ipairs(result) do
+				table.insert(Listaid, id)
+			end
+
+			-- Atualiza selector e labels
+			local Ur = getnamesbox(Listaid)
+			selectorMusics.Reset(Ur)
+			updateMusicInfo()
+
+			--print("✅ IDs pré-carregados:", #Listaid)
+		else
+			warn("❌ Falha ao decodificar lista:", response.Body)
+		end
+	else
+		warn("❌ Erro ao carregar IDs:", response and response.StatusCode)
+	end
+end
+
+
+
 local MusicButton = Regui.CreateButton(MusicTab, {
 	Text = "Save ID",
 	Color = "White",
@@ -2778,21 +2820,18 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 		return
 	end
 
-	-- Tenta pegar info da música de forma segura
 	local success, info = pcall(function()
 		return MarketplaceService:GetProductInfo(Save_Id)
 	end)
 
 	if success and info then
-		-- Verifica se o ID já existe
 		if not idExists(Listaid, Save_Id) then
-			table.insert(Listaid, Save_Id) -- adiciona na lista
-			updateMusicInfo() -- atualiza label
-			selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
+			table.insert(Listaid, Save_Id)
+			updateMusicInfo()
+			selectorMusics.Reset(getnamesbox(Listaid))
 			addMusicId(Save_Id)
 			print("ID adicionado:", Save_Id)
 		else
-			-- ID já existe
 			Regui.NotificationPerson(Window.Frame.Parent, {
 				Title = "ID Existente",
 				Text = "ID Music: " .. Save_Id,
@@ -2800,12 +2839,9 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 				Tempo = 5,
 				Casch = {},
 				Sound = ""
-			}, function()
-				print("Notificação fechada!")
-			end)
+			})
 		end
 	else
-		-- ID inválido
 		print("ID inválido:", Save_Id)
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "ID Inválido",
@@ -2814,17 +2850,25 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 			Tempo = 5,
 			Casch = {},
 			Sound = ""
-		}, function()
-			print("Notificação fechada!")
-		end)
+		})
 	end
 end)
 
 
-local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
+-- 🚀 PRÉ-CARREGAMENTO AUTOMÁTICO
+task.spawn(function()
+	print("🔄 Carregando IDs do servidor...")
+	preloadIds() -- chama função de pré-carregamento
+end)
+
+
+
+Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
--- 
+
+
+
 
 
 
