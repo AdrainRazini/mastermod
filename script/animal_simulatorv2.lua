@@ -715,6 +715,14 @@ ExplorerTab = Regui.CreateTab(Window,{Name="Explorer"})
 local Credits = Regui.CreditsUi(ReadmeTab, { Alignment = "Center", Alignment_Texts = "Left"}, function() end)
 --===================--
 
+Loading_Logo = Instance.new("VideoFrame")
+Loading_Logo.Parent = Window.Frame
+Loading_Logo.Size = UDim2.new(0, 350, 0, 250)
+Loading_Logo.Video = "rbxassetid://90717497825963"
+Loading_Logo.Playing = true
+Loading_Logo.Volume = 0
+
+
 
 local UpdateLog = Regui.CreateButton(ReadmeTab, {
 	Text = "New Updates",
@@ -859,6 +867,7 @@ if not ok then
 	print("⚠️ Continuando sem dados de teleport (vai usar valores padrão).")
 end
 
+Loading_Logo.Visible = false
 
 -- Labels e UI
 local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
