@@ -2657,7 +2657,7 @@ end
 
 
 -- Botão para pegar a Fireball manual
-Music_Gui = Regui.CreateButton(ToolsTab, {
+Music_Gui = Regui.CreateButton(MusicTab, {
 	Text = "Music_Gui",
 	Color = "White",
 	BGColor = "Button",
