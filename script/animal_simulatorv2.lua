@@ -35,31 +35,55 @@ local player = Players.LocalPlayer
 
 local Regui
 local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-local GuiName = "Mod_Animal_Simulator"..game.Players.LocalPlayer.Name
+local GuiName = "Mod_Animal_Simulator_" .. game.Players.LocalPlayer.Name
 
-
-
--- Tenta carregar localmente
+-- 1️⃣ Tenta carregar localmente
 local success, module = pcall(function()
 	return require(script.Parent:FindFirstChild("Mod_UI"))
 end)
 
 if success and module then
 	Regui = module
+	print("[✅ Mod Loader] Carregado localmente com sucesso!")
 else
-	-- Tenta baixar remoto
-	local HttpService = game:GetService("HttpService")
-	local ok, err = pcall(function()
-		local code = game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/dataGui.lua")
-		Regui = loadstring(code)()
-	end)
+	-- 2️⃣ Tenta baixar remoto
+	local ok, code
+	local urls = {
+		"https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/module/dataGui.lua",
+		"https://animal-simulator-server.vercel.app/lua/DataGui.lua"
+	}
 
-	if not ok then
-		warn("Não foi possível carregar Mod_UI nem local nem remoto!", err)
+	for _, url in ipairs(urls) do
+		local okHttp, result = pcall(function()
+			return game:HttpGet(url)
+		end)
+		if okHttp and result and result ~= "" then
+			code = result
+			print("[🌐 Mod Loader] Código baixado de: " .. url)
+			break
+		else
+			warn("[⚠️ Mod Loader] Falha ao baixar de:", url)
+		end
+	end
+
+	-- 3️⃣ Executa o código remoto se baixado
+	if code then
+		local okLoad, result = pcall(function()
+			return loadstring(code)()
+		end)
+		if okLoad and result then
+			Regui = result
+			print("[✅ Mod Loader] Módulo remoto carregado com sucesso!")
+		else
+			warn("[❌ Mod Loader] Erro ao executar código remoto:", result)
+		end
+	else
+		warn("[❌ Mod Loader] Nenhuma das fontes pôde ser carregada.")
 	end
 end
 
 assert(Regui, "Regui não foi carregado!")
+
 
 
 if PlayerGui:FindFirstChild(GuiName) then
