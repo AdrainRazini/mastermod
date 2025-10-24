@@ -2863,6 +2863,27 @@ local function idExists(list, id)
 	return false
 end
 
+
+
+API_URL = "https://animal-simulator-server.vercel.app/api/musics"
+newId = Save_Id 
+
+function addMusicId(id)
+	local HttpService = game:GetService("HttpService")
+	local payload = HttpService:JSONEncode({ id = id })
+
+	local success, result = pcall(function()
+		return HttpService:PostAsync(API_URL, payload, Enum.HttpContentType.ApplicationJson)
+	end)
+
+	if success then
+		print("✅ ID adicionado com sucesso:", id)
+		print("Resposta do servidor:", result)
+	else
+		warn("❌ Erro ao adicionar ID:", result)
+	end
+end
+
 -- Botão de salvar
 local MusicButton = Regui.CreateButton(MusicTab, {
 	Text = "Save ID",
@@ -2886,6 +2907,7 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 			table.insert(Listaid, Save_Id) -- adiciona na lista
 			updateMusicInfo() -- atualiza label
 			selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
+			addMusicId(Save_Id)
 			print("ID adicionado:", Save_Id)
 		else
 			-- ID já existe
