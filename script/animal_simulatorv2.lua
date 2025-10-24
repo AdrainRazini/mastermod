@@ -114,9 +114,8 @@ local function GetIds()
 	end
 end
 
+Listaid = GetIds()
 
--- Carrega a lista
-local ListaId = GetIds()
 
 -- REMOTES
 local attackRemote = ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli")
@@ -2377,6 +2376,8 @@ end)
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
 
+
+
 -- Lista com nome e ID
 local listMusics = {
 	{name = "Stop", Obj = "0"},
@@ -2843,17 +2844,9 @@ local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "------------
 MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 
-task.spawn(function()
-	-- Espera até a lista Listaid existir e não estar vazia
-	repeat
-		task.wait(0.1)
-	until Listaid and #Listaid > 0
-
-	-- Agora que a lista existe e tem itens, atualiza o seletor
-	local Ur = getnamesbox(Listaid)
-	selectorMusics.Reset(Ur)
-
-	print("✅ Lista carregada com", #Listaid, "itens!")
+task.spawn(function(v)
+	local boxs = getnamesbox(Listaid)
+	selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
 end)
 
 
