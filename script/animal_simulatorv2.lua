@@ -98,6 +98,7 @@ local HttpService = game:GetService("HttpService")
 -- URLs da API
 local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
 local API_URL_Obj = "https://animal-simulator-server.vercel.app/api/musics_obj"
+local API_URL_Obj_Lua = "https://animal-simulator-server.vercel.app/api/musics_obj_lua"
 
 -- Função genérica para buscar de qualquer endpoint
 local function GetFromAPI(url)
@@ -143,8 +144,8 @@ end
 
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
-
-local listMusics = {}  --GetObjFromAPI(API_URL_Obj)
+local listMusics = loadstring(game:HttpGet(API_URL_Obj_Lua))() --GetObjFromAPI(API_URL_Obj)
+  
 
 
 
