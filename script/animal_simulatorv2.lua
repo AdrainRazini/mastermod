@@ -143,28 +143,8 @@ end
 
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
-local list_M_ok = false
-local listMusics = {}
-local selectorMusics
 
--- Função para carregar lista da API
-local function loadMusics()
-	local success, result = pcall(function()
-		return GetObjFromAPI(API_URL_Obj)
-	end)
-
-	if success and result then
-		listMusics = result
-		print("🎵 Lista de músicas carregada! Total:", #listMusics)
-		list_M_ok = true
-	else
-		warn("❌ Falha ao carregar lista de músicas:", result)
-		list_M_ok = false
-	end
-end
-
-
-
+local listMusics = {}  --GetObjFromAPI(API_URL_Obj)
 
 
 
@@ -1086,7 +1066,6 @@ function update_timers()
 		.. "\n>= Tempo Escolhido: " .. TimerClock(selectedTimer) 
 		.. "\n→ Teleporte + Data(Dados)"
 end
-
 LabelData_Afk_Mod= Regui.CreateLabel(SubWin["Data"], {
 	Text = "Loads...",
 	Color = "White",
@@ -2479,10 +2458,13 @@ end
 
 function getnamesbox(list)
 	local existingIds = {}
+
+	-- Marca todos os IDs já existentes em listMusics
 	for _, music in ipairs(listMusics) do
 		existingIds[music.Obj] = true
 	end
 
+	-- Processa novos IDs, evitando duplicatas
 	for _, id in ipairs(list) do
 		if not existingIds[tostring(id)] then
 			local success, info = pcall(function()
@@ -2491,23 +2473,21 @@ function getnamesbox(list)
 
 			local newMusic = {}
 			if success and info then
-				newMusic = {Name = info.Name, Obj = tostring(id)}
+				newMusic = {name = info.Name, Obj = tostring(id)}
 			else
-				newMusic = {Name = "???", Obj = tostring(id)}
+				newMusic = {name = "???", Obj = tostring(id)}
 			end
 
-			table.insert(listMusics, newMusic)
-			existingIds[tostring(id)] = true
+			table.insert(listMusics, newMusic)        -- adiciona direto na lista principal
+			existingIds[tostring(id)] = true          -- marca como existente
 
-			-- envia só os novos objetos
-			addObjMusicId(newMusic.Name, newMusic.Obj)
+			-- 🔹 envia para a API
+			addObjMusicId(newMusic.name, newMusic.Obj)
 		end
 	end
 
-	return listMusics
+	return listMusics -- retorna a lista atualizada
 end
-
-
 
 -- Função para adicionar ID via requisição HTTP
 function addMusicId(id)
@@ -2798,15 +2778,8 @@ MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparenc
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 
 
--- Função para criar o selector
-local function creatlist()
-	if not list_M_ok then
-		warn("⏳ Lista de músicas ainda não está pronta")
-		return
-	end
 
-	-- 🔹 Cria selector
-	selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
+local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 		Name = "Selecionar Musica",
 		Options = listMusics,
 		Type = "Instance",
@@ -2815,8 +2788,7 @@ local function creatlist()
 		print("Set:", selectedObj)
 		idmusicRemote:FireServer(selectedObj)
 	end)
-end
-
+	
 -- Atualiza selector com novos nomes
 task.spawn(function()
 	local boxs = getnamesbox(Listaid)  -- atualiza listMusics e envia novos objetos para API
@@ -2824,10 +2796,6 @@ task.spawn(function()
 		selectorMusics.Reset(listMusics)  -- atualiza o selector com a lista atualizada
 	end
 end)
-
--- Chama carregamento e criação inicial
-loadMusics()
-creatlist()
 
 
 --=================================--
