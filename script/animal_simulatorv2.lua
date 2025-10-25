@@ -157,6 +157,7 @@ local listMusics = GetObjectsFromAPI(API_URL_Obj) -- Lista de músicas completas
 
 
 
+
 print("IDs:", #Listaid, "| Músicas:", #listMusics)
 
 
@@ -2511,7 +2512,7 @@ end)
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	Name = "Selecionar Musica",
-	Options = listMusics,
+	Options = {{Name = "Loading...", Obj = 0}},
 	Type = "Instance",
 	Size_Frame = UDim2.new(1, -10, 0, 150)
 }, function(selectedObj)
@@ -2758,7 +2759,7 @@ MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparenc
 
 task.spawn(function(v)
 	local boxs = getnamesbox(Listaid)
-	selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
+	selectorMusics.Reset(getnamesbox(boxs)) -- atualiza selector
 end)
 
 
