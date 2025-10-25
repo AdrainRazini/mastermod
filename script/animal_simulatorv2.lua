@@ -92,8 +92,7 @@ if PlayerGui:FindFirstChild(GuiName) then
 end
 
 
-
--- Serviço Roblox
+-- URL da API (sem repetições de variável)
 local HttpService = game:GetService("HttpService")
 
 -- URLs da API
@@ -152,11 +151,8 @@ local function GetObjectsFromAPI(url)
 end
 
 -- 🔹 Uso
-local Listaid = GetIDsFromAPI(API_URL)     -- Lista só de IDs
-local listMusics = GetObjectsFromAPI(API_URL_Obj) -- Lista de músicas completas
-
-
-
+Listaid = GetIDsFromAPI(API_URL)     -- Lista só de IDs
+listMusics = GetObjectsFromAPI(API_URL_Obj) -- Lista de músicas completas
 
 print("IDs:", #Listaid, "| Músicas:", #listMusics)
 
@@ -2420,14 +2416,10 @@ end)
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
 
--- Função unificada para compatibilidade com vários executores
-local function getRequest()
-	return (syn and syn.request)
-		or (http and http.request)
-		or (http_request)
-		or (fluxus and fluxus.request)
-		or (request)
-end
+
+
+
+
 
 
 
@@ -2463,40 +2455,6 @@ function getnamesbox(list)
 end
 
 
-local Save_Id = "0"
-newId = Save_Id 
-
-
-function addMusicId(id)
-	local requestFunc = getRequest()
-
-	if not requestFunc then
-		warn("❌ Executor não suporta requisições HTTP.")
-		return
-	end
-
-	local data = game:GetService("HttpService"):JSONEncode({ id = id })
-
-	local response = requestFunc({
-		Url = API_URL,
-		Method = "POST",
-		Headers = {
-			["Content-Type"] = "application/json"
-		},
-		Body = data
-	})
-
-	if response and response.Success then
-		print("✅ ID adicionado com sucesso:", id)
-		print("📩 Resposta do servidor:", response.Body)
-	else
-		warn("❌ Erro ao enviar ID:", response and response.StatusCode or "Desconhecido")
-		warn("Detalhes:", response and response.Body)
-	end
-end
-
-
-
 
 
 -- Botão para pegar a Fireball manual
@@ -2512,7 +2470,7 @@ end)
 -- 🔹 Selector de alvo no topo
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	Name = "Selecionar Musica",
-	Options = {{Name = "Loading...", Obj = 0}},
+	Options = listMusics,
 	Type = "Instance",
 	Size_Frame = UDim2.new(1, -10, 0, 150)
 }, function(selectedObj)
@@ -2638,6 +2596,12 @@ end)
 
 --=======================--
 
+
+-- Botão para pegar a Musica
+-- Test De Salvamento do ID da musica
+
+local Save_Id = "0"
+
 -- Label que mostra info da música
 local Label_Music_Info_Save = Regui.CreateLabel(MusicTab, {
 	Text = "_Music_",
@@ -2686,7 +2650,47 @@ local function idExists(list, id)
 end
 
 
---===
+
+
+newId = Save_Id 
+
+-- Função unificada para compatibilidade com vários executores
+local function getRequest()
+	return (syn and syn.request)
+		or (http and http.request)
+		or (http_request)
+		or (fluxus and fluxus.request)
+		or (request)
+end
+
+-- Função para adicionar ID via requisição HTTP
+function addMusicId(id)
+	local requestFunc = getRequest()
+
+	if not requestFunc then
+		warn("❌ Executor não suporta requisições HTTP.")
+		return
+	end
+
+	local data = game:GetService("HttpService"):JSONEncode({ id = id })
+
+	local response = requestFunc({
+		Url = API_URL,
+		Method = "POST",
+		Headers = {
+			["Content-Type"] = "application/json"
+		},
+		Body = data
+	})
+
+	if response and response.Success then
+		print("✅ ID adicionado com sucesso:", id)
+		print("📩 Resposta do servidor:", response.Body)
+	else
+		warn("❌ Erro ao enviar ID:", response and response.StatusCode or "Desconhecido")
+		warn("Detalhes:", response and response.Body)
+	end
+end
 
 -- Botão de salvar
 local MusicButton = Regui.CreateButton(MusicTab, {
@@ -2759,7 +2763,7 @@ MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparenc
 
 task.spawn(function(v)
 	local boxs = getnamesbox(Listaid)
-	selectorMusics.Reset(getnamesbox(boxs)) -- atualiza selector
+	selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
 end)
 
 
