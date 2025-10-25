@@ -143,24 +143,9 @@ end
 
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
-local listMusics = GetObjFromAPI(API_URL_Obj)
+local listMusics = {} --GetObjFromAPI(API_URL_Obj)
 
 
-print("IDs:", #Listaid, "| Músicas:", #listMusics)
-
-print("IDs:", #Listaid, "| Músicas:", #listMusics)
-
--- 🧩 Mostrar os primeiros itens de cada lista
-print("\n🔹 Primeiros IDs:")
-for i = 1, math.min(5, #Listaid) do
-	print(i, "=>", Listaid[i])
-end
-
-print("\n🎵 Primeiras Músicas:")
-for i = 1, math.min(5, #listMusics) do
-	local m = listMusics[i]
-	print(i, "=>", m.Name, "| Obj:", m.Obj)
-end
 
 
 -- REMOTES
