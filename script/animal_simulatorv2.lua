@@ -143,7 +143,27 @@ end
 
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
-local listMusics = {} --GetObjFromAPI(API_URL_Obj)
+local list_M_ok = false
+local listMusics = {}
+local selectorMusics
+
+-- Função para carregar lista da API
+local function loadMusics()
+	local success, result = pcall(function()
+		return GetObjFromAPI(API_URL_Obj)
+	end)
+
+	if success and result then
+		listMusics = result
+		print("🎵 Lista de músicas carregada! Total:", #listMusics)
+		list_M_ok = true
+	else
+		warn("❌ Falha ao carregar lista de músicas:", result)
+		list_M_ok = false
+	end
+end
+
+
 
 
 
@@ -933,14 +953,14 @@ end
 Loading_Logo.Visible = false
 
 -- Labels e UI
-local Label_AFK_Info = Regui.CreateLabel(AfkTab, {
+Label_AFK_Info = Regui.CreateLabel(AfkTab, {
 	Text = "AFK MOD (Beta Test)",
 	Color = "White",
 	Alignment = "Center"
 })
 
 
-local selectorTimer = Regui.CreateSelectorOpitions(AfkTab, {
+selectorTimer = Regui.CreateSelectorOpitions(AfkTab, {
 	Name = "Selector Tempo",
 	Options = {
 		{name = "1 Min", Obj = 60 * 1},
@@ -956,13 +976,13 @@ local selectorTimer = Regui.CreateSelectorOpitions(AfkTab, {
 	selectedTimer = val
 end)
 
-local Label_Check_AintiAFK = Regui.CreateLabel(AfkTab, {
+Label_Check_AintiAFK = Regui.CreateLabel(AfkTab, {
 	Text = "--- Check  ---",
 	Color = "White",
 	Alignment = "Center"
 })
 
-local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
+Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 	Text = "Ativar AntiAFK",
 	Color = "White"
 }, function(state)
@@ -982,7 +1002,7 @@ local Check_AntiAFK = Regui.CreateCheckboxe(AfkTab, {
 	end
 end)
 
-local Button_Forced_Teleport = Regui.CreateLabel(AfkTab, {
+Button_Forced_Teleport = Regui.CreateLabel(AfkTab, {
 	Text = "--- Forced_Teleport  ---",
 	Color = "White",
 	Alignment = "Center"
@@ -991,7 +1011,7 @@ local Button_Forced_Teleport = Regui.CreateLabel(AfkTab, {
 
 
 -- Botão 
-local Test_Teleport = Regui.CreateButton(AfkTab, {
+Test_Teleport = Regui.CreateButton(AfkTab, {
 	Text = "Teleport Gui",
 	Color = "White",
 	BGColor = "Green",
@@ -1008,38 +1028,38 @@ if AntiAFK then
 end
 
 
-local SubWin = Regui.SubTabsWindow(AfkTab, {
+SubWin = Regui.SubTabsWindow(AfkTab, {
 	Text = "Afk Player",
 	Table = {"Logs", "Data"},
 	Color = "Blue"
 })
 
-local LabelLogs_Timer_Afk_Selector = Regui.CreateLabel(SubWin["Logs"], {
+LabelLogs_Timer_Afk_Selector = Regui.CreateLabel(SubWin["Logs"], {
 	Text = "AFK Selector timer: 0",
 	Color = "White",
 	Alignment = "Center"
 })
 
-local LabelLogs_Timer_Afk_Acumulador = Regui.CreateLabel(SubWin["Logs"], {
+LabelLogs_Timer_Afk_Acumulador = Regui.CreateLabel(SubWin["Logs"], {
 	Text = "Loding...",
 	Color = "White",
 	Alignment = "Center"
 })
 
-local LabelLogs_Timer_Afk = Regui.CreateLabel(SubWin["Logs"], {
+LabelLogs_Timer_Afk = Regui.CreateLabel(SubWin["Logs"], {
 	Text = "AFK timer: 0",
 	Color = "White",
 	Alignment = "Center"
 })
 
-local LabelLogs_Timer_Game = Regui.CreateLabel(SubWin["Logs"], {
+LabelLogs_Timer_Game = Regui.CreateLabel(SubWin["Logs"], {
 	Text = "Tempo de jogo: 0",
 	Color = "White",
 	Alignment = "Center"
 })
 
 -- Label para observação do tempo de jogo
-local LabelLogs_Timer_Game_Observation = Regui.CreateLabel(SubWin["Logs"], {
+LabelLogs_Timer_Game_Observation = Regui.CreateLabel(SubWin["Logs"], {
 	Text = "➡ Tempo total de jogo (não inclui tempo AFK)",
 	Color = "White",
 	Alignment = "Center"
@@ -1067,7 +1087,7 @@ function update_timers()
 		.. "\n→ Teleporte + Data(Dados)"
 end
 
-local LabelData_Afk_Mod= Regui.CreateLabel(SubWin["Data"], {
+LabelData_Afk_Mod= Regui.CreateLabel(SubWin["Data"], {
 	Text = "Loads...",
 	Color = "White",
 	Alignment = "Center"
@@ -2533,18 +2553,6 @@ Music_Gui = Regui.CreateButton(MusicTab, {
 	loadstring(game:HttpGet("https://animal-simulator-server.vercel.app/lua/Music_ids.lua"))() 
 end)
 
--- 🔹 Selector de alvo no topo
-local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
-	Name = "Selecionar Musica",
-	Options = listMusics,
-	Type = "Instance",
-	Size_Frame = UDim2.new(1, -10, 0, 150)
-}, function(selectedObj)
-	print("Set: ", selectedObj)
-	--Input_Text.SetVal(selectedObj)
-	idmusicRemote:FireServer(selectedObj)
-end)
-
 local Visor = false
 local ActiveBoards = {} -- armazenamento das GUIs criadas
 
@@ -2790,12 +2798,37 @@ local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "------------
 MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 
-task.spawn(function(v)
-	local boxs = getnamesbox(Listaid)
-	selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
+
+-- Função para criar o selector
+local function creatlist()
+	if not list_M_ok then
+		warn("⏳ Lista de músicas ainda não está pronta")
+		return
+	end
+
+	-- 🔹 Cria selector
+	selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
+		Name = "Selecionar Musica",
+		Options = listMusics,
+		Type = "Instance",
+		Size_Frame = UDim2.new(1, -10, 0, 150)
+	}, function(selectedObj)
+		print("Set:", selectedObj)
+		idmusicRemote:FireServer(selectedObj)
+	end)
+end
+
+-- Atualiza selector com novos nomes
+task.spawn(function()
+	local boxs = getnamesbox(Listaid)  -- atualiza listMusics e envia novos objetos para API
+	if selectorMusics then
+		selectorMusics.Reset(listMusics)  -- atualiza o selector com a lista atualizada
+	end
 end)
 
-
+-- Chama carregamento e criação inicial
+loadMusics()
+creatlist()
 
 
 --=================================--
