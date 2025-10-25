@@ -2383,11 +2383,6 @@ local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "--------------
 
 
 
-
-
-
-
-
 -- Função que retorna nomes para o selector e atualiza listMusics automaticamente
 function getnamesbox(list)
 	local existingIds = {}
@@ -2418,6 +2413,49 @@ function getnamesbox(list)
 
 	return listMusics -- retorna a lista atualizada
 end
+
+
+local Save_Id = "0"
+newId = Save_Id 
+
+-- Função unificada para compatibilidade com vários executores
+local function getRequest()
+	return (syn and syn.request)
+		or (http and http.request)
+		or (http_request)
+		or (fluxus and fluxus.request)
+		or (request)
+end
+
+
+function addMusicId(id)
+	local requestFunc = getRequest()
+
+	if not requestFunc then
+		warn("❌ Executor não suporta requisições HTTP.")
+		return
+	end
+
+	local data = game:GetService("HttpService"):JSONEncode({ id = id })
+
+	local response = requestFunc({
+		Url = API_URL,
+		Method = "POST",
+		Headers = {
+			["Content-Type"] = "application/json"
+		},
+		Body = data
+	})
+
+	if response and response.Success then
+		print("✅ ID adicionado com sucesso:", id)
+		print("📩 Resposta do servidor:", response.Body)
+	else
+		warn("❌ Erro ao enviar ID:", response and response.StatusCode or "Desconhecido")
+		warn("Detalhes:", response and response.Body)
+	end
+end
+
 
 
 
@@ -2561,12 +2599,6 @@ end)
 
 --=======================--
 
-
--- Botão para pegar a Musica
--- Test De Salvamento do ID da musica
-
-local Save_Id = "0"
-
 -- Label que mostra info da música
 local Label_Music_Info_Save = Regui.CreateLabel(MusicTab, {
 	Text = "_Music_",
@@ -2615,47 +2647,7 @@ local function idExists(list, id)
 end
 
 
-
-
-newId = Save_Id 
-
--- Função unificada para compatibilidade com vários executores
-local function getRequest()
-	return (syn and syn.request)
-		or (http and http.request)
-		or (http_request)
-		or (fluxus and fluxus.request)
-		or (request)
-end
-
--- Função para adicionar ID via requisição HTTP
-function addMusicId(id)
-	local requestFunc = getRequest()
-
-	if not requestFunc then
-		warn("❌ Executor não suporta requisições HTTP.")
-		return
-	end
-
-	local data = game:GetService("HttpService"):JSONEncode({ id = id })
-
-	local response = requestFunc({
-		Url = API_URL,
-		Method = "POST",
-		Headers = {
-			["Content-Type"] = "application/json"
-		},
-		Body = data
-	})
-
-	if response and response.Success then
-		print("✅ ID adicionado com sucesso:", id)
-		print("📩 Resposta do servidor:", response.Body)
-	else
-		warn("❌ Erro ao enviar ID:", response and response.StatusCode or "Desconhecido")
-		warn("Detalhes:", response and response.Body)
-	end
-end
+--===
 
 -- Botão de salvar
 local MusicButton = Regui.CreateButton(MusicTab, {
