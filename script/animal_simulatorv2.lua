@@ -92,7 +92,7 @@ if PlayerGui:FindFirstChild(GuiName) then
 end
 
 
--- URL da API (sem repetições de variável)
+
 -- Serviço Roblox
 local HttpService = game:GetService("HttpService")
 
@@ -100,57 +100,61 @@ local HttpService = game:GetService("HttpService")
 local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
 local API_URL_Obj = "https://animal-simulator-server.vercel.app/api/musics_obj"
 
--- Função para ler formato Lua retornado pela API
-local function ParseLuaTable(luaText)
-	local list = {}
-
-	-- Captura formato: {Name = "Nome", Obj = 123456}
-	for name, obj in luaText:gmatch('{%s*Name%s*=%s*"([^"]+)"%s*,%s*Obj%s*=%s*(%d+)%s*}') do
-		table.insert(list, {
-			Name = name,
-			Obj = tonumber(obj) or 0 -- 🔹 força para número
-		})
-	end
-
-	return list
-end
-
--- Função genérica para buscar dados da API
-local function GetFromAPI(url)
+-- Função para buscar IDs (apenas números)
+local function GetIDsFromAPI(url)
 	local success, result = pcall(function()
 		local response = game:HttpGet(url)
+		local decoded = HttpService:JSONDecode(response) -- já é JSON array de números
+		return decoded
+	end)
 
+	if success then
+		print("✅ IDs carregados:", #result)
+		return result
+	else
+		warn("⚠️ Erro ao buscar IDs:", result)
+		return {}
+	end
+end
+
+-- Função para buscar objetos/músicas (Name + Obj)
+local function GetObjectsFromAPI(url)
+	local function ParseLuaTable(luaText)
+		local list = {}
+		for name, obj in luaText:gmatch('{Name%s-=%s-"(.-)",%s-Obj%s-=%s-(%d+)}') do
+			table.insert(list, { Name = name, Obj = tonumber(obj) })
+		end
+		return list
+	end
+
+	local success, result = pcall(function()
+		local response = game:HttpGet(url)
 		-- Detecta se é JSON ou Lua-format
-		if response:find('{"') or response:find('%[') then
-			-- JSON válido
+		if response:sub(1,1) == "[" then
 			local decoded = HttpService:JSONDecode(response)
-
-			-- Garante que Obj seja número (caso a API envie string)
+			-- Garante que Obj seja número
 			for _, music in ipairs(decoded) do
 				music.Obj = tonumber(music.Obj) or 0
 			end
-
 			return decoded
 		else
-			-- Lua-style
 			return ParseLuaTable(response)
 		end
 	end)
 
 	if success then
-		print("✅ Dados carregados da API:", url, "Total:", #result)
+		print("✅ Objetos carregados:", #result)
 		return result
 	else
-		warn("⚠️ Erro ao buscar dados da API:", url, result)
+		warn("⚠️ Erro ao buscar objetos:", result)
 		return {}
 	end
 end
 
--- 🔹 Busca as duas listas
-local Listaid = GetFromAPI(API_URL)
-local listMusics = GetFromAPI(API_URL_Obj)
+-- 🔹 Uso
+local Listaid = GetIDsFromAPI(API_URL)     -- Lista só de IDs
+local listMusics = GetObjectsFromAPI(API_URL_Obj) -- Lista de músicas completas
 
-print("IDs:", #Listaid, "| Músicas:", #listMusics)
 
 
 print("IDs:", #Listaid, "| Músicas:", #listMusics)
@@ -2425,6 +2429,7 @@ local function getRequest()
 end
 
 
+
 -- Função que retorna nomes para o selector e atualiza listMusics automaticamente
 function getnamesbox(list)
 	local existingIds = {}
@@ -2751,11 +2756,9 @@ local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "------------
 MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 
-
---
 task.spawn(function(v)
 	local boxs = getnamesbox(Listaid)
-	selectorMusics.Reset(getnamesbox(boxs)) -- atualiza selector
+	selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
 end)
 
 
