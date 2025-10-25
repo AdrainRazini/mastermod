@@ -2479,13 +2479,10 @@ end
 
 function getnamesbox(list)
 	local existingIds = {}
-
-	-- Marca todos os IDs já existentes em listMusics
 	for _, music in ipairs(listMusics) do
 		existingIds[music.Obj] = true
 	end
 
-	-- Processa novos IDs, evitando duplicatas
 	for _, id in ipairs(list) do
 		if not existingIds[tostring(id)] then
 			local success, info = pcall(function()
@@ -2494,21 +2491,23 @@ function getnamesbox(list)
 
 			local newMusic = {}
 			if success and info then
-				newMusic = {name = info.Name, Obj = tostring(id)}
+				newMusic = {Name = info.Name, Obj = tostring(id)}
 			else
-				newMusic = {name = "???", Obj = tostring(id)}
+				newMusic = {Name = "???", Obj = tostring(id)}
 			end
 
-			table.insert(listMusics, newMusic)        -- adiciona direto na lista principal
-			existingIds[tostring(id)] = true          -- marca como existente
+			table.insert(listMusics, newMusic)
+			existingIds[tostring(id)] = true
 
-			-- 🔹 envia para a API
-			addObjMusicId(newMusic.name, newMusic.Obj)
+			-- envia só os novos objetos
+			addObjMusicId(newMusic.Name, newMusic.Obj)
 		end
 	end
 
-	return listMusics -- retorna a lista atualizada
+	return listMusics
 end
+
+
 
 -- Função para adicionar ID via requisição HTTP
 function addMusicId(id)
