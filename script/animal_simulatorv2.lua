@@ -2398,6 +2398,14 @@ end)
 local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
 
 
+-- Função unificada para compatibilidade com vários executores
+local function getRequest()
+	return (syn and syn.request)
+		or (http and http.request)
+		or (http_request)
+		or (fluxus and fluxus.request)
+		or (request)
+end
 
 
 -- Função que retorna nomes para o selector e atualiza listMusics automaticamente
@@ -2434,15 +2442,6 @@ end
 
 local Save_Id = "0"
 newId = Save_Id 
-
--- Função unificada para compatibilidade com vários executores
-local function getRequest()
-	return (syn and syn.request)
-		or (http and http.request)
-		or (http_request)
-		or (fluxus and fluxus.request)
-		or (request)
-end
 
 
 function addMusicId(id)
@@ -2735,11 +2734,13 @@ local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "------------
 MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://78869446287665", Size_Image = UDim2.new(0, 75, 0, 75)  })
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 
+
+--[[
 task.spawn(function(v)
 	local boxs = getnamesbox(Listaid)
 	selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
 end)
-
+]]
 
 
 
