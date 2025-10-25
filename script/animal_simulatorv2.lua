@@ -99,60 +99,25 @@ local HttpService = game:GetService("HttpService")
 local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
 local API_URL_Obj = "https://animal-simulator-server.vercel.app/api/musics_obj"
 
--- Função para buscar IDs (apenas números)
-local function GetIDsFromAPI(url)
+-- Função genérica para buscar de qualquer endpoint
+local function GetFromAPI(url)
 	local success, result = pcall(function()
 		local response = game:HttpGet(url)
-		local decoded = HttpService:JSONDecode(response) -- já é JSON array de números
-		return decoded
+		return HttpService:JSONDecode(response)
 	end)
 
 	if success then
-		print("✅ IDs carregados:", #result)
+		print("✅ Dados carregados da API:", url, "Total:", #result)
 		return result
 	else
-		warn("⚠️ Erro ao buscar IDs:", result)
+		warn("⚠️ Erro ao buscar dados da API:", url, result)
 		return {}
 	end
 end
 
--- Função para buscar objetos/músicas (Name + Obj)
-local function GetObjectsFromAPI(url)
-	local function ParseLuaTable(luaText)
-		local list = {}
-		for name, obj in luaText:gmatch('{Name%s-=%s-"(.-)",%s-Obj%s-=%s-(%d+)}') do
-			table.insert(list, { Name = name, Obj = tonumber(obj) })
-		end
-		return list
-	end
-
-	local success, result = pcall(function()
-		local response = game:HttpGet(url)
-		-- Detecta se é JSON ou Lua-format
-		if response:sub(1,1) == "[" then
-			local decoded = HttpService:JSONDecode(response)
-			-- Garante que Obj seja número
-			for _, music in ipairs(decoded) do
-				music.Obj = tonumber(music.Obj) or 0
-			end
-			return decoded
-		else
-			return ParseLuaTable(response)
-		end
-	end)
-
-	if success then
-		print("✅ Objetos carregados:", #result)
-		return result
-	else
-		warn("⚠️ Erro ao buscar objetos:", result)
-		return {}
-	end
-end
-
--- 🔹 Uso
-Listaid = GetIDsFromAPI(API_URL)     -- Lista só de IDs
-listMusics = GetObjectsFromAPI(API_URL_Obj) -- Lista de músicas completas
+-- 🔹 Busca as duas listas
+local Listaid = GetFromAPI(API_URL)
+local listMusics = {} --GetFromAPI(API_URL_Obj)
 
 print("IDs:", #Listaid, "| Músicas:", #listMusics)
 
