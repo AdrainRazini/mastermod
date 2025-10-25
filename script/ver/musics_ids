@@ -9,10 +9,82 @@ local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 local GuiName = "Mod_Animal_Simulator_BoxMusic_" .. player.Name
 
-local url = "https://animal-simulator-server.vercel.app/api/musics"
-local data = game:HttpGet(url)
-local ids = HttpService:JSONDecode(data)
-Listaid = ids
+
+
+
+
+
+-- URLs da API
+local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
+local API_URL_Obj = "https://animal-simulator-server.vercel.app/api/musics_obj"
+local API_URL_Obj_Lua = "https://animal-simulator-server.vercel.app/api/musics_obj_lua"
+
+-- Função genérica para buscar de qualquer endpoint
+local function GetFromAPI(url)
+	local success, result = pcall(function()
+		local response = game:HttpGet(url)
+		return HttpService:JSONDecode(response)
+	end)
+
+	if success then
+		print("✅ Dados carregados da API:", url, "Total:", #result)
+		return result
+	else
+		warn("⚠️ Erro ao buscar dados da API:", url, result)
+		return {}
+	end
+end
+
+local function GetObjFromAPI(url)
+	local success, result = pcall(function()
+		local response = game:HttpGet(url)
+		local data = HttpService:JSONDecode(response)
+
+		-- Garante que cada item tenha chaves Name e Obj no formato correto
+		local list = {}
+		for _, item in pairs(data) do
+			table.insert(list, {
+				Name = tostring(item.Name),
+				Obj = tostring(item.Obj)
+			})
+		end
+
+		return list
+	end)
+
+	if success then
+		print("✅ Dados carregados da API:", url, "Total:", #result)
+		return result
+	else
+		warn("⚠️ Erro ao buscar dados da API:", url, result)
+		return {}
+	end
+end
+
+-- 🔹 Busca as duas listas
+local Listaid = GetFromAPI(API_URL)
+local listMusics = {}
+
+
+
+local success, result = pcall(function()
+	local response = game:HttpGet(API_URL_Obj_Lua)
+	task.wait(0.5)
+	return loadstring(response)() 
+end)
+
+if success and type(result) == "table" then
+	listMusics = result
+	print("✅ Músicas carregadas da API:", #listMusics)
+else
+	warn("⚠️ Falha ao carregar músicas da API, usando lista padrão.")
+	listMusics = {
+		{name = "Nill", Obj = 0},
+	}
+end
+
+
+
 -- Carrega o módulo Regui
 local Regui
 -- 1️⃣ Tenta carregar localmente
@@ -338,22 +410,34 @@ end)
 
 
 -- Função para criar a lista de nomes
-local function getnamesbox(list)
-	local newList = {}
+function getnamesbox(list)
+	local existingIds = {}
 
+	-- Marca todos os IDs já existentes em listMusics
+	for _, music in ipairs(listMusics) do
+		existingIds[music.Obj] = true
+	end
+
+	-- Processa novos IDs, evitando duplicatas
 	for _, id in ipairs(list) do
-		local success, info = pcall(function()
-			return MarketplaceService:GetProductInfo(id)
-		end)
+		if not existingIds[tostring(id)] then
+			local success, info = pcall(function()
+				return MarketplaceService:GetProductInfo(id)
+			end)
 
-		if success and info then
-			table.insert(newList, {name = info.Name, Obj = tostring(id)})
-		else
-			table.insert(newList, {name = "???", Obj = tostring(id)})
+			local newMusic = {}
+			if success and info then
+				newMusic = {name = info.Name, Obj = tostring(id)}
+			else
+				newMusic = {name = "???", Obj = tostring(id)}
+			end
+
+			table.insert(listMusics, newMusic)        -- adiciona direto na lista principal
+			existingIds[tostring(id)] = true          -- marca como existente
 		end
 	end
 
-	return newList
+	return listMusics -- retorna a lista atualizada
 end
 
 -- Preenche a lista
@@ -373,5 +457,3 @@ task.spawn(function()
 	end)
 	Loading = false
 end)
-
-
