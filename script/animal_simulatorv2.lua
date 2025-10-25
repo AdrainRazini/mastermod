@@ -95,26 +95,31 @@ end
 -- URL da API (sem repetições de variável)
 local HttpService = game:GetService("HttpService")
 
--- URL da API (defina antes de usar)
+-- URLs da API
 local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
+local API_URL_Obj = "https://animal-simulator-server.vercel.app/api/musics_obj"
 
--- Função que busca e retorna a lista de IDs
-local function GetIds()
+-- Função genérica para buscar de qualquer endpoint
+local function GetFromAPI(url)
 	local success, result = pcall(function()
-		local response = game:HttpGet(API_URL)
+		local response = game:HttpGet(url)
 		return HttpService:JSONDecode(response)
 	end)
 
 	if success then
-		print("Foram carregados " .. #result .. " IDs da API.")
+		print("✅ Dados carregados da API:", url, "Total:", #result)
 		return result
 	else
-		warn("Erro ao buscar IDs da API:", result)
-		return {} -- Retorna lista vazia em caso de erro
+		warn("⚠️ Erro ao buscar dados da API:", url, result)
+		return {}
 	end
 end
 
-Listaid = GetIds()
+-- 🔹 Busca as duas listas
+local Listaid = GetFromAPI(API_URL)
+local listMusics = GetFromAPI(API_URL_Obj)
+
+print("IDs:", #Listaid, "| Músicas:", #listMusics)
 
 
 -- REMOTES
@@ -2378,153 +2383,7 @@ local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "--------------
 
 
 
--- Lista com nome e ID
-local listMusics = {
-	{name = "Stop", Obj = "0"},
-	{name = "MONTAGEM PODER IV (SLOWED)", Obj = "91233243522140"},
-	{name = "BRAZILIAN DRIFT MUSIC", Obj = "116874163291138"},
-	{name = "Montagem Tomada", Obj = "114727662968481"},
-	{name = "Mente ma", Obj = "98337901681441"},
-	{name = "Red Chains", Obj = "102402883551679"},
-	{name = "SHADOWS", Obj = "122761529841977"},
-	{name = "Cool", Obj = "87909146687252"},
-	{name = "BAD", Obj = "127512475318182"},
-	{name = "BEM SOLTO BRAZIL!", Obj = "119936139925486"},
-	{name = "AMOGUS.BABOBOI JUMPSTYLE", Obj = "105854178411388"},
-	{name = "Winter", Obj = "87233041213837"},
-	{name = "Montagem Primo", Obj = "121516877792091"},
-	{name = "jumpstyle", Obj = "85833437298815"},
-	{name = "Ghost Fight (Hard Bounce Flip)", Obj = "94494416095572"},
-	{name = "A Engimatical Encounter", Obj = "115656438192853"},
-	{name = "stronger than ya chara response", Obj = "96357207714662"},
-	{name = "ASGORE", Obj = "107986977620509"},
-	{name = "the skeletons last breath", Obj = "101378669026310"},
-	{name = "Hammer of Justice", Obj = "109606503605402"},
-	{name = "LIT!", Obj = "112512564227744"},
-	{name = "Empina na onda (feito por keven)", Obj = "104621031886653"},
-	{name = "MTG MIND GAME", Obj = "83914052148279"},
-	{name = "The World Between Us", Obj = "117236780703437"},
-	{name = "Toque Phonk", Obj = "81552567379452"},
-	{name = "FUNK ALL THE TIME", Obj = "123809083385992"},
-	{name = "No Era Amor", Obj = "112748273890049"},
-	{name = "unleaked bypassed song", Obj = "137155874195108"},
-	{name = "crazy-lol (XL & NGI)", Obj = "106958630419629"},
-	{name = "SAD!", Obj = "72320758533508"},
-	{name = "shawty", Obj = "127063071194532"},
-	{name = "KATANAZ!", Obj = "139667113842953"},
-	{name = "Montagem Mysterious", Obj = "90627119202018"},
-	{name = "melodia de verão (tiktok edit)", Obj = "118507373399694"},
-	{name = "MONTAGEM ECLIPSE ESTELAR", Obj = "93058983119992"},
-	{name = "100℅ Forrozin De Vaquejada Tema Dj Raimundo Pedras", Obj = "92295159623916"},
-	{name = "aw YEA", Obj = "139218946376655"},
-	{name = "pisada XL 2", Obj = "97567416166163"},
-	{name = "Fat Rat", Obj = "106732317934236"},
-	{name = "Kerosene", Obj = "17647322226"},
-	{name = "MONTAGEM ELECTRONICA - Mega slowed", Obj = "132517043416676"},
-	{name = "Din1c - can you", Obj = "15689448519"},
-	{name = "Lil Kuudere, sukoyomi - Alone", Obj = "16190782786"},
-	{name = "You Ain't Hot Enough", Obj = "1837006787"},
-	{name = "Tired Of You", Obj = "1837014531"},
-	{name = "Embora", Obj = "131847084942844"},
-	{name = "pai", Obj = "95046091312570"},
-	{name = "PASSO BEM SOLTO SUBMUNDO", Obj = "111318048787674"},
-	{name = "So clean", Obj = "93958751571254"},
-	{name = "Stray", Obj = "120102995443063"},
-	{name = "MONTAGEM BANDIDO 2.0", Obj = "120138115344262"},
-	{name = "Tele", Obj = "104575671082804"},
-	{name = "GATINHA", Obj = "131689610122547"},
-	{name = "0to8,1xmxxd - stop posting about baller - sped up", Obj = "13530439660"},
-	{name = "SAKU - GTA (Nightcore)", Obj = "14366981664"},
-	{name = "Prismo - Solo", Obj = "16831107981"},
-	{name = "MONTAGEM SUCESSO", Obj = "129112111571462"},
-	{name = "Din1c - Dionic 2", Obj = "15689445424"},
-	{name = "jugsta - skeletons", Obj = "15689450026"},
-	{name = "MORTAL", Obj = "126713629899826"},
-	{name = "Dopamine Rat", Obj = "77766610441787"},
-	{name = "d3r, m1v, asteria - no escape", Obj = "18841891575"},
-	{name = "CUTEMAKMAKFUNK (Slowed)", Obj = "120871403922972"},
-	{name = "The Flames On Fire", Obj = "95554192381753"},
-	{name = "edit", Obj = "126372814380356"},
-	{name = "MONTAGEM SKY HIGH", Obj = "123517126955383"},
-	{name = "RITMO SELVAGEM", Obj = "105102042077619"},
-	{name = "OFFLINE", Obj = "92715012838361"},
-	{name = "A última chance", Obj = "84053362849165"},
-	{name = "bing", Obj = "75146085667327"},
-	{name = "Cute cat music audio", Obj = "86511617909610"},
-	{name = "nMisaki - Dubidubidu (Uptempo Remix)", Obj = "16190783444"},
-	{name = "Schnuffel", Obj = "100697759026652"},
-	{name = "FUNK DANCE OF EPHORIA LA LA!", Obj = "127868004681532"},
-	{name = "Jumpstyle", Obj = "1839246711"},
-	{name = "Dark Night", Obj = "103504594968244"},
-	{name = "I need you", Obj = "80946196913756"},
-	{name = "MOMENTS", Obj = "93751275110337"},
-	{name = "Underworld", Obj = "109840843335222"},
-	{name = "dark_mov", Obj = "110035574248336"},
-	{name = "introduce", Obj = "104567749101480"},
-	{name = "d3r - love bomb", Obj = "18841888868"},
-	{name = "no feelinngs", Obj = "85075816659415"},
-	{name = "Funk Sigcuro (Ultra Slowed)", Obj = "96028783423401"},
-	{name = "tomagi mo tão Anime ver.", Obj = "125200420795517"},
-	{name = "MTG ZUM ZUM ZUM VIRAL FUNK BH", Obj = "92446612272052"},
-	{name = "Minha Estória (Musica Oficial)", Obj = "107683146338584"},
-	{name = "Batidão na Aldeia (Musica Oficial)", Obj = "79953696595578"},
-	{name = "Eu Duvido (Musica Oficial)", Obj = "129212629624727"},
-	{name = "SOLDIER", Obj = "87554448466409"},
-	{name = "my phone", Obj = "121489264497741"},
-	{name = "MONTAGEM RENICHT CALAMITY [LOOP}", Obj = "70961757130479"},
-	{name = "National Anthem of the U.S.S.R.", Obj = "97413868131214"},
-	{name = "swurve swurving", Obj = "93245387354226"},
-	{name = "CAR CRUSHERS 2 FUNK", Obj = "72444649335619"},
-	{name = "For the Summer", Obj = "1837111443"},
-	{name = "Pixel Terror & EMELINE - Chroma", Obj = "5410084802"},
-	{name = "yoy799 she loves me", Obj = "103524199324615"},
-	{name = "okay tyler", Obj = "127219133263020"},
-	{name = "Schnuffel", Obj = "100697759026652"},
-	{name = "WannaBeHer", Obj = "120885023497936"},
-	{name = "Snavs - Us", Obj = "5410082468"},
-	{name = "On Top Of The World", Obj = "1836847994"},
-	{name = "UNFORESEEABLE", Obj = "71392021424658"},
-	{name = "Auto toma", Obj = "86685635786943"},
-	{name = "Pancadão", Obj = "76312991186384"},
-	{name = "montagem Celestial", Obj = "81700399219236"},
-	{name = "montagem pose", Obj = "88339486019486"}, 
-    {name = "Seguuura", Obj = "96974354995715"}, 
-	{name = "Fininha", Obj = "139693447546059"},
-	{name = "Embora", Obj = "131847084942844"},
-	{name = "montagem do silvio", Obj = "104828343009296"},
-	{name = "lump lumps", Obj = "111564073986749"}, -- Adn 3
-	{name = "505 timess", Obj = "85994915142182"}, 
-	{name = "Mutilation 1.4", Obj = "99128910197696"}, -- Adn 4
-    {name = "cinema", Obj = "135690618125311"}, 
-    {name = "LOGOKIDS Prismz", Obj = "105633366460252"},
-	{name = "out of legaue", Obj = "113324443761127"}, 
-	{name = "klnoLOZ303", Obj = "105423792227242"}, 
-	{name = "scary", Obj = "71956674693421"},
-	{name = "Who's So Autonomous?", Obj = "120785124326826"},  
-	{name = "MorningLight☆GrayArea☆ホームページタイマー", Obj = "126257401176561"},
-	{name = "V2 daquela", Obj = "132082397247824"}, -- Adn 6
-	{name = "Boss Fight!", Obj = "78744747224727"}, 
-	{name = "I Know!", Obj = "77188110491285"}, 
-	{name = "VITRIOL", Obj = "87658459636001"}, 
-	{name = "//MACH:BREAKER", Obj = "108710061480904"},  
-	{name = "AS ABOVE, SO BELOW", Obj = "123580060732562"}, 
-	{name = "Black Knife", Obj = "104449595639237"},  
-	{name = "DOOM ETERNAL", Obj = "97557092981429"},
-	{name = "Cold Cannon", Obj = "74312901272425"},  
-	{name = "Gothic Song", Obj = "75982342509801"}, 
-	{name = "Forsaken Dominion", Obj = "75805949198978"}, 
-	{name = "Remember the Soul", Obj = "113184121463834"}, 
-	{name = "RAGE SYSTEM", Obj = "122127808613347"}, 
-	{name = "D.A.D.", Obj = "110772573905578"},  
-	{name = "She's So Dumb", Obj = "1836654054"}, 
-	{name = "The Flames On Fire", Obj = "95554192381753"},
-	{name = "HALLOWEEN FUNK", Obj = "139834501955751"}, 
-	{name = "Phonk da Rua", Obj = "104596909675653"},  
-	{name = "SAVAGE GHOST SLOWED Phonk (Super Slowed)", Obj = "72811197789142"}, 
-	{name = "Wheels Of Madness", Obj = "1836789357"},  
-	{name = "Never Grow Up", Obj = "1836654190"},  
-	{name = "Smooth Time", Obj = "123229005251213"},
-}
+
 
 
 
