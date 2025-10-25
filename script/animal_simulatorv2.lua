@@ -103,7 +103,9 @@ local API_URL_Obj = "https://animal-simulator-server.vercel.app/api/musics_obj"
 local function GetFromAPI(url)
 	local success, result = pcall(function()
 		local response = game:HttpGet(url)
-		return HttpService:JSONDecode(response)
+		local decoded = HttpService:JSONDecode(response)
+		-- Se vier dentro de "data", pega só ela
+		return decoded.data or decoded
 	end)
 
 	if success then
@@ -114,6 +116,7 @@ local function GetFromAPI(url)
 		return {}
 	end
 end
+
 
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
