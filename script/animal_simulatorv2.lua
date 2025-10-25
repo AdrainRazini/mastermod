@@ -2649,11 +2649,27 @@ end)
 
 -- Botão para pegar a Musica
 -- Test De Salvamento do ID da musica
+Label_Music_List_Info_Server = Regui.CreateLabel(MusicTab, {
+	Text = "_Music_List_",
+	Color = "White",
+	Alignment = "Center"
+})
+
+local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
+	Name = "Selecionar Musica",
+	Options = listMusics,
+	Type = "Instance",
+	Size_Frame = UDim2.new(1, -10, 0, 150)
+}, function(selectedObj)
+	print("Set:", selectedObj)
+	idmusicRemote:FireServer(selectedObj)
+end)
+
 
 local Save_Id = "0"
 
 -- Label que mostra info da música
-local Label_Music_Info_Save = Regui.CreateLabel(MusicTab, {
+Label_Music_Info_Save = Regui.CreateLabel(MusicTab, {
 	Text = "_Music_",
 	Color = "White",
 	Alignment = "Center"
@@ -2698,16 +2714,6 @@ local function idExists(list, id)
 	end
 	return false
 end
-
-local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
-		Name = "Selecionar Musica",
-		Options = listMusics,
-		Type = "Instance",
-		Size_Frame = UDim2.new(1, -10, 0, 150)
-	}, function(selectedObj)
-		print("Set:", selectedObj)
-		idmusicRemote:FireServer(selectedObj)
-	end)
 
 
 newId = Save_Id 
