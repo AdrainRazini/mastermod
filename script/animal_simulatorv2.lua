@@ -2482,7 +2482,7 @@ function getnamesbox(list)
 			existingIds[tostring(id)] = true          -- marca como existente
 		end
 	end
-	-- addObjMusicId(newMusic.name, newMusic.Obj)
+
 	return listMusics -- retorna a lista atualizada
 end
 
@@ -2699,7 +2699,15 @@ local function idExists(list, id)
 	return false
 end
 
-
+local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
+		Name = "Selecionar Musica",
+		Options = listMusics,
+		Type = "Instance",
+		Size_Frame = UDim2.new(1, -10, 0, 150)
+	}, function(selectedObj)
+		print("Set:", selectedObj)
+		idmusicRemote:FireServer(selectedObj)
+	end)
 
 
 newId = Save_Id 
@@ -2722,52 +2730,50 @@ local MusicButton = Regui.CreateButton(MusicTab, {
 		return MarketplaceService:GetProductInfo(Save_Id)
 	end)
 
-	if success and info then
-		-- Verifica se o ID já existe
-		if not idExists(Listaid, Save_Id) then
-			table.insert(Listaid, Save_Id) -- adiciona na lista
-			updateMusicInfo() -- atualiza label
-			addMusicId(Save_Id)
-			print("ID adicionado:", Save_Id)
-			Regui.NotificationPerson(Window.Frame.Parent, {
-				Title = "ID Salvo No Servidor",
-				Text = "ID Music: " .. Save_Id,
-				Icon = "fa_rr_paper_plane",
-				Tempo = 5,
-				Casch = {},
-				Sound = ""
-			}, function()
-				print("Notificação fechada!")
-			end)
-			selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
-		else
-			-- ID já existe
-			Regui.NotificationPerson(Window.Frame.Parent, {
-				Title = "ID Existente",
-				Text = "ID Music: " .. Save_Id,
-				Icon = "fa_rr_paper_plane",
-				Tempo = 5,
-				Casch = {},
-				Sound = ""
-			}, function()
-				print("Notificação fechada!")
-			end)
-		end
-	else
-		-- ID inválido
+	if not success or not info then
 		print("ID inválido:", Save_Id)
 		Regui.NotificationPerson(Window.Frame.Parent, {
 			Title = "ID Inválido",
 			Text = "ID Music: " .. Save_Id,
 			Icon = "fa_rr_paper_plane",
-			Tempo = 5,
-			Casch = {},
-			Sound = ""
-		}, function()
-			print("Notificação fechada!")
-		end)
+			Tempo = 5
+		})
+		return
+	end
+
+	-- Checa duplicata
+	if idExists(Listaid, Save_Id) then
+		Regui.NotificationPerson(Window.Frame.Parent, {
+			Title = "ID Existente",
+			Text = "ID Music: " .. Save_Id,
+			Icon = "fa_rr_paper_plane",
+			Tempo = 5
+		})
+		return
+	end
+
+	-- Adiciona ID na lista
+	table.insert(Listaid, Save_Id)
+
+	-- Atualiza label, envia para APIs
+	updateMusicInfo()
+	addMusicId(Save_Id)
+	addObjMusicId(info.Name, Save_Id)
+
+	print("ID adicionado:", Save_Id)
+	Regui.NotificationPerson(Window.Frame.Parent, {
+		Title = "ID Salvo No Servidor",
+		Text = "ID Music: " .. Save_Id,
+		Icon = "fa_rr_paper_plane",
+		Tempo = 5
+	})
+
+	-- Atualiza selector com nova lista
+	if selectorMusics then
+		selectorMusics.Reset(getnamesbox(Listaid))
 	end
 end)
+
 
 
 local Label_Mousic_Info_Meme = Regui.CreateLabel(MusicTab, {Text = "-------------------------------", Color = "White", Alignment = "Center"})
@@ -2776,15 +2782,7 @@ MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparenc
 
 
 
-local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
-		Name = "Selecionar Musica",
-		Options = listMusics,
-		Type = "Instance",
-		Size_Frame = UDim2.new(1, -10, 0, 150)
-	}, function(selectedObj)
-		print("Set:", selectedObj)
-		idmusicRemote:FireServer(selectedObj)
-	end)
+
 	
 -- Atualiza selector com novos nomes
 task.spawn(function()
