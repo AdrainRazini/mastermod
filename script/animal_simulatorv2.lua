@@ -144,24 +144,23 @@ end
 
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
-
--- Carrega músicas com proteção e delay
 local listMusics = {}
 
 local success, result = pcall(function()
 	local response = game:HttpGet(API_URL_Obj_Lua)
-	task.wait(0.5) 
-	return loadstring(response)() -- transforma em tabela Lua
+	task.wait(0.5)
+	return loadstring(response)() 
 end)
 
 if success and type(result) == "table" then
 	listMusics = result
-	print("✅ Músicas carregadas:", #listMusics)
+	print("✅ Músicas carregadas da API:", #listMusics)
 else
-	warn("⚠️ Falha ao carregar músicas da API:", result)
-	listMusics = {}
+	warn("⚠️ Falha ao carregar músicas da API, usando lista padrão.")
+	listMusics = {
+		{name = "Nill", Obj = 0},
+	}
 end
-  
 
 
 
