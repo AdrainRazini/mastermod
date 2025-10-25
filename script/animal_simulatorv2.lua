@@ -2414,7 +2414,49 @@ local Label_Game_Set_Music = Regui.CreateLabel(MusicTab, {Text = "--------------
 
 
 
--- Função que retorna nomes para o selector e atualiza listMusics automaticamente
+
+-- Função unificada para compatibilidade com vários executores
+local function getRequest()
+	return (syn and syn.request)
+		or (http and http.request)
+		or (http_request)
+		or (fluxus and fluxus.request)
+		or (request)
+end
+
+-- Função para adicionar música completa (nome + Obj) via requisição HTTP
+function addObjMusicId(name, id)
+	local requestFunc = getRequest()
+
+	if not requestFunc then
+		warn("❌ Executor não suporta requisições HTTP.")
+		return
+	end
+
+	local HttpService = game:GetService("HttpService")
+	local data = HttpService:JSONEncode({ name = name, Obj = id })
+
+	local success, response = pcall(function()
+		return requestFunc({
+			Url = API_URL_Obj,  -- URL da API de objetos
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json"
+			},
+			Body = data
+		})
+	end)
+
+	if success and response and response.Success then
+		print("✅ Música adicionada com sucesso:", name, "| Obj:", id)
+		print("📩 Resposta do servidor:", response.Body)
+	else
+		warn("❌ Falha ao enviar música:", name, "| Obj:", id)
+		warn("Detalhes:", response and response.Body or response)
+	end
+end
+
+
 function getnamesbox(list)
 	local existingIds = {}
 
@@ -2439,11 +2481,44 @@ function getnamesbox(list)
 
 			table.insert(listMusics, newMusic)        -- adiciona direto na lista principal
 			existingIds[tostring(id)] = true          -- marca como existente
+
+			-- 🔹 envia para a API
+			addObjMusicId(newMusic.name, newMusic.Obj)
 		end
 	end
 
 	return listMusics -- retorna a lista atualizada
 end
+
+-- Função para adicionar ID via requisição HTTP
+function addMusicId(id)
+	local requestFunc = getRequest()
+
+	if not requestFunc then
+		warn("❌ Executor não suporta requisições HTTP.")
+		return
+	end
+
+	local data = game:GetService("HttpService"):JSONEncode({ id = id })
+
+	local response = requestFunc({
+		Url = API_URL,
+		Method = "POST",
+		Headers = {
+			["Content-Type"] = "application/json"
+		},
+		Body = data
+	})
+
+	if response and response.Success then
+		print("✅ ID adicionado com sucesso:", id)
+		print("📩 Resposta do servidor:", response.Body)
+	else
+		warn("❌ Erro ao enviar ID:", response and response.StatusCode or "Desconhecido")
+		warn("Detalhes:", response and response.Body)
+	end
+end
+
 
 
 
@@ -2645,43 +2720,6 @@ end
 
 newId = Save_Id 
 
--- Função unificada para compatibilidade com vários executores
-local function getRequest()
-	return (syn and syn.request)
-		or (http and http.request)
-		or (http_request)
-		or (fluxus and fluxus.request)
-		or (request)
-end
-
--- Função para adicionar ID via requisição HTTP
-function addMusicId(id)
-	local requestFunc = getRequest()
-
-	if not requestFunc then
-		warn("❌ Executor não suporta requisições HTTP.")
-		return
-	end
-
-	local data = game:GetService("HttpService"):JSONEncode({ id = id })
-
-	local response = requestFunc({
-		Url = API_URL,
-		Method = "POST",
-		Headers = {
-			["Content-Type"] = "application/json"
-		},
-		Body = data
-	})
-
-	if response and response.Success then
-		print("✅ ID adicionado com sucesso:", id)
-		print("📩 Resposta do servidor:", response.Body)
-	else
-		warn("❌ Erro ao enviar ID:", response and response.StatusCode or "Desconhecido")
-		warn("Detalhes:", response and response.Body)
-	end
-end
 
 -- Botão de salvar
 local MusicButton = Regui.CreateButton(MusicTab, {
