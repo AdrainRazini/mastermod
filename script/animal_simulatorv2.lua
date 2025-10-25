@@ -100,12 +100,25 @@ local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
 local API_URL_Obj = "https://animal-simulator-server.vercel.app/api/musics_obj"
 
 -- Função genérica para buscar de qualquer endpoint
+local function ParseLuaTable(luaText)
+	local list = {}
+	for name, obj in luaText:gmatch('{Name%s-=%s-"(.-)",%s-Obj%s-=%s-(%d+)}') do
+		table.insert(list, { Name = name, Obj = tonumber(obj) })
+	end
+	return list
+end
+
 local function GetFromAPI(url)
 	local success, result = pcall(function()
 		local response = game:HttpGet(url)
-		local decoded = HttpService:JSONDecode(response)
-		-- Se vier dentro de "data", pega só ela
-		return decoded.data or decoded
+		-- Detecta se é JSON ou Lua
+		if response:sub(1, 1) == "[" then
+			-- JSON válido
+			return HttpService:JSONDecode(response)
+		else
+			-- Lua-style
+			return ParseLuaTable(response)
+		end
 	end)
 
 	if success then
@@ -116,6 +129,7 @@ local function GetFromAPI(url)
 		return {}
 	end
 end
+
 
 
 -- 🔹 Busca as duas listas
