@@ -143,10 +143,10 @@ end
 
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
-local listMusics = {} --GetFromAPI(API_URL_Obj)
-Teste_ble = GetObjFromAPI(API_URL_Obj)
+local listMusics = GetObjFromAPI(API_URL_Obj)
+--Teste_ble = GetObjFromAPI(API_URL_Obj)
 
-print("IDs:", #Listaid, "| Músicas:", #Teste_ble)
+print("IDs:", #Listaid, "| Músicas:", #listMusics)
 
 
 -- REMOTES
