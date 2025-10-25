@@ -115,11 +115,38 @@ local function GetFromAPI(url)
 	end
 end
 
+local function GetObjFromAPI(url)
+	local success, result = pcall(function()
+		local response = game:HttpGet(url)
+		local data = HttpService:JSONDecode(response)
+
+		-- Garante que cada item tenha chaves Name e Obj no formato correto
+		local list = {}
+		for _, item in pairs(data) do
+			table.insert(list, {
+				Name = tostring(item.Name),
+				Obj = tostring(item.Obj)
+			})
+		end
+
+		return list
+	end)
+
+	if success then
+		print("✅ Dados carregados da API:", url, "Total:", #result)
+		return result
+	else
+		warn("⚠️ Erro ao buscar dados da API:", url, result)
+		return {}
+	end
+end
+
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
 local listMusics = {} --GetFromAPI(API_URL_Obj)
+Teste_ble = GetObjFromAPI(API_URL_Obj)
 
-print("IDs:", #Listaid, "| Músicas:", #listMusics)
+print("IDs:", #Listaid, "| Músicas:", #Teste_ble)
 
 
 -- REMOTES
