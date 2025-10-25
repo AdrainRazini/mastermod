@@ -2480,12 +2480,9 @@ function getnamesbox(list)
 
 			table.insert(listMusics, newMusic)        -- adiciona direto na lista principal
 			existingIds[tostring(id)] = true          -- marca como existente
-
-			-- 🔹 envia para a API
-			addObjMusicId(newMusic.name, newMusic.Obj)
 		end
 	end
-
+	-- addObjMusicId(newMusic.name, newMusic.Obj)
 	return listMusics -- retorna a lista atualizada
 end
 
