@@ -93,28 +93,44 @@ end
 
 
 -- URL da API (sem repetições de variável)
+-- Serviço Roblox
 local HttpService = game:GetService("HttpService")
 
 -- URLs da API
 local API_URL = "https://animal-simulator-server.vercel.app/api/musics"
 local API_URL_Obj = "https://animal-simulator-server.vercel.app/api/musics_obj"
 
--- Função genérica para buscar de qualquer endpoint
+-- Função para ler formato Lua retornado pela API
 local function ParseLuaTable(luaText)
 	local list = {}
-	for name, obj in luaText:gmatch('{Name%s-=%s-"(.-)",%s-Obj%s-=%s-(%d+)}') do
-		table.insert(list, { Name = name, Obj = tonumber(obj) })
+
+	-- Captura formato: {Name = "Nome", Obj = 123456}
+	for name, obj in luaText:gmatch('{%s*Name%s*=%s*"([^"]+)"%s*,%s*Obj%s*=%s*(%d+)%s*}') do
+		table.insert(list, {
+			Name = name,
+			Obj = tonumber(obj) or 0 -- 🔹 força para número
+		})
 	end
+
 	return list
 end
 
+-- Função genérica para buscar dados da API
 local function GetFromAPI(url)
 	local success, result = pcall(function()
 		local response = game:HttpGet(url)
-		-- Detecta se é JSON ou Lua
-		if response:sub(1, 1) == "[" then
+
+		-- Detecta se é JSON ou Lua-format
+		if response:find('{"') or response:find('%[') then
 			-- JSON válido
-			return HttpService:JSONDecode(response)
+			local decoded = HttpService:JSONDecode(response)
+
+			-- Garante que Obj seja número (caso a API envie string)
+			for _, music in ipairs(decoded) do
+				music.Obj = tonumber(music.Obj) or 0
+			end
+
+			return decoded
 		else
 			-- Lua-style
 			return ParseLuaTable(response)
@@ -130,11 +146,12 @@ local function GetFromAPI(url)
 	end
 end
 
-
-
 -- 🔹 Busca as duas listas
 local Listaid = GetFromAPI(API_URL)
 local listMusics = GetFromAPI(API_URL_Obj)
+
+print("IDs:", #Listaid, "| Músicas:", #listMusics)
+
 
 print("IDs:", #Listaid, "| Músicas:", #listMusics)
 
@@ -2735,12 +2752,12 @@ MemeBacon = Regui.CreateImage(MusicTab, {Name = "Meme (Noob anime)", Transparenc
 --local MemeBombox = Regui.CreateImage(MusicTab, {Name = "Meme (Bombox)", Transparence = 1, Alignment = "Center", Id_Image = "rbxassetid://114187709278379", Size_Image = UDim2.new(0, 50, 0, 75)  })
 
 
---[[
+--
 task.spawn(function(v)
 	local boxs = getnamesbox(Listaid)
-	selectorMusics.Reset(getnamesbox(Listaid)) -- atualiza selector
+	selectorMusics.Reset(getnamesbox(boxs)) -- atualiza selector
 end)
-]]
+
 
 
 
