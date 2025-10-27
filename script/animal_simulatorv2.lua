@@ -2034,7 +2034,7 @@ local GiveTeleportTool = Regui.CreateButton(ToolsTab, {
 	BGColor = "Button",
 	TextSize = 16
 }, function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/teleporttool.lua"))()
+	loadstring(game:HttpGet("https://animal-simulator-server.vercel.app/lua/Tool_Tp.lua"))()
 end)
 
 local GiveTeleportTool_Icon = Regui.CreateImage(GiveTeleportTool, {
@@ -2060,7 +2060,7 @@ local GiveFly_Gui = Regui.CreateButton(ToolsTab, {
 	BGColor = "Button",
 	TextSize = 16
 }, function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AdrainRazini/mastermod/refs/heads/main/script/flygui.lua"))()
+	loadstring(game:HttpGet("https://animal-simulator-server.vercel.app/lua/flyGui.lua"))()
 end)
 
 local GiveFly_Gui_Icon = Regui.CreateImage(GiveFly_Gui, {
