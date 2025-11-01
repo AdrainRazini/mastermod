@@ -125,7 +125,7 @@ local function GetObjFromAPI(url)
 		local list = {}
 		for _, item in pairs(data) do
 			table.insert(list, {
-				Name = tostring(item.Name),
+				Name = tostring(item.name),
 				Obj = tostring(item.Obj)
 			})
 		end
@@ -159,6 +159,7 @@ else
 	warn("⚠️ Falha ao carregar músicas da API, usando lista padrão.")
 	listMusics = {
 		{name = "Nill", Obj = 0},
+
 	}
 end
 
@@ -2671,6 +2672,9 @@ Label_Music_List_Info_Server = Regui.CreateLabel(MusicTab, {
 	Alignment = "Center"
 })
 
+local Conect_selector
+
+-- Criação do seletor primeiro
 local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 	Name = "Selecionar Musica",
 	Options = listMusics,
@@ -2679,6 +2683,37 @@ local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
 }, function(selectedObj)
 	print("Set:", selectedObj)
 	idmusicRemote:FireServer(selectedObj)
+end)
+
+Conect_selector = selectorMusics
+
+Label_Music_Pesquise = Regui.CreateLabel(MusicTab, {
+	Text = "_Pesquise_Music_List_",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Agora cria o Input de pesquisa
+Input_Text_Pesquise = Regui.CreateTextBox(MusicTab, {
+	Placeholder = "Pesquise Name ...",
+	Color = "White",
+	BGColor = "DarkGray",
+	Size = UDim2.new(1, -10, 0, 30)
+}, function(val)
+	if selectorMusics and selectorMusics.Reset then
+		if val == "" then
+			selectorMusics.Reset(listMusics)
+		else
+			local filtradas = {}
+			for _, opt in ipairs(listMusics) do
+				local nome = string.lower(opt.name or tostring(opt))
+				if string.find(nome, string.lower(val)) then
+					table.insert(filtradas, opt)
+				end
+			end
+			selectorMusics.Reset(filtradas)
+		end
+	end
 end)
 
 
