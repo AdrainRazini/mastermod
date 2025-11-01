@@ -2533,18 +2533,56 @@ function addMusicId(id)
 end
 
 
+local Conect_selector
 
 
-
--- Botão para pegar a Fireball manual
-Music_Gui = Regui.CreateButton(MusicTab, {
-	Text = "Music_Gui",
+Label_Music_Pesquise = Regui.CreateLabel(MusicTab, {
+	Text = "_Pesquise_Music_List_",
 	Color = "White",
-	BGColor = "Button",
-	TextSize = 16
-}, function()
-	loadstring(game:HttpGet("https://animal-simulator-server.vercel.app/lua/Music_ids.lua"))() 
+	Alignment = "Center"
+})
+
+-- Agora cria o Input de pesquisa
+Input_Text_Pesquise = Regui.CreateTextBox(MusicTab, {
+	Placeholder = "Pesquise Name ...",
+	Color = "White",
+	BGColor = "DarkGray",
+	Size = UDim2.new(1, -10, 0, 30)
+}, function(val)
+	if Conect_selector and Conect_selector.Reset then
+		if val == "" then
+			Conect_selector.Reset(listMusics)
+		else
+			local filtradas = {}
+			for _, opt in ipairs(listMusics) do
+				local nome = string.lower(opt.name or tostring(opt))
+				if string.find(nome, string.lower(val)) then
+					table.insert(filtradas, opt)
+				end
+			end
+			Conect_selector.Reset(filtradas)
+		end
+	end
 end)
+
+Label_Music_List_Info_Server = Regui.CreateLabel(MusicTab, {
+	Text = "_Music_List_",
+	Color = "White",
+	Alignment = "Center"
+})
+
+-- Criação do seletor primeiro
+local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
+	Name = "Selecionar Musica",
+	Options = listMusics,
+	Type = "Instance",
+	Size_Frame = UDim2.new(1, -10, 0, 150)
+}, function(selectedObj)
+	print("Set:", selectedObj)
+	idmusicRemote:FireServer(selectedObj)
+end)
+
+Conect_selector = selectorMusics
 
 local Visor = false
 local ActiveBoards = {} -- armazenamento das GUIs criadas
@@ -2664,58 +2702,18 @@ end)
 --=======================--
 
 
--- Botão para pegar a Musica
--- Test De Salvamento do ID da musica
-Label_Music_List_Info_Server = Regui.CreateLabel(MusicTab, {
-	Text = "_Music_List_",
+
+
+
+-- Botão para pegar a Fireball manual
+Music_Gui = Regui.CreateButton(MusicTab, {
+	Text = "Music_Gui",
 	Color = "White",
-	Alignment = "Center"
-})
-
-local Conect_selector
-
--- Criação do seletor primeiro
-local selectorMusics = Regui.CreateSelectorOpitions(MusicTab, {
-	Name = "Selecionar Musica",
-	Options = listMusics,
-	Type = "Instance",
-	Size_Frame = UDim2.new(1, -10, 0, 150)
-}, function(selectedObj)
-	print("Set:", selectedObj)
-	idmusicRemote:FireServer(selectedObj)
+	BGColor = "Button",
+	TextSize = 16
+}, function()
+	loadstring(game:HttpGet("https://animal-simulator-server.vercel.app/lua/Music_ids.lua"))() 
 end)
-
-Conect_selector = selectorMusics
-
-Label_Music_Pesquise = Regui.CreateLabel(MusicTab, {
-	Text = "_Pesquise_Music_List_",
-	Color = "White",
-	Alignment = "Center"
-})
-
--- Agora cria o Input de pesquisa
-Input_Text_Pesquise = Regui.CreateTextBox(MusicTab, {
-	Placeholder = "Pesquise Name ...",
-	Color = "White",
-	BGColor = "DarkGray",
-	Size = UDim2.new(1, -10, 0, 30)
-}, function(val)
-	if selectorMusics and selectorMusics.Reset then
-		if val == "" then
-			selectorMusics.Reset(listMusics)
-		else
-			local filtradas = {}
-			for _, opt in ipairs(listMusics) do
-				local nome = string.lower(opt.name or tostring(opt))
-				if string.find(nome, string.lower(val)) then
-					table.insert(filtradas, opt)
-				end
-			end
-			selectorMusics.Reset(filtradas)
-		end
-	end
-end)
-
 
 local Save_Id = "0"
 
