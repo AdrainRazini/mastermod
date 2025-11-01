@@ -198,7 +198,7 @@ end
 
 
 
-local bossesList = {"Griffin","BOSSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla" }
+local bossesList = {"Griffin","BOSSBEAR","BOSSDEER","CENTAUR","CRABBOSS","DragonGiraffe","LavaGorilla","BOSSDINO" }
 -- Valor selecionado no selector
 
 local selectedBoss = "All" -- padrão: todos
