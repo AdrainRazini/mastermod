@@ -108,7 +108,7 @@ local chach = {
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "31/10/2025",
+		verdate = "15/11/2025",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
@@ -894,8 +894,10 @@ function chach.CreateTextBox(Scroll, list, callback)
 	local placeholder = list.Placeholder or "Type here..."
 	local textColor = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
 	local bgColor = chach.Colors[list.BGColor] or Color3.fromRGB(50,50,50)
+	local Auto_Translate = list.Translate or false
 
 	local textBox = Instance.new("TextBox")
+	textBox.Name = Auto_Translate and "Translate_On" or "Translate_Off"
 	textBox.Size = list.Size or UDim2.new(1, -10, 0, 30)
 	textBox.BackgroundColor3 = bgColor
 	textBox.BorderSizePixel = 0
@@ -1298,7 +1300,7 @@ end
 
 function chach.CreateSelectorOpitions(Scroll, list, callback)
 	local type_lb = list.Type or "Nil"
-
+    local Auto_Translate = list.Translate or false
 	-- Frame principal
 	local frame = Instance.new("Frame")
 	frame.Size = list.Size_Frame or UDim2.new(1,-10,0,30)
@@ -1351,6 +1353,7 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 			end
 
 			local btn = Instance.new("TextButton")
+			btn.Name = Auto_Translate and "Translate_On" or "Translate_Off"
 			btn.Size = UDim2.new(1,0,0,25)
 			btn.BackgroundColor3 = chach.Colors.Primary or Color3.fromRGB(70,70,70)
 			btn.TextColor3 = Color3.fromRGB(255,255,255)
