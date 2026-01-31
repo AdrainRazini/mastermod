@@ -150,7 +150,7 @@ local function applyUIListLayout(instance, padding, sortOrder, alignment)
 	list.Parent = instance
 
 	-- Padding entre elementos (UDim ou padrão 0)
-	list.Padding = padding or UDim.new(0, 0)
+	list.Padding = padding or UDim.new(0, 5)
 
 	-- Ordem dos elementos
 	list.SortOrder = sortOrder or Enum.SortOrder.LayoutOrder 
