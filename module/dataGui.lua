@@ -850,7 +850,7 @@ function chach.CreateImage(Scroll, list)
 	-- Corner
 	if list.Corner then
 		local corner = Instance.new("UICorner")
-		corner.CornerRadius = list.Corner
+		corner.CornerRadius = list.Corner or UDim.new(0, 8)
 		corner.Parent = imageLabel
 	end
 
