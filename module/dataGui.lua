@@ -104,16 +104,23 @@ local chach = {
 	Mod_UI = {
 		name = "Mod_Gui(Md)",
 		by = "Adrian75556435",
-		ver = "1.0.0",
+		ver = "1.5.0",
+		Adaptation = "Mode Menu for Game Script",
+		contributors = {
+			"@Nil",
+		},
+		testers = {
+			"@Nil",
+		},
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "15/11/2025",
+		verdate = "05/02/2026",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
 
-	
+
 }
 
 
@@ -150,7 +157,7 @@ local function applyUIListLayout(instance, padding, sortOrder, alignment)
 	list.Parent = instance
 
 	-- Padding entre elementos (UDim ou padrão 0)
-	list.Padding = padding or UDim.new(0, 5)
+	list.Padding = padding or UDim.new(0, 0)
 
 	-- Ordem dos elementos
 	list.SortOrder = sortOrder or Enum.SortOrder.LayoutOrder 
@@ -158,7 +165,6 @@ local function applyUIListLayout(instance, padding, sortOrder, alignment)
 	-- Alinhamento
 	list.HorizontalAlignment = alignment or Enum.HorizontalAlignment.Center
 end
-
 
 
 local function applyRotatingGradientUIStroke(instance, cor1, cor2, cor3)
@@ -191,9 +197,6 @@ local function applyRotatingGradientUIStroke(instance, cor1, cor2, cor3)
 		gradient.Rotation = angle
 	end)
 end
-
-
-
 
 
 function chach.applyAutoScrolling(instance, padding, alignment)
@@ -349,32 +352,32 @@ function chach.TabsWindow(list)
 	tabContainer.Position = UDim2.new(0, 0, 0, 60)
 	tabContainer.BackgroundTransparency = 1
 	tabContainer.Parent = frame
-	
-		-- Cria o botão
-		local Icon_Btn = Instance.new("ImageButton")
-		Icon_Btn.Visible = false
-		Icon_Btn.Name = "Icon_Btn"
-		Icon_Btn.Image = "rbxassetid://120181810700514"
-		Icon_Btn.Size = UDim2.new(0, 50, 0, 50)
-		Icon_Btn.Position = UDim2.new(0.05, 0, 0.15, 0)
-		Icon_Btn.BackgroundTransparency = 1
-		Icon_Btn.Parent = screenGui
 
-		-- Aplica bordas arredondadas (caso a função exista)
-		if chach and chach.applyCorner then
-			chach.applyCorner(Icon_Btn)
-		end
+	-- Cria o botão
+	local Icon_Btn = Instance.new("ImageButton")
+	Icon_Btn.Visible = false
+	Icon_Btn.Name = "Icon_Btn"
+	Icon_Btn.Image = "rbxassetid://92271549956158"
+	Icon_Btn.Size = UDim2.new(0, 50, 0, 50)
+	Icon_Btn.Position = UDim2.new(0.05, 0, 0.15, 0)
+	Icon_Btn.BackgroundTransparency = 1
+	Icon_Btn.Parent = screenGui
 
-		-- Aplica gradiente animado
-		if applyRotatingGradientUIStroke then
-			applyRotatingGradientUIStroke(Icon_Btn, "Purple", "Indigo", "Aqua")
-		end
+	-- Aplica bordas arredondadas (caso a função exista)
+	if chach and chach.applyCorner then
+		chach.applyCorner(Icon_Btn)
+	end
 
-		-- Torna o botão arrastável
-		if chach and chach.applyDraggable then
-			chach.applyDraggable(Icon_Btn, Icon_Btn)
-		end
-	
+	-- Aplica gradiente animado
+	if applyRotatingGradientUIStroke then
+		applyRotatingGradientUIStroke(Icon_Btn, "Purple", "Indigo", "Aqua")
+	end
+
+	-- Torna o botão arrastável
+	if chach and chach.applyDraggable then
+		chach.applyDraggable(Icon_Btn, Icon_Btn)
+	end
+
 
 
 	local minimized = false
@@ -705,7 +708,7 @@ function chach.NewsWindow(Scroll, list, callback)
 	frame.BackgroundTransparency = 1 -- começa invisível
 	frame.Parent = screenGui
 	chach.applyCorner(frame, UDim.new(0, 12))
-	
+
 
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.Size = UDim2.new(1, -15, 1, -20)
@@ -723,7 +726,7 @@ function chach.NewsWindow(Scroll, list, callback)
 	topBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	topBar.Parent = frame
 	chach.applyCorner(topBar, UDim.new(0, 12))
-	
+
 	-- Ícone de novidade
 	local icon = Instance.new("ImageLabel")
 	icon.Size = UDim2.new(0, 20, 0, 20)
@@ -732,7 +735,7 @@ function chach.NewsWindow(Scroll, list, callback)
 	icon.Image = chach.Icons.fa_rr_information -- ícone de info
 	icon.Parent = topBar
 
-	
+
 	local imput_btn = Instance.new("TextButton")
 	imput_btn.Size = UDim2.new(1, 0, 1, 0)
 	imput_btn.BackgroundTransparency = 1
@@ -877,15 +880,15 @@ function chach.CreateButton(Scroll, list, callback)
 
 	local originalSize = button.Size
 
-button.MouseButton1Click:Connect(function()
-    local pressTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = originalSize - UDim2.new(0,2,0,2)})
-    local releaseTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = originalSize})
-    pressTween:Play()
-    pressTween.Completed:Wait()
-    releaseTween:Play()
+	button.MouseButton1Click:Connect(function()
+		local pressTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = originalSize - UDim2.new(0,2,0,2)})
+		local releaseTween = TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = originalSize})
+		pressTween:Play()
+		pressTween.Completed:Wait()
+		releaseTween:Play()
 
-    if callback then callback() end
-end)
+		if callback then callback() end
+	end)
 
 	return button
 end
@@ -1022,7 +1025,7 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 		end
 
 	}
-	
+
 end
 
 
@@ -1092,7 +1095,7 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 			if callback then callback(toggled) end
 		end
 
-		
+
 	}
 end
 
@@ -1211,7 +1214,7 @@ function chach.CreateSliderOption(Scroll, list, callback)
 	local current = options[index]
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1,0,0,45)
+	frame.Size =  list.Size_Frame or UDim2.new(1,0,0,45)
 	frame.BackgroundTransparency = 1
 	frame.Parent = Scroll
 
@@ -1300,7 +1303,7 @@ end
 
 function chach.CreateSelectorOpitions(Scroll, list, callback)
 	local type_lb = list.Type or "Nil"
-    local Auto_Translate = list.Translate or false
+	local Auto_Translate = list.Translate or false
 	-- Frame principal
 	local frame = Instance.new("Frame")
 	frame.Size = list.Size_Frame or UDim2.new(1,-10,0,30)
@@ -1396,7 +1399,7 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 		end
 		createButtons(newOptions)
 	end
-	
+
 	local function SetName(input)
 		title.Text = input
 	end
@@ -1527,7 +1530,7 @@ function chach.NotificationPerson(Gui, list, callback)
 	local icon = dt_Icons[list.Icon] or list.Icon or ""
 	local memory = list.Casch or {}
 	local sound = list.Sound or ""
-	
+
 
 	chach.ActiveNotifications = chach.ActiveNotifications or {}
 	local baseY = -120
@@ -1792,8 +1795,6 @@ function chach.NotificationDialog(Gui, list, callback)
 end
 
 
-
-
 function chach.Notifications(Gui, list, callback)
 	local StarterGui = game:GetService("StarterGui")
 
@@ -1832,65 +1833,98 @@ end
 
 function chach.CreditsUi(Scroll, list, callback)
 	local Mod = chach.Mod_UI
-	local Name = list.Name or "Adrian75556435"
+	local Name = list.Name or "Unknown"
 	local alignment = list.Alignment or "Left" -- string: "Left", "Center", "Right"
 	local textsAlignment = list.Alignment_Texts or "Left"
-
-
-
+	local Msg = list.Mensagem or nil
+	
+	local Height = list.Height or 300
+	local ShowClose = list.ShowClose ~= false
+	local AutoUpdate = list.AutoUpdate or false
+	local Padding = list.Padding or 10
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, -10, 0, 300)
+	frame.Size = list.Size_Frame or UDim2.new(1, -10, 0, Height)
 	frame.BackgroundColor3 = chach.Colors.Secondary
 	frame.BorderSizePixel = 0
-	frame.Parent = Scroll
-	frame.AnchorPoint = Vector2.new(0.5, 0.5)
-	frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	
-    chach.applyCorner(frame)
+	frame.Parent = Scroll
+
+	local Centered = list.Centered or false
+
+	if Centered then
+		frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	else
+		frame.AnchorPoint = Vector2.new(0, 0)
+		frame.Position = UDim2.new(0, 5, 0, 0)
+	end
+
+
+	chach.applyCorner(frame)
 
 	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, -20, 0, 30)
-	title.Position = UDim2.new(0, 10, 0, 10)
+	title.Size = UDim2.new(1, -Padding*2, 0, 30)
+	title.Position = UDim2.new(0, Padding, 0, Padding)
 	title.BackgroundTransparency = 1
-	title.Text = "Credits"
+	title.Text = list.TitleText or "Credits"
 	title.Font = Enum.Font.SourceSansBold
-	title.TextSize = 18
-	title.TextColor3 = chach.Colors.Accent
+	title.TextSize = list.TitleSize or 18
+	title.TextColor3 = chach.Colors[list.TitleColor] or chach.Colors.Accent
 	title.TextXAlignment = Enum.TextXAlignment[alignment]
 	title.Parent = frame
-
+	
+	
 	local info = Instance.new("TextLabel")
-	info.Size = UDim2.new(1, -20, 1, -50)
-	info.Position = UDim2.new(0, 10, 0, 40)
+	info.Size = UDim2.new(1, -Padding*2, 1, -(Padding*4))
+	info.Position = UDim2.new(0, Padding, 0, Padding + 30)
 	info.BackgroundTransparency = 1
 	info.TextWrapped = true
 	info.TextColor3 = chach.Colors.Text
 	info.Font = Enum.Font.SourceSans
-	info.TextSize = 14
+	info.TextSize = list.TextSize or 14
 	info.TextXAlignment = Enum.TextXAlignment[textsAlignment]
 	info.Parent = frame
+	
 
 	-- Função para atualizar os textos dinamicamente
 	local function UpdateCredits()
-		info.Text = string.format(
-			"Mod Name: %s\nDescription: %s\nVersion: %s\nAuthor: %s\nDate: %s\nCreated: %s\nLast Update: %s\nSpecial Thanks: %s \nNotes: %s",
-			Mod.name, Mod.desc, Mod.ver, Mod.by, os.date("%d/%m/%Y %H:%M:%S"), Mod.creat, Mod.verdate, Name, Mod.text_obs
-		)
+		
+		if Msg then
+			info.Text = Msg
+		else
+			info.Text = string.format(
+				"Mod Name: %s\nDescription: %s\nVersion: %s\nAuthor: %s\n" ..
+					"Date: %s\nCreated: %s\nLast Update: %s\n" ..
+					"Contributors: %s\nTesters: %s\n\nNotes:\n%s",
+				Mod.name,
+				Mod.desc,
+				Mod.ver,
+				Mod.by,
+				os.date("%d/%m/%Y %H:%M:%S"),
+				Mod.creat,
+				Mod.verdate,
+				table.concat(Mod.contributors, ", "),
+				table.concat(Mod.testers, ", "),
+				Mod.text_obs
+			)
+
+		end
 	end
+
 
 	-- Atualiza ao criar
 	UpdateCredits()
 
-	-- Mantém sempre atualizado a cada 1 segundo
-	local RunService = game:GetService("RunService")
-	local conn
-	conn = RunService.RenderStepped:Connect(function()
-		UpdateCredits()
-		if not frame.Parent then
-			conn:Disconnect()
-		end
-	end)
+	if AutoUpdate then
+		task.spawn(function()
+			while frame.Parent do
+				UpdateCredits()
+				task.wait(1)
+			end
+		end)
+	end
+	
 
 	local closeButton = Instance.new("TextButton")
 	closeButton.Size = UDim2.new(0, 25, 0, 25)
@@ -1902,15 +1936,17 @@ function chach.CreditsUi(Scroll, list, callback)
 	closeButton.TextSize = 18
 	closeButton.Parent = frame
 
-	closeButton.MouseButton1Click:Connect(function()
-		frame:Destroy()
-		if callback then callback() end
-	end)
+	if ShowClose then
+		closeButton.MouseButton1Click:Connect(function()
+			frame:Destroy()
+			if callback then callback() end
+		end)
+	else
+		closeButton.Visible = false
+	end
 
 	return frame
 end
-
-
 
 
 
