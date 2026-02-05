@@ -354,12 +354,12 @@ function chach.TabsWindow(list)
 	tabContainer.Position = UDim2.new(0, 0, 0, 60)
 	tabContainer.BackgroundTransparency = 1
 	tabContainer.Parent = frame
-
+	local icon = list.Icon or (math.random(1, 2) == 1 and chach.Icons.fa_bx_adn or chach.Icons.fa_bx_adn2)
 	-- Cria o botão
 	local Icon_Btn = Instance.new("ImageButton")
 	Icon_Btn.Visible = false
 	Icon_Btn.Name = "Icon_Btn"
-	Icon_Btn.Image = local icon = list.Icon or (math.random(1, 2) == 1 and chach.Icons.fa_bx_adn or chach.Icons.fa_bx_adn2)
+	Icon_Btn.Image = icon
 	Icon_Btn.Size = UDim2.new(0, 50, 0, 50)
 	Icon_Btn.Position = UDim2.new(0.05, 0, 0.15, 0)
 	Icon_Btn.BackgroundTransparency = 1
