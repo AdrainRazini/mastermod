@@ -357,7 +357,7 @@ function chach.TabsWindow(list)
 	local Icon_Btn = Instance.new("ImageButton")
 	Icon_Btn.Visible = false
 	Icon_Btn.Name = "Icon_Btn"
-	Icon_Btn.Image = "rbxassetid://92271549956158"
+	Icon_Btn.Image = "rbxassetid://84566345409368"
 	Icon_Btn.Size = UDim2.new(0, 50, 0, 50)
 	Icon_Btn.Position = UDim2.new(0.05, 0, 0.15, 0)
 	Icon_Btn.BackgroundTransparency = 1
