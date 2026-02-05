@@ -62,6 +62,8 @@ local chach = {
 		fa_bx_looped_on = "rbxassetid://70539440255889",
 		fa_bx_looped_off = "rbxassetid://93825302122528",
 		fa_roblox_logo = "rbxassetid://78469189558823", -- loading Roblox
+		fa_bx_adn = "rbxassetid://120181810700514",  -- ADN MOD
+		fa_bx_adn2 = "rbxassetid://84566345409368"
 	},
 	Colors = {
 		Main = Color3.fromRGB(20, 20, 20),
@@ -286,7 +288,7 @@ function chach.TabsWindow(list)
 	screenGui.Parent = PlayerGui
 
 	-- Mantém a GUI mesmo quando o personagem morrer
-	screenGui.ResetOnSpawn = false  -- <--- essencial!
+	--screenGui.ResetOnSpawn = false  -- <--- essencial!
 
 	local frame = Instance.new("Frame")
 	frame.Size = list.Size or UDim2.new(0, 400, 0, 300)
@@ -357,7 +359,7 @@ function chach.TabsWindow(list)
 	local Icon_Btn = Instance.new("ImageButton")
 	Icon_Btn.Visible = false
 	Icon_Btn.Name = "Icon_Btn"
-	Icon_Btn.Image = "rbxassetid://84566345409368"
+	Icon_Btn.Image = local icon = list.Icon or (math.random(1, 2) == 1 and chach.Icons.fa_bx_adn or chach.Icons.fa_bx_adn2)
 	Icon_Btn.Size = UDim2.new(0, 50, 0, 50)
 	Icon_Btn.Position = UDim2.new(0.05, 0, 0.15, 0)
 	Icon_Btn.BackgroundTransparency = 1
@@ -701,7 +703,7 @@ function chach.NewsWindow(Scroll, list, callback)
 
 	-- Frame principal
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0, 300, 0, 200)
+	frame.Size = list.Size_Frame or UDim2.new(0, 300, 0, 200)
 	frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -793,7 +795,7 @@ function chach.CreateLabel(Scroll, list)
 	local color = c[list.Color] or Color3.fromRGB(255, 255, 255)
 
 	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, 0, 0, 25)
+	label.Size = list.Size or UDim2.new(1, 0, 0, 25)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = color
 	label.Text = text
@@ -809,39 +811,52 @@ function chach.CreateLabel(Scroll, list)
 end
 
 function chach.CreateImage(Scroll, list)
+	list = list or {}
+
+	local frameHeight = list.FrameHeight 
+		or (list.Size_Image and list.Size_Image.Y.Offset) 
+		or 50
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1, 0, 0, frameHeight)
+	frame.BackgroundTransparency = 1
+	frame.Parent = Scroll
+
 	local imageLabel = Instance.new("ImageLabel")
 	imageLabel.Name = list.Name or "ImageLabel"
 	imageLabel.Size = list.Size_Image or UDim2.new(0, 50, 0, 50)
-	imageLabel.Position = list.Position or UDim2.new(0, 0, 0, 0)
-	imageLabel.AnchorPoint = list.AnchorPoint or Vector2.new(0, 0)
-	imageLabel.BackgroundTransparency = list.Transparence or 1
+	imageLabel.AnchorPoint = list.AnchorPoint or Vector2.new(0, 0.5)
+	imageLabel.Position = list.Position or UDim2.new(0, 10, 0.5, 0)
+	imageLabel.BackgroundTransparency = list.Transparency or list.Transparence or 1
 	imageLabel.Image = list.Id_Image or ""
-	imageLabel.Parent = Scroll
+	imageLabel.ScaleType = list.ScaleType or Enum.ScaleType.Fit
+	imageLabel.ImageColor3 = list.Color or Color3.new(1,1,1)
+	imageLabel.Parent = frame
 
-	-- Aplica alinhamento
-	if list.Alignment == "Center" then
+	-- Alignment
+	local align = (list.Alignment or "Left"):lower()
+
+	if align == "center" then
 		imageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
 		imageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
-	elseif list.Alignment == "Right" then
+	elseif align == "right" then
 		imageLabel.AnchorPoint = Vector2.new(1, 0.5)
-		imageLabel.Position = UDim2.new(1, -10, 0.5, 0) -- -10 para dar uma margem
-	elseif list.Alignment == "Left" then
-		imageLabel.AnchorPoint = Vector2.new(0, 0.5)
-		imageLabel.Position = UDim2.new(0, 10, 0.5, 0) -- 10 de margem
-	elseif list.Alignment == "End" then -- BottomRight
+		imageLabel.Position = UDim2.new(1, -10, 0.5, 0)
+	elseif align == "end" then
 		imageLabel.AnchorPoint = Vector2.new(1, 1)
 		imageLabel.Position = UDim2.new(1, -10, 1, -10)
 	end
 
-	-- Aplica cantos arredondados se desejar
+	-- Corner
 	if list.Corner then
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = list.Corner
 		corner.Parent = imageLabel
 	end
 
-	return imageLabel
+	return imageLabel, frame
 end
+
 
 
 
@@ -956,7 +971,7 @@ function chach.CreateCheckboxe(Scroll, list, callback)
 
 	-- Container
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1,0,0,25)
+	frame.Size = list.Size_Frame or UDim2.new(1,-10,0,25)
 	frame.BackgroundTransparency = 1
 	frame.Parent = Scroll
 
@@ -1035,7 +1050,7 @@ function chach.CreateToggleboxe(Scroll, list, callback)
 	local color = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1,0,0,25)
+	frame.Size = list.Size_Frame or UDim2.new(1,-10,0,25)
 	frame.BackgroundTransparency = 1
 	frame.Parent = Scroll
 
@@ -1101,97 +1116,113 @@ end
 
 -- Slider (Float)
 function chach.CreateSliderFloat(Scroll, list, callback)
+	list = list or {}
+
 	local text = list.Text or "Slider"
 	local color = chach.Colors[list.Color] or Color3.fromRGB(255,255,255)
 
 	local min = list.Minimum or 0
 	local max = list.Maximum or 1
-	local value = list.Value or min
+	local range = math.max(max - min, 0.0001)
+
+	local value = math.clamp(list.Value or min, min, max)
+
+	local precision = list.Precision or 2
+	local factor = 10 ^ precision
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1,0,0,45)
+	frame.Size = list.Size_Frame or UDim2.new(1, -10, 0, 45)
 	frame.BackgroundTransparency = 1
 	frame.Parent = Scroll
 
 	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1,0,0,20)
+	label.Size = UDim2.new(1, 0, 0, 20)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = color
-	label.Text = text .. ": " .. tostring(value)
 	label.Font = Enum.Font.SourceSans
 	label.TextSize = 18
-	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.TextXAlignment = Enum.TextXAlignment[list.TextXAlignment or "Left"] or Enum.TextXAlignment.Left
 	label.Parent = frame
 
 	local bar = Instance.new("Frame")
-	bar.Size = UDim2.new(1,-20,0,8)
-	bar.Position = UDim2.new(0,10,0,30)
-	bar.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	bar.Size = UDim2.new(1, -20, 0, 8)
+	bar.Position = UDim2.new(0, 10, 0, 30)
+	bar.BackgroundColor3 = chach.Colors[list.BGColor] or Color3.fromRGB(60, 60, 60)
 	bar.BorderSizePixel = 0
 	bar.Parent = frame
 	chach.applyCorner(bar)
 
 	local fill = Instance.new("Frame")
-	fill.Size = UDim2.new((value-min)/(max-min),0,1,0)
-	fill.BackgroundColor3 = Color3.fromRGB(0,170,255)
+	fill.BackgroundColor3 = chach.Colors[list.FillColor] or Color3.fromRGB(0, 170, 255)
 	fill.BorderSizePixel = 0
 	fill.Parent = bar
 	chach.applyCorner(fill)
 
 	local knob = Instance.new("Frame")
-	knob.Size = UDim2.new(0,12,0,12)
-	knob.Position = UDim2.new((value-min)/(max-min),0,0.5,0)
-	knob.AnchorPoint = Vector2.new(0.5,0.5)
-	knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
+	knob.Size = UDim2.new(0, 12, 0, 12)
+	knob.AnchorPoint = Vector2.new(0.5, 0.5)
+	knob.BackgroundColor3 = chach.Colors[list.KnobColor] or Color3.fromRGB(255, 255, 255)
 	knob.BorderSizePixel = 0
 	knob.Parent = bar
 	chach.applyCorner(knob)
 
 	local uis = game:GetService("UserInputService")
 	local dragging = false
+	local moveConn, endConn
 
-	local function update(inputX)
-		local relative = math.clamp((inputX - bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
-		value = math.floor((min + (max-min)*relative)*100)/100
-		fill.Size = UDim2.new(relative,0,1,0)
-		knob.Position = UDim2.new(relative,0,0.5,0)
-		label.Text = text .. ": " .. tostring(value)
+	local function setVisual(relative)
+		fill.Size = UDim2.new(relative, 0, 1, 0)
+		knob.Position = UDim2.new(relative, 0, 0.5, 0)
+	end
+
+	local function updateFromX(x)
+		local relative = math.clamp((x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+		value = min + range * relative
+		value = math.floor(value * factor) / factor
+		setVisual(relative)
+		label.Text = string.format("%s: %s", text, value)
 		if callback then callback(value) end
 	end
 
-	local function dragStart(input)
+	local function refresh()
+		local relative = (value - min) / range
+		setVisual(relative)
+		label.Text = string.format("%s: %s", text, value)
+	end
+
+	knob.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
+			moveConn = uis.InputChanged:Connect(function(i)
+				if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+					updateFromX(i.Position.X)
+				end
+			end)
+			endConn = uis.InputEnded:Connect(function(i)
+				if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+					dragging = false
+					if moveConn then moveConn:Disconnect() end
+					if endConn then endConn:Disconnect() end
+				end
+			end)
 		end
-	end
+	end)
 
-	local function dragEnd(input)
+	bar.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = false
+			updateFromX(input.Position.X)
 		end
-	end
+	end)
 
-	local function dragMove(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			update(input.Position.X)
-		end
-	end
-
-	knob.InputBegan:Connect(dragStart)
-	uis.InputEnded:Connect(dragEnd)
-	uis.InputChanged:Connect(dragMove)
-	bar.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then update(input.Position.X) end end)
+	refresh()
 
 	return {
 		Frame = frame,
 		Label = label,
 		Get = function() return value end,
-		Set = function(val)
-			value = math.clamp(val,min,max)
-			local relative = (value-min)/(max-min)
-			fill.Size = UDim2.new(relative,0,1,0)
-			knob.Position = UDim2.new(relative,0,0.5,0)
-			label.Text = text .. ": " .. tostring(value)
+		Set = function(v)
+			value = math.clamp(v, min, max)
+			refresh()
 		end
 	}
 end
