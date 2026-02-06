@@ -288,7 +288,7 @@ function chach.TabsWindow(list)
 	screenGui.Parent = PlayerGui
 
 	-- Mantém a GUI mesmo quando o personagem morrer
-	--screenGui.ResetOnSpawn = false  -- <--- essencial!
+	screenGui.ResetOnSpawn = false  -- <--- essencial!
 
 	local frame = Instance.new("Frame")
 	frame.Size = list.Size or UDim2.new(0, 400, 0, 300)
