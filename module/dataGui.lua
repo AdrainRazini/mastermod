@@ -106,7 +106,7 @@ local chach = {
 	Mod_UI = {
 		name = "Mod_Gui(Md)",
 		by = "Adrian75556435",
-		ver = "1.5.0",
+		ver = "1.7.0",
 		Adaptation = "Mode Menu for Game Script",
 		contributors = {
 			"@Nil",
@@ -117,7 +117,7 @@ local chach = {
 		desc = "Mod Gui",
 		date = os.date(),
 		auth = "Adrian75556435",
-		verdate = "05/02/2026",
+		verdate = "27/02/2026",
 		creat = "15/09/2025",
 		text_obs = "• This UI library was created by @Adrian75556435 Thanks \n• Owner Of Script: @Adrian75556435 \n• Script & Management By: @Adrian75556435",
 	}
@@ -291,6 +291,7 @@ function chach.TabsWindow(list)
 	screenGui.ResetOnSpawn = false  -- <--- essencial!
 
 	local frame = Instance.new("Frame")
+	frame.Name = "Window"
 	frame.Size = list.Size or UDim2.new(0, 400, 0, 300)
 	frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	frame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -300,6 +301,7 @@ function chach.TabsWindow(list)
 
 	-- Top bar
 	local top_frame = Instance.new("Frame")
+	top_frame.Name = "Top_frame"
 	top_frame.Size = UDim2.new(1, 0, 0, 30)
 	top_frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 	top_frame.Parent = frame
@@ -313,6 +315,7 @@ function chach.TabsWindow(list)
 	chach.applyDraggable(frame, imput_btn)
 
 	local title = Instance.new("TextLabel")
+	title.Name = "Title"
 	title.Size = UDim2.new(1, -40, 1, 0)
 	title.AnchorPoint = Vector2.new(0.5, 0.5)
 	title.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -322,6 +325,7 @@ function chach.TabsWindow(list)
 	title.Parent = top_frame
 
 	local Btn_On_Off = Instance.new("ImageButton")
+	Btn_On_Off.Name = "Btn_On_Off"
 	Btn_On_Off.Image = chach.Icons.fa_bx_right_arrow
 	Btn_On_Off.Size = UDim2.new(0, 20, 0, 20)
 	Btn_On_Off.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -333,6 +337,7 @@ function chach.TabsWindow(list)
 
 	-- Top Tabs
 	local top_Tabs = Instance.new("ScrollingFrame")
+	top_Tabs.Name = "Navegation"
 	top_Tabs.Size = UDim2.new(1, 0, 0, 30)
 	top_Tabs.Position = UDim2.new(0, 0, 0, 30)
 	top_Tabs.BackgroundTransparency = 1
@@ -350,6 +355,7 @@ function chach.TabsWindow(list)
 	end)
 
 	local tabContainer = Instance.new("Frame")
+	tabContainer.Name = "Container"
 	tabContainer.Size = UDim2.new(1, 0, 1, -60)
 	tabContainer.Position = UDim2.new(0, 0, 0, 60)
 	tabContainer.BackgroundTransparency = 1
@@ -549,6 +555,7 @@ function chach.CreateTab(window, list)
 	local container = window.TabContainer
 
 	local tabFrame = Instance.new("Frame")
+	tabFrame.Name = tabName .."_Frame"
 	tabFrame.Size = UDim2.new(1, 0, 1, 0)
 	tabFrame.BackgroundTransparency = 1
 	tabFrame.Visible = false
@@ -564,6 +571,7 @@ function chach.CreateTab(window, list)
 	chach.applyAutoScrolling(scroll)
 
 	local btn = Instance.new("TextButton")
+	btn.Name = tabName .."_Button"
 	btn.Size = UDim2.new(0, 80, 1, 0)
 	btn.AnchorPoint = Vector2.new(0, 0) -- esquerda superior
 	btn.Text = tabName
@@ -795,6 +803,7 @@ function chach.CreateLabel(Scroll, list)
 	local color = c[list.Color] or Color3.fromRGB(255, 255, 255)
 
 	local label = Instance.new("TextLabel")
+	label.Name = "Text_Lb"
 	label.Size = list.Size or UDim2.new(1, 0, 0, 25)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = color
@@ -1335,9 +1344,15 @@ end
 function chach.CreateSelectorOpitions(Scroll, list, callback)
 	local type_lb = list.Type or "Nil"
 	local Auto_Translate = list.Translate or false
+	local Max_Options = list.Max_Options or 100
+	local ItemsPerPage = list.ItemsPerPage or 5
+	local CurrentPage = 1
+	local TotalPages = math.ceil(#list.Options / ItemsPerPage)
+	
+	
 	-- Frame principal
 	local frame = Instance.new("Frame")
-	frame.Size = list.Size_Frame or UDim2.new(1,-10,0,30)
+	frame.Size = list.Size_Frame or UDim2.new(1,-10,0,60)
 	frame.BackgroundColor3 = chach.Colors.Secondary or Color3.fromRGB(50,50,50)
 	frame.BorderSizePixel = 0
 	frame.Name = list.Name or "Selector"
@@ -1345,30 +1360,84 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 	chach.applyCorner(frame, UDim.new(0,8))
 	chach.applyUIStroke(frame, "Primary", 2)
 
+
+	 local layout_frame = Instance.new("UIListLayout")
+	 layout_frame.Parent = frame
+	 layout_frame.SortOrder = Enum.SortOrder.LayoutOrder
+	 layout_frame.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	 
 	-- Título
 	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1,0,0,30)
+	title.Size = UDim2.new(1,0,0,15)
 	title.BackgroundTransparency = 1
 	title.Text = list.Name .. " " .. type_lb
 	title.TextColor3 = Color3.fromRGB(255,255,255)
 	title.TextScaled = true
 	title.Font = Enum.Font.SourceSansBold
 	title.Parent = frame
+	title.LayoutOrder = 0
 
 	-- Container com scroll
 	local list_bt = Instance.new("ScrollingFrame")
 	list_bt.Size = UDim2.new(1,0,1,-30)
-	list_bt.Position = UDim2.new(0,0,0,30)
+	--list_bt.Position = UDim2.new(0,0,0,30)
 	list_bt.ScrollBarThickness = 6
 	list_bt.BackgroundTransparency = 1
 	list_bt.BorderSizePixel = 0
 	list_bt.Parent = frame
+	list_bt.LayoutOrder = 1
+	
+	-- Frame para os botões
+	local low_frame = Instance.new("Frame")
+	low_frame.Size = UDim2.new(1,0,0,15)
+	low_frame.BackgroundColor3 = chach.Colors.Secondary or Color3.fromRGB(50,50,50)
+	low_frame.BorderSizePixel = 0
+	low_frame.Parent = frame
+	low_frame.LayoutOrder = 2
+	
+	local low_layout = Instance.new("UIListLayout")
+	low_layout.FillDirection = Enum.FillDirection.Horizontal
+	low_layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	low_layout.VerticalAlignment = Enum.VerticalAlignment.Center
+	low_layout.Parent = low_frame
+	
+	local prevBtn = Instance.new("TextButton")
+	prevBtn.Size = UDim2.new(0,30,1,0)
+	prevBtn.Text = "<"
+	prevBtn.LayoutOrder = 1
+	prevBtn.Parent = low_frame
+	
+	local pageLabel = Instance.new("TextButton")
+	pageLabel.Size = UDim2.new(0,80,1,0)
+	pageLabel.TextColor3 = Color3.fromRGB(255,255,255)
+	pageLabel.BackgroundTransparency = 1
+	pageLabel.Text = CurrentPage .. " / " .. TotalPages
+	pageLabel.LayoutOrder = 2
+	pageLabel.Parent = low_frame
+	
+	local nextBtn = Instance.new("TextButton")
+	nextBtn.Size = UDim2.new(0,30,1,0)
+	nextBtn.Text = ">"
+	nextBtn.LayoutOrder = 3
+	nextBtn.Parent = low_frame
+
 
 	local layout = chach.applyAutoScrolling(list_bt, UDim.new(0,5), Enum.HorizontalAlignment.Center)
 	layout.Padding = UDim.new(0,5)
 
 	local selectedBtn = nil
-	local TweenService = game:GetService("TweenService")
+
+	local function getPageItems(page)
+		local startIndex = (page - 1) * ItemsPerPage + 1
+		local endIndex = math.min(page * ItemsPerPage, #list.Options)
+
+		local pageItems = {}
+		for i = startIndex, endIndex do
+			table.insert(pageItems, list.Options[i])
+		end
+
+		return pageItems
+	end
 
 	-- Função auxiliar para criar botões
 	local function createButtons(options)
@@ -1419,8 +1488,25 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 		end
 	end
 
+	prevBtn.MouseButton1Click:Connect(function()
+		if CurrentPage > 1 then
+			CurrentPage -= 1
+			createButtons(getPageItems(CurrentPage))
+			pageLabel.Text = CurrentPage .. " / " .. TotalPages
+		end
+	end)
+
+	nextBtn.MouseButton1Click:Connect(function()
+		if CurrentPage < TotalPages then
+			CurrentPage += 1
+			createButtons(getPageItems(CurrentPage))
+			pageLabel.Text = CurrentPage .. " / " .. TotalPages
+		end
+	end)
+	
 	-- Cria a lista inicial
-	createButtons(list.Options)
+	--createButtons(list.Options)
+	createButtons(getPageItems(CurrentPage))
 
 	-- Função Reset para recriar os botões com novos valores
 	local function Reset(newOptions)
@@ -1868,7 +1954,8 @@ function chach.CreditsUi(Scroll, list, callback)
 	local alignment = list.Alignment or "Left" -- string: "Left", "Center", "Right"
 	local textsAlignment = list.Alignment_Texts or "Left"
 	local Msg = list.Mensagem or nil
-	
+	local Auto_Translate = list.Translate or false
+
 	local Height = list.Height or 300
 	local ShowClose = list.ShowClose ~= false
 	local AutoUpdate = list.AutoUpdate or false
@@ -1878,7 +1965,7 @@ function chach.CreditsUi(Scroll, list, callback)
 	frame.Size = list.Size_Frame or UDim2.new(1, -10, 0, Height)
 	frame.BackgroundColor3 = chach.Colors.Secondary
 	frame.BorderSizePixel = 0
-	
+
 	frame.Parent = Scroll
 
 	local Centered = list.Centered or false
@@ -1904,9 +1991,10 @@ function chach.CreditsUi(Scroll, list, callback)
 	title.TextColor3 = chach.Colors[list.TitleColor] or chach.Colors.Accent
 	title.TextXAlignment = Enum.TextXAlignment[alignment]
 	title.Parent = frame
-	
-	
+
+
 	local info = Instance.new("TextLabel")
+	info.Name = Auto_Translate and "Translate_On" or "Translate_Off"
 	info.Size = UDim2.new(1, -Padding*2, 1, -(Padding*4))
 	info.Position = UDim2.new(0, Padding, 0, Padding + 30)
 	info.BackgroundTransparency = 1
@@ -1916,11 +2004,11 @@ function chach.CreditsUi(Scroll, list, callback)
 	info.TextSize = list.TextSize or 14
 	info.TextXAlignment = Enum.TextXAlignment[textsAlignment]
 	info.Parent = frame
-	
+
 
 	-- Função para atualizar os textos dinamicamente
 	local function UpdateCredits()
-		
+
 		if Msg then
 			info.Text = Msg
 		else
@@ -1955,7 +2043,7 @@ function chach.CreditsUi(Scroll, list, callback)
 			end
 		end)
 	end
-	
+
 
 	local closeButton = Instance.new("TextButton")
 	closeButton.Size = UDim2.new(0, 25, 0, 25)
