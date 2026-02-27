@@ -1347,8 +1347,7 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 	local Max_Options = list.Max_Options or 100
 	local ItemsPerPage = list.ItemsPerPage or 5
 	local CurrentPage = 1
-	local TotalPages = math.ceil(#list.Options / ItemsPerPage)
-	
+	local TotalPages = math.max(1, math.ceil(#list.Options / ItemsPerPage))
 	
 	-- Frame principal
 	local frame = Instance.new("Frame")
@@ -1487,12 +1486,27 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 			end)
 		end
 	end
+	
+	local function updateNavState()
+		pageLabel.Text = string.format("%d / %d", CurrentPage, TotalPages)
+
+		local isFirst = CurrentPage <= 1
+		local isLast = CurrentPage >= TotalPages
+
+		prevBtn.Active = not isFirst
+		prevBtn.AutoButtonColor = not isFirst
+		prevBtn.BackgroundTransparency = isFirst and 0.5 or 0
+
+		nextBtn.Active = not isLast
+		nextBtn.AutoButtonColor = not isLast
+		nextBtn.BackgroundTransparency = isLast and 0.5 or 0
+	end
 
 	prevBtn.MouseButton1Click:Connect(function()
 		if CurrentPage > 1 then
 			CurrentPage -= 1
 			createButtons(getPageItems(CurrentPage))
-			pageLabel.Text = CurrentPage .. " / " .. TotalPages
+			updateNavState()
 		end
 	end)
 
@@ -1500,13 +1514,13 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 		if CurrentPage < TotalPages then
 			CurrentPage += 1
 			createButtons(getPageItems(CurrentPage))
-			pageLabel.Text = CurrentPage .. " / " .. TotalPages
+			updateNavState()
 		end
 	end)
 	
 	-- Cria a lista inicial
-	--createButtons(list.Options)
 	createButtons(getPageItems(CurrentPage))
+	updateNavState()
 
 	-- Função Reset para recriar os botões com novos valores
 	local function Reset(newOptions)
