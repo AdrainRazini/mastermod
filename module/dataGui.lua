@@ -1514,7 +1514,13 @@ function chach.CreateSelectorOpitions(Scroll, list, callback)
 			warn("Reset espera uma tabela de opções!")
 			return
 		end
-		createButtons(newOptions)
+
+		list.Options = newOptions
+		TotalPages = math.max(1, math.ceil(#list.Options / ItemsPerPage))
+		CurrentPage = 1
+
+		createButtons(getPageItems(CurrentPage))
+		updateNavState()
 	end
 
 	local function SetName(input)
