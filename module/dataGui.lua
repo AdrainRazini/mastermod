@@ -298,6 +298,8 @@ function chach.TabsWindow(list)
 	frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	frame.BackgroundTransparency = 0.2
 	frame.Parent = screenGui
+	
+	
 
 	-- Top bar
 	local top_frame = Instance.new("Frame")
@@ -308,6 +310,7 @@ function chach.TabsWindow(list)
 	chach.applyCorner(top_frame)
 
 	local imput_btn = Instance.new("TextButton")
+	imput_btn.Name = "imput_btn"
 	imput_btn.Size = UDim2.new(1, 0, 1, 0)
 	imput_btn.BackgroundTransparency = 1
 	imput_btn.Text = ""
